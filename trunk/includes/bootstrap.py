@@ -630,11 +630,11 @@ def check_plain(text):
 
 #
 # Checks whether a string is valid UTF-8.
- *
+#
 # All functions designed to filter input should use drupal_validate_utf8
 # to ensure they operate on valid UTF-8 strings to prevent bypass of the
 # filter.
- *
+#
 # When text containing an invalid UTF-8 lead byte (0xC0 - 0xFF) is presented
 # as UTF-8 to Internet Explorer 6, the program may misinterpret subsequent
 # bytes. When these subsequent bytes are HTML control characters such as
@@ -642,55 +642,49 @@ def check_plain(text):
 # end up in locations that are potentially unsafe; An onerror attribute that
 # is outside of a tag, and thus deemed safe by a filter, can be interpreted
 # by the browser as if it were inside the tag.
- *
+#
 # This def exploits preg_match behaviour (since PHP 4.3.5) when used
 # with the u modifier, as a fast way to find invalid UTF-8. When the matched
 # string contains an invalid byte sequence, it will fail silently.
- *
+#
 # preg_match may not fail on 4 and 5 octet sequences, even though they
 # are not supported by the specification.
- *
+#
 # The specific preg_match behaviour is present since PHP 4.3.5.
- *
+#
 # @param text
 #   The text to check.
 # @return
 #   TRUE if the text is valid UTF-8, FALSE if not.
 #
-def drupal_validate_utf8(text) {
-  if (strlen(text) == 0) {
-    return TRUE;
-  }
+def drupal_validate_utf8(text):
+  if (strlen(text) == 0):
+    return True;
   return (preg_match('/^./us', text) == 1);
-}
+
+
 
 #
 # Since _SERVER['REQUEST_URI'] is only available on Apache, we
 # generate an equivalent using other environment variables.
 #
-def request_uri() {
-
-  if (isset(_SERVER['REQUEST_URI'])) {
+def request_uri():
+  if (isset(_SERVER, 'REQUEST_URI')):
     uri = _SERVER['REQUEST_URI'];
-  }
-  else {
-    if (isset(_SERVER['argv'])) {
-      uri = _SERVER['SCRIPT_NAME'] .'?'. _SERVER['argv'][0];
-    }
-    elseif (isset(_SERVER['QUERY_STRING'])) {
-      uri = _SERVER['SCRIPT_NAME'] .'?'. _SERVER['QUERY_STRING'];
-    }
-    else {
+  else:
+    if (isset(_SERVER, 'argv')):
+      uri = _SERVER['SCRIPT_NAME'] + '?' + _SERVER['argv'][0];
+    elif (isset(_SERVER, 'QUERY_STRING')):
+      uri = _SERVER['SCRIPT_NAME'] + '?' + _SERVER['QUERY_STRING'];
+    else:
       uri = _SERVER['SCRIPT_NAME'];
-    }
-  }
-
   return uri;
-}
+
+
 
 #
 # Log a system message.
- *
+#
 # @param type
 #   The category to which this message belongs.
 # @param message
@@ -705,38 +699,35 @@ def request_uri() {
 #   The severity of the message, as per RFC 3164
 # @param link
 #   A link to associate with the message.
- *
+#
 # @see watchdog_severity_levels()
 #
-def watchdog(type, message, variables = array(), severity = WATCHDOG_NOTICE, link = NULL) {
-  global user, base_root;
-
+def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, link = None):
   # Prepare the fields to be logged
-  log_message = array(
-    'type'        => type,
-    'message'     => message,
-    'variables'   => variables,
-    'severity'    => severity,
-    'link'        => link,
-    'user'        => user,
-    'request_uri' => base_root . request_uri(),
-    'referer'     => referer_uri(),
-    'ip'          => ip_address(),
-    'timestamp'   => time(),
-    );
-
-  # Call the logging hooks to log/process the message
-  foreach (module_implements('watchdog', TRUE) as module) {
-    module_invoke(module, 'watchdog', log_message);
+  log_message = {
+    'type'        : type,
+    'message'     : message,
+    'variables'   : variables,
+    'severity'    : severity,
+    'link'        : link,
+    'user'        : user,
+    'request_uri' : base_root . request_uri(),
+    'referer'     : referer_uri(),
+    'ip'          : ip_address(),
+    'timestamp'   : do_time(),
   }
-}
+  # Call the logging hooks to log/process the message
+  for module in module_implements('watchdog', True):
+    module_invoke(module, 'watchdog', log_message);
+
+
 
 #
 # Set a message which reflects the status of the performed operation.
- *
+#
 # If the def is called with no arguments, this def returns all set
 # messages without clearing them.
- *
+#
 # @param message
 #   The message should begin with a capital letter and always ends with a
 #   period '.'.
@@ -749,24 +740,18 @@ def watchdog(type, message, variables = array(), severity = WATCHDOG_NOTICE, lin
 #   If this is FALSE and the message is already set, then the message won't
 #   be repeated.
 #
-def drupal_set_message(message = NULL, type = 'status', repeat = TRUE) {
-  if (message) {
-    if (!isset(_SESSION['messages'])) {
-      _SESSION['messages'] = array();
-    }
-
-    if (!isset(_SESSION['messages'][type])) {
-      _SESSION['messages'][type] = array();
-    }
-
-    if (repeat || !in_array(message, _SESSION['messages'][type])) {
-      _SESSION['messages'][type][] = message;
-    }
-  }
-
+def drupal_set_message(message = None, type = 'status', repeat = True):
+  if (message):
+    if (not isset(_SESSION, 'messages')):
+      _SESSION['messages'] = {};
+    if (not isset(_SESSION['messages'], type)):
+      _SESSION['messages'][type] = [];
+    if (repeat or not in_array(message, _SESSION['messages'][type])):
+      _SESSION['messages'][type].append( message );
   # messages not set when DB connection fails
-  return isset(_SESSION['messages']) ? _SESSION['messages'] : NULL;
-}
+  return  (_SESSION['messages'] if isset(_SESSION, 'messages') else None);
+
+
 
 #
 # Return all messages that have been set.
