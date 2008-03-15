@@ -69,7 +69,7 @@ def array_merge(a1, a2):
 # @param Str,Int val
 # @param Bool searchGlobal  
 #
-def isset(obj, val, searchGlobal = False):
+def isset(obj, val, searchGlobal = False, data = {}):
   # Dict
   if isinstance(obj, dict):
     # Get globals also
@@ -77,13 +77,74 @@ def isset(obj, val, searchGlobal = False):
       sVal = array_merge(obj, globals())
     else:
       sVal = val
-    return obj.has_key(sVal)
+    if obj.has_key(sVal):
+      data['val'] = obj[sVal]
+      return True
+    else:
+      data['val'] = None
+      return False
   # List
   elif isinstance(obj, list):
-    return (val < len(obj))
+    if (val < len(obj)):
+      data['val'] = obj[val]
+      return True
+    else:
+      data['val'] = None
+      return False
   # Object
   elif isinstance(obj, object):
-    return hasattr(obj, val)
+    if hasattr(obj, val):
+      data['val'] = getattr(obj, val)
+      return True
+    else:
+      data['val'] = None
+      return False
+  # Others unknown
+  else:
+    return False
+
+
+
+#
+# Checks for empty
+# @param Any obj
+# @param Str val
+# @param Bool searchGlobal
+# @return Bool
+# 
+def empty(obj, val, searchGlobal = False):
+  set = isset(obj, val, searchGlobal, data)
+  # Not set
+  if not set:
+    return True
+  # Boolean
+  elif \
+      isinstance(data['val'], bool) and \
+      (data['val'] == False):
+    return True
+  # None
+  elif \
+      isinstance(data['val'], NoneType):
+    return True  
+  # Lists
+  elif \
+      isinstance(data['val'], list) or \
+      isinstance(data['val'], tuple) or \
+      isinstance(data['val'], dict):
+    return (len(data['val']) <= 0)
+  # Numbers
+  elif \
+      isinstance(data['val'], int) or \
+      isinstance(data['val'], float):
+    return (data['val'] <= 0)
+  # String
+  elif \
+      isinstance(data['val'], str):
+    return (data['val'].strip() == '')
+  # Anything else
+  else:
+    return False
+
 
 
 #
@@ -105,7 +166,7 @@ def implode(delim, items):
 #
 def array_slice(items, a1, a2 = None):
   if (a2 == None):
-    return items[a1]
+    return items[a1:]
   else:
     return items[a1:a2]
 
@@ -118,6 +179,14 @@ def array_slice(items, a1, a2 = None):
 def rtrim(val):
   return val.rstrip()
 
+
+#
+# L trim
+# @param Str val
+# @return Str
+#
+def ltrim(val):
+  return val.lstrip()
 
 #
 # Check file exists
@@ -181,9 +250,8 @@ def array_reverse(items):
 #
 # prepares pattern for python regex
 # @param Str pat
-# @return List
-# @returnprop Str 0
-# @returnprop Int 1
+# @return _sre.SRE_Pattern
+#    Regular Expression object
 #
 def preg_setup(pat):
   delim = pat[0]
@@ -201,7 +269,7 @@ def preg_setup(pat):
         flg = flg | (eval('re.' + pat[i].upper(), globals()))
         pat = pat[0:len(pat)-1]
         i = i - 1
-  return [pat, flg]
+  return re.compile(pat, flg)
 
 
 #
@@ -213,22 +281,112 @@ def preg_setup(pat):
 # @returnprop List match
 #
 def preg_match(pat, subject, match = {}):
-  (pat, flg) = preg_setup(pat)
-  g = list(re.match(pat, subject, flg).groups())
+  reg = preg_setup(pat)
+  g = list(reg.search(subject).groups())
   g.insert(0, ''.join(g))
   match['match'] = g
   return len(g)
 
 
-#def preg_replace(pat, replace, subject):
-#  (pat, flg) = preg_setup(pat)
-  
+#
+# preg_replace
+# @param Str pat
+# @param Str replace
+# @param Str subject
+# @return Str
+#
+def preg_replace(pat, replace, subject):
+  reg = preg_setup(pat)
+  return reg.sub(replace, subject)
+
+
+#
+# dir name
+# @param Str path
+# @return Str
+#
+def dirname(path):
+  return os.path.dirname(path)
+
+
+#
+# trim whitespace
+# @param Str val
+# @return Str
+#
+def trim(val):
+  return val.strip()
+
+
+#
+# Gets array count
+# @param List,Dict item
+# @return Int
+#
+def count(item):
+  return len(item)
+
+
+#
+# Determines whether or not is numeric
+# @param Any val
+# @return Bool
+#
+def is_numeric(val):
+  if \
+      isinstance(val, int) or \
+      isinstance(val, float):
+    return True
+  elif \
+      isinstance(val, str) and \
+      ValueError.isdigit():
+    return True
+  else:
+    return False
+
+
+#
+# Gets str pos
+# @param Str haystack
+# @param Str needle
+# @return Int,Bool
+#
+def strpos(haystack, needle):
+  pos = haystack.find(needle)
+  if pos < 0:
+    return False
+  else:
+    return pos
+
+
+#
+# Pretends to set an ini
+# Actually just sets a global
+# @param Str name
+# @param Str,Number,None,Bool val
+# @return Bool
+#
+def ini_set(name, val):
+  define(name.replace('.', '_'), val)
+  return True
+
+
+#
+# Sets session name
+# @param Str name
+# @return Bool
+#
+def session_name(name):
+  return True
+
+
 
 
 
 #
 # Set Aliases
 #
+sizeof = count
 static = define
 set_global = define
 require_once = include

@@ -293,7 +293,7 @@ def conf_init():
       base_path += '/';
     else:
       base_path = '/';
-  if (cookie_domain):
+  if (cookie_domain != None):
     # If the user specifies the cookie domain, also use it for session name.
     session_name = cookie_domain;
   else:
@@ -301,7 +301,7 @@ def conf_init():
     # to use the same session identifiers across http and https.
     (_dummy, session_name) = explode('://', base_url, 2);
     # We escape the hostname because it can be modified by a visitor.
-    if (not empty(_SERVER['HTTP_HOST'])):
+    if (not empty(_SERVER, 'HTTP_HOST')):
       cookie_domain = check_plain(_SERVER['HTTP_HOST']);
   # Strip leading periods, www., and port numbers from cookie domain.
   cookie_domain = ltrim(cookie_domain, '.');
@@ -321,19 +321,19 @@ def conf_init():
 # Returns and optionally sets the filename for a system item (module,
 # theme, etc.). The filename, whether provided, cached, or retrieved
 # from the database, is only returned if the file exists.
- *
+#
 # This def plays a key role in allowing Drupal's resources (modules
 # and themes) to be located in different places depending on a site's
 # configuration. For example, a module 'foo' may legally be be located
 # in any of these three places:
- *
+#
 # modules/foo/foo.module
 # sites/all/modules/foo/foo.module
 # sites/example.com/modules/foo/foo.module
- *
+#
 # Calling drupal_get_filename('module', 'foo') will give you one of
 # the above, depending on where the module is located.
- *
+#
 # @param type
 #   The type of the item (i.e. theme, theme_engine, module).
 # @param name
@@ -341,7 +341,7 @@ def conf_init():
 # @param filename
 #   The filename of the item if it is to be set explicitly rather
 #   than by consulting the database.
- *
+#
 # @return
 #   The filename of the requested item.
 #
