@@ -7,6 +7,7 @@ import re
 import pickle
 import hashlib
 import zlib
+import htmlentitydefs
 
 
 #
@@ -109,19 +110,48 @@ def isset(obj, val, searchGlobal = False, data = {}):
 
 
 #
-# Function exists
+# Get time
+# @return Int
+# 
+def do_time():
+  return time.time()
 
+
+#
+# In array
+# @param Str,Int val
+# @param List,Dict,Object obj
+# @return Bool
+#
+def in_array(val, obj):
+  return isset(obj, val)
+
+
+#
+# Function exists
+# @param Dict,List,Object obj
+# @param Str val
+# @return Bool
+#
 def function_exists(obj, val):
   return \
     (isset(obj, val, True) and isinstance(obj[val], function))
 
 
-def htmlspecialchars(val):
+#
+# html special chars
+# @param Str val
+# @return Str 
+#
+def htmlspecialchars(val, flags = None):
   out = ""
-  i = 0
-  _i = len(val)
-  while True:
-    pass;
+  for i in range(0, len(val)):
+    num = ord(unicode(val[i]))
+    if htmlentitydefs.codepoint2name.has_key(num):
+      out += "&%s;" % htmlentitydefs.codepoint2name[num]
+    else:
+      out += val[i]
+  return out
 
 
 #
