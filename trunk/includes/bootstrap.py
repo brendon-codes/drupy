@@ -528,7 +528,7 @@ def drupal_load(type, name):
 #
 def drupal_page_header():
   header("Expires: Sun, 19 Nov 1978 05:00:00 GMT");
-  header("Last-Modified: " + gmdate("D, d M Y H:i:s") + " GMT");
+  header("Last-Modified: " + gmdate("%D, %d %M %Y %H:%i:%s") + " GMT");
   header("Cache-Control: store, no-cache, must-revalidate");
   header("Cache-Control: post-check=0, pre-check=0", False);
 
@@ -543,98 +543,90 @@ def drupal_page_header():
 # logged out and the page has not been modified.
 #
 #
-def drupal_page_cache_header(cache) {
+def drupal_page_cache_header(cache):
   # Set default values:
-  last_modified = gmdate('D, d M Y H:i:s', cache->created) .' GMT';
-  etag = '"'. md5(last_modified) .'"';
-
+  last_modified = gmdate('D, d M Y H:i:s', cache.created) + ' GMT';
+  etag = '"' + do_md5(last_modified) + '"';
   # See if the client has provided the required HTTP headers:
-  if_modified_since = isset(_SERVER['HTTP_IF_MODIFIED_SINCE']) ? stripslashes(_SERVER['HTTP_IF_MODIFIED_SINCE']) : FALSE;
-  if_none_match = isset(_SERVER['HTTP_IF_NONE_MATCH']) ? stripslashes(_SERVER['HTTP_IF_NONE_MATCH']) : FALSE;
-
-  if (if_modified_since && if_none_match
-      && if_none_match == etag # etag must match
-      && if_modified_since == last_modified) {  # if-modified-since must match
+  if_modified_since =  (stripslashes(_SERVER['HTTP_IF_MODIFIED_SINCE']) \
+    if isset(_SERVER, 'HTTP_IF_MODIFIED_SINCE') else False);
+  if_none_match = (stripslashes(_SERVER['HTTP_IF_NONE_MATCH']) \
+    if isset(_SERVER, 'HTTP_IF_NONE_MATCH') else False);
+  if (if_modified_since and if_none_match
+      and if_none_match == etag # etag must match
+      and if_modified_since == last_modified):  # if-modified-since must match
     header('HTTP/1.1 304 Not Modified');
     # All 304 responses must send an etag if the 200 response for the same object contained an etag
-    header("Etag: etag");
+    header("Etag: %(etag)s" % {'etag':etag});
     exit();
-  }
-
   # Send appropriate response:
-  header("Last-Modified: last_modified");
-  header("ETag: etag");
-
+  header("Last-Modified: %(last_modified)s" % {'last_modified':last_modified});
+  header("Etag: %(etag)s" % {'etag':etag});
   # The following headers force validation of cache:
   header("Expires: Sun, 19 Nov 1978 05:00:00 GMT");
   header("Cache-Control: must-revalidate");
-
-  if (variable_get('page_compression', TRUE)) {
+  if (variable_get('page_compression', True)):
     # Determine if the browser accepts gzipped data.
-    if (@strpos(_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') === FALSE && function_exists('gzencode')) {
+    if (strpos(_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') == False and function_exists(locals(), 'gzencode')):
       # Strip the gzip header and run uncompress.
-      cache->data = gzinflate(substr(substr(cache->data, 10), 0, -8));
-    }
-    elseif (function_exists('gzencode')) {
+      cache.data = gzinflate(substr(substr(cache.data, 10), 0, -8));
+    elif (function_exists(locals(), 'gzencode')):
       header('Content-Encoding: gzip');
-    }
-  }
-
   # Send the original request's headers. We send them one after
   # another so PHP's header() def can deal with duplicate
   # headers.
-  headers = explode("\n", cache->headers);
-  foreach (headers as header) {
-    header(header);
-  }
+  headers = explode("\n", cache.headers);
+  for _header in headers:
+    header(_header);
+  print cache.data;
 
-  print cache->data;
-}
+
+
 
 #
 # Define the critical hooks that force modules to always be loaded.
 #
-def bootstrap_hooks() {
-  return array('boot', 'exit');
-}
+def bootstrap_hooks():
+  return ['boot', 'exit'];
+
+
 
 #
 # Unserializes and appends elements from a serialized string.
- *
+#
 # @param obj
 #   The object to which the elements are appended.
 # @param field
 #   The attribute of obj whose value should be unserialized.
 #
-def drupal_unpack(obj, field = 'data') {
-  if (obj->field && data = unserialize(obj->field)) {
-    foreach (data as key => value) {
-      if (!isset(obj->key)) {
-        obj->key = value;
-      }
-    }
-  }
+def drupal_unpack(obj, field = 'data'):
+  data = unserialize(obj.field);
+  if (obj.field and not empty(locals(), data)):
+    for key,value in data:
+      if (not isset(obj, key)):
+        setattr(obj, key, value);
   return obj;
-}
+
+
 
 #
 # Return the URI of the referring page.
 #
-def referer_uri() {
-  if (isset(_SERVER['HTTP_REFERER'])) {
+def referer_uri():
+  if (isset(_SERVER, 'HTTP_REFERER')):
     return _SERVER['HTTP_REFERER'];
-  }
-}
+
+
 
 #
 # Encode special characters in a plain-text string for display as HTML.
- *
+#
 # Uses drupal_validate_utf8 to prevent cross site scripting attacks on
 # Internet Explorer 6.
 #
-def check_plain(text) {
-  return drupal_validate_utf8(text) ? htmlspecialchars(text, ENT_QUOTES) : '';
-}
+def check_plain(text):
+  return (htmlspecialchars(text, ENT_QUOTES) if drupal_validate_utf8(text) else '');
+
 
 #
 # Checks whether a string is valid UTF-8.
