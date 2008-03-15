@@ -1,6 +1,8 @@
 import time
 import os
-from urlparse import urlparse
+import urlparse
+import copy
+import re
 
 
 #
@@ -141,6 +143,90 @@ def include(filename, scope = None):
 
 
 #
+# Parse url
+# @param url
+# @return Dict
+#
+def parse_url(url):
+  u = urlparse.urlparse(url)
+  return {
+    'scheme' : u[0],
+    'host' : u[1],
+    'path' : u[2],
+    'query' : u[4],
+    'fragment' : u[5]
+  }
+
+
+#
+# Get strlen
+# @param Str val
+# @return Int
+# 
+def strlen(val):
+  return len(val)
+
+
+#
+# Reverses list
+# @param List items
+# @return List
+#
+def array_reverse(items):
+  rItems = copy.deepcopy(items)
+  rItems.reverse()
+  return rItems
+
+
+#
+# prepares pattern for python regex
+# @param Str pat
+# @return List
+# @returnprop Str 0
+# @returnprop Int 1
+#
+def preg_setup(pat):
+  delim = pat[0]
+  flg = 0
+  pat = pat.lstrip(delim)
+  i = len(pat) - 1
+  while True:
+    if i < 1:
+      break
+    else:
+      if pat[i] == delim:
+        pat = pat[0:len(pat)-1]
+        break
+      else:
+        flg = flg | (eval('re.' + pat[i].upper(), globals()))
+        pat = pat[0:len(pat)-1]
+        i = i - 1
+  return [pat, flg]
+
+
+#
+# Convert PHP preg_match to Python matcher
+# @param Str pat
+# @param Str subject
+# @param Dict match
+# @return Dict
+# @returnprop List match
+#
+def preg_match(pat, subject, match = {}):
+  (pat, flg) = preg_setup(pat)
+  g = list(re.match(pat, subject, flg).groups())
+  g.insert(0, ''.join(g))
+  match['match'] = g
+  return len(g)
+
+
+#def preg_replace(pat, replace, subject):
+#  (pat, flg) = preg_setup(pat)
+  
+
+
+
+#
 # Set Aliases
 #
 static = define
@@ -148,6 +234,7 @@ set_global = define
 require_once = include
 require = include
 include_once = include
+substr = array_slice
 
 
 
