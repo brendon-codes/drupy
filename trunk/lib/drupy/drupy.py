@@ -503,8 +503,13 @@ def gzinflate(val):
 #
 def gzdeflate():
   return zlib.compress(val)
- 
-  
+
+
+#
+# Std class
+#
+class stdCLass: pass
+
 
 #
 # Set Aliases

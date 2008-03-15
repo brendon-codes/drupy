@@ -12,6 +12,10 @@ static('confpath_conf');
 static('drupalgetfilename_files');
 static('pagegetcache_status');
 static('drupalload_files');
+static('drupalbootstrap_phases');
+static('drupalbootstrap_phaseindex');
+static('gett_t');
+static('languagelist_languages');
 
 #
 # Global variables
@@ -25,6 +29,7 @@ set_gloabl('db_prefix');
 set_global('cookie_domain');
 set_global('installed_profile');
 set_global('update_free_access');
+set_global('language');
 
 
 #
@@ -755,7 +760,7 @@ def drupal_set_message(message = None, type = 'status', repeat = True):
 
 #
 # Return all messages that have been set.
- *
+#
 # @param type
 #   (optional) Only return messages of this type.
 # @param clear_queue
@@ -766,33 +771,29 @@ def drupal_set_message(message = None, type = 'status', repeat = True):
 #   or an empty array if there are no such messages. If type is not passed,
 #   all message types are returned, or an empty array if none exist.
 #
-def drupal_get_messages(type = NULL, clear_queue = TRUE) {
-  if (messages = drupal_set_message()) {
-    if (type) {
-      if (clear_queue) {
-        unset(_SESSION['messages'][type]);
-      }
-      if (isset(messages[type])) {
-        return array(type => messages[type]);
-      }
-    }
-    else {
-      if (clear_queue) {
-        unset(_SESSION['messages']);
-      }
+def drupal_get_messages(type = None, clear_queue = True):
+  messages = drupal_set_message();
+  if (not empty(locals(), 'messages')):
+    if (type != None and type != False):
+      if (clear_queue):
+        del(_SESSION['messages'][type]);
+      if (isset(messages, type)):
+        return {type : messages[type]};
+    else:
+      if (clear_queue):
+        del(_SESSION['messages']);
       return messages;
-    }
-  }
-  return array();
-}
+  return {};
+
+
 
 #
 # Perform an access check for a given mask and rule type. Rules are usually
 # created via admin/user/rules page.
- *
+#
 # If any allow rule matches, access is allowed. Otherwise, if any deny rule
 # matches, access is denied.  If no rule matches, access is allowed.
- *
+#
 # @param type string
 #   Type of access to check: Allowed values are:
 #     - 'host': host name or IP address
@@ -804,31 +805,35 @@ def drupal_get_messages(type = NULL, clear_queue = TRUE) {
 # @return bool
 #   TRUE if access is denied, FALSE if access is allowed.
 #
-def drupal_is_denied(type, mask) {
+def drupal_is_denied(type, mask):
   # Because this def is called for every page request, both cached
   # and non-cached pages, we tried to optimize it as much as possible.
   # We deny access if the only matching records in the {access} table have
   # status 0 (deny). If any have status 1 (allow), or if there are no
   # matching records, we allow access.
   sql = "SELECT 1 FROM {access} WHERE type = '%s' AND LOWER('%s') LIKE LOWER(mask) AND status = %d";
-  return db_result(db_query_range(sql, type, mask, 0, 0, 1)) && !db_result(db_query_range(sql, type, mask, 1, 0, 1));
-}
+  return ( \
+    db_result( db_query_range(sql, type, mask, 0, 0, 1) ) != False and \
+    db_result( db_query_range(sql, type, mask, 1, 0, 1) ) == False \
+  );
+
 
 #
 # Generates a default anonymous user object.
- *
+#
 # @return Object - the user object.
 #
-def drupal_anonymous_user(session = '') {
-  user = new stdClass();
-  user->uid = 0;
-  user->hostname = ip_address();
-  user->roles = array();
-  user->roles[DRUPAL_ANONYMOUS_RID] = 'anonymous user';
-  user->session = session;
-  user->cache = 0;
+def drupal_anonymous_user(session = ''):
+  user = stdClass();
+  user.uid = 0;
+  user.hostname = ip_address();
+  user.roles = {};
+  user.roles[DRUPAL_ANONYMOUS_RID] = 'anonymous user';
+  user.session = session;
+  user.cache = 0;
   return user;
-}
+
+
 
 #
 # A string describing a phase of Drupal to load. Each phase adds to the
@@ -836,7 +841,7 @@ def drupal_anonymous_user(session = '') {
 # phases too. The most important usage is that if you want to access the
 # Drupal database from a script without loading anything else, you can
 # include bootstrap.inc, and call drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE).
- *
+#
 # @param phase
 #   A constant. Allowed values are:
 #     DRUPAL_BOOTSTRAP_CONFIGURATION: initialize configuration.
@@ -850,203 +855,179 @@ def drupal_anonymous_user(session = '') {
 #     DRUPAL_BOOTSTRAP_PATH: set _GET['q'] to Drupal path of request.
 #     DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix input data.
 #
-def drupal_bootstrap(phase) {
-  static phases = array(DRUPAL_BOOTSTRAP_CONFIGURATION, DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE, DRUPAL_BOOTSTRAP_DATABASE, DRUPAL_BOOTSTRAP_ACCESS, DRUPAL_BOOTSTRAP_SESSION, DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE, DRUPAL_BOOTSTRAP_LANGUAGE, DRUPAL_BOOTSTRAP_PATH, DRUPAL_BOOTSTRAP_FULL), phase_index = 0;
-
-  while (phase >= phase_index && isset(phases[phase_index])) {
-    current_phase = phases[phase_index];
-    unset(phases[phase_index++]);
+def drupal_bootstrap(phase):
+  if (drupalbootstrap_phases == None):
+    drupalbootstrap_phases = [
+      DRUPAL_BOOTSTRAP_CONFIGURATION,
+      DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE,
+      DRUPAL_BOOTSTRAP_DATABASE,
+      DRUPAL_BOOTSTRAP_ACCESS,
+      DRUPAL_BOOTSTRAP_SESSION,
+      DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE,
+      DRUPAL_BOOTSTRAP_LANGUAGE,
+      DRUPAL_BOOTSTRAP_PATH,
+      DRUPAL_BOOTSTRAP_FULL
+    ]
+  if (drupalbootstrap_phaseindex == None):
+    drupalbootstrap_phaseindex = 0;
+  while ( \
+      phase >= drupalbootstrap_phaseindex and \
+      isset(drupalbootstrap_phases, drupalbootstrap_phaseindex)):
+    current_phase = drupalbootstrap_phases[drupalbootstrap_phaseindex];
+    drupalbootstrap_phaseindex = drupalbootstrap_phaseindex + 1;
+    del(drupalbootstrap_phases[drupalbootstrap_phaseindex]);
     _drupal_bootstrap(current_phase);
-  }
-}
 
-def _drupal_bootstrap(phase) {
-  global conf;
 
-  switch (phase) {
 
-    case DRUPAL_BOOTSTRAP_CONFIGURATION:
+def _drupal_bootstrap(phase):
+    if phase == DRUPAL_BOOTSTRAP_CONFIGURATION:
       drupal_unset_globals();
       # Start a page timer:
       timer_start('page');
       # Initialize the configuration
       conf_init();
-      break;
-
-    case DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE:
+    elif phase == DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE:
       # Allow specifying special cache handlers in settings.php, like
       # using memcached or files for storing cache information.
-      require_once variable_get('cache_inc', './includes/cache.inc');
+      require_once( variable_get('cache_inc', './includes/cache.inc'), locals() );
       # If the page_cache_fastpath is set to TRUE in settings.php and
       # page_cache_fastpath (implemented in the special implementation of
       # cache.inc) printed the page and indicated this with a returned TRUE
       # then we are done.
-      if (variable_get('page_cache_fastpath', FALSE) && page_cache_fastpath()) {
-        exit;
-      }
-      break;
-
-    case DRUPAL_BOOTSTRAP_DATABASE:
-      # Initialize the default database.
-      require_once './includes/database.inc';
-      db_set_active();
-      break;
-
-    case DRUPAL_BOOTSTRAP_ACCESS:
-      # Deny access to hosts which were banned - t() is not yet available.
-      if (drupal_is_denied('host', ip_address())) {
-        header('HTTP/1.1 403 Forbidden');
-        print 'Sorry, '. check_plain(ip_address()) .' has been banned.';
+      if (variable_get('page_cache_fastpath', False) and page_cache_fastpath()):
         exit();
-      }
-      break;
-
-    case DRUPAL_BOOTSTRAP_SESSION:
-      require_once variable_get('session_inc', './includes/session.inc');
+    elif phase == DRUPAL_BOOTSTRAP_DATABASE:
+      # Initialize the default database.
+      require_once('./includes/database.inc', locals());
+      db_set_active();
+    elif phase == DRUPAL_BOOTSTRAP_ACCESS:
+      # Deny access to hosts which were banned - t() is not yet available.
+      if (drupal_is_denied('host', ip_address())):
+        header('HTTP/1.1 403 Forbidden');
+        print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
+        exit();
+    elif phase == DRUPAL_BOOTSTRAP_SESSION:
+      require_once(variable_get('session_inc', './includes/session.inc'), locals());
       session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
       session_start();
-      break;
-
-    case DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
+    elif phase == DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
       # Initialize configuration variables, using values from settings.php if available.
-      conf = variable_init(isset(conf) ? conf : array());
+      confpath_conf = variable_init( ({} if (confpath_conf == None) else confpath_conf) );
       # Load module handling.
-      require_once './includes/module.inc';
+      require_once('./includes/module.inc', locals());
       cache_mode = variable_get('cache', CACHE_DISABLED);
       # Get the page from the cache.
-      cache = cache_mode == CACHE_DISABLED ? '' : page_get_cache();
+      cache =  ('' if (cache_mode == CACHE_DISABLED) else page_get_cache());
       # If the skipping of the bootstrap hooks is not enforced, call hook_boot.
-      if (cache_mode != CACHE_AGGRESSIVE) {
+      if (cache_mode != CACHE_AGGRESSIVE):
         bootstrap_invoke_all('boot');
-      }
       # If there is a cached page, display it.
-      if (cache) {
+      if (cache):
         drupal_page_cache_header(cache);
         # If the skipping of the bootstrap hooks is not enforced, call hook_exit.
-        if (cache_mode != CACHE_AGGRESSIVE) {
+        if (cache_mode != CACHE_AGGRESSIVE):
           bootstrap_invoke_all('exit');
-        }
         # We are done.
-        exit;
-      }
+        exit();
       # Prepare for non-cached page workflow.
       drupal_page_header();
-      break;
-
-    case DRUPAL_BOOTSTRAP_LANGUAGE:
+    elif phase == DRUPAL_BOOTSTRAP_LANGUAGE:
       drupal_init_language();
-      break;
-
-    case DRUPAL_BOOTSTRAP_PATH:
-      require_once './includes/path.inc';
+    elif DRUPAL_BOOTSTRAP_PATH:
+      require_once('./includes/path.inc', locals());
       # Initialize _GET['q'] prior to loading modules and invoking hook_init().
       drupal_init_path();
-      break;
-
-    case DRUPAL_BOOTSTRAP_FULL:
-      require_once './includes/common.inc';
+    elif phase == DRUPAL_BOOTSTRAP_FULL:
+      require_once('./includes/common.inc', locals());
       _drupal_bootstrap_full();
-      break;
-  }
-}
+
+
 
 #
 # Enables use of the theme system without requiring database access.
- *
+#
 # Loads and initializes the theme system for site installs, updates and when
 # the site is in off-line mode. This also applies when the database fails.
- *
+#
 # @see _drupal_maintenance_theme()
 #
-def drupal_maintenance_theme() {
-  require_once './includes/theme.maintenance.inc';
+def drupal_maintenance_theme():
+  require_once( './includes/theme_maintenance.inc', locals());
   _drupal_maintenance_theme();
-}
+
 
 #
 # Return the name of the localisation function. Use in code that needs to
 # run both during installation and normal operation.
 #
-def get_t() {
-  static t;
-  if (is_null(t)) {
-    t = function_exists('install_main') ? 'st' : 't';
-  }
+def get_t():
+  if (gett_t == None):
+    t =  ('st' if function_exists(locals(), 'install_main') else 't');
   return t;
-}
+
+
 
 #
 #  Choose a language for the current page, based on site and user preferences.
 #
-def drupal_init_language() {
-  global language, user;
-
+def drupal_init_language():
   # Ensure the language is correctly returned, even without multilanguage support.
   # Useful for eg. XML/HTML 'lang' attributes.
-  if (variable_get('language_count', 1) == 1) {
+  if (variable_get('language_count', 1) == 1):
     language = language_default();
-  }
-  else {
-    include_once './includes/language.inc';
+  else:
+    include_once('./includes/language.inc', locals());
     language = language_initialize();
-  }
-}
+
 
 #
 # Get a list of languages set up indexed by the specified key
- *
+#
 # @param field The field to index the list with.
 # @param reset Boolean to request a reset of the list.
 #
-def language_list(field = 'language', reset = FALSE) {
-  static languages = NULL;
-
+def language_list(field = 'language', reset = False):
   # Reset language list
-  if (reset) {
-    languages = NULL;
-  }
-
+  if (reset):
+    languagelist_languages = {};
   # Init language list
-  if (!isset(languages)) {
-    if (variable_get('language_count', 1) > 1 || module_exists('locale')) {
+  if (languagelist_languages == None):
+    if (variable_get('language_count', 1) > 1 or module_exists('locale')):
       result = db_query('SELECT# FROM {languages} ORDER BY weight ASC, name ASC');
-      while (row = db_fetch_object(result)) {
-        languages['language'][row->language] = row;
-      }
-    }
-    else {
+      while True:
+        row = db_fetch_object(result);
+        if row == None:
+          break;
+        languagelist_languages['language'][row.language] = row;
+    else:
       # No locale module, so use the default language only.
       default = language_default();
-      languages['language'][default->language] = default;
-    }
-  }
-
+      languagelist_languages['language'][default.language] = default;
   # Return the array indexed by the right field
-  if (!isset(languages[field])) {
-    languages[field] = array();
-    foreach (languages['language'] as lang) {
+  if (not isset(languagelist_languages, field)):
+    languagelist_languages[field] = {};
+    for lang in languagelist_languages['language']:
       # Some values should be collected into an array
-      if (in_array(field, array('enabled', 'weight'))) {
-        languages[field][lang->field][lang->language] = lang;
-      }
-      else {
-        languages[field][lang->field] = lang;
-      }
-    }
-  }
-  return languages[field];
-}
+      if (in_array(field, ['enabled', 'weight'])):
+        languagelist_languages[field][lang.field][lang.language] = lang;
+      else:
+        languagelist_languages[field][lang.field] = lang;
+  return languagelist_languages[field];
+
+
 
 #
 # Default language used on the site
- *
+#
 # @param property
 #   Optional property of the language object to return
 #
-def language_default(property = NULL) {
-  language = variable_get('language_default', (object) array('language' => 'en', 'name' => 'English', 'native' => 'English', 'direction' => 0, 'enabled' => 1, 'plurals' => 0, 'formula' => '', 'domain' => '', 'prefix' => '', 'weight' => 0, 'javascript' => ''));
+def language_default(property = None):
+  languagelist_language = variable_get('language_default', (object) array('language' => 'en', 'name' => 'English', 'native' => 'English', 'direction' => 0, 'enabled' => 1, 'plurals' => 0, 'formula' => '', 'domain' => '', 'prefix' => '', 'weight' => 0, 'javascript' => ''));
   return property ? language->property : language;
-}
+
+
 
 #
 # If Drupal is behind a reverse proxy, we use the X-Forwarded-For header
