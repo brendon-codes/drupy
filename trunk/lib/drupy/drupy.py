@@ -1,9 +1,12 @@
 import time
+import datetime
 import os
 import urlparse
 import copy
 import re
 import pickle
+import hashlib
+import zlib
 
 
 #
@@ -104,6 +107,21 @@ def isset(obj, val, searchGlobal = False, data = {}):
   else:
     return False
 
+
+#
+# Function exists
+
+def function_exists(obj, val):
+  return \
+    (isset(obj, val, True) and isinstance(obj[val], function))
+
+
+def htmlspecialchars(val):
+  out = ""
+  i = 0
+  _i = len(val)
+  while True:
+    pass;
 
 
 #
@@ -340,7 +358,7 @@ def is_numeric(val):
     return True
   elif \
       isinstance(val, str) and \
-      ValueError.isdigit():
+      val.isdigit():
     return True
   else:
     return False
@@ -399,11 +417,70 @@ def unserialize(val):
   return pickle.loads(val)
 
 
+#
+# GMT date
+# @param Str format
+# @param Int stamp
+# @return Str
+#
+def gmdate(format, stamp = None):
+  if stamp == None:
+    stamp = time.time()
+  dt = datetime.datetime.utcfromtimestamp(stamp)
+  return dt.strftime(format)
 
+
+#
+# Strip slashes
+# @param Str val
+# @retun Str
+#
+def stripslashes(val):
+  return val.replace('\\', '')
+
+
+#
+# Add slashes
+# @param Str val
+# @return Str
+#
+def addslashes(val):
+  return re.escape(val)
+  
+
+#
+# md5
+# @param Str val
+# @return Str
+#
+def do_md5(val):
+  return hashlib.md5(val).hexdigest()
+
+
+#
+# decompress
+# @param Str val
+# @return Str
+#
+def gzinflate(val):
+  return zlib.decompress(val)
+
+
+#
+# compress
+# @param Str val
+# @return Str
+#
+def gzdeflate():
+  return zlib.compress(val)
+ 
+  
 
 #
 # Set Aliases
 #
+gzencode = gzdeflate
+gzdecode = gzinflate
 sizeof = count
 static = define
 set_global = define
