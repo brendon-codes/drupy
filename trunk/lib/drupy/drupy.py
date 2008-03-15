@@ -3,6 +3,7 @@ import os
 import urlparse
 import copy
 import re
+import pickle
 
 
 #
@@ -379,6 +380,23 @@ def ini_set(name, val):
 def session_name(name):
   return True
 
+
+#
+# serializer
+# @param Any obj
+# @return Str
+#
+def serialize(obj):
+  return pickle.dumps(obj)
+
+
+#
+# unserializer
+# @param Str val
+# @return Obj
+#
+def unserialize(val):
+  return pickle.loads(val)
 
 
 

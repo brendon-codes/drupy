@@ -9,10 +9,14 @@
 # Static variables
 #
 static('confpath_conf');
+static('drupalgetfilename_files');
+static('pagegetcache_status');
+static('drupalload_files');
 
 #
 # Global variables
 #
+set_global('user');
 set_global('base_url');
 set_global('base_path');
 set_global('base_root');
@@ -345,76 +349,67 @@ def conf_init():
 # @return
 #   The filename of the requested item.
 #
-def drupal_get_filename(type, name, filename = NULL) {
-  static files = array();
-
-  if (!isset(files[type])) {
-    files[type] = array();
-  }
-
-  if (!empty(filename) && file_exists(filename)) {
-    files[type][name] = filename;
-  }
-  elseif (isset(files[type][name])) {
+def drupal_get_filename(type, name, filename = None):
+  file = db_result(db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, type))
+  if (drupalgetfilename_files == None):
+    drupalgetfilename_files = {}
+    drupalgetfilename_files[type] = {}
+  if (filename != None and file_exists(filename)):
+    drupalgetfilename_files[type][name] = filename;
+  elif (isset(drupalgetfilename_files[type], name)):
     # nothing
-  }
+    pass;
   # Verify that we have an active database connection, before querying
   # the database.  This is required because this def is called both
   # before we have a database connection (i.e. during installation) and
   # when a database connection fails.
-  elseif (db_is_active() && ((file = db_result(db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, type))) && file_exists(file))) {
-    files[type][name] = file;
-  }
-  else {
+  elif (db_is_active() and (file and file_exists(file))):
+    drupalgetfilename_files[type][name] = file;
+  else:
     # Fallback to searching the filesystem if the database connection is
     # not established or the requested file is not found.
     config = conf_path();
-    dir = ((type == 'theme_engine') ? 'themes/engines' : "${type}s");
-    file = ((type == 'theme_engine') ? "name.engine" : "name.type");
-
-    foreach (array("config/dir/file", "config/dir/name/file", "dir/file", "dir/name/file") as file) {
-      if (file_exists(file)) {
-        files[type][name] = file;
+    dir = ('themes/engines' if (type == 'theme_engine') else (type + 's'));
+    file = ("name.engine" if (type == 'theme_engine') else "name.type");
+    for file in ["config/dir/file", "config/dir/name/file", "dir/file", "dir/name/file"]:
+      if (file_exists(file)):
+        drupalgetfilename_files[type][name] = file;
         break;
-      }
-    }
-  }
+  if (isset(drupalgetfilename_files[type], name)):
+    return drupalgetfilename_files[type][name];
 
-  if (isset(files[type][name])) {
-    return files[type][name];
-  }
-}
+
 
 #
 # Load the persistent variable table.
- *
+#
 # The variable table is composed of values that have been saved in the table
 # with variable_set() as well as those explicitly specified in the configuration
 # file.
 #
-def variable_init(conf = array()) {
+def variable_init(_conf = {}):
   # NOTE: caching the variables improves performance by 20% when serving cached pages.
-  if (cached = cache_get('variables', 'cache')) {
-    variables = cached->data;
-  }
-  else {
+  cached = cache_get('variables', 'cache');
+  if (cached):
+    variables = cached.data;
+  else:
     result = db_query('SELECT# FROM {variable}');
-    while (variable = db_fetch_object(result)) {
-      variables[variable->name] = unserialize(variable->value);
-    }
+    while True:
+      variable = db_fetch_object(result);
+      if (not variable):
+        break;
+      variables[variable.name] = unserialize(variable.value);
     cache_set('variables', variables);
-  }
-
-  foreach (conf as name => value) {
+  for name,value in _conf:
     variables[name] = value;
-  }
-
   return variables;
-}
+
+
+
 
 #
 # Return a persistent variable.
- *
+#
 # @param name
 #   The name of the variable to return.
 # @param default
@@ -422,150 +417,131 @@ def variable_init(conf = array()) {
 # @return
 #   The value of the variable.
 #
-def variable_get(name, default) {
-  global conf;
+def variable_get(name, default):
+  return  (confpath_conf[name] if isset(confpath_conf, name) else default);
 
-  return isset(conf[name]) ? conf[name] : default;
-}
 
 #
 # Set a persistent variable.
- *
+#
 # @param name
 #   The name of the variable to set.
 # @param value
 #   The value to set. This can be any PHP data type; these functions take care
 #   of serialization as necessary.
 #
-def variable_set(name, value) {
-  global conf;
-
+def variable_set(name, value):
   serialized_value = serialize(value);
   db_query("UPDATE {variable} SET value = '%s' WHERE name = '%s'", serialized_value, name);
-  if (!db_affected_rows()) {
-    @db_query("INSERT INTO {variable} (name, value) VALUES ('%s', '%s')", name, serialized_value);
-  }
-
+  if (db_affected_rows() == 0):
+    db_query("INSERT INTO {variable} (name, value) VALUES ('%s', '%s')", name, serialized_value);
   cache_clear_all('variables', 'cache');
+  confpath_conf[name] = value;
 
-  conf[name] = value;
-}
+
 
 #
 # Unset a persistent variable.
- *
+#
 # @param name
 #   The name of the variable to undefine.
 #
-def variable_del(name) {
-  global conf;
-
+def variable_del(name):
   db_query("DELETE FROM {variable} WHERE name = '%s'", name);
   cache_clear_all('variables', 'cache');
-
-  unset(conf[name]);
-}
+  del(confpath_conf[name]);
 
 
 #
 # Retrieve the current page from the cache.
- *
+#
 # Note: we do not serve cached pages when status messages are waiting (from
 # a redirected form submission which was completed).
- *
+#
 # @param status_only
 #   When set to TRUE, retrieve the status of the page cache only
 #   (whether it was started in this request or not).
 #
-def page_get_cache(status_only = FALSE) {
-  static status = FALSE;
-  global user, base_root;
-
-  if (status_only) {
-    return status;
-  }
-  cache = NULL;
-
-  if (!user->uid && _SERVER['REQUEST_METHOD'] == 'GET' && count(drupal_set_message()) == 0) {
+def page_get_cache(status_only = False):
+  if (status_only):
+    return pagegetcache_status;
+  cache = None;
+  if (user == None and _SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_set_message()) == 0):
     cache = cache_get(base_root . request_uri(), 'cache_page');
-
-    if (empty(cache)) {
+    if (empty(locals(), cache)):
       ob_start();
-      status = TRUE;
-    }
-  }
-
+      pagegetcache_status = True;
   return cache;
-}
+
+
+
 
 #
 # Call all init or exit hooks without including all modules.
- *
+#
 # @param hook
 #   The name of the bootstrap hook we wish to invoke.
 #
-def bootstrap_invoke_all(hook) {
-  foreach (module_list(TRUE, TRUE) as module) {
+def bootstrap_invoke_all(hook):
+  for module in module_list(True, True):
     drupal_load('module', module);
     module_invoke(module, hook);
-  }
-}
+
 
 #
 # Includes a file with the provided type and name. This prevents
 # including a theme, engine, module, etc., more than once.
- *
+#
 # @param type
 #   The type of item to load (i.e. theme, theme_engine, module).
 # @param name
 #   The name of the item to load.
- *
+#
 # @return
 #   TRUE if the item is loaded or has already been loaded.
 #
-def drupal_load(type, name) {
-  static files = array();
+def drupal_load(type, name):
+  if (drupalload_files == None):
+    drupalload_files = {}
+  if (not isset(drupalload_files, type)):
+    drupalload_files[type] = {}
+  if (isset(drupalload_files[type], name)):
+    return True
+  else:
+    filename = drupal_get_filename(type, name);
+    if (filename != False):
+      include_once("./filename");
+      drupalload_files[type][name] = True;
+      return True;
+    else:
+      return False;
 
-  if (isset(files[type][name])) {
-    return TRUE;
-  }
-
-  filename = drupal_get_filename(type, name);
-
-  if (filename) {
-    include_once "./filename";
-    files[type][name] = TRUE;
-
-    return TRUE;
-  }
-
-  return FALSE;
-}
 
 #
 # Set HTTP headers in preparation for a page response.
- *
+#
 # Authenticated users are always given a 'no-cache' header, and will
 # fetch a fresh page on every request.  This prevents authenticated
 # users seeing locally cached pages that show them as logged out.
- *
+#
 # @see page_set_cache()
 #
-def drupal_page_header() {
+def drupal_page_header():
   header("Expires: Sun, 19 Nov 1978 05:00:00 GMT");
-  header("Last-Modified: ". gmdate("D, d M Y H:i:s") ." GMT");
+  header("Last-Modified: " + gmdate("D, d M Y H:i:s") + " GMT");
   header("Cache-Control: store, no-cache, must-revalidate");
-  header("Cache-Control: post-check=0, pre-check=0", FALSE);
-}
+  header("Cache-Control: post-check=0, pre-check=0", False);
+
+
 
 #
 # Set HTTP headers in preparation for a cached page response.
- *
+#
 # The general approach here is that anonymous users can keep a local
 # cache of the page, but must revalidate it on every request.  Then,
 # they are given a '304 Not Modified' response as long as they stay
 # logged out and the page has not been modified.
- *
+#
 #
 def drupal_page_cache_header(cache) {
   # Set default values:
