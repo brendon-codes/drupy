@@ -239,8 +239,8 @@ def timer_stop(name):
 #   The path of the matching directory.
 #
 def conf_path(require_settings = True, reset = False):
-  if (confpath_conf != '' and not reset):
-    return conf;
+  if (confpath_conf != None and not reset):
+    return confpath_conf;
   confdir = 'sites';
   uri = explode('/', (_SERVER['SCRIPT_NAME'] if isset(_SERVER, 'SCRIPT_NAME') else _SERVER['SCRIPT_FILENAME']));
   server = explode('.', implode('.', array_reverse(explode(':', rtrim(_SERVER['HTTP_HOST'], '.')))));
@@ -277,53 +277,45 @@ def conf_init():
     base_path = parts['path'] + '/';
     # Build base_root (everything until first slash after "scheme://").
     base_root = substr(base_url, 0, strlen(base_url) - strlen(parts['path']));
-  else {
+  else:
     # Create base URL
-    base_root = (isset(_SERVER['HTTPS']) && _SERVER['HTTPS'] == 'on') ? 'https' : 'http';
-
+    base_root = ('https' if (isset(_SERVER, 'HTTPS') and _SERVER['HTTPS'] == 'on') else 'http');
     # As _SERVER['HTTP_HOST'] is user input, ensure it only contains
     # characters allowed in hostnames.
-    base_url = base_root .= '://'. preg_replace('/[^a-z0-9-:._]/i', '', _SERVER['HTTP_HOST']);
-
+    base_root += '://' + preg_replace('/[^a-z0-9-:._]/i', '', _SERVER['HTTP_HOST']);
+    base_url = base_root;
     # _SERVER['SCRIPT_NAME'] can, in contrast to _SERVER['PHP_SELF'], not
     # be modified by a visitor.
-    if (dir = trim(dirname(_SERVER['SCRIPT_NAME']), '\,/')) {
+    dir = trim(dirname(_SERVER['SCRIPT_NAME']), '\,/');
+    if (len(dir) > 0):
       base_path = "/dir";
-      base_url .= base_path;
-      base_path .= '/';
-    }
-    else {
+      base_url += base_path;
+      base_path += '/';
+    else:
       base_path = '/';
-    }
-  }
-
-  if (cookie_domain) {
+  if (cookie_domain):
     # If the user specifies the cookie domain, also use it for session name.
     session_name = cookie_domain;
-  }
-  else {
+  else:
     # Otherwise use base_url as session name, without the protocol
     # to use the same session identifiers across http and https.
-    list( , session_name) = explode('://', base_url, 2);
+    (_dummy, session_name) = explode('://', base_url, 2);
     # We escape the hostname because it can be modified by a visitor.
-    if (!empty(_SERVER['HTTP_HOST'])) {
+    if (not empty(_SERVER['HTTP_HOST'])):
       cookie_domain = check_plain(_SERVER['HTTP_HOST']);
-    }
-  }
   # Strip leading periods, www., and port numbers from cookie domain.
   cookie_domain = ltrim(cookie_domain, '.');
-  if (strpos(cookie_domain, 'www.') === 0) {
+  if (strpos(cookie_domain, 'www.') == 0):
     cookie_domain = substr(cookie_domain, 4);
-  }
   cookie_domain = explode(':', cookie_domain);
   cookie_domain = '.'. cookie_domain[0];
   # Per RFC 2109, cookie domains must contain at least one dot other than the
   # first. For hosts such as 'localhost' or IP Addresses we don't set a cookie domain.
-  if (count(explode('.', cookie_domain)) > 2 && !is_numeric(str_replace('.', '', cookie_domain))) {
+  if (count(explode('.', cookie_domain)) > 2 and not is_numeric(str_replace('.', '', cookie_domain))):
     ini_set('session.cookie_domain', cookie_domain);
-  }
   session_name('SESS'. md5(session_name));
-}
+
+
 
 #
 # Returns and optionally sets the filename for a system item (module,
