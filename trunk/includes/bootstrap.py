@@ -7,6 +7,8 @@
 
 #
 # Static variables
+# These are meant to emulate a 'static' var within PHP
+# These should only be used within the context of their owner functions
 #
 static('static_confpath_conf');
 static('static_drupalgetfilename_files');
@@ -32,6 +34,8 @@ set_global('installed_profile');
 set_global('update_free_access');
 set_global('language');
 set_global('timers');
+set_global('conf');
+
 
 
 #
@@ -186,6 +190,7 @@ def timer_start(name):
 #   The current timer value in ms.
 #
 def timer_read(name):
+  global timers;
   if (isset(timers[name], 'start')):
     (usec, sec) = explode(' ', microtime());
     stop = float(usec) + float(sec);
@@ -284,12 +289,11 @@ def conf_init():
   global base_url, base_path, \
     base_root, db_url, db_prefix, \
     cookie_domain, installed_profile, \
-    update_free_access;
-  confpath_conf = {};
+    update_free_access, conf;
+  conf = {};
   thisConfPath = conf_path();
   if (file_exists('./' + thisConfPath + '/settings.py')):
-    include_once( './' + thisConfPath + '/settings.py', locals());
-    print db_url;
+    include_once( './' + thisConfPath + '/settings.py', globals());
   if (base_url != None):
     # Parse fixed base URL from settings.php.
     parts = parse_url(base_url);
@@ -388,11 +392,18 @@ def drupal_get_filename(type, name, filename = None):
     # Fallback to searching the filesystem if the database connection is
     # not established or the requested file is not found.
     config = conf_path();
-    dir = ('themes/engines' if (type == 'theme_engine') else (type + 's'));
-    file = ("name.engine" if (type == 'theme_engine') else "name.type");
-    for file in ["config/dir/file", "config/dir/name/file", "dir/file", "dir/name/file"]:
-      if (file_exists(file)):
-        static_drupalgetfilename_files[type][name] = file;
+    _dir = ('themes/engines' if (type == 'theme_engine') else (type + 's'));
+    file = (("%(name)s.engine" % {'name':name}) if (type == 'theme_engine') else ("%(name)s.type" % {'name':name}));
+    fileVals = {'name':name, 'file':file, 'dir':_dir, 'config':config};
+    fileChecker = [
+      "config/dir/file" % fileVals,
+      "config/dir/name/file" % fileVals,
+      "dir/file" % fileVals,
+      "dir/name/file" % fileVals
+    ];
+    for _file in fileChecker:
+      if (file_exists(_file)):
+        static_drupalgetfilename_files[type][name] = _file;
         break;
   if (isset(static_drupalgetfilename_files[type], name)):
     return static_drupalgetfilename_files[type][name];
@@ -436,8 +447,9 @@ def variable_init(_conf = {}):
 # @return
 #   The value of the variable.
 #
-def variable_get(name, default):
-  return  (confpath_conf[name] if isset(confpath_conf, name) else default);
+def variable_get(name, _default):
+  global conf;
+  return  (conf[name] if isset(conf, name) else _default);
 
 
 #
@@ -450,12 +462,13 @@ def variable_get(name, default):
 #   of serialization as necessary.
 #
 def variable_set(name, value):
+  global conf;
   serialized_value = serialize(value);
   db_query("UPDATE {variable} SET value = '%s' WHERE name = '%s'", serialized_value, name);
   if (db_affected_rows() == 0):
     db_query("INSERT INTO {variable} (name, value) VALUES ('%s', '%s')", name, serialized_value);
   cache_clear_all('variables', 'cache');
-  confpath_conf[name] = value;
+  conf[name] = value;
 
 
 
@@ -466,9 +479,10 @@ def variable_set(name, value):
 #   The name of the variable to undefine.
 #
 def variable_del(name):
+  global conf;
   db_query("DELETE FROM {variable} WHERE name = '%s'", name);
   cache_clear_all('variables', 'cache');
-  del(confpath_conf[name]);
+  del(conf[name]);
 
 
 #
@@ -871,8 +885,7 @@ def drupal_anonymous_user(session = ''):
 #     DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix input data.
 #
 def drupal_bootstrap(phase):
-  global static_drupalbootstrap_phases;
-  global static_drupalbootstrap_phaseindex;
+  global static_drupalbootstrap_phases, static_drupalbootstrap_phaseindex;
   if (static_drupalbootstrap_phases == None):
     static_drupalbootstrap_phases = [
       DRUPAL_BOOTSTRAP_CONFIGURATION,
@@ -898,66 +911,67 @@ def drupal_bootstrap(phase):
 
 
 def _drupal_bootstrap(phase):
-    if phase == DRUPAL_BOOTSTRAP_CONFIGURATION:
-      drupal_unset_globals();
-      # Start a page timer:
-      timer_start('page');
-      # Initialize the configuration
-      conf_init();
-    elif phase == DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE:
-      # Allow specifying special cache handlers in settings.php, like
-      # using memcached or files for storing cache information.
-      require_once( variable_get('cache_inc', './includes/cache.inc'), locals() );
-      # If the page_cache_fastpath is set to TRUE in settings.php and
-      # page_cache_fastpath (implemented in the special implementation of
-      # cache.inc) printed the page and indicated this with a returned TRUE
-      # then we are done.
-      if (variable_get('page_cache_fastpath', False) and page_cache_fastpath()):
-        exit();
-    elif phase == DRUPAL_BOOTSTRAP_DATABASE:
-      # Initialize the default database.
-      require_once('./includes/database.inc', locals());
-      db_set_active();
-    elif phase == DRUPAL_BOOTSTRAP_ACCESS:
-      # Deny access to hosts which were banned - t() is not yet available.
-      if (drupal_is_denied('host', ip_address())):
-        header('HTTP/1.1 403 Forbidden');
-        print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
-        exit();
-    elif phase == DRUPAL_BOOTSTRAP_SESSION:
-      require_once(variable_get('session_inc', './includes/session.inc'), locals());
-      session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
-      session_start();
-    elif phase == DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
-      # Initialize configuration variables, using values from settings.php if available.
-      confpath_conf = variable_init( ({} if (confpath_conf == None) else confpath_conf) );
-      # Load module handling.
-      require_once('./includes/module.inc', locals());
-      cache_mode = variable_get('cache', CACHE_DISABLED);
-      # Get the page from the cache.
-      cache =  ('' if (cache_mode == CACHE_DISABLED) else page_get_cache());
-      # If the skipping of the bootstrap hooks is not enforced, call hook_boot.
+  global conf;
+  if phase == DRUPAL_BOOTSTRAP_CONFIGURATION:
+    drupal_unset_globals();
+    # Start a page timer:
+    timer_start('page');
+    # Initialize the configuration
+    conf_init();
+  elif phase == DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE:
+    # Allow specifying special cache handlers in settings.php, like
+    # using memcached or files for storing cache information.
+    require_once( variable_get('cache_inc', './includes/cache.inc'), locals() );
+    # If the page_cache_fastpath is set to TRUE in settings.php and
+    # page_cache_fastpath (implemented in the special implementation of
+    # cache.inc) printed the page and indicated this with a returned TRUE
+    # then we are done.
+    if (variable_get('page_cache_fastpath', False) and page_cache_fastpath()):
+      exit();
+  elif phase == DRUPAL_BOOTSTRAP_DATABASE:
+    # Initialize the default database.
+    require_once('./includes/database.inc', locals());
+    db_set_active();
+  elif phase == DRUPAL_BOOTSTRAP_ACCESS:
+    # Deny access to hosts which were banned - t() is not yet available.
+    if (drupal_is_denied('host', ip_address())):
+      header('HTTP/1.1 403 Forbidden');
+      print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
+      exit();
+  elif phase == DRUPAL_BOOTSTRAP_SESSION:
+    require_once(variable_get('session_inc', './includes/session.inc'), locals());
+    session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
+    session_start();
+  elif phase == DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
+    # Initialize configuration variables, using values from settings.php if available.
+    conf = variable_init( ({} if (conf == None) else conf) );
+    # Load module handling.
+    require_once('./includes/module.inc', locals());
+    cache_mode = variable_get('cache', CACHE_DISABLED);
+    # Get the page from the cache.
+    cache =  ('' if (cache_mode == CACHE_DISABLED) else page_get_cache());
+    # If the skipping of the bootstrap hooks is not enforced, call hook_boot.
+    if (cache_mode != CACHE_AGGRESSIVE):
+      bootstrap_invoke_all('boot');
+    # If there is a cached page, display it.
+    if (cache):
+      drupal_page_cache_header(cache);
+      # If the skipping of the bootstrap hooks is not enforced, call hook_exit.
       if (cache_mode != CACHE_AGGRESSIVE):
-        bootstrap_invoke_all('boot');
-      # If there is a cached page, display it.
-      if (cache):
-        drupal_page_cache_header(cache);
-        # If the skipping of the bootstrap hooks is not enforced, call hook_exit.
-        if (cache_mode != CACHE_AGGRESSIVE):
-          bootstrap_invoke_all('exit');
-        # We are done.
-        exit();
-      # Prepare for non-cached page workflow.
-      drupal_page_header();
-    elif phase == DRUPAL_BOOTSTRAP_LANGUAGE:
-      drupal_init_language();
-    elif DRUPAL_BOOTSTRAP_PATH:
-      require_once('./includes/path.inc', locals());
-      # Initialize _GET['q'] prior to loading modules and invoking hook_init().
-      drupal_init_path();
-    elif phase == DRUPAL_BOOTSTRAP_FULL:
-      require_once('./includes/common.inc', locals());
-      _drupal_bootstrap_full();
+        bootstrap_invoke_all('exit');
+      # We are done.
+      exit();
+    # Prepare for non-cached page workflow.
+    drupal_page_header();
+  elif phase == DRUPAL_BOOTSTRAP_LANGUAGE:
+    drupal_init_language();
+  elif DRUPAL_BOOTSTRAP_PATH:
+    require_once('./includes/path.inc', locals());
+    # Initialize _GET['q'] prior to loading modules and invoking hook_init().
+    drupal_init_path();
+  elif phase == DRUPAL_BOOTSTRAP_FULL:
+    require_once('./includes/common.inc', locals());
+    _drupal_bootstrap_full();
 
 
 

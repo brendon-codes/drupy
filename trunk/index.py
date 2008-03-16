@@ -17,7 +17,11 @@ execfile('./lib/drupy/http.py', globals());
 require_once('./includes/bootstrap.py', globals());
 #drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 drupal_bootstrap(DRUPAL_BOOTSTRAP_CONFIGURATION);
+
+# Bootstrapping tests
+print db_url;
 exit();
+
 _return = menu_execute_active_handler();
 
 # Menu status constants are integers; page content is a string.
