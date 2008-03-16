@@ -8,15 +8,15 @@
 #
 # Static variables
 #
-static('confpath_conf');
-static('drupalgetfilename_files');
-static('pagegetcache_status');
-static('drupalload_files');
-static('drupalbootstrap_phases');
-static('drupalbootstrap_phaseindex');
-static('gett_t');
-static('languagelist_languages');
-static('ipaddress_ipaddress');
+static('static_confpath_conf');
+static('static_drupalgetfilename_files');
+static('static_pagegetcache_status');
+static('static_drupalload_files');
+static('static_drupalbootstrap_phases');
+static('static_drupalbootstrap_phaseindex');
+static('static_gett_t');
+static('static_languagelist_languages');
+static('static_ipaddress_ipaddress');
 
 #
 # Global variables
@@ -252,20 +252,21 @@ def timer_stop(name):
 #   The path of the matching directory.
 #
 def conf_path(require_settings = True, reset = False):
-  global confpath_conf;
-  if (confpath_conf != None and not reset):
-    return confpath_conf;
+  global static_confpath_conf;
+  if (static_confpath_conf != None and not reset):
+    return static_confpath_conf;
   confdir = 'sites';
   uri = explode('/', (_SERVER['SCRIPT_NAME'] if isset(_SERVER, 'SCRIPT_NAME') else _SERVER['SCRIPT_FILENAME']));
   server = explode('.', implode('.', array_reverse(explode(':', rtrim(_SERVER['HTTP_HOST'], '.')))));
   for i in range(count(uri)-1, 1, -1):
     for j in range(count(server), 1, -1):
-      dir = implode('.', array_merge(array_slice(server, -j)), implode('.', array_slice(uri, 0, i)));
-      if (file_exists("confdir/dir/settings.php") or (not require_settings and file_exists("confdir/dir"))):
-        confpath_conf = "confdir/dir";
-        return confpath_conf;
-  confpath_conf = "confdir/default";
-  return confpath_conf;
+      _dir = implode('.', array_merge(array_slice(server, -j)), implode('.', array_slice(uri, 0, i)));
+      if (file_exists("%(confdir)s/%(dir)/settings.py" % {'confdir':confdir, 'dir':_dir}) or \
+          (not require_settings and file_exists("confdir/dir"))):
+        static_confpath_conf = "%(confdir)s/%(dir)s" % {'confdir':confdir, 'dir':_dir};
+        return static_confpath_conf;
+  static_confpath_conf = "%(confdir)s/default" % {'confdir':confdir};
+  return static_confpath_conf;
 
 
 #
@@ -280,11 +281,15 @@ def drupal_unset_globals():
 # session name correctly.
 #
 def conf_init():
-  global base_url;
-  global cookie_domain;
+  global base_url, base_path, \
+    base_root, db_url, db_prefix, \
+    cookie_domain, installed_profile, \
+    update_free_access;
   confpath_conf = {};
-  if (file_exists('./' + conf_path() + '/settings.php')):
-    include_once( './' + conf_path() + '/settings.php', locals());
+  thisConfPath = conf_path();
+  if (file_exists('./' + thisConfPath + '/settings.py')):
+    include_once( './' + thisConfPath + '/settings.py', locals());
+    print db_url;
   if (base_url != None):
     # Parse fixed base URL from settings.php.
     parts = parse_url(base_url);
@@ -363,13 +368,14 @@ def conf_init():
 #   The filename of the requested item.
 #
 def drupal_get_filename(type, name, filename = None):
+  global static_drupalgetfilename_files;
   file = db_result(db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, type))
-  if (drupalgetfilename_files == None):
-    drupalgetfilename_files = {}
-    drupalgetfilename_files[type] = {}
+  if (static_drupalgetfilename_files == None):
+    static_drupalgetfilename_files = {}
+    static_drupalgetfilename_files[type] = {}
   if (filename != None and file_exists(filename)):
-    drupalgetfilename_files[type][name] = filename;
-  elif (isset(drupalgetfilename_files[type], name)):
+    static_drupalgetfilename_files[type][name] = filename;
+  elif (isset(static_drupalgetfilename_files[type], name)):
     # nothing
     pass;
   # Verify that we have an active database connection, before querying
@@ -377,7 +383,7 @@ def drupal_get_filename(type, name, filename = None):
   # before we have a database connection (i.e. during installation) and
   # when a database connection fails.
   elif (db_is_active() and (file and file_exists(file))):
-    drupalgetfilename_files[type][name] = file;
+    static_drupalgetfilename_files[type][name] = file;
   else:
     # Fallback to searching the filesystem if the database connection is
     # not established or the requested file is not found.
@@ -386,10 +392,10 @@ def drupal_get_filename(type, name, filename = None):
     file = ("name.engine" if (type == 'theme_engine') else "name.type");
     for file in ["config/dir/file", "config/dir/name/file", "dir/file", "dir/name/file"]:
       if (file_exists(file)):
-        drupalgetfilename_files[type][name] = file;
+        static_drupalgetfilename_files[type][name] = file;
         break;
-  if (isset(drupalgetfilename_files[type], name)):
-    return drupalgetfilename_files[type][name];
+  if (isset(static_drupalgetfilename_files[type], name)):
+    return static_drupalgetfilename_files[type][name];
 
 
 
@@ -476,13 +482,14 @@ def variable_del(name):
 #   (whether it was started in this request or not).
 #
 def page_get_cache(status_only = False):
+  global static_pagegetcache_status;
   if (status_only):
-    return pagegetcache_status;
+    return static_pagegetcache_status;
   cache = None;
   if (user == None and _SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_set_message()) == 0):
     cache = cache_get(base_root . request_uri(), 'cache_page');
     if (empty(locals(), cache)):
-      pagegetcache_status = True;
+      static_pagegetcache_status = True;
   return cache;
 
 
@@ -513,17 +520,18 @@ def bootstrap_invoke_all(hook):
 #   TRUE if the item is loaded or has already been loaded.
 #
 def drupal_load(type, name):
-  if (drupalload_files == None):
-    drupalload_files = {}
-  if (not isset(drupalload_files, type)):
-    drupalload_files[type] = {}
-  if (isset(drupalload_files[type], name)):
+  global static_drupalload_files;
+  if (static_drupalload_files == None):
+    static_drupalload_files = {}
+  if (not isset(static_drupalload_files, type)):
+    static_drupalload_files[type] = {}
+  if (isset(static_drupalload_files[type], name)):
     return True
   else:
     filename = drupal_get_filename(type, name);
     if (filename != False):
       include_once("./filename");
-      drupalload_files[type][name] = True;
+      static_drupalload_files[type][name] = True;
       return True;
     else:
       return False;
@@ -863,10 +871,10 @@ def drupal_anonymous_user(session = ''):
 #     DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix input data.
 #
 def drupal_bootstrap(phase):
-  global drupalbootstrap_phases;
-  global drupalbootstrap_phaseindex;
-  if (drupalbootstrap_phases == None):
-    drupalbootstrap_phases = [
+  global static_drupalbootstrap_phases;
+  global static_drupalbootstrap_phaseindex;
+  if (static_drupalbootstrap_phases == None):
+    static_drupalbootstrap_phases = [
       DRUPAL_BOOTSTRAP_CONFIGURATION,
       DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE,
       DRUPAL_BOOTSTRAP_DATABASE,
@@ -877,14 +885,14 @@ def drupal_bootstrap(phase):
       DRUPAL_BOOTSTRAP_PATH,
       DRUPAL_BOOTSTRAP_FULL
     ]
-  if (drupalbootstrap_phaseindex == None):
-    drupalbootstrap_phaseindex = 0;
+  if (static_drupalbootstrap_phaseindex == None):
+    static_drupalbootstrap_phaseindex = 0;
   while ( \
-      phase >= drupalbootstrap_phaseindex and \
-      isset(drupalbootstrap_phases, drupalbootstrap_phaseindex)):
-    current_phase = drupalbootstrap_phases[drupalbootstrap_phaseindex];
-    drupalbootstrap_phaseindex = drupalbootstrap_phaseindex + 1;
-    del(drupalbootstrap_phases[drupalbootstrap_phaseindex]);
+      phase >= static_drupalbootstrap_phaseindex and \
+      isset(static_drupalbootstrap_phases, static_drupalbootstrap_phaseindex)):
+    current_phase = static_drupalbootstrap_phases[static_drupalbootstrap_phaseindex];
+    static_drupalbootstrap_phaseindex = static_drupalbootstrap_phaseindex + 1;
+    del(static_drupalbootstrap_phases[static_drupalbootstrap_phaseindex]);
     _drupal_bootstrap(current_phase);
 
 
@@ -971,7 +979,8 @@ def drupal_maintenance_theme():
 # run both during installation and normal operation.
 #
 def get_t():
-  if (gett_t == None):
+  global static_gett_t;
+  if (static_gett_t == None):
     t =  ('st' if function_exists(locals(), 'install_main') else 't');
   return t;
 
@@ -997,32 +1006,33 @@ def drupal_init_language():
 # @param reset Boolean to request a reset of the list.
 #
 def language_list(field = 'language', reset = False):
+  global static_languagelist_list;
   # Reset language list
   if (reset):
-    languagelist_languages = {};
+    static_languagelist_languages = {};
   # Init language list
-  if (languagelist_languages == None):
+  if (static_languagelist_languages == None):
     if (variable_get('language_count', 1) > 1 or module_exists('locale')):
       result = db_query('SELECT# FROM {languages} ORDER BY weight ASC, name ASC');
       while True:
         row = db_fetch_object(result);
         if row == None:
           break;
-        languagelist_languages['language'][row.language] = row;
+        static_languagelist_languages['language'][row.language] = row;
     else:
       # No locale module, so use the default language only.
-      default = language_default();
-      languagelist_languages['language'][default.language] = default;
+      _default = language_default();
+      static_languagelist_languages['language'][_default.language] = _default;
   # Return the array indexed by the right field
-  if (not isset(languagelist_languages, field)):
-    languagelist_languages[field] = {};
-    for lang in languagelist_languages['language']:
+  if (not isset(static_languagelist_languages, field)):
+    static_languagelist_languages[field] = {};
+    for lang in static_languagelist_languages['language']:
       # Some values should be collected into an array
       if (in_array(field, ['enabled', 'weight'])):
-        languagelist_languages[field][lang.field][lang.language] = lang;
+        static_languagelist_languages[field][lang.field][lang.language] = lang;
       else:
-        languagelist_languages[field][lang.field] = lang;
-  return languagelist_languages[field];
+        static_languagelist_languages[field][lang.field] = lang;
+  return static_languagelist_languages[field];
 
 
 
@@ -1059,17 +1069,18 @@ def language_default(property = None):
 #   IP address of client machine, adjusted for reverse proxy.
 #
 def ip_address():
-  if (ipaddress_ipaddress == None):
-    ipaddress_ipaddress = _SERVER['REMOTE_ADDR'];
+  global static_ipaddress_ipaddress;
+  if (static_ipaddress_ipaddress == None):
+    static_ipaddress_ipaddress = _SERVER['REMOTE_ADDR'];
     if (variable_get('reverse_proxy', 0) and array_key_exists('HTTP_X_FORWARDED_FOR', _SERVER)):
       # If an array of known reverse proxy IPs is provided, then trust
       # the XFF header if request really comes from one of them.
       reverse_proxy_addresses = variable_get('reverse_proxy_addresses', []);
       if (not empty(locals(), reverse_proxy_addresses) and \
-          in_array(ipaddress_ipaddress, reverse_proxy_addresses)):
+          in_array(static_ipaddress_ipaddress, reverse_proxy_addresses)):
         # If there are several arguments, we need to check the most
         # recently added one, i.e. the last one.
-        ipaddress_ipaddress = array_pop(explode(',', _SERVER['HTTP_X_FORWARDED_FOR']));
-  return ip_address;
+        static_ipaddress_ipaddress = array_pop(explode(',', _SERVER['HTTP_X_FORWARDED_FOR']));
+  return static_ipaddress_ipaddress;
 
 
