@@ -181,6 +181,7 @@ def timer_start(name):
   timers[name]['start'] = float(usec) + float(sec);
   timers[name]['count'] = ((timers[name]['count'] + 1) if isset(timers[name],'count') else 1);
 
+
 #
 # Read the current timer value without stopping the timer.
 #
@@ -913,7 +914,6 @@ def drupal_bootstrap(phase):
 def _drupal_bootstrap(phase):
   global conf;
   if phase == DRUPAL_BOOTSTRAP_CONFIGURATION:
-    drupal_unset_globals();
     # Start a page timer:
     timer_start('page');
     # Initialize the configuration
