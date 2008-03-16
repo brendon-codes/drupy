@@ -22,15 +22,15 @@ def define(name, val = None):
       isinstance(val, int) or \
       isinstance(val, float) or \
       isinstance(val, bool) or \
-      isinstance(val, NoneType):
+      val == None:
     vars['val'] = val
   elif isinstance(val, str):
     vars['val'] = "'%(val)s'" % {'val':val}
   else:
     return false 
   out = \
-    "global %(name)s\n" + \
-    "%(name)s = %(val)s" \
+    ("global %(name)s\n" + \
+    "%(name)s = %(val)s") \
     % vars
   exec(out, globals())
   return True
@@ -42,8 +42,11 @@ def define(name, val = None):
 # @param Str val
 # @return Str
 #  
-def explode(delim, val):
-  return val.split(delim)
+def explode(delim, val, limit = None):
+  if limit != None:
+    return val.split(delim, limit)
+  else:
+    return val.split(delim)
 
 
 #
@@ -162,6 +165,7 @@ def htmlspecialchars(val, flags = None):
 # @return Bool
 # 
 def empty(obj, val, searchGlobal = False):
+  data = {}
   set = isset(obj, val, searchGlobal, data)
   # Not set
   if not set:
@@ -173,7 +177,7 @@ def empty(obj, val, searchGlobal = False):
     return True
   # None
   elif \
-      isinstance(data['val'], NoneType):
+      data['val'] == None:
     return True  
   # Lists
   elif \
@@ -225,8 +229,11 @@ def array_slice(items, a1, a2 = None):
 # @param Str val
 # @return Str
 #
-def rtrim(val):
-  return val.rstrip()
+def rtrim(val, chars = None):
+  if chars != None:
+    return val.rstrip(chars)
+  else:
+    return val.rstrip()
 
 
 #
@@ -234,8 +241,12 @@ def rtrim(val):
 # @param Str val
 # @return Str
 #
-def ltrim(val):
-  return val.lstrip()
+def ltrim(val, chars = None):
+  if chars != None:
+    return val.lstrip(chars)
+  else:
+    return val.lstrip()
+
 
 #
 # Check file exists
@@ -274,6 +285,18 @@ def parse_url(url):
     'query' : u[4],
     'fragment' : u[5]
   }
+
+#
+# Cast to object
+# @param Dict dic
+# @return Object
+#
+def do_object(dic):
+  out = stdClass()
+  for i in dic:
+    setattr(out, i, dic[i])
+  return out
+
 
 
 #
@@ -363,8 +386,11 @@ def dirname(path):
 # @param Str val
 # @return Str
 #
-def trim(val):
-  return val.strip()
+def trim(val, chars = None):
+  if chars != None:
+    return val.strip(chars)
+  else:
+    return val.strip()
 
 
 #
@@ -426,7 +452,7 @@ def ini_set(name, val):
 # @return Bool
 #
 def session_name(name):
-  return True
+  return 'session'
 
 
 #
@@ -504,6 +530,14 @@ def gzinflate(val):
 def gzdeflate():
   return zlib.compress(val)
 
+#
+# Pops item
+# @param item
+# @return Mixed
+#
+def array_pop(item):
+  return item.pop()
+
 
 #
 # Std class
@@ -514,6 +548,7 @@ class stdCLass: pass
 #
 # Set Aliases
 #
+array_key_exists = in_array
 gzencode = gzdeflate
 gzdecode = gzinflate
 sizeof = count
@@ -525,8 +560,10 @@ include_once = include
 substr = array_slice
 
 
-
-
+#
+# DEFINES
+#
+define('ENT_QUOTES', 1)
 
 
 
