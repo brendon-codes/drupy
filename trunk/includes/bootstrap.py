@@ -16,6 +16,7 @@ static('drupalbootstrap_phases');
 static('drupalbootstrap_phaseindex');
 static('gett_t');
 static('languagelist_languages');
+static('ipaddress_ipaddress');
 
 #
 # Global variables
@@ -25,11 +26,12 @@ set_global('base_url');
 set_global('base_path');
 set_global('base_root');
 set_global('db_url');
-set_gloabl('db_prefix');
+set_global('db_prefix');
 set_global('cookie_domain');
 set_global('installed_profile');
 set_global('update_free_access');
 set_global('language');
+set_global('timers');
 
 
 #
@@ -167,6 +169,10 @@ define('LANGUAGE_NEGOTIATION_DOMAIN', 3);
 #
 def timer_start(name):
   global timers;
+  if timers == None:
+    timers = {};
+  if not isset(timers, name):
+    timers[name] = {}
   (usec, sec) = explode(' ', microtime());
   timers[name]['start'] = float(usec) + float(sec);
   timers[name]['count'] = ((timers[name]['count'] + 1) if isset(timers[name],'count') else 1);
@@ -180,7 +186,6 @@ def timer_start(name):
 #   The current timer value in ms.
 #
 def timer_read(name):
-  global timers;
   if (isset(timers[name], 'start')):
     (usec, sec) = explode(' ', microtime());
     stop = float(usec) + float(sec);
@@ -201,7 +206,6 @@ def timer_read(name):
 #   timer value in ms (time).
 #
 def timer_stop(name):
-  global timers;
   timers[name]['time'] = timer_read(name);
   del(timers[name]['start']);
   return timers[name];
@@ -248,6 +252,7 @@ def timer_stop(name):
 #   The path of the matching directory.
 #
 def conf_path(require_settings = True, reset = False):
+  global confpath_conf;
   if (confpath_conf != None and not reset):
     return confpath_conf;
   confdir = 'sites';
@@ -275,6 +280,8 @@ def drupal_unset_globals():
 # session name correctly.
 #
 def conf_init():
+  global base_url;
+  global cookie_domain;
   confpath_conf = {};
   if (file_exists('./' + conf_path() + '/settings.php')):
     include_once( './' + conf_path() + '/settings.php', locals());
@@ -304,11 +311,11 @@ def conf_init():
       base_path = '/';
   if (cookie_domain != None):
     # If the user specifies the cookie domain, also use it for session name.
-    session_name = cookie_domain;
+    _session_name = cookie_domain;
   else:
     # Otherwise use base_url as session name, without the protocol
     # to use the same session identifiers across http and https.
-    (_dummy, session_name) = explode('://', base_url, 2);
+    (_dummy, _session_name) = explode('://', base_url, 2);
     # We escape the hostname because it can be modified by a visitor.
     if (not empty(_SERVER, 'HTTP_HOST')):
       cookie_domain = check_plain(_SERVER['HTTP_HOST']);
@@ -317,12 +324,13 @@ def conf_init():
   if (strpos(cookie_domain, 'www.') == 0):
     cookie_domain = substr(cookie_domain, 4);
   cookie_domain = explode(':', cookie_domain);
-  cookie_domain = '.'. cookie_domain[0];
+  cookie_domain = '.' + cookie_domain[0];
   # Per RFC 2109, cookie domains must contain at least one dot other than the
   # first. For hosts such as 'localhost' or IP Addresses we don't set a cookie domain.
   if (count(explode('.', cookie_domain)) > 2 and not is_numeric(str_replace('.', '', cookie_domain))):
     ini_set('session.cookie_domain', cookie_domain);
-  session_name('SESS'. md5(session_name));
+  #print session_name;
+  session_name('SESS' + do_md5(_session_name));
 
 
 
@@ -474,7 +482,6 @@ def page_get_cache(status_only = False):
   if (user == None and _SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_set_message()) == 0):
     cache = cache_get(base_root . request_uri(), 'cache_page');
     if (empty(locals(), cache)):
-      ob_start();
       pagegetcache_status = True;
   return cache;
 
@@ -856,6 +863,8 @@ def drupal_anonymous_user(session = ''):
 #     DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix input data.
 #
 def drupal_bootstrap(phase):
+  global drupalbootstrap_phases;
+  global drupalbootstrap_phaseindex;
   if (drupalbootstrap_phases == None):
     drupalbootstrap_phases = [
       DRUPAL_BOOTSTRAP_CONFIGURATION,
@@ -1024,35 +1033,43 @@ def language_list(field = 'language', reset = False):
 #   Optional property of the language object to return
 #
 def language_default(property = None):
-  languagelist_language = variable_get('language_default', (object) array('language' => 'en', 'name' => 'English', 'native' => 'English', 'direction' => 0, 'enabled' => 1, 'plurals' => 0, 'formula' => '', 'domain' => '', 'prefix' => '', 'weight' => 0, 'javascript' => ''));
-  return property ? language->property : language;
-
+  theList = do_object({
+    'language' : 'en',
+    'name' : 'English',
+    'native' : 'English',
+    'direction' : 0,
+    'enabled' : 1,
+    'plurals' : 0,
+    'formula' : '',
+    'domain' : '',
+    'prefix' : '',
+    'weight' : 0,
+    'javascript' : ''
+  });
+  languagelist_language = variable_get('language_default', theList);
+  return (language.property if property else language);
 
 
 #
 # If Drupal is behind a reverse proxy, we use the X-Forwarded-For header
 # instead of _SERVER['REMOTE_ADDR'], which would be the IP address
 # of the proxy server, and not the client's.
- *
+#
 # @return
 #   IP address of client machine, adjusted for reverse proxy.
 #
-def ip_address() {
-  static ip_address = NULL;
-
-  if (!isset(ip_address)) {
-    ip_address = _SERVER['REMOTE_ADDR'];
-    if (variable_get('reverse_proxy', 0) && array_key_exists('HTTP_X_FORWARDED_FOR', _SERVER)) {
+def ip_address():
+  if (ipaddress_ipaddress == None):
+    ipaddress_ipaddress = _SERVER['REMOTE_ADDR'];
+    if (variable_get('reverse_proxy', 0) and array_key_exists('HTTP_X_FORWARDED_FOR', _SERVER)):
       # If an array of known reverse proxy IPs is provided, then trust
       # the XFF header if request really comes from one of them.
-      reverse_proxy_addresses = variable_get('reverse_proxy_addresses', array());
-      if (!empty(reverse_proxy_addresses) && in_array(ip_address, reverse_proxy_addresses, TRUE)) {
+      reverse_proxy_addresses = variable_get('reverse_proxy_addresses', []);
+      if (not empty(locals(), reverse_proxy_addresses) and \
+          in_array(ipaddress_ipaddress, reverse_proxy_addresses)):
         # If there are several arguments, we need to check the most
         # recently added one, i.e. the last one.
-        ip_address = array_pop(explode(',', _SERVER['HTTP_X_FORWARDED_FOR']));
-      }
-    }
-  }
-
+        ipaddress_ipaddress = array_pop(explode(',', _SERVER['HTTP_X_FORWARDED_FOR']));
   return ip_address;
-}
+
+
