@@ -544,7 +544,7 @@ def drupal_load(type, name):
   else:
     filename = drupal_get_filename(type, name);
     if (filename != False):
-      include_once("./filename");
+      include_once("./" + filename);
       static_drupalload_files[type][name] = True;
       return True;
     else:
@@ -894,7 +894,6 @@ def drupal_bootstrap(phase):
     #Drupal was unsetting the phase var here.
     #This was completely unnecessary and most likely the cause of some bugs
     phase_index += 1;
-    print current_phase;
     _drupal_bootstrap(current_phase);
 
 
@@ -909,7 +908,7 @@ def _drupal_bootstrap(phase):
   elif phase == DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE:
     # Allow specifying special cache handlers in settings.php, like
     # using memcached or files for storing cache information.
-    require_once( variable_get('cache_inc', './includes/cache.inc'), locals() );
+    require_once( variable_get('cache_inc', './includes/cache.py'), globals() );
     # If the page_cache_fastpath is set to TRUE in settings.php and
     # page_cache_fastpath (implemented in the special implementation of
     # cache.inc) printed the page and indicated this with a returned TRUE
