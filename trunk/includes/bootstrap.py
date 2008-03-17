@@ -14,8 +14,6 @@ static('static_confpath_conf');
 static('static_drupalgetfilename_files');
 static('static_pagegetcache_status');
 static('static_drupalload_files');
-static('static_drupalbootstrap_phases');
-static('static_drupalbootstrap_phaseindex');
 static('static_gett_t');
 static('static_languagelist_languages');
 static('static_ipaddress_ipaddress');
@@ -212,6 +210,7 @@ def timer_read(name):
 #   timer value in ms (time).
 #
 def timer_stop(name):
+  global timers;
   timers[name]['time'] = timer_read(name);
   del(timers[name]['start']);
   return timers[name];
@@ -886,27 +885,16 @@ def drupal_anonymous_user(session = ''):
 #     DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix input data.
 #
 def drupal_bootstrap(phase):
-  global static_drupalbootstrap_phases, static_drupalbootstrap_phaseindex;
-  if (static_drupalbootstrap_phases == None):
-    static_drupalbootstrap_phases = [
-      DRUPAL_BOOTSTRAP_CONFIGURATION,
-      DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE,
-      DRUPAL_BOOTSTRAP_DATABASE,
-      DRUPAL_BOOTSTRAP_ACCESS,
-      DRUPAL_BOOTSTRAP_SESSION,
-      DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE,
-      DRUPAL_BOOTSTRAP_LANGUAGE,
-      DRUPAL_BOOTSTRAP_PATH,
-      DRUPAL_BOOTSTRAP_FULL
-    ]
-  if (static_drupalbootstrap_phaseindex == None):
-    static_drupalbootstrap_phaseindex = 0;
-  while ( \
-      phase >= static_drupalbootstrap_phaseindex and \
-      isset(static_drupalbootstrap_phases, static_drupalbootstrap_phaseindex)):
-    current_phase = static_drupalbootstrap_phases[static_drupalbootstrap_phaseindex];
-    static_drupalbootstrap_phaseindex = static_drupalbootstrap_phaseindex + 1;
-    del(static_drupalbootstrap_phases[static_drupalbootstrap_phaseindex]);
+  # DRUPY(BC): Why the hell did Drupal set the vars in here as static?
+  # No longer needed. 
+  phase_index = 0;
+  phases = range(DRUPAL_BOOTSTRAP_CONFIGURATION, DRUPAL_BOOTSTRAP_FULL);
+  while (phase >= phase_index and isset(phases, phase_index)):
+    current_phase = phases[phase_index];
+    #Drupal was unsetting the phase var here.
+    #This was completely unnecessary and most likely the cause of some bugs
+    phase_index += 1;
+    print current_phase;
     _drupal_bootstrap(current_phase);
 
 
