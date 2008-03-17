@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # $Id: index.php,v 1.94 2007/12/26 08:46:48 dries Exp $
 
 #
