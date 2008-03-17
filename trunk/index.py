@@ -11,17 +11,11 @@
 # See COPYRIGHT.txt and LICENSE.txt.
 #
 
-execfile('./lib/drupy/drupy.py', globals());
-execfile('./lib/drupy/http.py', globals());
-
+execfile('./lib/drupy/php.py', globals());
+execfile('./lib/drupy/env.py', globals());
 require_once('./includes/bootstrap.py', globals());
-#drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
-drupal_bootstrap(DRUPAL_BOOTSTRAP_CONFIGURATION);
 
-# Bootstrapping tests
-print db_url;
-exit();
-
+drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 _return = menu_execute_active_handler();
 
 # Menu status constants are integers; page content is a string.
