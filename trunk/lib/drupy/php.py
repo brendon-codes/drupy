@@ -65,9 +65,9 @@ def microtime():
 # @return Dict,List 
 # 
 def array_merge(a1, a2):
-  out = a1
-  for k,v in a2:
-    out[k] = v
+  out = copy.deepcopy(a1)
+  for k in a2:
+    out[k] = a2[k]
   return out
   
 
@@ -78,37 +78,48 @@ def array_merge(a1, a2):
 # @param Bool searchGlobal  
 #
 def isset(obj, val, searchGlobal = False, data = {}):
+  sVal = None
   # Dict
-  if isinstance(obj, dict):
+  if \
+      isinstance(obj, dict) or \
+      isinstance(obj, tuple):
     # Get globals also
     if searchGlobal:
       sVal = array_merge(obj, globals())
     else:
-      sVal = val
-    if obj.has_key(sVal):
-      data['val'] = obj[sVal]
+      sVal = obj
+    if sVal.has_key(val):
+      data['val'] = obj[val]
+      data['msg'] = "Is Dict, Has Key, Globals: %s" % str(sVal)
       return True
     else:
       data['val'] = None
+      data['msg'] = "Is Dict, Has Not Key, Globals: %s" % str(sVal)     
       return False
   # List
   elif isinstance(obj, list):
     if (val < len(obj)):
       data['val'] = obj[val]
+      data['msg'] = "Is Index, Has Key, Globals: %s" % str(sVal)
       return True
     else:
       data['val'] = None
+      data['msg'] = "Is Index, Has Not Key, Globals: %s" % str(sVal)
       return False
   # Object
   elif isinstance(obj, object):
     if hasattr(obj, val):
       data['val'] = getattr(obj, val)
+      data['msg'] = "Is Object, Has Key, Globals: %s" % str(sVal)
       return True
     else:
       data['val'] = None
+      data['msg'] = "Is Object, Has Not Key, Globals: %s" % str(sVal)
       return False
   # Others unknown
   else:
+    data['Val'] = None
+    data['msg'] = "Is Unknown, Has Not Key Globals: %s" % str(sVal)
     return False
 
 
@@ -359,6 +370,18 @@ def preg_match(pat, subject, match = {}):
   match['match'] = g
   return len(g)
 
+
+#
+# str replace
+# @param Str pat
+# @param Str rep
+# @param Str sub
+# @return Str
+#
+def str_replace(pat, rep, sub):
+  return sub.replace(pat, rep)
+  
+  
 
 #
 # preg_replace
