@@ -265,8 +265,8 @@ def conf_path(require_settings = True, reset = False):
   server = explode('.', implode('.', array_reverse(explode(':', rtrim(_SERVER['HTTP_HOST'], '.')))));
   for i in range(count(uri)-1, 1, -1):
     for j in range(count(server), 1, -1):
-      _dir = implode('.', array_merge(array_slice(server, -j)), implode('.', array_slice(uri, 0, i)));
-      if (file_exists("%(confdir)s/%(dir)/settings.py" % {'confdir':confdir, 'dir':_dir}) or \
+      _dir = implode('.', array_slice(server, -j)) + implode('.', array_slice(uri, 0, i));
+      if (file_exists("%(confdir)s/%(dir)s/settings.py" % {'confdir':confdir, 'dir':_dir}) or \
           (not require_settings and file_exists("confdir/dir"))):
         static_confpath_conf = "%(confdir)s/%(dir)s" % {'confdir':confdir, 'dir':_dir};
         return static_confpath_conf;

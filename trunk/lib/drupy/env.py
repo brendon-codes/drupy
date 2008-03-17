@@ -4,4 +4,4 @@ import os
 
 global _SERVER
 
-_SERVER = os.environ
+_SERVER = dict(os.environ)
