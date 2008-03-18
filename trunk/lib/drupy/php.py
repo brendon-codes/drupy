@@ -8,7 +8,8 @@ import pickle
 import hashlib
 import zlib
 import htmlentitydefs
-
+import cgi
+import cgitb; cgitb.enable()
 
 #
 # Sets globals variable
@@ -588,5 +589,8 @@ substr = array_slice
 #
 define('ENT_QUOTES', 1)
 
-
+#
+# Super Globals
+#
+global _SERVER; _SERVER = dict(os.environ)
 

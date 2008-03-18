@@ -1,0 +1,51 @@
+#!/usr/bin/env php
+<?PHP
+
+$filename = $_SERVER['argv'][1];
+$fp = fopen($filename, 'r');
+$data = fread($fp, filesize($filename));
+$data = p2p_tags($data);
+$data = p2p_strVars($data);
+$data = p2p_vars($data);
+$data = p2p_funcs($data);
+$data = p2p_comments_1($data);
+$data = p2p_comments_2($data);
+print $data;
+
+
+
+function p2p_tags($data) {
+ $pat = "|^\s*<\?PHP(.*?)\?>\s*$|is";
+ $rep = "\\1";
+ return preg_replace($pat, $rep, $data);
+}
+
+function p2p_comments_1($data) {
+ $pat = "|^\s*\*/?|im";
+ $rep = "#";
+ return preg_replace($pat, $rep, $data);
+}
+
+function p2p_comments_2($data) {
+ $pat = "|^\s*/\*+|im";
+ $rep = "#";
+ return preg_replace($pat, $rep, $data);
+}
+
+function p2p_funcs($data) {
+ $pat = "/^(\s+)function\s+([a-z_])/im";
+ $rep = "\\1def \\2";
+ return preg_replace($pat, $rep, $data);
+}
+
+function p2p_strVars($data) {
+ $pat = "/([\"'])(.*?)(\{?\\$(\w+)\}?)(.*?)(\\1)/i";
+ $rep = "\\1\\2%(\\4)s\\5\\6";
+ return preg_replace($pat, $rep, $data);
+}
+
+function p2p_vars($data) {
+ $pat = "/\\$(\w+)/i";
+ $rep = "\\1";
+ return preg_replace($pat, $rep, $data);
+}
