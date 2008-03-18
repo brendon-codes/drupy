@@ -5,7 +5,6 @@
 #
 
 execfile('./lib/drupy/php.py', globals())
-execfile('./lib/drupy/env.py', globals())
 require_once('./includes/bootstrap.py', globals());
 
 phases = [
