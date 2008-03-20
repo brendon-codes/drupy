@@ -917,7 +917,7 @@ def _drupal_bootstrap(phase):
       exit();
   elif phase == DRUPAL_BOOTSTRAP_DATABASE:
     # Initialize the default database.
-    require_once('./includes/database.inc', locals());
+    require_once('./includes/database.py', globals());
     db_set_active();
   elif phase == DRUPAL_BOOTSTRAP_ACCESS:
     # Deny access to hosts which were banned - t() is not yet available.
@@ -971,7 +971,7 @@ def _drupal_bootstrap(phase):
 # @see _drupal_maintenance_theme()
 #
 def drupal_maintenance_theme():
-  require_once( './includes/theme_maintenance.inc', locals());
+  require_once( './includes/theme_maintenance.py', globals());
   _drupal_maintenance_theme();
 
 

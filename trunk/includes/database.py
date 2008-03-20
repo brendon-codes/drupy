@@ -4,10 +4,9 @@
 # Wrapper for database interface code.
 #
 
-static('db_conns');
-static('active_name');
-static('args');
-
+static('dbsetactive_dbconns');
+static('dbsetactive_activename');
+static('dbquerycallback_args');
 
 
 #
@@ -123,10 +122,15 @@ def db_prefix_tables(sql):
 #
 def db_set_active(name = 'default'):
   global db_url, db_type, active_db;
+  global dbsetactive_dbconns, dbsetactive_activename;
+  if (dbsetactive_activename == None):
+    dbsetactive_activename = False;
+  if (dbsetactive_dbconns == None):
+    dbsetactive_dbconns = {};
   if (db_url == None):
-    include_once('includes/install.inc');
-    install_goto('install.php');
-  if (not isset(db_conns, name)):
+    include_once('includes/install.py');
+    install_goto('install.py');
+  if (not isset(dbsetactive_dbconns, name)):
     # Initiate a new connection, using the named DB URL specified.
     if (isinstance(db_url, dict)):
       connect_url = (db_url[name] if array_key_exists(name, db_url) else db_url['default']);
@@ -138,11 +142,11 @@ def db_set_active(name = 'default'):
       include_once(handler);
     else:
       _db_error_page("The database type '" + db_type + "' is unsupported. Please use either 'mysql' or 'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
-    db_conns[name] = db_connect(connect_url);
-  previous_name = active_name;
+    dbsetactive_dbconns[name] = db_connect(connect_url);
+  previous_name = dbsetactive_activename;
   # Set the active connection.
-  active_name = name;
-  active_db = db_conns[name];
+  dbsetactive_activename = name;
+  active_db = dbsetactive_dbconns[name];
   return previous_name;
 
 
@@ -183,18 +187,18 @@ def db_is_active():
 #
 def _db_query_callback(match, init = False):
   if (init):
-    args = match;
+    dbquerycallback_args = match;
     return;
   if case == '%d': # We must use type casting to int to convert FALSE/NULL/(TRUE?)
-    return int(array_shift(args)); # We don't need db_escape_string as numbers are db-safe
+    return int(array_shift(dbquerycallback_args)); # We don't need db_escape_string as numbers are db-safe
   elif case == '%s':
-    return db_escape_string(array_shift(args));
+    return db_escape_string(array_shift(dbquerycallback_args));
   elif case == '%%':
     return '%';
   elif case == '%f':
-    return float(array_shift(args));
+    return float(array_shift(dbquerycallback_args));
   elif case == '%b': # binary data
-    return db_encode_blob(array_shift(args));
+    return db_encode_blob(array_shift(dbquerycallback_args));
 
 
 
