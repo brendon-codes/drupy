@@ -1,3 +1,17 @@
+#
+# Drupy/PHP.py
+# A PHP abstraction layer for Python
+# 
+# @package Drupy
+# @file php.py
+# @module drupy.php
+# @author Brendon Crawford
+# @see http://drupy.sourceforge.net
+# @created 2008-02-05
+# @version 0.1.1
+# @modified 2008-08-20
+#
+#
 import time
 import datetime
 import os
@@ -10,6 +24,17 @@ import zlib
 import htmlentitydefs
 import cgi
 import cgitb; cgitb.enable()
+
+#
+# Constants
+#
+global ENT_QUOTES; ENT_QUOTES = 1
+
+#
+# Superglobals
+#
+global _SERVER; _SERVER = dict(os.environ)
+
 
 #
 # Sets globals variable
@@ -150,6 +175,44 @@ def do_time():
 #
 def in_array(val, obj):
   return isset(obj, val)
+
+
+#
+# Fills array
+# @param Int start
+# @param Int cnt
+# @param Str val
+# @return Dict
+#
+def array_fill(start, cnt, val):
+  r = {}
+  i = start
+  while i <= (start + cnt):
+    r[i] = val
+    i += 1
+  return r
+
+
+#
+# Shifts array
+# @param List,Dict,Tuple item
+# @return Mixed
+#
+def array_shift(item):
+  if isinstance(item, list):
+    if len(item) > 0:
+      return item.pop(0)
+    else:
+      return None
+  elif isintance(item, dict):
+    k = item.keys()
+    if len(k) > 0:
+      return item.pop(k[0])
+    else:
+      return None
+  else:
+    return None
+
 
 
 #
@@ -602,14 +665,4 @@ require = include
 include_once = include
 substr = array_slice
 
-
-#
-# DEFINES
-#
-define('ENT_QUOTES', 1)
-
-#
-# Super Globals
-#
-global _SERVER; _SERVER = dict(os.environ)
 
