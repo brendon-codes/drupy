@@ -70,7 +70,17 @@ def array_merge(a1, a2):
   for k in a2:
     out[k] = a2[k]
   return out
-  
+
+
+#
+# Has key
+# @param Str item
+# @param Dict item
+# @return Bool
+#
+def array_key_exists(name, item):
+  return item.has_key(name);
+
 
 #
 # Check variable existance
@@ -258,6 +268,15 @@ def ltrim(val, chars = None):
     return val.lstrip(chars)
   else:
     return val.lstrip()
+
+
+#
+# Check regular file
+# @param String filename
+# @return Bool
+#
+def is_file(filename):
+  return os.path.isfile(filename)
 
 
 #
