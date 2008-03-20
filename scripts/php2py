@@ -1,16 +1,19 @@
 #!/usr/bin/env php
 <?PHP
 
-$filename = $_SERVER['argv'][1];
-$fp = fopen($filename, 'r');
-$data = fread($fp, filesize($filename));
+//read data
+$data = fread(STDIN, 131072);
+
+//Do conversions
 $data = p2p_tags($data);
-$data = p2p_strVars($data);
+//$data = p2p_strVars($data);
 $data = p2p_vars($data);
 $data = p2p_funcs($data);
 $data = p2p_comments_1($data);
 $data = p2p_comments_2($data);
-print $data;
+
+//write output
+fwrite(STDOUT, $data);
 
 
 
@@ -33,7 +36,7 @@ function p2p_comments_2($data) {
 }
 
 function p2p_funcs($data) {
- $pat = "/^(\s+)function\s+([a-z_])/im";
+ $pat = "/^(\s*)function\s+([a-z_])/im";
  $rep = "\\1def \\2";
  return preg_replace($pat, $rep, $data);
 }
@@ -49,3 +52,6 @@ function p2p_vars($data) {
  $rep = "\\1";
  return preg_replace($pat, $rep, $data);
 }
+
+
+?>
