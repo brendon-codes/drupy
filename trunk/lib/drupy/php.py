@@ -450,6 +450,17 @@ def preg_setup(pat):
 
 
 #
+# Escapes regular expression
+# @param Str val
+# @param Any delim
+#    Not used
+# @return Str
+#
+def preg_quote(val, delim = None):
+  return re.escape(val)
+
+
+#
 # Convert PHP preg_match to Python matcher
 # @param Str pat
 # @param Str subject
@@ -478,15 +489,38 @@ def str_replace(pat, rep, sub):
   
 
 #
-# preg_replace
+# preg_replace wrapper
 # @param Str pat
 # @param Str replace
 # @param Str subject
 # @return Str
 #
 def preg_replace(pat, replace, subject):
+  out = subject
+  if isinstance(pat, list):
+    repIsStr = isinstance(replace, list)
+    for i in pat:
+      if repIsStr:
+        repStr = replace
+      else:
+        repStr = replace[i]
+      out = preg_replace_str(pat[i], repStr, out)
+  else:
+    out = preg_replace_str(pat, replace, subject)
+  return out
+    
+
+#
+# Real preg replace
+# @param Str pat
+# @param Str replace
+# @param Str subject
+# @return Str
+#
+def preg_replace_str(pat, replace, subject):
   reg = preg_setup(pat)
   return reg.sub(replace, subject)
+
 
 
 #
@@ -535,6 +569,15 @@ def is_numeric(val):
     return True
   else:
     return False
+
+
+
+#
+# Is null
+# @param Any val
+#
+def is_null(val):
+  return (val == None)
 
 
 #
