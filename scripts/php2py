@@ -1,12 +1,11 @@
 #!/usr/bin/env php
 <?PHP
 
-//read data
-$data = fread(STDIN, 131072);
+$data = file_get_contents($_SERVER['argv'][1]);
 
 //Do conversions
-$data = p2p_tags($data);
-//$data = p2p_strVars($data);
+//$data = p2p_tags($data);
+$data = p2p_strVars($data);
 $data = p2p_vars($data);
 $data = p2p_funcs($data);
 $data = p2p_comments_1($data);
@@ -14,8 +13,6 @@ $data = p2p_comments_2($data);
 
 //write output
 fwrite(STDOUT, $data);
-
-
 
 function p2p_tags($data) {
  $pat = "|^\s*<\?PHP(.*?)\?>\s*$|is";
