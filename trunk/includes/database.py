@@ -4,9 +4,9 @@
 # Wrapper for database interface code.
 #
 
-static('dbsetactive_dbconns');
-static('dbsetactive_activename');
-static('dbquerycallback_args');
+static('static_dbsetactive_dbconns');
+static('static_dbsetactive_activename');
+static('static_dbquerycallback_args');
 
 
 #
@@ -122,15 +122,15 @@ def db_prefix_tables(sql):
 #
 def db_set_active(name = 'default'):
   global db_url, db_type, active_db;
-  global dbsetactive_dbconns, dbsetactive_activename;
-  if (dbsetactive_activename == None):
-    dbsetactive_activename = False;
-  if (dbsetactive_dbconns == None):
-    dbsetactive_dbconns = {};
+  global static_dbsetactive_dbconns, static_dbsetactive_activename;
+  if (static_dbsetactive_activename == None):
+    static_dbsetactive_activename = False;
+  if (static_dbsetactive_dbconns == None):
+    static_dbsetactive_dbconns = {};
   if (db_url == None):
     include_once('includes/install.py');
     install_goto('install.py');
-  if (not isset(dbsetactive_dbconns, name)):
+  if (not isset(static_dbsetactive_dbconns, name)):
     # Initiate a new connection, using the named DB URL specified.
     if (isinstance(db_url, dict)):
       connect_url = (db_url[name] if array_key_exists(name, db_url) else db_url['default']);
@@ -142,11 +142,11 @@ def db_set_active(name = 'default'):
       include_once(handler);
     else:
       _db_error_page("The database type '" + db_type + "' is unsupported. Please use either 'mysql' or 'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
-    dbsetactive_dbconns[name] = db_connect(connect_url);
-  previous_name = dbsetactive_activename;
+    static_dbsetactive_dbconns[name] = db_connect(connect_url);
+  previous_name = static_dbsetactive_activename;
   # Set the active connection.
-  dbsetactive_activename = name;
-  active_db = dbsetactive_dbconns[name];
+  static_dbsetactive_activename = name;
+  active_db = static_dbsetactive_dbconns[name];
   return previous_name;
 
 
@@ -186,19 +186,20 @@ def db_is_active():
 # Helper function for db_query().
 #
 def _db_query_callback(match, init = False):
+  global static_dbquerycallback_args;
   if (init):
-    dbquerycallback_args = match;
+    static_dbquerycallback_args = match;
     return;
   if case == '%d': # We must use type casting to int to convert FALSE/NULL/(TRUE?)
-    return int(array_shift(dbquerycallback_args)); # We don't need db_escape_string as numbers are db-safe
+    return int(array_shift(static_dbquerycallback_args)); # We don't need db_escape_string as numbers are db-safe
   elif case == '%s':
-    return db_escape_string(array_shift(dbquerycallback_args));
+    return db_escape_string(array_shift(static_dbquerycallback_args));
   elif case == '%%':
     return '%';
   elif case == '%f':
-    return float(array_shift(dbquerycallback_args));
+    return float(array_shift(static_dbquerycallback_args));
   elif case == '%b': # binary data
-    return db_encode_blob(array_shift(dbquerycallback_args));
+    return db_encode_blob(array_shift(static_dbquerycallback_args));
 
 
 

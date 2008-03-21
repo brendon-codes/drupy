@@ -23,7 +23,7 @@ set_global('_theme');
 def _drupal_maintenance_theme():
   global _theme, theme_key;
   # If theme is already set, assume the others are set too, and do nothing.
-  if (_theme == None):
+  if (_theme != None):
     return;
   require_once( './includes/path.py' );
   require_once( './includes/theme.py' );
@@ -38,8 +38,8 @@ def _drupal_maintenance_theme():
     _theme = 'minnelli';
   else:
     # Load module basics (needed for hook invokes).
-    module_list['system']['filename'] = 'modules/system/module_system.py';
-    module_list['filter']['filename'] = 'modules/filter/module_filter.py';
+    module_list['system']['filename'] = 'modules/system/system.py';
+    module_list['filter']['filename'] = 'modules/filter/filter.py';
     module_list(True, False, False, module_list);
     drupal_load('module', 'system');
     drupal_load('module', 'filter');
