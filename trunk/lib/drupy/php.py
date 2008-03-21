@@ -31,9 +31,20 @@ import cgitb; cgitb.enable()
 global ENT_QUOTES; ENT_QUOTES = 1
 
 #
-# Superglobals
+# Get POST fields
+# @return Dict[Str,List]
 #
-global _SERVER; _SERVER = dict(os.environ)
+def postFields():
+  a = {}
+  f = cgi.FieldStorage()
+  for i in f:
+    if isinstance(f[i], list):
+      a[i] = []
+      for j in f[i]:
+        a[i].append(j.value)
+    else:
+      a[i] = f[i].value
+  return a
 
 
 #
@@ -664,5 +675,12 @@ require_once = include
 require = include
 include_once = include
 substr = array_slice
+
+#
+# Superglobals
+#
+global _SERVER; _SERVER = dict(os.environ)
+global _GET; _GET = cgi.parse()
+global _POST; _POST = postFields()
 
 
