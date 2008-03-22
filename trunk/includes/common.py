@@ -7,6 +7,11 @@
 # a cached page are instead located in bootstrap.inc.
 #
 static('static_drupalsetcontent_content');
+static('static_drupalsetbreadcrumb_storedbreadcrumb');
+static('static_drupalsethtmlhead_storedhead');
+static('static_drupalsetheader_storedheaders');
+static('static_drupaladdfeed_storedfeedlinks');
+static('static_drupalhttprequest_selftest');
 
 
 #
@@ -30,6 +35,7 @@ define('SAVED_DELETED', 3);
 #   Content to be set.
 #
 def drupal_set_content(region = None, data = None):
+  global static_drupalsetcontent_content;
   if (static_drupalsetcontent_content == None):
     static_drupalsetcontent_content = {};
   if (not is_null(region) and not is_null(data)):
@@ -52,14 +58,13 @@ def drupal_get_content(region = None, delimiter = ' '):
     if (isset(content, region) and is_array(content, region)):
       return implode(delimiter, content[region]);
   else:
-    foreach (array_keys(content) as region) {
-      if (is_array(content[region])) {
+    for region in array_keys(content):
+      if (is_array(content[region])):
         content[region] = implode(delimiter, content[region]);
-      }
-    }
     return content;
-  }
-}
+
+
+
 #
 # Set the breadcrumb trail for the current page.
 #
@@ -67,76 +72,76 @@ def drupal_get_content(region = None, delimiter = ' '):
 #   Array of links, starting with "home" and proceeding up to but not including
 #   the current page.
 #
-def drupal_set_breadcrumb(breadcrumb = NULL) {
-  static stored_breadcrumb;
+def drupal_set_breadcrumb(breadcrumb = None):
+  global static_drupalsetbreadcrumb_storedbreadcrumb;
+  if (not is_null(breadcrumb)):
+    static_drupalsetbreadcrumb_storedbreadcrumb = breadcrumb;
+  return static_drupalsetbreadcrumb_storedbreadcrumb;
 
-  if (!is_null(breadcrumb)) {
-    stored_breadcrumb = breadcrumb;
-  }
-  return stored_breadcrumb;
-}
+
 #
 # Get the breadcrumb trail for the current page.
 #
-def drupal_get_breadcrumb() {
+def drupal_get_breadcrumb():
   breadcrumb = drupal_set_breadcrumb();
-
-  if (is_null(breadcrumb)) {
+  if (is_null(breadcrumb)):
     breadcrumb = menu_get_active_breadcrumb();
-  }
-
   return breadcrumb;
-}
+
+
 #
 # Add output to the head tag of the HTML page.
 #
 # This function can be called as long the headers aren't sent.
 #
-def drupal_set_html_head(data = NULL) {
-  static stored_head = '';
+def drupal_set_html_head(data = None):
+  global static_drupalsethtmlhead_storedhead;
+  if (not is_null(data)):
+    static_drupalsethtmlhead_storedhead += data + "\n";
+  return static_drupalsethtmlhead_storedhead;
 
-  if (!is_null(data)) {
-    stored_head .= data ."\n";
-  }
-  return stored_head;
-}
+
 #
 # Retrieve output to be displayed in the head tag of the HTML page.
 #
-def drupal_get_html_head() {
+def drupal_get_html_head():
   output = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
-  return output . drupal_set_html_head();
-}
+  return output + drupal_set_html_head();
+
+
 #
 # Reset the static variable which holds the aliases mapped for this request.
 #
-def drupal_clear_path_cache() {
+def drupal_clear_path_cache():
   drupal_lookup_path('wipe');
-}
+
+
 #
 # Set an HTTP response header for the current page.
 #
 # Note: When sending a Content-Type header, always include a 'charset' type,
 # too. This is necessary to avoid security bugs (e.g. UTF-7 XSS).
 #
-def drupal_set_header(header = NULL) {
-  // We use an array to guarantee there are no leading or trailing delimiters.
-  // Otherwise, header('') could get called when serving the page later, which
-  // ends HTTP headers prematurely on some PHP versions.
-  static stored_headers = array();
-
-  if (strlen(header)) {
+def drupal_set_header(header = None):
+  # We use an array to guarantee there are no leading or trailing delimiters.
+  # Otherwise, header('') could get called when serving the page later, which
+  # ends HTTP headers prematurely on some PHP versions.
+  global static_drupalsetheader_storedheaders;
+  if (static_drupalsetheader_storedheaders == None):
+    static_drupalsetheader_storedheaders = [];
+  if (strlen(header) > 0):
     header(header);
-    stored_headers[] = header;
-  }
-  return implode("\n", stored_headers);
-}
+    static_drupalsetheader_storedheaders.append(header);
+  return implode("\n", static_drupalsetheader_storedheaders);
+
+
 #
 # Get the HTTP response headers for the current page.
 #
-def drupal_get_headers() {
+def drupal_get_headers():
   return drupal_set_header();
-}
+
+
 #
 # Add a feed URL for the current page.
 #
@@ -145,29 +150,32 @@ def drupal_get_headers() {
 # @param title
 #   The title of the feed.
 #
-def drupal_add_feed(url = NULL, title = '') {
-  static stored_feed_links = array();
-
-  if (!is_null(url) && !isset(stored_feed_links[url])) {
-    stored_feed_links[url] = theme('feed_icon', url, title);
-
-    drupal_add_link(array('rel' => 'alternate',
-                          'type' => 'application/rss+xml',
-                          'title' => title,
-                          'href' => url));
-  }
+def drupal_add_feed(url = None, title = ''):
+  global static_drupaladdfeed_storedfeedlinks;
+  if (static_drupaladdfeed_storedfeedlinks == None):
+    static_drupaladdfeed_storedfeedlinks = {};
+  if (not is_null(url) and not isset(static_drupaladdfeed_storedfeedlinks, url)):
+    static_drupaladdfeed_storedfeedlinks[url] = theme('feed_icon', url, title);
+    drupal_add_link({
+      'rel' : 'alternate',
+      'type' : 'application/rss+xml',
+      'title' : title,
+      'href' : url
+    });
   return stored_feed_links;
-}
+
+
 #
 # Get the feed URLs for the current page.
 #
 # @param delimiter
 #   A delimiter to split feeds by.
 #
-def drupal_get_feeds(delimiter = "\n") {
+def drupal_get_feeds(delimiter = "\n"):
   feeds = drupal_add_feed();
   return implode(feeds, delimiter);
-}
+
+
 #
 # @name HTTP handling
 # @{
@@ -186,29 +194,23 @@ def drupal_get_feeds(delimiter = "\n") {
 # @return
 #   An urlencoded string which can be appended to/as the URL query string.
 #
-def drupal_query_string_encode(query, exclude = array(), parent = '') {
-  params = array();
-
-  foreach (query as key => value) {
+def drupal_query_string_encode(query, exclude = [], parent = ''):
+  params = [];
+  for key in query:
+    value = query[key];
     key = drupal_urlencode(key);
-    if (parent) {
-      key = parent .'['. %(key)s .']';
-    }
-
-    if (in_array(key, exclude)) {
+    if (parent):
+      key = parent + '[' + key + ']';
+    if (in_array(key, exclude)):
       continue;
-    }
-
-    if (is_array(value)) {
-      params[] = drupal_query_string_encode(value, exclude, key);
-    }
-    else {
-      params[] = key .'='. drupal_urlencode(value);
-    }
-  }
-
+    if (is_array(value)):
+      params.append( drupal_query_string_encode(value, exclude, key) );
+    else:
+      params.append( key + '=' + drupal_urlencode(value) );
   return implode('&', params);
-}
+
+
+
 #
 # Prepare a destination query string for use in combination with drupal_goto().
 #
@@ -219,20 +221,19 @@ def drupal_query_string_encode(query, exclude = array(), parent = '') {
 #
 # @see drupal_goto()
 #
-def drupal_get_destination() {
-  if (isset(_REQUEST['destination'])) {
-    return 'destination='. urlencode(%(_REQUEST)s['destination']);
-  }
-  else {
-    // Use _GET here to retrieve the original path in source form.
-    path = isset(_GET['q']) ? %(_GET)s['q'] : '';
-    query = drupal_query_string_encode(_GET, array('q'));
-    if (query != '') {
-      path .= '?'. query;
-    }
-    return 'destination='. urlencode(path);
-  }
-}
+def drupal_get_destination():
+  if (isset(_REQUEST, 'destination')):
+    return 'destination=' +  urlencode(_REQUEST['destination']);
+  else:
+    # Use _GET here to retrieve the original path in source form.
+    path =  (_GET.__getitem__('q') if isset(_GET, 'q') else '');
+    query = drupal_query_string_encode(_GET, ['q']);
+    if (query != ''):
+      path += '?' + query;
+    return 'destination=' + urlencode(path);
+
+
+
 #
 # Send the user to a different Drupal page.
 #
@@ -274,101 +275,96 @@ def drupal_get_destination() {
 #   supported.
 # @see drupal_get_destination()
 #
-def drupal_goto(path = '', query = NULL, fragment = NULL, http_response_code = 302) {
-
-  if (isset(_REQUEST['destination'])) {
-    extract(parse_url(urldecode(_REQUEST['destination'])));
-  }
-  else if (isset(_REQUEST['edit']['destination'])) {
-    extract(parse_url(urldecode(_REQUEST['edit']['destination'])));
-  }
-
-  url = url(path, array('query' => %(query)s, 'fragment' => %(fragment)s, 'absolute' => TRUE));
-  // Remove newlines from the URL to avoid header injection attacks.
-  url = str_replace(array("\n", "\r"), '', url);
-
-  // Allow modules to react to the end of the page request before redirecting.
-  // We do not want this while running update.php.
-  if (!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE != 'update') {
+def drupal_goto(path = '', query = None, fragment = None, http_response_code = 302):
+  if (isset(_REQUEST, 'destination')):
+    urlP = parse_url(urldecode(_REQUEST['destination']));
+  elif (isset(_REQUEST['edit'], 'destination')):
+    urlP = parse_url(urldecode(_REQUEST['edit']['destination']));
+  url = url(path, {'query' : urlP['query'], 'fragment' : urlP['fragment'], 'absolute' : True});
+  # Remove newlines from the URL to avoid header injection attacks.
+  url = str_replace(["\n", "\r"], '', url);
+  # Allow modules to react to the end of the page request before redirecting.
+  # We do not want this while running update.php.
+  if (not defined(locals(), 'MAINTENANCE_MODE', True) or MAINTENANCE_MODE != 'update'):
     module_invoke_all('exit', url);
-  }
-
-  // Even though session_write_close() is registered as a shutdown function, we
-  // need all session data written to the database before redirecting.
+  # Even though session_write_close() is registered as a shutdown function, we
+  # need all session data written to the database before redirecting.
   session_write_close();
-
-  header('Location: '. url, TRUE, http_response_code);
-
-  // The "Location" header sends a redirect status code to the HTTP daemon. In
-  // some cases this can be wrong, so we make sure none of the code below the
-  // drupal_goto() call gets executed upon redirection.
+  header('Location: '. url, True, http_response_code);
+  # The "Location" header sends a redirect status code to the HTTP daemon. In
+  # some cases this can be wrong, so we make sure none of the code below the
+  # drupal_goto() call gets executed upon redirection.
   exit();
-}
+
+
+
 #
 # Generates a site off-line message.
 #
-def drupal_site_offline() {
+def drupal_site_offline():
   drupal_maintenance_theme();
   drupal_set_header('HTTP/1.1 503 Service unavailable');
   drupal_set_title(t('Site off-line'));
-  print theme('maintenance_page', filter_xss_admin(variable_get('site_offline_message',
-    t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => variable_get('site_name', 'Drupal'))))));
-}
+  print theme(
+    'maintenance_page',
+    filter_xss_admin(
+      variable_get(
+        'site_offline_message',
+        t(
+          '@site is currently under maintenance. We should be back shortly. Thank you for your patience.', \
+          {'@site' : variable_get('site_name', 'Drupal')}
+        )
+      )
+    )
+  );
+
+
+
 #
 # Generates a 404 error if the request can not be handled.
 #
-def drupal_not_found() {
+def drupal_not_found():
   drupal_set_header('HTTP/1.1 404 Not Found');
-
-  watchdog('page not found', check_plain(%(_GET)s['q']), NULL, WATCHDOG_WARNING);
-
-  // Keep old path for reference.
-  if (!isset(_REQUEST['destination'])) {
-    _REQUEST['destination'] = %(_GET)s['q'];
-  }
-
+  watchdog('page not found', check_plain(_GET['q']), None, WATCHDOG_WARNING);
+  # Keep old path for reference.
+  if (not isset(_REQUEST, 'destination')):
+    _REQUEST['destination'] = _GET['q'];
   path = drupal_get_normal_path(variable_get('site_404', ''));
-  if (path && path != _GET['q']) {
-    // Set the active item in case there are tabs to display, or other
-    // dependencies on the path.
+  if (path and path != _GET['q']):
+    # Set the active item in case there are tabs to display, or other
+    # dependencies on the path.
     menu_set_active_item(path);
-    return = menu_execute_active_handler(path);
-  }
-
-  if (empty(return) || return == MENU_NOT_FOUND || return == MENU_ACCESS_DENIED) {
+    _return = menu_execute_active_handler(path);
+  if (empty(locals(), _return) or _return == MENU_NOT_FOUND or _return == MENU_ACCESS_DENIED):
     drupal_set_title(t('Page not found'));
-    return = t('The requested page could not be found.');
-  }
+    _return = t('The requested page could not be found.');
+  # To conserve CPU and bandwidth, omit the blocks.
+  print theme('page', _return, False);
 
-  // To conserve CPU and bandwidth, omit the blocks.
-  print theme('page', return, FALSE);
-}
+
+
 #
 # Generates a 403 error if the request is not allowed.
 #
-def drupal_access_denied() {
+def drupal_access_denied():
   drupal_set_header('HTTP/1.1 403 Forbidden');
-  watchdog('access denied', check_plain(%(_GET)s['q']), NULL, WATCHDOG_WARNING);
-
-  // Keep old path for reference.
-  if (!isset(_REQUEST['destination'])) {
-    _REQUEST['destination'] = %(_GET)s['q'];
-  }
-
+  watchdog('access denied', check_plain(_GET['q']), None, WATCHDOG_WARNING);
+  # Keep old path for reference.
+  if (not isset(_REQUEST, 'destination')):
+    _REQUEST['destination'] = _GET['q'];
   path = drupal_get_normal_path(variable_get('site_403', ''));
-  if (path && path != _GET['q']) {
-    // Set the active item in case there are tabs to display or other
-    // dependencies on the path.
+  if (path and path != _GET['q']):
+    # Set the active item in case there are tabs to display or other
+    # dependencies on the path.
     menu_set_active_item(path);
-    return = menu_execute_active_handler(path);
-  }
-
-  if (empty(return) || return == MENU_NOT_FOUND || return == MENU_ACCESS_DENIED) {
+    _return = menu_execute_active_handler(path);
+  if (empty(locals(), _return) or _return == MENU_NOT_FOUND or _return == MENU_ACCESS_DENIED):
     drupal_set_title(t('Access denied'));
-    return = t('You are not authorized to access this page.');
-  }
-  print theme('page', return);
-}
+    _return = t('You are not authorized to access this page.');
+  print theme('page', _return);
+
+
+
 #
 # Perform an HTTP request.
 #
@@ -390,45 +386,38 @@ def drupal_access_denied() {
 #   An object containing the HTTP request headers, response code, headers,
 #   data and redirect status.
 #
-def drupal_http_request(url, headers = array(), method = 'GET', data = NULL, retry = 3) {
-  static self_test = FALSE;
-  result = new stdClass();
-  // Try to clear the drupal_http_request_fails variable if it's set. We
-  // can't tie this call to any error because there is no surefire way to
-  // tell whether a request has failed, so we add the check to places where
-  // some parsing has failed.
-  if (!self_test && variable_get('drupal_http_request_fails', FALSE)) {
-    self_test = TRUE;
+def drupal_http_request(url, headers = {}, method = 'GET', data = None, retry = 3):
+  global static_drupalhttprequest_selftest;
+  if (static_drupalhttprequest_selftest == None):
+    static_drupalhttprequest_selftest = False;
+  result = stdClass();
+  # Try to clear the drupal_http_request_fails variable if it's set. We
+  # can't tie this call to any error because there is no surefire way to
+  # tell whether a request has failed, so we add the check to places where
+  # some parsing has failed.
+  if (not self_test and variable_get('drupal_http_request_fails', False)):
+    self_test = True;
     works = module_invoke('system', 'check_http_request');
-    self_test = FALSE;
-    if (!works) {
-      // Do not bother with further operations if we already know that we
-      // have no chance.
-      result->error = t("The server can't issue HTTP requests");
+    self_test = False;
+    if (not works):
+      # Do not bother with further operations if we already know that we
+      # have no chance.
+      result.error = t("The server can't issue HTTP requests");
       return result;
-    }
-  }
-
-  // Parse the URL and make sure we can handle the schema.
+  # Parse the URL and make sure we can handle the schema.
   uri = parse_url(url);
-
-  switch (uri['scheme']) {
-    case 'http':
-      port = isset(uri['port']) ? %(uri)s['port'] : 80;
-      host = uri['host'] . (%(port)s != 80 ? ':'. %(port)s : '');
-      fp = @fsockopen(uri['host'], port, errno, errstr, 15);
-      break;
-    case 'https':
-      // Note: Only works for PHP 4.3 compiled with OpenSSL.
-      port = isset(uri['port']) ? %(uri)s['port'] : 443;
-      host = uri['host'] . (%(port)s != 443 ? ':'. %(port)s : '');
-      fp = @fsockopen('ssl://'. %(uri)s['host'], port, errno, errstr, 20);
-      break;
-    default:
-      result->error = 'invalid schema '. %(uri)s['scheme'];
-      return result;
-  }
-
+  if uri['scheme'] == 'http':
+    port = (uri.__getitem__('port') if isset(uri, 'port') else 80);
+    host = uri['host'] . (%(port)s != 80 ? ':'. %(port)s : '');
+    fp = @fsockopen(uri['host'], port, errno, errstr, 15);
+  elif uri['scheme'] == 'https':
+    # Note: Only works for PHP 4.3 compiled with OpenSSL.
+    port = isset(uri['port']) ? %(uri)s['port'] : 443;
+    host = uri['host'] . (%(port)s != 443 ? ':'. %(port)s : '');
+    fp = @fsockopen('ssl://'. %(uri)s['host'], port, errno, errstr, 20);
+  else:
+    result.error = 'invalid schema '. %(uri)s['scheme'];
+    return result;
   // Make sure the socket opened properly.
   if (!fp) {
     // When a network error occurs, we use a negative number so it does not
