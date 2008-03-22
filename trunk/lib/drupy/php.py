@@ -24,6 +24,7 @@ import zlib
 import htmlentitydefs
 import cgi
 import cgitb; cgitb.enable()
+import urllib
 
 #
 # Constants
@@ -106,6 +107,15 @@ def array_merge(a1, a2):
   for k in a2:
     out[k] = a2[k]
   return out
+
+
+#
+# Get keys
+# @param Dict item
+# @return List
+#
+def array_keys(item):
+  return item.keys()
 
 
 #
@@ -377,6 +387,16 @@ def include(filename, scope = None):
 
 
 #
+# Url decoder
+# @param Str val
+# @return Str
+#
+def urldecode(val):
+  return urllib.unquote_plus(val)
+
+
+
+#
 # Parse url
 # @param url
 # @return Dict
@@ -477,16 +497,38 @@ def preg_match(pat, subject, match = {}):
 
 
 #
-# str replace
+# str replace wrapper
 # @param Str pat
 # @param Str rep
-# @param Str sub
+# @param Str subject
 # @return Str
 #
-def str_replace(pat, rep, sub):
+def str_replace(pat, rep, subject):
+  out = subject
+  if isinstance(pat, list):
+    repIsStr = isinstance(rep, list)
+    for i in pat:
+      if repIsStr:
+        repStr = rep
+      else:
+        repStr = rep[i]
+      out = str_replace_str(pat[i], repStr, out)
+  else:
+    out = str_replace_str(pat, rep, subject)
+  return out
+  
+
+#
+# str replace real
+# @param Str pat
+# @param Str rep
+# @param Str subject
+# @return Str
+#
+def str_replace_str(pat, rep, subject):
   return sub.replace(pat, rep)
-  
-  
+
+
 
 #
 # preg_replace wrapper
@@ -498,15 +540,15 @@ def str_replace(pat, rep, sub):
 def preg_replace(pat, replace, subject):
   out = subject
   if isinstance(pat, list):
-    repIsStr = isinstance(replace, list)
+    repIsStr = isinstance(rep, list)
     for i in pat:
       if repIsStr:
-        repStr = replace
+        repStr = rep
       else:
-        repStr = replace[i]
+        repStr = rep[i]
       out = preg_replace_str(pat[i], repStr, out)
   else:
-    out = preg_replace_str(pat, replace, subject)
+    out = preg_replace_str(pat, rep, subject)
   return out
     
 
@@ -517,9 +559,9 @@ def preg_replace(pat, replace, subject):
 # @param Str subject
 # @return Str
 #
-def preg_replace_str(pat, replace, subject):
+def preg_replace_str(pat, rep, subject):
   reg = preg_setup(pat)
-  return reg.sub(replace, subject)
+  return reg.sub(rep, subject)
 
 
 
@@ -718,6 +760,7 @@ require_once = include
 require = include
 include_once = include
 substr = array_slice
+defined = isset
 
 #
 # Superglobals
@@ -725,5 +768,6 @@ substr = array_slice
 global _SERVER; _SERVER = dict(os.environ)
 global _GET; _GET = cgi.parse()
 global _POST; _POST = postFields()
+global _REQUEST; _REQUEST = (_GET + _POST)
 
 
