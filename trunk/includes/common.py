@@ -3,6 +3,11 @@
 # @file
 # Common functions that many Drupal modules will need to reference.
 #
+
+import httplib
+
+
+
 # The functions that are critical and need to be available even when serving
 # a cached page are instead located in bootstrap.inc.
 #
@@ -386,7 +391,19 @@ def drupal_access_denied():
 #   An object containing the HTTP request headers, response code, headers,
 #   data and redirect status.
 #
-def drupal_http_request(url, headers = {}, method = 'GET', data = None, retry = 3):
+# DRUPY(BC):
+#  This function has been modified to use httplib
+#  Return object should look like this:
+#    result
+#      Str error
+#      Int code
+#      Str request
+#      Dict headers
+#      Int redirect_code
+#      Str redirect_url
+#      
+#
+def drupal_http_request(url, headers = {}, method = 'GET', data = '', retry = 3):
   global static_drupalhttprequest_selftest;
   if (static_drupalhttprequest_selftest == None):
     static_drupalhttprequest_selftest = False;
@@ -396,9 +413,9 @@ def drupal_http_request(url, headers = {}, method = 'GET', data = None, retry = 
   # tell whether a request has failed, so we add the check to places where
   # some parsing has failed.
   if (not self_test and variable_get('drupal_http_request_fails', False)):
-    self_test = True;
+    static_drupalhttprequest_selftest = True;
     works = module_invoke('system', 'check_http_request');
-    self_test = False;
+    static_drupalhttprequest_selftest = False;
     if (not works):
       # Do not bother with further operations if we already know that we
       # have no chance.
@@ -408,123 +425,60 @@ def drupal_http_request(url, headers = {}, method = 'GET', data = None, retry = 
   uri = parse_url(url);
   if uri['scheme'] == 'http':
     port = (uri.__getitem__('port') if isset(uri, 'port') else 80);
-    host = uri['host'] . (%(port)s != 80 ? ':'. %(port)s : '');
-    fp = @fsockopen(uri['host'], port, errno, errstr, 15);
+    host = uri['host'] + ((':' + port) if (port != 80) else '');
+    # Not using this anymore
+    fp = httplib.HTTPConnection(host, port);
   elif uri['scheme'] == 'https':
     # Note: Only works for PHP 4.3 compiled with OpenSSL.
-    port = isset(uri['port']) ? %(uri)s['port'] : 443;
-    host = uri['host'] . (%(port)s != 443 ? ':'. %(port)s : '');
-    fp = @fsockopen('ssl://'. %(uri)s['host'], port, errno, errstr, 20);
+    port = (uri.__getitem__('port') if isset(uri, 'port') else 443);
+    host = uri['host'] + ((':' + port) if (port != 443) else '');
+    # Not using this anymore either
+    fp = httplib.HTTPSConnection(host, port);
   else:
-    result.error = 'invalid schema '. %(uri)s['scheme'];
+    result.error = 'invalid schema ' + uri['scheme'];
     return result;
-  // Make sure the socket opened properly.
-  if (!fp) {
-    // When a network error occurs, we use a negative number so it does not
-    // clash with the HTTP status codes.
-    result->code = -errno;
-    result->error = trim(errstr);
+  # Construct the path to act on.
+  path = (uri.__getitem__('path') if isset(uri, 'path') else '/');
+  if (isset(uri, 'query')):
+    path += '?' + uri['query'];
+  # Create HTTP request.
+  defaults = {
+    # RFC 2616: "non-standard ports MUST, default ports MAY be included".
+    # We don't add the port to prevent from breaking rewrite rules checking the
+    # host that do not take into account the port number.
+    'Host' : host,
+    'User-Agent' : 'Drupy (+http://drupy.sourceforge.net/)',
+    'Content-Length' : strlen(data)
+  };
+  # If the server url has a user then attempt to use basic authentication
+  if (isset(uri, 'user')):
+    passStr = ( (":" + uri.__getitem__('pass')) if (not empty(uri, 'pass')) else '');
+    defaults['Authorization'] = 'Basic ' + base64_encode(uri['user'] + passStr);
+  #
+  # DRUPY(BC):
+  # Establish request
+  # We are taking a shortcut by using request instead of putrequest
+  # in this future if more control is needed, we can use putrequest
+  #
+  fp.request(method, path, data, defaults);
+  resObj = fp.getresponse();
+  resHeaders = resObj.getheaders();
+  if ([301,302,307].__contains__(resObj.status) and (retry > 0)):
+    retry -= 1;
+    result = drupal_http_request(resHeaders['Location'], headers, method, data, retry);
+    result.redirect_code = result.code;
+    result.redirect_url = location;
+  else:
+    result.request = 'NOT-AVAILABLE';
+    result.data = resObj.read();
+    result.headers = resHeaders;
+    result.code = resObj.status;
+    result.error = resObj.reason;
     return result;
-  }
 
-  // Construct the path to act on.
-  path = isset(uri['path']) ? %(uri)s['path'] : '/';
-  if (isset(uri['query'])) {
-    path .= '?'. %(uri)s['query'];
-  }
 
-  // Create HTTP request.
-  defaults = array(
-    // RFC 2616: "non-standard ports MUST, default ports MAY be included".
-    // We don't add the port to prevent from breaking rewrite rules checking the
-    // host that do not take into account the port number.
-    'Host' => "Host: %(host)s",
-    'User-Agent' => 'User-Agent: Drupal (+http://drupal.org/)',
-    'Content-Length' => 'Content-Length: '. strlen(data)
-  );
 
-  // If the server url has a user then attempt to use basic authentication
-  if (isset(uri['user'])) {
-    defaults['Authorization'] = 'Authorization: Basic '. base64_encode(%(uri)s['user'] . (!empty(%(uri)s['pass']) ? ":". %(uri)s['pass'] : ''));
-  }
 
-  foreach (headers as header => value) {
-    defaults[header] = header .': '. value;
-  }
-
-  request = method .' '. path ." HTTP/1.0\r\n";
-  request .= implode("\r\n", defaults);
-  request .= "\r\n\r\n";
-  if (data) {
-    request .= data ."\r\n";
-  }
-  result->request = request;
-
-  fwrite(fp, request);
-
-  // Fetch response.
-  response = '';
-  while (!feof(fp) && chunk = fread(fp, 1024)) {
-    response .= chunk;
-  }
-  fclose(fp);
-
-  // Parse response.
-  list(split, result->data) = explode("\r\n\r\n", response, 2);
-  split = preg_split("/\r\n|\n|\r/", split);
-
-  list(protocol, code, text) = explode(' ', trim(array_shift(split)), 3);
-  result->headers = array();
-
-  // Parse headers.
-  while (line = trim(array_shift(split))) {
-    list(header, value) = explode(':', line, 2);
-    if (isset(result->headers[header]) && header == 'Set-Cookie') {
-      // RFC 2109: the Set-Cookie response header comprises the token Set-
-      // Cookie:, followed by a comma-separated list of one or more cookies.
-      result->headers[header] .= ','. trim(value);
-    }
-    else {
-      result->headers[header] = trim(value);
-    }
-  }
-
-  responses = array(
-    100 => 'Continue', 101 => 'Switching Protocols',
-    200 => 'OK', 201 => 'Created', 202 => 'Accepted', 203 => 'Non-Authoritative Information', 204 => 'No Content', 205 => 'Reset Content', 206 => 'Partial Content',
-    300 => 'Multiple Choices', 301 => 'Moved Permanently', 302 => 'Found', 303 => 'See Other', 304 => 'Not Modified', 305 => 'Use Proxy', 307 => 'Temporary Redirect',
-    400 => 'Bad Request', 401 => 'Unauthorized', 402 => 'Payment Required', 403 => 'Forbidden', 404 => 'Not Found', 405 => 'Method Not Allowed', 406 => 'Not Acceptable', 407 => 'Proxy Authentication Required', 408 => 'Request Time-out', 409 => 'Conflict', 410 => 'Gone', 411 => 'Length Required', 412 => 'Precondition Failed', 413 => 'Request Entity Too Large', 414 => 'Request-URI Too Large', 415 => 'Unsupported Media Type', 416 => 'Requested range not satisfiable', 417 => 'Expectation Failed',
-    500 => 'Internal Server Error', 501 => 'Not Implemented', 502 => 'Bad Gateway', 503 => 'Service Unavailable', 504 => 'Gateway Time-out', 505 => 'HTTP Version not supported'
-  );
-  // RFC 2616 states that all unknown HTTP codes must be treated the same as the
-  // base code in their class.
-  if (!isset(responses[code])) {
-    code = floor(code / 100) * 100;
-  }
-
-  switch (code) {
-    case 200: // OK
-    case 304: // Not modified
-      break;
-    case 301: // Moved permanently
-    case 302: // Moved temporarily
-    case 307: // Moved temporarily
-      location = result->headers['Location'];
-
-      if (retry) {
-        result = drupal_http_request(result->headers['Location'], headers, method, data, --retry);
-        result->redirect_code = result->code;
-      }
-      result->redirect_url = location;
-
-      break;
-    default:
-      result->error = text;
-  }
-
-  result->code = code;
-  return result;
-}
 #
 # @} End of "HTTP handling".
 #
@@ -535,35 +489,10 @@ def drupal_http_request(url, headers = {}, method = 'GET', data = None, retry = 
 # - 0 = Log errors to database.
 # - 1 = Log errors to database and to screen.
 #
-def drupal_error_handler(errno, message, filename, line, context) {
-  // If the @ error suppression operator was used, error_reporting is
-  // temporarily set to 0.
-  if (error_reporting() == 0) {
-    return;
-  }
-
-  if (errno & (E_ALL)) {
-    types = array(1 => 'error', 2 => 'warning', 4 => 'parse error', 8 => 'notice', 16 => 'core error', 32 => 'core warning', 64 => 'compile error', 128 => 'compile warning', 256 => 'user error', 512 => 'user warning', 1024 => 'user notice', 2048 => 'strict warning', 4096 => 'recoverable fatal error');
-
-    // For database errors, we want the line number/file name of the place that
-    // the query was originally called, not _db_query().
-    if (isset(context[DB_ERROR])) {
-      backtrace = array_reverse(debug_backtrace());
-
-      // List of functions where SQL queries can originate.
-      query_functions = array('db_query', 'pager_query', 'db_query_range', 'db_query_temporary', 'update_sql');
-
-      // Determine where query function was called, and adjust line/file
-      // accordingly.
-      foreach (backtrace as index => function) {
-        if (in_array(function['function'], query_functions)) {
-          line = backtrace[index]['line'];
-          filename = backtrace[index]['file'];
-          break;
-        }
-      }
-    }
-
+def drupal_error_handler(errno, message, filename, line, context, errType = None):
+  if (errno > 0):
+    # For database errors, we want the line number/file name of the place that
+    # the query was originally called, not _db_query().
     entry = types[errno] .': '. %(message)s .' in '. %(filename)s .' on line '. %(line)s .'.';
 
     // Force display of error messages in update.php.
@@ -575,14 +504,10 @@ def drupal_error_handler(errno, message, filename, line, context) {
   }
 }
 
-def _fix_gpc_magic(&item) {
-  if (is_array(item)) {
-    array_walk(item, '_fix_gpc_magic');
-  }
-  else {
-    item = stripslashes(item);
-  }
-}
+
+def _fix_gpc_magic(item):
+  pass;
+
 #
 # Helper function to strip slashes from _FILES skipping over the tmp_name keys
 # since PHP generates single backslashes for file paths on Windows systems.
@@ -590,30 +515,17 @@ def _fix_gpc_magic(&item) {
 # tmp_name does not have backslashes added see
 # http://php.net/manual/en/features.file-upload.php#42280
 #
-def _fix_gpc_magic_files(&item, key) {
-  if (key != 'tmp_name') {
-    if (is_array(item)) {
-      array_walk(item, '_fix_gpc_magic_files');
-    }
-    else {
-      item = stripslashes(item);
-    }
-  }
-}
+def _fix_gpc_magic_files(item, key):
+  pass;
+
+
 #
 # Fix double-escaping problems caused by "magic quotes" in some PHP installations.
 #
-def fix_gpc_magic() {
-  static fixed = FALSE;
-  if (!fixed && ini_get('magic_quotes_gpc')) {
-    array_walk(_GET, '_fix_gpc_magic');
-    array_walk(_POST, '_fix_gpc_magic');
-    array_walk(_COOKIE, '_fix_gpc_magic');
-    array_walk(_REQUEST, '_fix_gpc_magic');
-    array_walk(_FILES, '_fix_gpc_magic_files');
-    fixed = TRUE;
-  }
-}
+def fix_gpc_magic():
+  pass;
+
+
 #
 # Translate strings to the page language or a given language.
 #
