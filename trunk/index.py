@@ -36,4 +36,12 @@ try:
     print theme('page', _return);
   drupal_page_footer();
 except:
-  drupal_error_handler(errno, message, filename, line, context, errType);
+  if function_exists('drupal_error_handler'):
+    drupal_error_handler(errno, message, filename, line, context, errType);
+  else:
+    print "Exception can not be logged.";
+
+
+
+
+
