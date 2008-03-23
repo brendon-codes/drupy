@@ -242,9 +242,12 @@ def array_shift(item):
 # @param Str val
 # @return Bool
 #
-def function_exists(obj, val):
-  return \
-    (isset(obj, val, True) and isinstance(obj[val], function))
+def function_exists(val, loc = None):
+  if _loc == None:
+    exists = isset(globals(), val)
+  else:
+    exists = isset(loc, val, True)
+  return (exists and isinstance(obj[val], function))
 
 
 #
@@ -263,6 +266,7 @@ def htmlspecialchars(val, flags = None):
   return out
 
 
+
 #
 # Checks for empty
 # @param Any obj
@@ -270,14 +274,9 @@ def htmlspecialchars(val, flags = None):
 # @param Bool searchGlobal
 # @return Bool
 # 
-def empty(obj, val, searchGlobal = False):
-  data = {}
-  set = isset(obj, val, searchGlobal, data)
-  # Not set
-  if not set:
-    return True
+def empty(val):
   # Boolean
-  elif \
+  if \
       isinstance(data['val'], bool) and \
       (data['val'] == False):
     return True
@@ -303,6 +302,27 @@ def empty(obj, val, searchGlobal = False):
   # Anything else
   else:
     return False
+
+
+
+#
+# Translate characters
+# Inspired by snippet from Xavier Defrang
+# @see http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81330
+#
+def strtr(text, items):
+  regex = re.compile("(%s)" % "|".join(map(re.escape, items.keys())))
+  out = regex.sub(lambda mo: items[mo.string[mo.start():mo.end()]], text)
+  return out
+
+
+#
+# Check if uploaded file
+# @param Str filename
+# @return Bool
+#
+def is_uploaded_file(filename):
+  return True
 
 
 
@@ -744,9 +764,12 @@ def array_pop(item):
 #
 # Std class
 #
-class stdCLass: pass
-
-
+class stdClass:
+  def __init__(self):
+    pass
+        
+    
+    
 #
 # Set Aliases
 #

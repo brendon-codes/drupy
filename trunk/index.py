@@ -14,22 +14,26 @@
 #
 
 execfile('./lib/drupy/php.py', globals());
-execfile('./lib/drupy/env.py', globals());
-require_once('./includes/bootstrap.py', globals());
+execfile('./includes/bootstrap.py', globals());
 
-drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
-_return = menu_execute_active_handler();
-
-# Menu status constants are integers; page content is a string.
-if (is_int(_return)):
-  if (_return == MENU_NOT_FOUND):
-      drupal_not_found();
-  elif (_return == MENU_ACCESS_DENIED):
-    drupal_access_denied();
-  elif (_return == MENU_SITE_OFFLINE):
-    drupal_site_offline();
-else:
-  # Print any value (including an empty string) except NULL or undefined:
-  print theme('page', _return);
-
-drupal_page_footer();
+#
+# We need to catch all exceptions and send them to the
+# default exception handler
+#
+try:
+  drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+  _return = menu_execute_active_handler();
+  # Menu status constants are integers; page content is a string.
+  if (is_int(_return)):
+    if (_return == MENU_NOT_FOUND):
+        drupal_not_found();
+    elif (_return == MENU_ACCESS_DENIED):
+      drupal_access_denied();
+    elif (_return == MENU_SITE_OFFLINE):
+      drupal_site_offline();
+  else:
+    # Print any value (including an empty string) except NULL or undefined:
+    print theme('page', _return);
+  drupal_page_footer();
+except:
+  drupal_error_handler(errno, message, filename, line, context, errType);

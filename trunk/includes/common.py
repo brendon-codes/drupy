@@ -4,7 +4,7 @@
 # Common functions that many Drupal modules will need to reference.
 #
 
-import httplib
+import urllib2
 
 
 
@@ -17,6 +17,7 @@ static('static_drupalsethtmlhead_storedhead');
 static('static_drupalsetheader_storedheaders');
 static('static_drupaladdfeed_storedfeedlinks');
 static('static_drupalhttprequest_selftest');
+static('static_t_customstrings');
 
 
 #
@@ -392,7 +393,9 @@ def drupal_access_denied():
 #   data and redirect status.
 #
 # DRUPY(BC):
-#  This function has been modified to use httplib
+#  This function has been modified to use urllib2.
+#  Although it does not act exactly as before, it is
+#  still good enough to get the job done.
 #  Return object should look like this:
 #    result
 #      Str error
@@ -403,79 +406,19 @@ def drupal_access_denied():
 #      Str redirect_url
 #      
 #
-def drupal_http_request(url, headers = {}, method = 'GET', data = '', retry = 3):
-  global static_drupalhttprequest_selftest;
-  if (static_drupalhttprequest_selftest == None):
-    static_drupalhttprequest_selftest = False;
-  result = stdClass();
-  # Try to clear the drupal_http_request_fails variable if it's set. We
-  # can't tie this call to any error because there is no surefire way to
-  # tell whether a request has failed, so we add the check to places where
-  # some parsing has failed.
-  if (not self_test and variable_get('drupal_http_request_fails', False)):
-    static_drupalhttprequest_selftest = True;
-    works = module_invoke('system', 'check_http_request');
-    static_drupalhttprequest_selftest = False;
-    if (not works):
-      # Do not bother with further operations if we already know that we
-      # have no chance.
-      result.error = t("The server can't issue HTTP requests");
-      return result;
-  # Parse the URL and make sure we can handle the schema.
-  uri = parse_url(url);
-  if uri['scheme'] == 'http':
-    port = (uri.__getitem__('port') if isset(uri, 'port') else 80);
-    host = uri['host'] + ((':' + port) if (port != 80) else '');
-    # Not using this anymore
-    fp = httplib.HTTPConnection(host, port);
-  elif uri['scheme'] == 'https':
-    # Note: Only works for PHP 4.3 compiled with OpenSSL.
-    port = (uri.__getitem__('port') if isset(uri, 'port') else 443);
-    host = uri['host'] + ((':' + port) if (port != 443) else '');
-    # Not using this anymore either
-    fp = httplib.HTTPSConnection(host, port);
-  else:
-    result.error = 'invalid schema ' + uri['scheme'];
-    return result;
-  # Construct the path to act on.
-  path = (uri.__getitem__('path') if isset(uri, 'path') else '/');
-  if (isset(uri, 'query')):
-    path += '?' + uri['query'];
-  # Create HTTP request.
-  defaults = {
-    # RFC 2616: "non-standard ports MUST, default ports MAY be included".
-    # We don't add the port to prevent from breaking rewrite rules checking the
-    # host that do not take into account the port number.
-    'Host' : host,
-    'User-Agent' : 'Drupy (+http://drupy.sourceforge.net/)',
-    'Content-Length' : strlen(data)
-  };
-  # If the server url has a user then attempt to use basic authentication
-  if (isset(uri, 'user')):
-    passStr = ( (":" + uri.__getitem__('pass')) if (not empty(uri, 'pass')) else '');
-    defaults['Authorization'] = 'Basic ' + base64_encode(uri['user'] + passStr);
-  #
-  # DRUPY(BC):
-  # Establish request
-  # We are taking a shortcut by using request instead of putrequest
-  # in this future if more control is needed, we can use putrequest
-  #
-  fp.request(method, path, data, defaults);
-  resObj = fp.getresponse();
-  resHeaders = resObj.getheaders();
-  if ([301,302,307].__contains__(resObj.status) and (retry > 0)):
-    retry -= 1;
-    result = drupal_http_request(resHeaders['Location'], headers, method, data, retry);
-    result.redirect_code = result.code;
-    result.redirect_url = location;
-  else:
-    result.request = 'NOT-AVAILABLE';
-    result.data = resObj.read();
-    result.headers = resHeaders;
-    result.code = resObj.status;
-    result.error = resObj.reason;
-    return result;
-
+def drupal_http_request(url, headers = {}, method = 'GET', data = None, retry = None):
+  headers['User-Agent'] = 'Drupy (+http://drupy.sourceforge.net/)';
+  req = urllib2.Request(url, data, headers);
+  res = urllib2.urlopen(req);
+  result = do_object({
+    'error' : res.msg,
+    'code' : res.code,
+    'request' : 'NOT-AVAILABLE',
+    'headers' : headers,
+    'data' : res.read()
+  });
+  return result;
+  
 
 
 
@@ -493,18 +436,23 @@ def drupal_error_handler(errno, message, filename, line, context, errType = None
   if (errno > 0):
     # For database errors, we want the line number/file name of the place that
     # the query was originally called, not _db_query().
-    entry = types[errno] .': '. %(message)s .' in '. %(filename)s .' on line '. %(line)s .'.';
-
-    // Force display of error messages in update.php.
-    if (variable_get('error_level', 1) == 1 || strstr(%(_SERVER)s['SCRIPT_NAME'], 'update.php')) {
+    err = {
+      'errType' : errType,
+      'message' : message,
+      'filename' : filename,
+      'line' : line
+    };
+    entry = '%(errType)s : %(message)s in %(filename)s on line %(line)s' % err;
+    # Force display of error messages in update.php.
+    if (variable_get('error_level', 1) == 1 or strstr(_SERVER['SCRIPT_NAME'], 'update.py')):
       drupal_set_message(entry, 'error');
-    }
-
-    watchdog('php', '%message in %file on line %line.', array('%error' => %(types)s[errno], '%message' => %(message)s, '%file' => %(filename)s, '%line' => line), WATCHDOG_ERROR);
-  }
-}
+    watchdog('php', '%(message)s in %(file)s on line %(line)s.' % err, WATCHDOG_ERROR);
 
 
+
+#
+# Not needed
+#
 def _fix_gpc_magic(item):
   pass;
 
@@ -624,52 +572,43 @@ def fix_gpc_magic():
 # @return
 #   The translated string.
 #
-def t(string, args = array(), langcode = NULL) {
+def t(string, args = {}, langcode = None):
   global language;
-  static custom_strings;
-
-  langcode = isset(langcode) ? langcode : language->language;
-
-  // First, check for an array of customized strings. If present, use the array
-  // *instead of* database lookups. This is a high performance way to provide a
-  // handful of string replacements. See settings.php for examples.
-  // Cache the custom_strings variable to improve performance.
-  if (!isset(custom_strings[langcode])) {
-    custom_strings[langcode] = variable_get('locale_custom_strings_'. langcode, array());
-  }
-  // Custom strings work for English too, even if locale module is disabled.
-  if (isset(custom_strings[langcode][string])) {
-    string = custom_strings[langcode][string];
-  }
-  // Translate with locale module if enabled.
-  elseif (function_exists('locale') && %(langcode)s != 'en') {
+  global static_t_customstrings;
+  if (static_t_customstrings == None):
+    static_t_customstrings = {};
+  langcode = (langcode if (langcode != None) else language.language);
+  # First, check for an array of customized strings. If present, use the array
+  # *instead of* database lookups. This is a high performance way to provide a
+  # handful of string replacements. See settings.php for examples.
+  # Cache the custom_strings variable to improve performance.
+  if (not isset(static_t_customstrings, langcode)):
+    static_t_customstrings[langcode] = variable_get('locale_custom_strings_' + langcode, {});
+  # Custom strings work for English too, even if locale module is disabled.
+  if (isset(static_t_customstrings[langcode], string)):
+    string = static_t_customstrings[langcode][string];
+  # Translate with locale module if enabled.
+  elif (function_exists('locale') and langcode != 'en'):
     string = locale(string, langcode);
-  }
-  if (empty(args)) {
+  if (empty(args)):
     return string;
-  }
-  else {
-    // Transform arguments before inserting them.
-    foreach (args as key => value) {
-      switch (key[0]) {
-        case '@':
-          // Escaped only.
-          args[key] = check_plain(value);
-          break;
-
-        case '%':
-        default:
-          // Escaped and placeholder.
-          args[key] = theme('placeholder', value);
-          break;
-
-        case '!':
-          // Pass-through.
-      }
-    }
+  else:
+    # Transform arguments before inserting them.
+    for key in args:
+      value = args[key];
+      if key[0] == '@':
+        # Escaped only.
+        args[key] = check_plain(value);
+      if key[0] == '!':
+        pass;
+      elif key[0] == '%' or True:
+        # Escaped and placeholder.
+        args[key] = theme('placeholder', value);
     return strtr(string, args);
-  }
-}
+
+
+
+
 #
 # @defgroup validation Input validation
 # @{
@@ -685,14 +624,18 @@ def t(string, args = array(), langcode = NULL) {
 # @return
 #   TRUE if the address is in a valid format.
 #
-def valid_email_address(mail) {
-  user = '[a-zA-Z0-9_\-\.\+\^!#\$%&*+\/\=\?\`\|\{\}~\']+';
-  domain = '(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.?)+';
-  ipv4 = '[0-9]{1,3}(\.[0-9]{1,3}){3}';
-  ipv6 = '[0-9a-fA-F]{1,4}(\:[0-9a-fA-F]{1,4}){7}';
+def valid_email_address(mail):
+  items = {
+    user : '[a-zA-Z0-9_\-\.\+\^!#\$%&*+\/\=\?\`\|\{\}~\']+',
+    domain : '(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.?)+',
+    ipv4 : '[0-9]{1,3}(\.[0-9]{1,3}){3}',
+    ipv6 : '[0-9a-fA-F]{1,4}(\:[0-9a-fA-F]{1,4}){7}'
+  };
+  cnt = preg_match("/^%(user)s@(%(domain)s|(\[(%(ipv4)s|%(ipv6)s)\]))$/" % items, mail);
+  return (cnt > 0);
 
-  return preg_match("/^%(user)s@(domain|(\[(ipv4|ipv6)\]))$/", mail);
-}
+
+
 #
 # Verify the syntax of the given URL.
 #
@@ -706,15 +649,16 @@ def valid_email_address(mail) {
 # @return
 #   TRUE if the URL is in a valid format.
 #
-def valid_url(url, absolute = FALSE) {
+def valid_url(url, absolute = False):
   allowed_characters = '[a-z0-9\/:_\-_\.\?\$,;~=#&%\+]';
-  if (absolute) {
-    return preg_match("/^(http|https|ftp):\/\/". %(allowed_characters)s ."+$/i", url);
-  }
-  else {
-    return preg_match("/^". %(allowed_characters)s ."+$/i", url);
-  }
-}
+  if (absolute):
+    cnt = preg_match("/^(http|https|ftp):\/\/" + allowed_characters + "+$/i", url);
+    return (cnt > 0);
+  else:
+    cnt = preg_match("/^" + allowed_characters + "+$/i", url);
+    return (cnt > 0);
+
+
 #
 # @} End of "defgroup validation".
 #
@@ -724,9 +668,11 @@ def valid_url(url, absolute = FALSE) {
 # @param name
 #   The name of an event.
 #
-def flood_register_event(name) {
-  db_query("INSERT INTO {flood} (event, hostname, timestamp) VALUES ('%s', '%s', %d)", name, ip_address(), time());
-}
+def flood_register_event(name):
+  db_query("INSERT INTO {flood} (event, hostname, timestamp) VALUES ('%s', '%s', %d)", name, ip_address(), do_time());
+
+
+
 #
 # Check if the current visitor (hostname/IP) is allowed to proceed with the specified event.
 #
@@ -740,20 +686,25 @@ def flood_register_event(name) {
 # @return
 #   True if the user did not exceed the hourly threshold. False otherwise.
 #
-def flood_is_allowed(name, threshold) {
-  number = db_result(db_query("SELECT COUNT(*) FROM {flood} WHERE event = '%s' AND hostname = '%s' AND timestamp > %d", name, ip_address(), time() - 3600));
-  return (number < threshold ? TRUE : FALSE);
-}
+def flood_is_allowed(name, threshold):
+  number = db_result(db_query("SELECT COUNT(*) FROM {flood} WHERE event = '%s' AND hostname = '%s' AND timestamp > %d", name, ip_address(), do_time() - 3600));
+  return (number < threshold);
 
-def check_file(filename) {
+
+
+def check_file(filename):
   return is_uploaded_file(filename);
-}
+
+
+
 #
 # Prepare a URL for use in an HTML attribute. Strips harmful protocols.
 #
-def check_url(uri) {
-  return filter_xss_bad_protocol(uri, FALSE);
-}
+def check_url(uri):
+  return filter_xss_bad_protocol(uri, False);
+
+
+
 #
 # @defgroup format Formatting
 # @{
@@ -764,40 +715,38 @@ def check_url(uri) {
 #
 # Arbitrary elements may be added using the args associative array.
 #
-def format_rss_channel(title, link, description, items, langcode = NULL, args = array()) {
+def format_rss_channel(title, link, description, items, langcode = None, args = {}):
   global language;
-  langcode = langcode ? langcode : language->language;
-
+  langcode = (langcode if (langcode != None) else language.language);
   output = "<channel>\n";
-  output .= ' <title>'. check_plain(title) ."</title>\n";
-  output .= ' <link>'. check_url(link) ."</link>\n";
-
-  // The RSS 2.0 "spec" doesn't indicate HTML can be used in the description.
-  // We strip all HTML tags, but need to prevent double encoding from properly
-  // escaped source data (such as &amp becoming &amp;amp;).
-  output .= ' <description>'. check_plain(decode_entities(strip_tags(description))) ."</description>\n";
-  output .= ' <language>'. check_plain(langcode) ."</language>\n";
-  output .= format_xml_elements(args);
-  output .= items;
-  output .= "</channel>\n";
-
+  output += ' <title>' + check_plain(title) + "</title>\n";
+  output += ' <link>' + check_url(link) + "</link>\n";
+  # The RSS 2.0 "spec" doesn't indicate HTML can be used in the description.
+  # We strip all HTML tags, but need to prevent double encoding from properly
+  # escaped source data (such as &amp becoming &amp;amp;).
+  output += ' <description>' + check_plain(decode_entities(strip_tags(description))) + "</description>\n";
+  output += ' <language>' + check_plain(langcode) + "</language>\n";
+  output += format_xml_elements(args);
+  output += items;
+  output += "</channel>\n";
   return output;
-}
+
+
 #
 # Format a single RSS item.
 #
 # Arbitrary elements may be added using the args associative array.
 #
-def format_rss_item(title, link, description, args = array()) {
+def format_rss_item(title, link, description, args = {}):
   output = "<item>\n";
-  output .= ' <title>'. check_plain(title) ."</title>\n";
-  output .= ' <link>'. check_url(link) ."</link>\n";
-  output .= ' <description>'. check_plain(description) ."</description>\n";
-  output .= format_xml_elements(args);
-  output .= "</item>\n";
-
+  output += ' <title>' + check_plain(title) + "</title>\n";
+  output += ' <link>' + check_url(link) + "</link>\n";
+  output += ' <description>' + check_plain(description) + "</description>\n";
+  output += format_xml_elements(args);
+  output += "</item>\n";
   return output;
-}
+
+
 #
 # Format XML elements.
 #
@@ -812,12 +761,13 @@ def format_rss_item(title, link, description, args = array()) {
 # In both cases, 'value' can be a simple string, or it can be another array
 # with the same format as array itself for nesting.
 #
-def format_xml_elements(array) {
+def format_xml_elements(_array):
   output = '';
-  foreach (array as key => value) {
-    if (is_numeric(key)) {
-      if (value['key']) {
-        output .= ' <'. %(value)s['key'];
+  for key in _array:
+    value = _array[key];
+    if (is_numeric(key)):
+      if (not empty(value['key'])):
+        output += ' <' + value['key'];
         if (isset(value['attributes']) && is_array(%(value)s['attributes'])) {
           output .= drupal_attributes(value['attributes']);
         }
