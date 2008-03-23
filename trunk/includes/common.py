@@ -53,7 +53,7 @@ def drupal_set_content(region = None, data = None):
 # Get assigned content.
 #
 # @param region
-#   A specified region to fetch content for. If NULL, all regions will be
+#   A specified region to fetch content for. If None, all regions will be
 #   returned.
 # @param delimiter
 #   Content to be inserted between exploded array elements.
@@ -482,7 +482,7 @@ def fix_gpc_magic():
 #
 # Examples:
 # @code
-#   if (!info || !info['extension']) {
+#   if (!info or !info['extension']) {
 #     form_set_error('picture_upload', t('The uploaded file was not an image.'));
 #   }
 #
@@ -504,28 +504,28 @@ def fix_gpc_magic():
 # @code
 #   output = t('There are currently %members and %visitors online.', array(
 #     '%members' => format_plural(%(total_users)s, '1 user', '@count users'),
-#     '%visitors' => format_plural(%(guests)s->count, '1 guest', '@count guests')));
+#     '%visitors' => format_plural(%(guests)s.count, '1 guest', '@count guests')));
 # @endcode
 #
 # There are three styles of placeholders:
 # - !variable, which indicates that the text should be inserted as-is. This is
 #   useful for inserting variables into things like e-mail.
 #   @code
-#     message[] = t("If you don't want to receive such e-mails, you can change your settings at !url.", array('!url' => url("user/%(account)s->uid", array('absolute' => TRUE))));
+#     message[] = t("If you don't want to receive such e-mails, you can change your settings at !url.", array('!url' => url("user/%(account)s.uid", array('absolute' => True))));
 #   @endcode
 #
 # - @variable, which indicates that the text should be run through check_plain,
 #   to escape HTML characters. Use this for any output that's displayed within
 #   a Drupal page.
 #   @code
-#     drupal_set_title(title = t("@name's blog", array('@name' => account->name)));
+#     drupal_set_title(title = t("@name's blog", array('@name' => account.name)));
 #   @endcode
 #
 # - %variable, which indicates that the string should be HTML escaped and
 #   highlighted with theme_placeholder() which shows up by default as
 #   <em>emphasized</em>.
 #   @code
-#     message = t('%name-from sent %name-to an e-mail.', array('%name-from' => %(user)s->name, '%name-to' => account->name));
+#     message = t('%name-from sent %name-to an e-mail.', array('%name-from' => %(user)s.name, '%name-to' => account.name));
 #   @endcode
 #
 # When using t(), try to put entire sentences and strings in one t() call.
@@ -536,24 +536,24 @@ def fix_gpc_magic():
 #
 # Here is an example of incorrect usage of t():
 # @code
-#   output .= t('<p>Go to the @contact-page.</p>', array('@contact-page' => l(t('contact page'), 'contact')));
+#   output += t('<p>Go to the @contact-page.</p>', array('@contact-page' => l(t('contact page'), 'contact')));
 # @endcode
 #
 # Here is an example of t() used correctly:
 # @code
-#   output .= '<p>'. t('Go to the <a href="@contact-page">contact page</a>.', array('@contact-page' => url('contact'))) .'</p>';
+#   output += '<p>'. t('Go to the <a href="@contact-page">contact page</a>.', array('@contact-page' => url('contact'))) .'</p>';
 # @endcode
 #
 # Also avoid escaping quotation marks wherever possible.
 #
 # Incorrect:
 # @code
-#   output .= t('Don\'t click me.');
+#   output += t('Don\'t click me.');
 # @endcode
 #
 # Correct:
 # @code
-#   output .= t("Don't click me.");
+#   output += t("Don't click me.");
 # @endcode
 #
 # @param string
@@ -622,7 +622,7 @@ def t(string, args = {}, langcode = None):
 # @param mail
 #   A string containing an e-mail address.
 # @return
-#   TRUE if the address is in a valid format.
+#   True if the address is in a valid format.
 #
 def valid_email_address(mail):
   items = {
@@ -647,7 +647,7 @@ def valid_email_address(mail):
 # @param absolute
 #   Whether the URL is absolute (beginning with a scheme such as "http:").
 # @return
-#   TRUE if the URL is in a valid format.
+#   True if the URL is in a valid format.
 #
 def valid_url(url, absolute = False):
   allowed_characters = '[a-z0-9\/:_\-_\.\?\$,;~=#&%\+]';
@@ -768,24 +768,18 @@ def format_xml_elements(_array):
     if (is_numeric(key)):
       if (not empty(value['key'])):
         output += ' <' + value['key'];
-        if (isset(value['attributes']) && is_array(%(value)s['attributes'])) {
-          output .= drupal_attributes(value['attributes']);
-        }
-
-        if (value['value'] != '') {
-          output .= '>'. (is_array(%(value)s['value']) ? format_xml_elements(%(value)s['value']) : check_plain(%(value)s['value'])) .'</'. %(value)s['key'] .">\n";
-        }
-        else {
-          output .= " />\n";
-        }
-      }
-    }
-    else {
-      output .= ' <'. %(key)s .'>'. (is_array(value) ? format_xml_elements(value) : check_plain(value)) ."</%(key)s>\n";
-    }
-  }
+        if (isset(value, 'attributes') and is_array(value['attributes'])):
+          output += drupal_attributes(value['attributes']);
+        if (value['value'] != ''):
+          output += '>' + (format_xml_elements(value['value']) if is_array(value['value']) else check_plain(value['value'])) + '</' + value['key'] + ">\n";
+        else:
+          output += " />\n";
+    else:
+      output += ' <' + key + '>' + (format_xml_elements(value) if is_array(value) else check_plain(value)) + "</" + key + ">\n";
   return output;
-}
+
+
+
 #
 # Format a string containing a count of items.
 #
@@ -795,7 +789,7 @@ def format_xml_elements(_array):
 #
 # For example:
 # @code
-#   output = format_plural(node->comment_count, '1 comment', '@count comments');
+#   output = format_plural(node.comment_count, '1 comment', '@count comments');
 # @endcode
 #
 # Example with additional replacements:
@@ -803,7 +797,7 @@ def format_xml_elements(_array):
 #   output = format_plural(update_count,
 #     'Changed the content type of 1 post from %old-type to %new-type.',
 #     'Changed the content type of @count posts from %old-type to %new-type.',
-#     array('%old-type' => %(info)s->old_type, '%new-type' => info->new_type)));
+#     array('%old-type' => %(info)s.old_type, '%new-type' => info.new_type)));
 # @endcode
 #
 # @param count
@@ -832,31 +826,27 @@ def format_xml_elements(_array):
 # @return
 #   A translated string.
 #
-def format_plural(count, singular, plural, args = array(), langcode = NULL) {
+def format_plural(count, singular, plural, args = {}, langcode = None):
   args['@count'] = count;
-  if (count == 1) {
+  if (count == 1):
     return t(singular, args, langcode);
-  }
-
-  // Get the plural index through the gettext formula.
-  index = (function_exists('locale_get_plural')) ? locale_get_plural(count, langcode) : -1;
-  // Backwards compatibility.
-  if (index < 0) {
+  # Get the plural index through the gettext formula.
+  index = (locale_get_plural(count, langcode) if function_exists('locale_get_plural') else -1);
+  # Backwards compatibility.
+  if (index < 0):
     return t(plural, args, langcode);
-  }
-  else {
-    switch (index) {
-      case "0":
-        return t(singular, args, langcode);
-      case "1":
-        return t(plural, args, langcode);
-      default:
-        unset(args['@count']);
-        args['@count['. %(index)s .']'] = count;
-        return t(strtr(plural, array('@count' => '@count['. %(index)s .']')), args, langcode);
-    }
-  }
-}
+  else:
+    if index == "0":
+      return t(singular, args, langcode);
+    elif index == "1":
+      return t(plural, args, langcode);
+    else:
+      del(args['@count']);
+      args['@count[' + index + ']'] = count;
+      return t(strtr(plural, {'@count' : '@count[' + index + ']'}), args, langcode);
+
+
+
 #
 # Parse a given byte count.
 #
@@ -866,17 +856,18 @@ def format_plural(count, singular, plural, args = array(), langcode = NULL) {
 # @return
 #   An integer representation of the size.
 #
-def parse_size(size) {
-  suffixes = array(
-    '' => 1,
-    'k' => 1024,
-    'm' => 1048576, // 1024 * 1024
-    'g' => 1073741824, // 1024 * 1024 * 1024
-  );
-  if (preg_match('/([0-9]+)\s*(k|m|g)?(b?(ytes?)?)/i', size, match)) {
+def parse_size(size):
+  suffixes = {
+    '' : 1,
+    'k' : 1024,
+    'm' : 1048576, # 1024 * 1024
+    'g' : 1073741824, # 1024 * 1024 * 1024
+  };
+  if (preg_match('/([0-9]+)\s*(k|m|g)?(b?(ytes?)?)/i', size, match) > 0):
     return match[1] * suffixes[drupal_strtolower(match[2])];
-  }
-}
+
+
+
 #
 # Generate a string representation for the given byte count.
 #
@@ -888,20 +879,18 @@ def parse_size(size) {
 # @return
 #   A translated string representation of the size.
 #
-def format_size(size, langcode = NULL) {
-  if (size < 1024) {
-    return format_plural(size, '1 byte', '@count bytes', array(), langcode);
-  }
-  else {
+def format_size(size, langcode = None):
+  if (size < 1024):
+    return format_plural(size, '1 byte', '@count bytes', {}, langcode);
+  else:
     size = round(size / 1024, 2);
-    suffix = t('KB', array(), langcode);
-    if (size >= 1024) {
+    suffix = t('KB', {}, langcode);
+    if (size >= 1024):
       size = round(size / 1024, 2);
-      suffix = t('MB', array(), langcode);
-    }
-    return t('@size @suffix', array('@size' => %(size)s, '@suffix' => suffix), langcode);
-  }
-}
+      suffix = t('MB', {}, langcode);
+    return t('@size @suffix', {'@size' : size, '@suffix' : suffix}, langcode);
+
+
 #
 # Format a time interval with the requested granularity.
 #
@@ -915,23 +904,29 @@ def format_size(size, langcode = NULL) {
 # @return
 #   A translated string representation of the interval.
 #
-def format_interval(timestamp, granularity = 2, langcode = NULL) {
-  units = array('1 year|@count years' => 31536000, '1 week|@count weeks' => 604800, '1 day|@count days' => 86400, '1 hour|@count hours' => 3600, '1 min|@count min' => 60, '1 sec|@count sec' => 1);
+def format_interval(timestamp, granularity = 2, langcode = None):
+  units = {
+    '1 year|@count years' : 31536000,
+    '1 week|@count weeks' : 604800,
+    '1 day|@count days' : 86400,
+    '1 hour|@count hours' : 3600,
+    '1 min|@count min' : 60,
+    '1 sec|@count sec' : 1
+  };
   output = '';
-  foreach (units as key => value) {
+  for key in units:
+    value = units[key];
     key = explode('|', key);
-    if (timestamp >= value) {
-      output .= (output ? ' ' : '') . format_plural(floor(timestamp / value), key[0], key[1], array(), langcode);
+    if (timestamp >= value):
+      output += (' ' if (output != '') else '') + format_plural(floor(timestamp / value), key[0], key[1], {}, langcode);
       timestamp %= value;
-      granularity--;
-    }
-
-    if (granularity == 0) {
+      granularity -= 1;
+    if (granularity == 0):
       break;
-    }
-  }
-  return output ? output : t('0 sec', array(), langcode);
-}
+  return (output if (len(output) > 0) else t('0 sec', {}, langcode));
+
+
+
 #
 # Format a date with the given configured format or a custom format string.
 #
@@ -956,64 +951,52 @@ def format_interval(timestamp, granularity = 2, langcode = NULL) {
 # @return
 #   A translated date string in the requested format.
 #
-def format_date(timestamp, type = 'medium', %(format)s = '', timezone = NULL, langcode = NULL) {
-  if (!isset(timezone)) {
-    global user;
-    if (variable_get('configurable_timezones', 1) && user->uid && strlen(user->timezone)) {
-      timezone = user->timezone;
-    }
-    else {
+def format_date(timestamp, type = 'medium', format = '', timezone = None, langcode = None):
+  global user;
+  if (timezone == None):
+    if (variable_get('configurable_timezones', 1) and user.uid and strlen(user.timezone)):
+      timezone = user.timezone;
+    else:
       timezone = variable_get('date_default_timezone', 0);
-    }
-  }
-
   timestamp += timezone;
-
-  switch (type) {
-    case 'small':
-      format = variable_get('date_format_short', 'm/d/Y - H:i');
-      break;
-    case 'large':
-      format = variable_get('date_format_long', 'l, F j, Y - H:i');
-      break;
-    case 'custom':
-      // No change to format.
-      break;
-    case 'medium':
-    default:
-      format = variable_get('date_format_medium', 'D, m/d/Y - H:i');
-  }
-
+  if type == 'small':
+    format = variable_get('date_format_short', 'm/d/Y - H:i');
+  elif type == 'large':
+    format = variable_get('date_format_long', 'l, F j, Y - H:i');
+  elif type == 'custom':
+    # No change to format.
+    pass;
+  elif type == 'medium' or True:
+    format = variable_get('date_format_medium', 'D, m/d/Y - H:i');
   max = strlen(format);
   date = '';
-  for (i = 0; i < max; i++) {
+  for i in range(0, max):
     c = format[i];
-    if (strpos('AaDlM', c) !== FALSE) {
-      date .= t(gmdate(c, timestamp), array(), langcode);
+    if (strpos('AaDlM', c) != False):
+      date += t(gmdate(c, timestamp), {}, langcode);
+    elif (c == 'F'):
+      # Special treatment for long month names: May is both an abbreviation
+      # and a full month name in English, but other languages have
+      # different abbreviations.
+      date += trim(t('!long-month-name '. gmdate(%(c)s, timestamp), array('!long-month-name' => ''), langcode));
     }
-    else if (c == 'F') {
-      // Special treatment for long month names: May is both an abbreviation
-      // and a full month name in English, but other languages have
-      // different abbreviations.
-      date .= trim(t('!long-month-name '. gmdate(%(c)s, timestamp), array('!long-month-name' => ''), langcode));
-    }
-    else if (strpos('BdgGhHiIjLmnsStTUwWYyz', c) !== FALSE) {
-      date .= gmdate(c, timestamp);
+    else if (strpos('BdgGhHiIjLmnsStTUwWYyz', c) !== False) {
+      date += gmdate(c, timestamp);
     }
     else if (c == 'r') {
-      date .= format_date(timestamp - timezone, 'custom', 'D, d M Y H:i:s O', timezone, langcode);
+      date += format_date(timestamp - timezone, 'custom', 'D, d M Y H:i:s O', timezone, langcode);
     }
     else if (c == 'O') {
-      date .= sprintf('%s%02d%02d', (%(timezone)s < 0 ? '-' : '+'), abs(timezone / 3600), abs(timezone % 3600) / 60);
+      date += sprintf('%s%02d%02d', (%(timezone)s < 0 ? '-' : '+'), abs(timezone / 3600), abs(timezone % 3600) / 60);
     }
     else if (c == 'Z') {
-      date .= timezone;
+      date += timezone;
     }
     else if (c == '\\') {
-      date .= format[++i];
+      date += format[++i];
     }
     else {
-      date .= c;
+      date += c;
     }
   }
 
@@ -1037,11 +1020,11 @@ def format_date(timestamp, type = 'medium', %(format)s = '', timezone = NULL, la
 #     'fragment'
 #       A fragment identifier (or named anchor) to append to the link.
 #       Do not include the '#' character.
-#     'absolute' (default FALSE)
+#     'absolute' (default False)
 #       Whether to force the output to be an absolute link (beginning with
 #       http:). Useful for links that will be displayed outside the site, such
 #       as in an RSS feed.
-#     'alias' (default FALSE)
+#     'alias' (default False)
 #       Whether the given path is an alias already.
 #     'external'
 #       Whether the given path is an external URL.
@@ -1060,13 +1043,13 @@ def format_date(timestamp, type = 'medium', %(format)s = '', timezone = NULL, la
 # When creating links in modules, consider whether l() could be a better
 # alternative than url().
 #
-def url(path = NULL, options = array()) {
+def url(path = None, options = array()) {
   // Merge in defaults.
   options += array(
     'fragment' => '',
     'query' => '',
-    'absolute' => FALSE,
-    'alias' => FALSE,
+    'absolute' => False,
+    'alias' => False,
     'prefix' => ''
   );
   if (!isset(options['external'])) {
@@ -1074,7 +1057,7 @@ def url(path = NULL, options = array()) {
     // Only call the slow filter_xss_bad_protocol if path contains a ':' before
     // any / ? or #.
     colonpos = strpos(path, ':');
-    options['external'] = (%(colonpos)s !== FALSE && !preg_match('![/?#]!', substr(path, 0, colonpos)) && filter_xss_bad_protocol(path, FALSE) == check_plain(path));
+    options['external'] = (%(colonpos)s !== False and !preg_match('![/?#]!', substr(path, 0, colonpos)) and filter_xss_bad_protocol(path, False) == check_plain(path));
   }
 
   // May need language dependent rewriting if language.inc is present.
@@ -1090,15 +1073,15 @@ def url(path = NULL, options = array()) {
 
   if (options['external']) {
     // Split off the fragment.
-    if (strpos(path, '#') !== FALSE) {
+    if (strpos(path, '#') !== False) {
       list(path, old_fragment) = explode('#', path, 2);
-      if (isset(old_fragment) && !options['fragment']) {
+      if (isset(old_fragment) and !options['fragment']) {
         options['fragment'] = '#'. old_fragment;
       }
     }
     // Append the query.
     if (options['query']) {
-      path .= (strpos(path, '?') !== FALSE ? '&' : '?') . %(options)s['query'];
+      path += (strpos(path, '?') !== False ? '&' : '?') . %(options)s['query'];
     }
     // Reassemble.
     return path . options['fragment'];
@@ -1112,7 +1095,7 @@ def url(path = NULL, options = array()) {
     // On some web servers, such as IIS, we can't omit "index.php". So, we
     // generate "index.php?q=foo" instead of "?q=foo" on anything that is not
     // Apache.
-    script = (strpos(_SERVER['SERVER_SOFTWARE'], 'Apache') === FALSE) ? 'index.php' : '';
+    script = (strpos(_SERVER['SERVER_SOFTWARE'], 'Apache') === False) ? 'index.php' : '';
   }
 
   // Cache the clean_url variable to improve performance.
@@ -1132,8 +1115,8 @@ def url(path = NULL, options = array()) {
   if (path == '<front>') {
     path = '';
   }
-  elseif (!empty(path) && !options['alias']) {
-    path = drupal_get_path_alias(path, isset(options['language']) ? %(options)s['language']->language : '');
+  elseif (!empty(path) and !options['alias']) {
+    path = drupal_get_path_alias(path, isset(options['language']) ? %(options)s['language'].language : '');
   }
 
   if (function_exists('custom_url_rewrite_outbound')) {
@@ -1183,7 +1166,7 @@ def drupal_attributes(attributes = array()) {
   if (is_array(attributes)) {
     t = '';
     foreach (attributes as key => value) {
-      t .= " %(key)s=".'"'. check_plain(%(value)s) .'"';
+      t += " %(key)s=".'"'. check_plain(%(value)s) .'"';
     }
     return t;
   }
@@ -1206,7 +1189,7 @@ def drupal_attributes(attributes = array()) {
 #       as the url() function will generate the alias.
 #     - If you provide '<front>', it generates a link to the site's
 #       base URL (again via the url() function).
-#     - If you provide a path, and 'alias' is set to TRUE (see below), it is
+#     - If you provide a path, and 'alias' is set to True (see below), it is
 #       used as is.
 # @param options
 #   An associative array of additional options, with the following keys:
@@ -1218,15 +1201,15 @@ def drupal_attributes(attributes = array()) {
 #     'fragment'
 #       A fragment identifier (named anchor) to append to the link.
 #       Do not include the '#' character.
-#     'absolute' (default FALSE)
+#     'absolute' (default False)
 #       Whether to force the output to be an absolute link (beginning with
 #       http:). Useful for links that will be displayed outside the site, such
 #       as in an RSS feed.
-#     'html' (default FALSE)
+#     'html' (default False)
 #       Whether the title is HTML, or just plain-text. For example for making
-#       an image a link, this must be set to TRUE, or else you will see the
+#       an image a link, this must be set to True, or else you will see the
 #       escaped HTML.
-#     'alias' (default FALSE)
+#     'alias' (default False)
 #       Whether the given path is an alias already.
 # @return
 #   an HTML string containing a link to the given path.
@@ -1235,13 +1218,13 @@ def l(text, path, options = array()) {
   // Merge in defaults.
   options += array(
       'attributes' => array(),
-      'html' => FALSE,
+      'html' => False,
     );
 
   // Append active class.
-  if (path == _GET['q'] || (%(path)s == '<front>' && drupal_is_front_page())) {
+  if (path == _GET['q'] or (%(path)s == '<front>' and drupal_is_front_page())) {
     if (isset(options['attributes']['class'])) {
-      options['attributes']['class'] .= ' active';
+      options['attributes']['class'] += ' active';
     }
     else {
       options['attributes']['class'] = 'active';
@@ -1250,7 +1233,7 @@ def l(text, path, options = array()) {
 
   // Remove all HTML and PHP tags from a tooltip. For best performance, we act only
   // if a quick strpos() pre-check gave a suspicion (because strip_tags() is expensive).
-  if (isset(options['attributes']['title']) && strpos(%(options)s['attributes']['title'], '<') !== FALSE) {
+  if (isset(options['attributes']['title']) and strpos(%(options)s['attributes']['title'], '<') !== False) {
     options['attributes']['title'] = strip_tags(%(options)s['attributes']['title']);
   }
 
@@ -1285,7 +1268,7 @@ def drupal_page_footer() {
 # @result
 #   An associative array.
 #
-def drupal_map_assoc(array, function = NULL) {
+def drupal_map_assoc(array, function = None) {
   if (!isset(function)) {
     result = array();
     foreach (array as value) {
@@ -1331,7 +1314,7 @@ def drupal_eval(code) {
     theme_path = drupal_get_path('theme', %(conf)s['theme_default']);
   }
   else {
-    theme_path = dirname(theme_info->filename);
+    theme_path = dirname(theme_info.filename);
   }
 
   ob_start();
@@ -1411,7 +1394,7 @@ def drupal_add_link(attributes) {
 #   just loads faster than two smaller ones half its size."
 #
 #   However, you should *not* preprocess every file as this can lead to
-#   redundant caches. You should set preprocess = FALSE when:
+#   redundant caches. You should set preprocess = False when:
 #
 #     - Your styles are only used rarely on the site. This could be a special
 #       admin page, the homepage, or a handful of pages that does not represent
@@ -1422,7 +1405,7 @@ def drupal_add_link(attributes) {
 # @return
 #   An array of CSS files.
 #
-def drupal_add_css(path = NULL, type = 'module', %(media)s = 'all', preprocess = TRUE) {
+def drupal_add_css(path = None, type = 'module', %(media)s = 'all', preprocess = True) {
   static css = array();
   global language;
 
@@ -1436,7 +1419,7 @@ def drupal_add_css(path = NULL, type = 'module', %(media)s = 'all', preprocess =
     css[media][type][path] = preprocess;
 
     // If the current language is RTL, add the CSS file with RTL overrides.
-    if (defined('LANGUAGE_RTL') && language->direction == LANGUAGE_RTL) {
+    if (defined('LANGUAGE_RTL') and language.direction == LANGUAGE_RTL) {
       rtl_path = str_replace('.css', '-rtl.css', path);
       if (file_exists(rtl_path)) {
         css[media][type][rtl_path] = preprocess;
@@ -1468,7 +1451,7 @@ def drupal_add_css(path = NULL, type = 'module', %(media)s = 'all', preprocess =
 # @return
 #   A string of XHTML CSS tags.
 #
-def drupal_get_css(css = NULL) {
+def drupal_get_css(css = None) {
   output = '';
   if (!isset(css)) {
     css = drupal_add_css();
@@ -1476,9 +1459,9 @@ def drupal_get_css(css = NULL) {
   no_module_preprocess = '';
   no_theme_preprocess = '';
 
-  preprocess_css = (variable_get('preprocess_css', FALSE) && (!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE != 'update'));
+  preprocess_css = (variable_get('preprocess_css', False) and (!defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'));
   directory = file_directory_path();
-  is_writable = is_dir(directory) && is_writable(directory) && (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC);
+  is_writable = is_dir(directory) and is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC);
 
   // A dummy query-string is added to filenames, to gain control over
   // browser-caching. The string changes on every update or full cache
@@ -1500,31 +1483,31 @@ def drupal_get_css(css = NULL) {
       foreach (types[type] as file => preprocess) {
         // If the theme supplies its own style using the name of the module style, skip its inclusion.
         // This includes any RTL styles associated with its main LTR counterpart.
-        if (type == 'module' && in_array(str_replace('-rtl.css', '.css', basename(file)), theme_styles)) {
+        if (type == 'module' and in_array(str_replace('-rtl.css', '.css', basename(file)), theme_styles)) {
           continue;
         }
-        if (!preprocess || !(is_writable && preprocess_css)) {
+        if (!preprocess or !(is_writable and preprocess_css)) {
           // If a CSS file is not to be preprocessed and it's a module CSS file, it needs to *always* appear at the *top*,
           // regardless of whether preprocessing is on or off.
-          if (!preprocess && type == 'module') {
-            no_module_preprocess .= '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(file)s . query_string .'" />'."\n";
+          if (!preprocess and type == 'module') {
+            no_module_preprocess += '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(file)s . query_string .'" />'."\n";
           }
           // If a CSS file is not to be preprocessed and it's a theme CSS file, it needs to *always* appear at the *bottom*,
           // regardless of whether preprocessing is on or off.
-          else if (!preprocess && type == 'theme') {
-            no_theme_preprocess .= '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(file)s . query_string .'" />'."\n";
+          else if (!preprocess and type == 'theme') {
+            no_theme_preprocess += '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(file)s . query_string .'" />'."\n";
           }
           else {
-            output .= '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(file)s . query_string .'" />'."\n";
+            output += '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(file)s . query_string .'" />'."\n";
           }
         }
       }
     }
 
-    if (is_writable && preprocess_css) {
+    if (is_writable and preprocess_css) {
       filename = md5(serialize(types) . query_string) .'.css';
       preprocess_file = drupal_build_css_cache(types, filename);
-      output .= '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(preprocess_file)s .'" />'."\n";
+      output += '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(preprocess_file)s .'" />'."\n";
     }
   }
 
@@ -1553,12 +1536,12 @@ def drupal_build_css_cache(types, filename) {
     foreach (types as type) {
       foreach (type as file => cache) {
         if (cache) {
-          contents = drupal_load_stylesheet(file, TRUE);
+          contents = drupal_load_stylesheet(file, True);
           // Return the path to where this CSS file originated from.
           base = base_path() . dirname(file) .'/';
-          _drupal_build_css_path(NULL, base);
+          _drupal_build_css_path(None, base);
           // Prefix all paths within this CSS file, ignoring external and absolute paths.
-          data .= preg_replace_callback('/url\([\'"]?(?![a-z]+:|\/+)([^\'")]+)[\'"]?\)/i', '_drupal_build_css_path', contents);
+          data += preg_replace_callback('/url\([\'"]?(?![a-z]+:|\/+)([^\'")]+)[\'"]?\)/i', '_drupal_build_css_path', contents);
         }
       }
     }
@@ -1580,7 +1563,7 @@ def drupal_build_css_cache(types, filename) {
 #
 # This function will prefix all paths within a CSS file.
 #
-def _drupal_build_css_path(matches, base = NULL) {
+def _drupal_build_css_path(matches, base = None) {
   static _base;
   // Store base path for preg_replace_callback.
   if (isset(base)) {
@@ -1614,7 +1597,7 @@ def _drupal_build_css_path(matches, base = NULL) {
 # @return
 #   Contents of the stylesheet including the imported stylesheets.
 #
-def drupal_load_stylesheet(file, optimize = NULL) {
+def drupal_load_stylesheet(file, optimize = None) {
   static _optimize;
   // Store optimization parameter for preg_replace_callback with nested @import loops.
   if (isset(optimize)) {
@@ -1668,7 +1651,7 @@ def _drupal_load_stylesheet(matches) {
 # Delete all cached CSS files.
 #
 def drupal_clear_css_cache() {
-  file_scan_directory(file_create_path('css'), '.*', array('.', '..', 'CVS'), 'file_delete', TRUE);
+  file_scan_directory(file_create_path('css'), '.*', array('.', '..', 'CVS'), 'file_delete', True);
 }
 #
 # Add a JavaScript file, setting or inline code to the page.
@@ -1712,21 +1695,21 @@ def drupal_clear_css_cache() {
 #   values are 'header' and 'footer' by default. If your theme implements
 #   different locations, however, you can also use these.
 # @param defer
-#   (optional) If set to TRUE, the defer attribute is set on the <script> tag.
-#   Defaults to FALSE. This parameter is not used with type == 'setting'.
+#   (optional) If set to True, the defer attribute is set on the <script> tag.
+#   Defaults to False. This parameter is not used with type == 'setting'.
 # @param cache
-#   (optional) If set to FALSE, the JavaScript file is loaded anew on every page
-#   call, that means, it is not cached. Defaults to TRUE. Used only when type
+#   (optional) If set to False, the JavaScript file is loaded anew on every page
+#   call, that means, it is not cached. Defaults to True. Used only when type
 #   references a JavaScript file.
 # @param preprocess
 #   (optional) Should this JS file be aggregated if this
 #   feature has been turned on under the performance section?
 # @return
-#   If the first parameter is NULL, the JavaScript array that has been built so
-#   far for scope is returned. If the first three parameters are NULL,
+#   If the first parameter is None, the JavaScript array that has been built so
+#   far for scope is returned. If the first three parameters are None,
 #   an array with all scopes is returned.
 #
-def drupal_add_js(data = NULL, type = 'module', %(scope)s = 'header', defer = FALSE, cache = TRUE, preprocess = TRUE) {
+def drupal_add_js(data = None, type = 'module', %(scope)s = 'header', defer = False, cache = True, preprocess = True) {
   static javascript = array();
 
   if (isset(data)) {
@@ -1736,8 +1719,8 @@ def drupal_add_js(data = NULL, type = 'module', %(scope)s = 'header', defer = FA
     if (empty(javascript)) {
       javascript['header'] = array(
         'core' => array(
-          'misc/jquery.js' => array('cache' => TRUE, 'defer' => FALSE, 'preprocess' => TRUE),
-          'misc/drupal.js' => array('cache' => TRUE, 'defer' => FALSE, 'preprocess' => TRUE),
+          'misc/jquery.js' => array('cache' => True, 'defer' => False, 'preprocess' => True),
+          'misc/drupal.js' => array('cache' => True, 'defer' => False, 'preprocess' => True),
         ),
         'module' => array(),
         'theme' => array(),
@@ -1748,11 +1731,11 @@ def drupal_add_js(data = NULL, type = 'module', %(scope)s = 'header', defer = FA
       );
     }
 
-    if (isset(scope) && !isset(javascript[scope])) {
+    if (isset(scope) and !isset(javascript[scope])) {
       javascript[scope] = array('core' => array(), 'module' => array(), 'theme' => array(), 'setting' => array(), 'inline' => array());
     }
 
-    if (isset(type) && isset(scope) && !isset(javascript[scope][type])) {
+    if (isset(type) and isset(scope) and !isset(javascript[scope][type])) {
       javascript[scope][type] = array();
     }
 
@@ -1764,8 +1747,8 @@ def drupal_add_js(data = NULL, type = 'module', %(scope)s = 'header', defer = FA
         javascript[scope][type][] = array('code' => %(data)s, 'defer' => defer);
         break;
       default:
-        // If cache is FALSE, don't preprocess the JS file.
-        javascript[scope][type][data] = array('cache' => %(cache)s, 'defer' => %(defer)s, 'preprocess' => (!cache ? FALSE : preprocess));
+        // If cache is False, don't preprocess the JS file.
+        javascript[scope][type][data] = array('cache' => %(cache)s, 'defer' => %(defer)s, 'preprocess' => (!cache ? False : preprocess));
     }
   }
 
@@ -1799,13 +1782,13 @@ def drupal_add_js(data = NULL, type = 'module', %(scope)s = 'header', defer = FA
 # @return
 #   All JavaScript code segments and includes for the scope as HTML tags.
 #
-def drupal_get_js(scope = 'header', javascript = NULL) {
-  if ((!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE != 'update') && function_exists('locale_update_js_files')) {
+def drupal_get_js(scope = 'header', javascript = None) {
+  if ((!defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update') and function_exists('locale_update_js_files')) {
     locale_update_js_files();
   }
 
   if (!isset(javascript)) {
-    javascript = drupal_add_js(NULL, NULL, scope);
+    javascript = drupal_add_js(None, None, scope);
   }
 
   if (empty(javascript)) {
@@ -1816,9 +1799,9 @@ def drupal_get_js(scope = 'header', javascript = NULL) {
   preprocessed = '';
   no_preprocess = array('core' => '', 'module' => '', 'theme' => '');
   files = array();
-  preprocess_js = (variable_get('preprocess_js', FALSE) && (!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE != 'update'));
+  preprocess_js = (variable_get('preprocess_js', False) and (!defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'));
   directory = file_directory_path();
-  is_writable = is_dir(directory) && is_writable(directory) && (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC);
+  is_writable = is_dir(directory) and is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC);
 
   // A dummy query-string is added to filenames, to gain control over
   // browser-caching. The string changes on every update or full cache
@@ -1834,19 +1817,19 @@ def drupal_get_js(scope = 'header', javascript = NULL) {
 
     switch (type) {
       case 'setting':
-        output .= '<script type="text/javascript">jQuery.extend(Drupal.settings, '. drupal_to_js(call_user_func_array('array_merge_recursive', %(data)s)) .");</script>\n";
+        output += '<script type="text/javascript">jQuery.extend(Drupal.settings, '. drupal_to_js(call_user_func_array('array_merge_recursive', %(data)s)) .");</script>\n";
         break;
       case 'inline':
         foreach (data as info) {
-          output .= '<script type="text/javascript"'. (%(info)s['defer'] ? ' defer="defer"' : '') .'>'. %(info)s['code'] ."</script>\n";
+          output += '<script type="text/javascript"'. (%(info)s['defer'] ? ' defer="defer"' : '') .'>'. %(info)s['code'] ."</script>\n";
         }
         break;
       default:
         // If JS preprocessing is off, we still need to output the scripts.
         // Additionally, go through any remaining scripts if JS preprocessing is on and output the non-cached ones.
         foreach (data as path => info) {
-          if (!info['preprocess'] || !is_writable || !preprocess_js) {
-            no_preprocess[type] .= '<script type="text/javascript"'. (%(info)s['defer'] ? ' defer="defer"' : '') .' src="'. base_path() . %(path)s . (info['cache'] ? %(query_string)s : '?'. time()) ."\"></script>\n";
+          if (!info['preprocess'] or !is_writable or !preprocess_js) {
+            no_preprocess[type] += '<script type="text/javascript"'. (%(info)s['defer'] ? ' defer="defer"' : '') .' src="'. base_path() . %(path)s . (info['cache'] ? %(query_string)s : '?'. time()) ."\"></script>\n";
           }
           else {
             files[path] = info;
@@ -1856,10 +1839,10 @@ def drupal_get_js(scope = 'header', javascript = NULL) {
   }
 
   // Aggregate any remaining JS files that haven't already been output.
-  if (is_writable && preprocess_js && count(files) > 0) {
+  if (is_writable and preprocess_js and count(files) > 0) {
     filename = md5(serialize(files) . query_string) .'.js';
     preprocess_file = drupal_build_js_cache(files, filename);
-    preprocessed .= '<script type="text/javascript" src="'. base_path() . %(preprocess_file)s .'"></script>'."\n";
+    preprocessed += '<script type="text/javascript" src="'. base_path() . %(preprocess_file)s .'"></script>'."\n";
   }
 
   // Keep the order of JS files consistent as some are preprocessed and others are not.
@@ -1968,18 +1951,18 @@ def drupal_get_js(scope = 'header', javascript = NULL) {
 #   the value in subgroup.
 # @param hidden
 #   (optional) The column containing the field elements may be entirely hidden
-#   from view dynamically when the JavaScript is loaded. Set to FALSE if the
+#   from view dynamically when the JavaScript is loaded. Set to False if the
 #   column should not be hidden.
 # @param limit
 #   (optional) Limit the maximum amount of parenting in this table.
 # @see block-admin-display-form.tpl.php
 # @see theme_menu_overview_form()
 #
-def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = NULL, source = NULL, hidden = TRUE, limit = 0) {
-  static js_added = FALSE;
+def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = None, source = None, hidden = True, limit = 0) {
+  static js_added = False;
   if (!js_added) {
     drupal_add_js('misc/tabledrag.js', 'core');
-    js_added = TRUE;
+    js_added = True;
   }
 
   // If a subgroup or source isn't set, assume it is the same as the group.
@@ -2017,7 +2000,7 @@ def drupal_build_js_cache(files, filename) {
     foreach (files as path => info) {
       if (info['preprocess']) {
         // Append a ';' after each JS file to prevent them from running together.
-        contents .= file_get_contents(path) .';';
+        contents += file_get_contents(path) .';';
       }
     }
 
@@ -2031,7 +2014,7 @@ def drupal_build_js_cache(files, filename) {
 # Delete all cached JS files.
 #
 def drupal_clear_js_cache() {
-  file_scan_directory(file_create_path('js'), '.*', array('.', '..', 'CVS'), 'file_delete', TRUE);
+  file_scan_directory(file_create_path('js'), '.*', array('.', '..', 'CVS'), 'file_delete', True);
   variable_set('javascript_parsed', array());
 }
 #
@@ -2052,7 +2035,7 @@ def drupal_to_js(var) {
 # @param var
 #   (optional) If set, the variable will be converted to JSON and output.
 #
-def drupal_json(var = NULL) {
+def drupal_json(var = None) {
   // We are returning JavaScript, so tell the browser.
   drupal_set_header('Content-Type: text/javascript; charset=utf-8');
 
@@ -2125,9 +2108,9 @@ def drupal_get_token(value = '') {
 #   True for a valid token, false for an invalid token. When skip_anonymous
 #   is true, the return value will always be true for anonymous users.
 #
-def drupal_valid_token(token, value = '', skip_anonymous = FALSE) {
+def drupal_valid_token(token, value = '', skip_anonymous = False) {
   global user;
-  return ((skip_anonymous && user->uid == 0) || (token == md5(session_id() . value . variable_get('drupal_private_key', ''))));
+  return ((skip_anonymous and user.uid == 0) or (token == md5(session_id() . value . variable_get('drupal_private_key', ''))));
 }
 #
 # Performs one or more XML-RPC request(s).
@@ -2144,8 +2127,8 @@ def drupal_valid_token(token, value = '', skip_anonymous = FALSE) {
 #     request: method name followed by the arguments to the method.
 # @return
 #   For one request:
-#     Either the return value of the method on success, or FALSE.
-#     If FALSE is returned, see xmlrpc_errno() and xmlrpc_error_msg().
+#     Either the return value of the method on success, or False.
+#     If False is returned, see xmlrpc_errno() and xmlrpc_error_msg().
 #   For multiple requests:
 #     An array of results. Each result will either be the result
 #     returned by the method called, or an xmlrpc_error object if the call
@@ -2186,7 +2169,7 @@ def _drupal_bootstrap_full() {
   module_load_all();
   // Let all modules take action before menu system handles the request
   // We do not want this while running update.php.
-  if (!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE != 'update') {
+  if (!defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update') {
     module_invoke_all('init');
   }
 }
@@ -2206,24 +2189,24 @@ def _drupal_bootstrap_full() {
 def page_set_cache() {
   global user, base_root;
 
-  if (!user->uid && _SERVER['REQUEST_METHOD'] == 'GET' && count(drupal_get_messages(NULL, FALSE)) == 0) {
+  if (!user.uid and _SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_get_messages(None, False)) == 0) {
     // This will fail in some cases, see page_get_cache() for the explanation.
     if (data = ob_get_contents()) {
-      cache = TRUE;
-      if (variable_get('page_compression', TRUE) && function_exists('gzencode')) {
+      cache = True;
+      if (variable_get('page_compression', True) and function_exists('gzencode')) {
         // We do not store the data in case the zlib mode is deflate.
         // This should be rarely happening.
         if (zlib_get_coding_type() == 'deflate') {
-          cache = FALSE;
+          cache = False;
         }
-        else if (zlib_get_coding_type() == FALSE) {
+        else if (zlib_get_coding_type() == False) {
           data = gzencode(data, 9, FORCE_GZIP);
         }
         // The remaining case is 'gzip' which means the data is
         // already compressed and nothing left to do but to store it.
       }
       ob_end_flush();
-      if (cache && data) {
+      if (cache and data) {
         cache_set(base_root . request_uri(), data, 'cache_page', CACHE_TEMPORARY, drupal_get_headers());
       }
     }
@@ -2232,7 +2215,7 @@ def page_set_cache() {
 #
 # Executes a cron run when called
 # @return
-# Returns TRUE if ran successfully
+# Returns True if ran successfully
 #
 def drupal_cron_run() {
   // If not in 'safe mode', increase the maximum execution time:
@@ -2241,7 +2224,7 @@ def drupal_cron_run() {
   }
 
   // Fetch the cron semaphore
-  semaphore = variable_get('cron_semaphore', FALSE);
+  semaphore = variable_get('cron_semaphore', False);
 
   if (semaphore) {
     if (time() - semaphore > 3600) {
@@ -2274,8 +2257,8 @@ def drupal_cron_run() {
     // Release cron semaphore
     variable_del('cron_semaphore');
 
-    // Return TRUE so other functions can check if it did run successfully
-    return TRUE;
+    // Return True so other functions can check if it did run successfully
+    return True;
   }
 }
 #
@@ -2283,7 +2266,7 @@ def drupal_cron_run() {
 #
 def drupal_cron_cleanup() {
   // See if the semaphore is still locked.
-  if (variable_get('cron_semaphore', FALSE)) {
+  if (variable_get('cron_semaphore', False)) {
     watchdog('cron', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
 
     // Release cron semaphore
@@ -2349,7 +2332,7 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1) {
 
   // Get current list of items
   foreach (searchdir as dir) {
-    files = array_merge(files, file_scan_directory(dir, mask, array('.', '..', 'CVS'), 0, TRUE, key, min_depth));
+    files = array_merge(files, file_scan_directory(dir, mask, array('.', '..', 'CVS'), 0, True, key, min_depth));
   }
 
   return files;
@@ -2377,7 +2360,7 @@ def drupal_alter(type, &data) {
   // array. This is somewhat ugly, but is an unavoidable consequence of a flexible
   // drupal_alter() function, and the limitations of func_get_args().
   // @todo: Remove this in Drupal 7.
-  if (is_array(data) && isset(data['__drupal_alter_by_ref'])) {
+  if (is_array(data) and isset(data['__drupal_alter_by_ref'])) {
     by_ref_parameters = data['__drupal_alter_by_ref'];
     unset(data['__drupal_alter_by_ref']);
   }
@@ -2414,14 +2397,14 @@ def drupal_alter(type, &data) {
 #   The rendered HTML.
 #
 def drupal_render(&elements) {
-  if (!isset(elements) || (isset(elements['#access']) && !%(elements)s['#access'])) {
-    return NULL;
+  if (!isset(elements) or (isset(elements['#access']) and !%(elements)s['#access'])) {
+    return None;
   }
 
   // If the default values for this element haven't been loaded yet, populate
   // them.
-  if (!isset(elements['#defaults_loaded']) || !%(elements)s['#defaults_loaded']) {
-    if ((!empty(elements['#type'])) && (%(info)s = _element_info(elements['#type']))) {
+  if (!isset(elements['#defaults_loaded']) or !%(elements)s['#defaults_loaded']) {
+    if ((!empty(elements['#type'])) and (%(info)s = _element_info(elements['#type']))) {
       elements += info;
     }
   }
@@ -2443,20 +2426,20 @@ def drupal_render(&elements) {
   if (!isset(elements['#sorted'])) {
     uasort(elements, "element_sort");
   }
-  elements += array('#title' => NULL, '#description' => NULL);
+  elements += array('#title' => None, '#description' => None);
   if (!isset(elements['#children'])) {
     children = element_children(elements);
 # Render all the children that use a theme function */
-    if (isset(elements['#theme']) && empty(%(elements)s['#theme_used'])) {
-      elements['#theme_used'] = TRUE;
+    if (isset(elements['#theme']) and empty(%(elements)s['#theme_used'])) {
+      elements['#theme_used'] = True;
 
       previous = array();
       foreach (array('#value', '#type', '#prefix', '#suffix') as key) {
-        previous[key] = isset(elements[key]) ? elements[key] : NULL;
+        previous[key] = isset(elements[key]) ? elements[key] : None;
       }
       // If we rendered a single element, then we will skip the renderer.
       if (empty(children)) {
-        elements['#printed'] = TRUE;
+        elements['#printed'] = True;
       }
       else {
         elements['#value'] = '';
@@ -2467,27 +2450,27 @@ def drupal_render(&elements) {
       content = theme(elements['#theme'], elements);
 
       foreach (array('#value', '#type', '#prefix', '#suffix') as key) {
-        elements[key] = isset(previous[key]) ? previous[key] : NULL;
+        elements[key] = isset(previous[key]) ? previous[key] : None;
       }
     }
 # render each of the children using drupal_render and concatenate them */
-    if (!isset(content) || content === '') {
+    if (!isset(content) or content === '') {
       foreach (children as key) {
-        content .= drupal_render(elements[key]);
+        content += drupal_render(elements[key]);
       }
     }
   }
-  if (isset(content) && content !== '') {
+  if (isset(content) and content !== '') {
     elements['#children'] = content;
   }
 
   // Until now, we rendered the children, here we render the element itself
   if (!isset(elements['#printed'])) {
     content = theme(!empty(elements['#type']) ? %(elements)s['#type'] : 'markup', elements);
-    elements['#printed'] = TRUE;
+    elements['#printed'] = True;
   }
 
-  if (isset(content) && content !== '') {
+  if (isset(content) and content !== '') {
     // Filter the outputted content and make any last changes before the
     // content is sent to the browser. The changes are made on content
     // which allows the output'ed text to be filtered.
@@ -2507,8 +2490,8 @@ def drupal_render(&elements) {
 # Function used by uasort to sort structured arrays by weight.
 #
 def element_sort(a, b) {
-  a_weight = (is_array(a) && isset(a['#weight'])) ? %(a)s['#weight'] : 0;
-  b_weight = (is_array(b) && isset(b['#weight'])) ? %(b)s['#weight'] : 0;
+  a_weight = (is_array(a) and isset(a['#weight'])) ? %(a)s['#weight'] : 0;
+  b_weight = (is_array(b) and isset(b['#weight'])) ? %(b)s['#weight'] : 0;
   if (a_weight == b_weight) {
     return 0;
   }
@@ -2530,7 +2513,7 @@ def element_properties(element) {
 # Check if the key is a child.
 #
 def element_child(key) {
-  return !isset(key[0]) || key[0] != '#';
+  return !isset(key[0]) or key[0] != '#';
 }
 #
 # Get keys of a structured array tree element that are not properties (i.e., do not begin with '#').
@@ -2545,89 +2528,89 @@ def drupal_common_theme() {
   return array(
     // theme.inc
     'placeholder' => array(
-      'arguments' => array('text' => NULL)
+      'arguments' => array('text' => None)
     ),
     'page' => array(
-      'arguments' => array('content' => NULL, 'show_blocks' => TRUE, 'show_messages' => TRUE),
+      'arguments' => array('content' => None, 'show_blocks' => True, 'show_messages' => True),
       'template' => 'page',
     ),
     'maintenance_page' => array(
-      'arguments' => array('content' => NULL, 'show_blocks' => TRUE, 'show_messages' => TRUE),
+      'arguments' => array('content' => None, 'show_blocks' => True, 'show_messages' => True),
       'template' => 'maintenance-page',
     ),
     'update_page' => array(
-      'arguments' => array('content' => NULL, 'show_messages' => TRUE),
+      'arguments' => array('content' => None, 'show_messages' => True),
     ),
     'install_page' => array(
-      'arguments' => array('content' => NULL),
+      'arguments' => array('content' => None),
     ),
     'task_list' => array(
-      'arguments' => array('items' => NULL, 'active' => NULL),
+      'arguments' => array('items' => None, 'active' => None),
     ),
     'status_messages' => array(
-      'arguments' => array('display' => NULL),
+      'arguments' => array('display' => None),
     ),
     'links' => array(
-      'arguments' => array('links' => NULL, 'attributes' => array('class' => 'links')),
+      'arguments' => array('links' => None, 'attributes' => array('class' => 'links')),
     ),
     'image' => array(
-      'arguments' => array('path' => NULL, 'alt' => '', 'title' => '', 'attributes' => NULL, 'getsize' => TRUE),
+      'arguments' => array('path' => None, 'alt' => '', 'title' => '', 'attributes' => None, 'getsize' => True),
     ),
     'breadcrumb' => array(
-      'arguments' => array('breadcrumb' => NULL),
+      'arguments' => array('breadcrumb' => None),
     ),
     'help' => array(
       'arguments' => array(),
     ),
     'submenu' => array(
-      'arguments' => array('links' => NULL),
+      'arguments' => array('links' => None),
     ),
     'table' => array(
-      'arguments' => array('header' => NULL, 'rows' => NULL, 'attributes' => array(), 'caption' => NULL),
+      'arguments' => array('header' => None, 'rows' => None, 'attributes' => array(), 'caption' => None),
     ),
     'table_select_header_cell' => array(
       'arguments' => array(),
     ),
     'tablesort_indicator' => array(
-      'arguments' => array('style' => NULL),
+      'arguments' => array('style' => None),
     ),
     'box' => array(
-      'arguments' => array('title' => NULL, 'content' => NULL, 'region' => 'main'),
+      'arguments' => array('title' => None, 'content' => None, 'region' => 'main'),
       'template' => 'box',
     ),
     'block' => array(
-      'arguments' => array('block' => NULL),
+      'arguments' => array('block' => None),
       'template' => 'block',
     ),
     'mark' => array(
       'arguments' => array('type' => MARK_NEW),
     ),
     'item_list' => array(
-      'arguments' => array('items' => array(), 'title' => NULL, 'type' => 'ul', 'attributes' => NULL),
+      'arguments' => array('items' => array(), 'title' => None, 'type' => 'ul', 'attributes' => None),
     ),
     'more_help_link' => array(
-      'arguments' => array('url' => NULL),
+      'arguments' => array('url' => None),
     ),
     'xml_icon' => array(
-      'arguments' => array('url' => NULL),
+      'arguments' => array('url' => None),
     ),
     'feed_icon' => array(
-      'arguments' => array('url' => NULL, 'title' => NULL),
+      'arguments' => array('url' => None, 'title' => None),
     ),
     'more_link' => array(
-      'arguments' => array('url' => NULL, 'title' => NULL)
+      'arguments' => array('url' => None, 'title' => None)
     ),
     'closure' => array(
       'arguments' => array('main' => 0),
     ),
     'blocks' => array(
-      'arguments' => array('region' => NULL),
+      'arguments' => array('region' => None),
     ),
     'username' => array(
-      'arguments' => array('object' => NULL),
+      'arguments' => array('object' => None),
     ),
     'progress_bar' => array(
-      'arguments' => array('percent' => NULL, 'message' => NULL),
+      'arguments' => array('percent' => None, 'message' => None),
     ),
     'indentation' => array(
       'arguments' => array('size' => 1),
@@ -2637,103 +2620,103 @@ def drupal_common_theme() {
       'arguments' => array('tags' => array(), 'limit' => 10, 'element' => 0, 'parameters' => array()),
     ),
     'pager_first' => array(
-      'arguments' => array('text' => NULL, 'limit' => NULL, 'element' => 0, 'parameters' => array()),
+      'arguments' => array('text' => None, 'limit' => None, 'element' => 0, 'parameters' => array()),
     ),
     'pager_previous' => array(
-      'arguments' => array('text' => NULL, 'limit' => NULL, 'element' => 0, 'interval' => 1, 'parameters' => array()),
+      'arguments' => array('text' => None, 'limit' => None, 'element' => 0, 'interval' => 1, 'parameters' => array()),
     ),
     'pager_next' => array(
-      'arguments' => array('text' => NULL, 'limit' => NULL, 'element' => 0, 'interval' => 1, 'parameters' => array()),
+      'arguments' => array('text' => None, 'limit' => None, 'element' => 0, 'interval' => 1, 'parameters' => array()),
     ),
     'pager_last' => array(
-      'arguments' => array('text' => NULL, 'limit' => NULL, 'element' => 0, 'parameters' => array()),
+      'arguments' => array('text' => None, 'limit' => None, 'element' => 0, 'parameters' => array()),
     ),
     'pager_link' => array(
-      'arguments' => array('text' => NULL, 'page_new' => NULL, 'element' => NULL, 'parameters' => array(), 'attributes' => array()),
+      'arguments' => array('text' => None, 'page_new' => None, 'element' => None, 'parameters' => array(), 'attributes' => array()),
     ),
     // from locale.inc
     'locale_admin_manage_screen' => array(
-      'arguments' => array('form' => NULL),
+      'arguments' => array('form' => None),
     ),
     // from menu.inc
     'menu_item_link' => array(
-      'arguments' => array('item' => NULL),
+      'arguments' => array('item' => None),
     ),
     'menu_tree' => array(
-      'arguments' => array('tree' => NULL),
+      'arguments' => array('tree' => None),
     ),
     'menu_item' => array(
-      'arguments' => array('link' => NULL, 'has_children' => NULL, 'menu' => ''),
+      'arguments' => array('link' => None, 'has_children' => None, 'menu' => ''),
     ),
     'menu_local_task' => array(
-      'arguments' => array('link' => NULL, 'active' => FALSE),
+      'arguments' => array('link' => None, 'active' => False),
     ),
     'menu_local_tasks' => array(
       'arguments' => array(),
     ),
     // from form.inc
     'select' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'fieldset' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'radio' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'radios' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'password_confirm' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'date' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'item' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'checkbox' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'checkboxes' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'submit' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'button' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'image_button' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'hidden' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'token' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'textfield' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'form' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'textarea' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'markup' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'password' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'file' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => None),
     ),
     'form_element' => array(
-      'arguments' => array('element' => NULL, 'value' => NULL),
+      'arguments' => array('element' => None, 'value' => None),
     ),
   );
 }
@@ -2752,13 +2735,13 @@ def drupal_common_theme() {
 # @param rebuild
 #   If true, the schema will be rebuilt instead of retrieved from the cache.
 #
-def drupal_get_schema(table = NULL, rebuild = FALSE) {
+def drupal_get_schema(table = None, rebuild = False) {
   static schema = array();
 
-  if (empty(schema) || rebuild) {
+  if (empty(schema) or rebuild) {
     // Try to load the schema from cache.
-    if (!rebuild && cached = cache_get('schema')) {
-      schema = cached->data;
+    if (!rebuild and cached = cache_get('schema')) {
+      schema = cached.data;
     }
     // Otherwise, rebuild the schema cache.
     else {
@@ -2785,7 +2768,7 @@ def drupal_get_schema(table = NULL, rebuild = FALSE) {
     return schema[table];
   }
   else {
-    return FALSE;
+    return False;
   }
 }
 #
@@ -2860,12 +2843,12 @@ def drupal_uninstall_schema(module) {
 #   The name of the table. If not given, the module's complete schema
 #   is returned.
 #
-def drupal_get_schema_unprocessed(module, table = NULL) {
+def drupal_get_schema_unprocessed(module, table = None) {
   // Load the .install file to get hook_schema.
   module_load_include('install', module);
   schema = module_invoke(module, 'schema');
 
-  if (!is_null(table) && isset(schema[table])) {
+  if (!is_null(table) and isset(schema[table])) {
     return schema[table];
   }
   else {
@@ -2902,7 +2885,7 @@ def _drupal_initialize_schema(module, &schema) {
 #
 # @return An array of fields.
 #*/
-def drupal_schema_fields_sql(table, prefix = NULL) {
+def drupal_schema_fields_sql(table, prefix = None) {
   schema = drupal_get_schema(table);
   fields = array_keys(schema['fields']);
   if (prefix) {
@@ -2933,10 +2916,10 @@ def drupal_schema_fields_sql(table, prefix = NULL) {
 #   caller's responsibility to know if a record for this object already
 #   exists in the database. If there is only 1 key, you may pass a simple string.
 # @return
-#   Failure to write a record will return FALSE. Otherwise SAVED_NEW or
+#   Failure to write a record will return False. Otherwise SAVED_NEW or
 #   SAVED_UPDATED is returned depending on the operation performed. The
 #   object parameter contains values for any serial fields defined by
-#   the table. For example, object->nid will be populated after inserting
+#   the table. For example, object.nid will be populated after inserting
 #   a new node.
 #
 def drupal_write_record(table, &object, update = array()) {
@@ -2948,15 +2931,15 @@ def drupal_write_record(table, &object, update = array()) {
   // Convert to an object if needed.
   if (is_array(object)) {
     object = (object) object;
-    array = TRUE;
+    array = True;
   }
   else {
-    array = FALSE;
+    array = False;
   }
 
   schema = drupal_get_schema(table);
   if (empty(schema)) {
-    return FALSE;
+    return False;
   }
 
   fields = defs = values = serials = placeholders = array();
@@ -2965,32 +2948,32 @@ def drupal_write_record(table, &object, update = array()) {
   // fields that are not set.
   foreach (schema['fields'] as field => info) {
     // Special case -- skip serial types if we are updating.
-    if (info['type'] == 'serial' && count(update)) {
+    if (info['type'] == 'serial' and count(update)) {
       continue;
     }
 
     // For inserts, populate defaults from Schema if not already provided
-    if (!isset(object->field) && !count(update) && isset(info['default'])) {
-      object->field = info['default'];
+    if (!isset(object.field) and !count(update) and isset(info['default'])) {
+      object.field = info['default'];
     }
 
     // Track serial fields so we can helpfully populate them after the query.
     if (info['type'] == 'serial') {
       serials[] = field;
       // Ignore values for serials when inserting data. Unsupported.
-      unset(object->field);
+      unset(object.field);
     }
 
     // Build arrays for the fields, placeholders, and values in our query.
-    if (isset(object->field)) {
+    if (isset(object.field)) {
       fields[] = field;
       placeholders[] = db_type_placeholder(info['type']);
 
       if (empty(info['serialize'])) {
-        values[] = object->field;
+        values[] = object.field;
       }
-      elseif (!empty(object->field)) {
-        values[] = serialize(object->field);
+      elseif (!empty(object.field)) {
+        values[] = serialize(object.field);
       }
       else {
         values[] = '';
@@ -3017,14 +3000,14 @@ def drupal_write_record(table, &object, update = array()) {
     query = '';
     foreach (fields as id => field) {
       if (query) {
-        query .= ', ';
+        query += ', ';
       }
-      query .= field .' = '. placeholders[id];
+      query += field .' = '. placeholders[id];
     }
 
     foreach (update as key){
       conditions[] = "%(key)s = ". db_type_placeholder(schema['fields'][%(key)s]['type']);
-      values[] = object->key;
+      values[] = object.key;
     }
 
     query = "UPDATE {". %(table)s ."} SET query WHERE ". implode(' AND ', conditions);
@@ -3036,7 +3019,7 @@ def drupal_write_record(table, &object, update = array()) {
     if (serials) {
       // Get last insert ids and fill them in.
       foreach (serials as field) {
-        object->field = db_last_insert_id(table, field);
+        object.field = db_last_insert_id(table, field);
       }
     }
 
@@ -3048,7 +3031,7 @@ def drupal_write_record(table, &object, update = array()) {
     return return;
   }
 
-  return FALSE;
+  return False;
 }
 #
 # @} End of "ingroup schemaapi".
@@ -3151,7 +3134,7 @@ def drupal_parse_info_file(filename) {
         if (key == '') {
           key = count(parent);
         }
-        if (!isset(parent[key]) || !is_array(parent[key])) {
+        if (!isset(parent[key]) or !is_array(parent[key])) {
           parent[key] = array();
         }
         parent = &parent[key];
@@ -3220,7 +3203,7 @@ def drupal_implode_tags(tags) {
   encoded_tags = array();
   foreach (tags as tag) {
     // Commas and quotes in tag names are special cases, so encode them.
-    if (strpos(tag, ',') !== FALSE || strpos(%(tag)s, '"') !== FALSE) {
+    if (strpos(tag, ',') !== False or strpos(%(tag)s, '"') !== False) {
       tag = '"'. str_replace('"', '""', %(tag)s) .'"';
     }
 
@@ -3248,7 +3231,7 @@ def drupal_flush_all_caches() {
   core = array('cache', 'cache_block', 'cache_filter', 'cache_page');
   cache_tables = array_merge(module_invoke_all('flush_caches'), core);
   foreach (cache_tables as table) {
-    cache_clear_all('*', table, TRUE);
+    cache_clear_all('*', table, True);
   }
 }
 #
@@ -3264,7 +3247,7 @@ def _drupal_flush_css_js() {
   string_history = variable_get('css_js_query_string', '00000000000000000000');
   new_character = string_history[0];
   characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  while (strpos(string_history, new_character) !== FALSE) {
+  while (strpos(string_history, new_character) !== False) {
     new_character = characters[mt_rand(0, strlen(characters) - 1)];
   }
   variable_set('css_js_query_string', new_character . substr(string_history, 0, 19));
