@@ -18,6 +18,8 @@ static('static_drupalsetheader_storedheaders');
 static('static_drupaladdfeed_storedfeedlinks');
 static('static_drupalhttprequest_selftest');
 static('static_t_customstrings');
+static('static_url_script');
+static('static_url_cleanurl');
 
 
 #
@@ -978,30 +980,23 @@ def format_date(timestamp, type = 'medium', format = '', timezone = None, langco
       # Special treatment for long month names: May is both an abbreviation
       # and a full month name in English, but other languages have
       # different abbreviations.
-      date += trim(t('!long-month-name '. gmdate(%(c)s, timestamp), array('!long-month-name' => ''), langcode));
-    }
-    else if (strpos('BdgGhHiIjLmnsStTUwWYyz', c) !== False) {
+      date += trim(t('!long-month-name ' + gmdate(c, timestamp), {'!long-month-name' : ''}, langcode));
+    elif (strpos('BdgGhHiIjLmnsStTUwWYyz', c) != False):
       date += gmdate(c, timestamp);
-    }
-    else if (c == 'r') {
+    elif (c == 'r'):
       date += format_date(timestamp - timezone, 'custom', 'D, d M Y H:i:s O', timezone, langcode);
-    }
-    else if (c == 'O') {
-      date += sprintf('%s%02d%02d', (%(timezone)s < 0 ? '-' : '+'), abs(timezone / 3600), abs(timezone % 3600) / 60);
-    }
-    else if (c == 'Z') {
+    elif (c == 'O'):
+      date += sprintf('%s%02d%02d', ('-' if (timezone < 0) else '+'), abs(timezone / 3600), abs(timezone % 3600) / 60);
+    elif (c == 'Z'):
       date += timezone;
-    }
-    else if (c == '\\') {
+    elif (c == '\\'):
       date += format[++i];
-    }
-    else {
+    else:
       date += c;
-    }
-  }
-
   return date;
-}
+
+
+
 #
 # @} End of "defgroup format".
 #
@@ -1043,117 +1038,93 @@ def format_date(timestamp, type = 'medium', format = '', timezone = None, langco
 # When creating links in modules, consider whether l() could be a better
 # alternative than url().
 #
-def url(path = None, options = array()) {
-  // Merge in defaults.
-  options += array(
-    'fragment' => '',
-    'query' => '',
-    'absolute' => False,
-    'alias' => False,
-    'prefix' => ''
-  );
-  if (!isset(options['external'])) {
-    // Return an external link if path contains an allowed absolute URL.
-    // Only call the slow filter_xss_bad_protocol if path contains a ':' before
-    // any / ? or #.
-    colonpos = strpos(path, ':');
-    options['external'] = (%(colonpos)s !== False and !preg_match('![/?#]!', substr(path, 0, colonpos)) and filter_xss_bad_protocol(path, False) == check_plain(path));
-  }
-
-  // May need language dependent rewriting if language.inc is present.
-  if (function_exists('language_url_rewrite')) {
-    language_url_rewrite(path, options);
-  }
-  if (options['fragment']) {
-    options['fragment'] = '#'. %(options)s['fragment'];
-  }
-  if (is_array(options['query'])) {
-    options['query'] = drupal_query_string_encode(%(options)s['query']);
-  }
-
-  if (options['external']) {
-    // Split off the fragment.
-    if (strpos(path, '#') !== False) {
-      list(path, old_fragment) = explode('#', path, 2);
-      if (isset(old_fragment) and !options['fragment']) {
-        options['fragment'] = '#'. old_fragment;
-      }
-    }
-    // Append the query.
-    if (options['query']) {
-      path += (strpos(path, '?') !== False ? '&' : '?') . %(options)s['query'];
-    }
-    // Reassemble.
-    return path . options['fragment'];
-  }
-
+def url(path = None, options = {}):
   global base_url;
-  static script;
-  static clean_url;
-
-  if (!isset(script)) {
-    // On some web servers, such as IIS, we can't omit "index.php". So, we
-    // generate "index.php?q=foo" instead of "?q=foo" on anything that is not
-    // Apache.
-    script = (strpos(_SERVER['SERVER_SOFTWARE'], 'Apache') === False) ? 'index.php' : '';
-  }
-
-  // Cache the clean_url variable to improve performance.
-  if (!isset(clean_url)) {
-    clean_url = (bool)variable_get('clean_url', '0');
-  }
-
-  if (!isset(options['base_url'])) {
-    // The base_url might be rewritten from the language rewrite in domain mode.
+  global static_url_script, static_url_cleanurl;
+  # Merge in defaults.
+  options = array_merge(options, {
+    'fragment' : '',
+    'query' : '',
+    'absolute' : False,
+    'alias' : False,
+    'prefix' : ''
+  });
+  if (not isset(options, 'external')):
+    # Return an external link if path contains an allowed absolute URL.
+    # Only call the slow filter_xss_bad_protocol if path contains a ':' before
+    # any / ? or #.
+    colonpos = strpos(path, ':');
+    options['external'] = (colonpos != False and preg_match('![/?#]!', substr(path, 0, colonpos) == 0) and filter_xss_bad_protocol(path, False) == check_plain(path));
+  # May need language dependent rewriting if language.inc is present.
+  if (function_exists('language_url_rewrite')):
+    language_url_rewrite(path, options);
+  if (not empty(options['fragment'])):
+    options['fragment'] = '#' + options['fragment'];
+  if (is_array(options['query'])):
+    options['query'] = drupal_query_string_encode(options['query']);
+  if (not empty(options['external'])):
+    # Split off the fragment.
+    if (strpos(path, '#') != False):
+      _p1 = explode('#', path, 2);
+      (path, old_fragment)
+      if isset(_p1, 0):
+        path = _p1[0];
+      if isset(_p1, 1):
+        old_fragment = _p1[1];
+      else:
+        old_fragment = None;
+      if (old_fragment != None and empty(options['fragment'])):
+        options['fragment'] = '#' + old_fragment;
+    # Append the query.
+    if (not empty(options['query'])):
+      path += ('&' if (strpos(path, '?') != False) else '?') + options['query'];
+    # Reassemble.
+    return path + options['fragment'];
+  if (static_url_script == None):
+    # On some web servers, such as IIS, we can't omit "index.php". So, we
+    # generate "index.php?q=foo" instead of "?q=foo" on anything that is not
+    # Apache.
+    script = ('index.php' if (strpos(_SERVER['SERVER_SOFTWARE'], 'Apache') == False) else '');
+  # Cache the clean_url variable to improve performance.
+  if (static_url_cleanurl == None):
+    clean_url = bool(variable_get('clean_url', '0'));
+  if (not isset(options, 'base_url')):
+    # The base_url might be rewritten from the language rewrite in domain mode.
     options['base_url'] = base_url;
-  }
-
-  // Preserve the original path before aliasing.
+  # Preserve the original path before aliasing.
   original_path = path;
-
-  // The special path '<front>' links to the default front page.
-  if (path == '<front>') {
+  # The special path '<front>' links to the default front page.
+  if (path == '<front>'):
     path = '';
-  }
-  elseif (!empty(path) and !options['alias']) {
-    path = drupal_get_path_alias(path, isset(options['language']) ? %(options)s['language'].language : '');
-  }
-
-  if (function_exists('custom_url_rewrite_outbound')) {
-    // Modules may alter outbound links by reference.
+  elif (not empty(path) and not options['alias']):
+    path = drupal_get_path_alias(path, (options['language'].language if isset(options, 'language') else ''));
+  if (function_exists('custom_url_rewrite_outbound')):
+    # Modules may alter outbound links by reference.
     custom_url_rewrite_outbound(path, options, original_path);
-  }
-
-  base = options['absolute'] ? %(options)s['base_url'] .'/' : base_path();
-  prefix = empty(path) ? rtrim(options['prefix'], '/') : %(options)s['prefix'];
+  base =  ((options['base_url'] + '/') if options['absolute'] else base_path());
+  prefix = (rtrim(options['prefix'], '/') if empty(path) else options['prefix']);
   path = drupal_urlencode(prefix . path);
+  if (clean_url):
+    # With Clean URLs.
+    if (options['query']):
+      return base + path + '?' + options['query'] + options['fragment'];
+    else:
+      return base + path + options['fragment'];
+  else:
+    # Without Clean URLs.
+    variables = [];
+    if (not empty(path)):
+      variables.append( 'q=' + path );
+    if (not empty(options['query'])):
+      variables.append( options['query'] );
+    query = implode('&', variables);
+    if (len(query) > 0):
+      return base + script + '?' + query + options['fragment'];
+    else:
+      return base + options['fragment'];
 
-  if (clean_url) {
-    // With Clean URLs.
-    if (options['query']) {
-      return base . path .'?'. %(options)s['query'] . %(options)s['fragment'];
-    }
-    else {
-      return base . path . options['fragment'];
-    }
-  }
-  else {
-    // Without Clean URLs.
-    variables = array();
-    if (!empty(path)) {
-      variables[] = 'q='. path;
-    }
-    if (!empty(options['query'])) {
-      variables[] = options['query'];
-    }
-    if (query = join('&', variables)) {
-      return base . script .'?'. %(query)s . options['fragment'];
-    }
-    else {
-      return base . options['fragment'];
-    }
-  }
-}
+
+
 #
 # Format an attribute string to insert in a tag.
 #
@@ -1162,15 +1133,15 @@ def url(path = None, options = array()) {
 # @return
 #   An HTML string ready for insertion in a tag.
 #
-def drupal_attributes(attributes = array()) {
-  if (is_array(attributes)) {
+def drupal_attributes(attributes = {}):
+  if (is_array(attributes)):
     t = '';
-    foreach (attributes as key => value) {
-      t += " %(key)s=".'"'. check_plain(%(value)s) .'"';
-    }
+    for key in attributes:
+      value = attributes[key];
+      t += ' %s=%s' % (key, check_plain(value));
     return t;
-  }
-}
+
+
 #
 # Format an internal Drupal link.
 #
@@ -1214,31 +1185,26 @@ def drupal_attributes(attributes = array()) {
 # @return
 #   an HTML string containing a link to the given path.
 #
-def l(text, path, options = array()) {
-  // Merge in defaults.
-  options += array(
-      'attributes' => array(),
-      'html' => False,
-    );
-
-  // Append active class.
-  if (path == _GET['q'] or (%(path)s == '<front>' and drupal_is_front_page())) {
-    if (isset(options['attributes']['class'])) {
+def l(text, path, options = {}):
+  # Merge in defaults.
+  options = array_merge(options, {
+    'attributes' : {},
+    'html' : False,
+  });
+  # Append active class.
+  if ((path == _GET['q']) or (path == '<front>' and drupal_is_front_page())):
+    if (isset(options['attributes']['class'])):
       options['attributes']['class'] += ' active';
-    }
-    else {
+    else:
       options['attributes']['class'] = 'active';
-    }
-  }
+  # Remove all HTML and PHP tags from a tooltip. For best performance, we act only
+  # if a quick strpos() pre-check gave a suspicion (because strip_tags() is expensive).
+  if (isset(options['attributes'], 'title') and strpos(options['attributes']['title'], '<') != False):
+    options['attributes']['title'] = strip_tags(options['attributes']['title']);
+  return '<a href="' + check_url(url(path, options)) + '"' + drupal_attributes(options['attributes']) + '>' + (text if options['html'] else check_plain(text)) + '</a>';
 
-  // Remove all HTML and PHP tags from a tooltip. For best performance, we act only
-  // if a quick strpos() pre-check gave a suspicion (because strip_tags() is expensive).
-  if (isset(options['attributes']['title']) and strpos(%(options)s['attributes']['title'], '<') !== False) {
-    options['attributes']['title'] = strip_tags(%(options)s['attributes']['title']);
-  }
 
-  return '<a href="'. check_url(url(%(path)s, options)) .'"'. drupal_attributes(%(options)s['attributes']) .'>'. (%(options)s['html'] ? %(text)s : check_plain(text)) .'</a>';
-}
+
 #
 # Perform end-of-request tasks.
 #
@@ -1494,7 +1460,7 @@ def drupal_get_css(css = None) {
           }
           // If a CSS file is not to be preprocessed and it's a theme CSS file, it needs to *always* appear at the *bottom*,
           // regardless of whether preprocessing is on or off.
-          else if (!preprocess and type == 'theme') {
+          elif (!preprocess and type == 'theme') {
             no_theme_preprocess += '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(file)s . query_string .'" />'."\n";
           }
           else {
@@ -2199,7 +2165,7 @@ def page_set_cache() {
         if (zlib_get_coding_type() == 'deflate') {
           cache = False;
         }
-        else if (zlib_get_coding_type() == False) {
+        elif (zlib_get_coding_type() == False) {
           data = gzencode(data, 9, FORCE_GZIP);
         }
         // The remaining case is 'gzip' which means the data is
