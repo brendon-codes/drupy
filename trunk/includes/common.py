@@ -20,6 +20,7 @@ static('static_drupalhttprequest_selftest');
 static('static_t_customstrings');
 static('static_url_script');
 static('static_url_cleanurl');
+static('static_drupaladdcss_css');
 
 
 #
@@ -343,7 +344,7 @@ def drupal_not_found():
     # dependencies on the path.
     menu_set_active_item(path);
     _return = menu_execute_active_handler(path);
-  if (empty(locals(), _return) or _return == MENU_NOT_FOUND or _return == MENU_ACCESS_DENIED):
+  if (empty(_return) or _return == MENU_NOT_FOUND or _return == MENU_ACCESS_DENIED):
     drupal_set_title(t('Page not found'));
     _return = t('The requested page could not be found.');
   # To conserve CPU and bandwidth, omit the blocks.
@@ -366,7 +367,7 @@ def drupal_access_denied():
     # dependencies on the path.
     menu_set_active_item(path);
     _return = menu_execute_active_handler(path);
-  if (empty(locals(), _return) or _return == MENU_NOT_FOUND or _return == MENU_ACCESS_DENIED):
+  if (empty(_return) or _return == MENU_NOT_FOUND or _return == MENU_ACCESS_DENIED):
     drupal_set_title(t('Access denied'));
     _return = t('You are not authorized to access this page.');
   print theme('page', _return);
@@ -1211,13 +1212,13 @@ def l(text, path, options = {}):
 # This function sets the page cache if appropriate, and allows modules to
 # react to the closing of the page by calling hook_exit().
 #
-def drupal_page_footer() {
-  if (variable_get('cache', CACHE_DISABLED) != CACHE_DISABLED) {
+def drupal_page_footer():
+  if (variable_get('cache', CACHE_DISABLED) != CACHE_DISABLED):
     page_set_cache();
-  }
-
   module_invoke_all('exit');
-}
+
+
+
 #
 # Form an associative array from a linear array.
 #
@@ -1234,22 +1235,22 @@ def drupal_page_footer() {
 # @result
 #   An associative array.
 #
-def drupal_map_assoc(array, function = None) {
-  if (!isset(function)) {
-    result = array();
-    foreach (array as value) {
+def drupal_map_assoc(_array, function = None):
+  if (function != None):
+    result = {};
+    for key in _array:
+      value = _array[key];
       result[value] = value;
-    }
     return result;
-  }
-  elseif (function_exists(function)) {
-    result = array();
-    foreach (array as value) {
+  elif (function_exists(function)):
+    result = {};
+    for key in _array:
+      value = _array[key];
       result[value] = function(value);
-    }
     return result;
-  }
-}
+
+
+
 #
 # Evaluate a string of PHP code.
 #
@@ -1267,32 +1268,26 @@ def drupal_map_assoc(array, function = None) {
 #   A string containing the printed output of the code, followed by the returned
 #   output of the code.
 #
-def drupal_eval(code) {
+def drupal_eval(code):
   global theme_path, theme_info, conf;
-
-  // Store current theme path.
+  # Store current theme path.
   old_theme_path = theme_path;
-
-  // Restore theme_path to the theme, as long as drupal_eval() executes,
-  // so code evaluted will not see the caller module as the current theme.
-  // If theme info is not initialized get the path from theme_default.
-  if (!isset(theme_info)) {
-    theme_path = drupal_get_path('theme', %(conf)s['theme_default']);
-  }
-  else {
+  # Restore theme_path to the theme, as long as drupal_eval() executes,
+  # so code evaluted will not see the caller module as the current theme.
+  # If theme info is not initialized get the path from theme_default.
+  if (not isset(locals(), theme_info, True)):
+    theme_path = drupal_get_path('theme', conf['theme_default']);
+  else:
     theme_path = dirname(theme_info.filename);
-  }
-
   ob_start();
-  print eval('?>'. code);
-  output = ob_get_contents();
-  ob_end_clean();
-
-  // Recover original theme path.
+  exec(code);
+  output = ob_get_clean();
+  # Recover original theme path.
   theme_path = old_theme_path;
-
   return output;
-}
+
+
+
 #
 # Returns the path to a system item (module, theme, etc.).
 #
@@ -1304,22 +1299,27 @@ def drupal_eval(code) {
 # @return
 #   The path to the requested item.
 #
-def drupal_get_path(type, name) {
+def drupal_get_path(type, name):
   return dirname(drupal_get_filename(type, name));
-}
+
+
 #
 # Returns the base URL path of the Drupal installation.
 # At the very least, this will always default to /.
 #
-def base_path() {
-  return GLOBALS['base_path'];
-}
+def base_path():
+  global _base_path;
+  return _base_path;
+
+
 #
 # Add a <link> tag to the page's HEAD.
 #
-def drupal_add_link(attributes) {
-  drupal_set_html_head('<link'. drupal_attributes(attributes) ." />\n");
-}
+def drupal_add_link(attributes):
+  drupal_set_html_head('<link' + drupal_attributes(attributes) + " />\n");
+
+
+
 #
 # Adds a CSS file to the stylesheet queue.
 #
@@ -1371,30 +1371,27 @@ def drupal_add_link(attributes) {
 # @return
 #   An array of CSS files.
 #
-def drupal_add_css(path = None, type = 'module', %(media)s = 'all', preprocess = True) {
-  static css = array();
+def drupal_add_css(path = None, type = 'module', media = 'all', preprocess = True):
   global language;
-
-  // Create an array of CSS files for each media type first, since each type needs to be served
-  // to the browser differently.
-  if (isset(path)) {
-    // This check is necessary to ensure proper cascading of styles and is faster than an asort().
-    if (!isset(css[media])) {
-      css[media] = array('module' => array(), 'theme' => array());
-    }
+  global static_drupaladdcss_css;
+  if (static_drupaladdcss_css == None):
+    static_drupaladdcss_css = {};
+  # Create an array of CSS files for each media type first, since each type needs to be served
+  # to the browser differently.
+  if (path != None):
+    # This check is necessary to ensure proper cascading of styles and is faster than an asort().
+    if (not isset(css, media)):
+      css[media] = {'module' : {}, 'theme' : {}};
     css[media][type][path] = preprocess;
-
-    // If the current language is RTL, add the CSS file with RTL overrides.
-    if (defined('LANGUAGE_RTL') and language.direction == LANGUAGE_RTL) {
+    # If the current language is RTL, add the CSS file with RTL overrides.
+    if (defined('LANGUAGE_RTL') and language.direction == LANGUAGE_RTL):
       rtl_path = str_replace('.css', '-rtl.css', path);
-      if (file_exists(rtl_path)) {
+      if (file_exists(rtl_path)):
         css[media][type][rtl_path] = preprocess;
-      }
-    }
-  }
-
   return css;
-}
+
+
+
 #
 # Returns a themed representation of all stylesheets that should be attached to the page.
 #

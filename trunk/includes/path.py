@@ -20,7 +20,7 @@ static('static_drupalmatchpath_regexps');
 # Initialize the _GET['q'] variable to the proper normal path.
 #
 def drupal_init_path():
-  if (not empty(_GET, 'q')):
+  if (not empty(_GET['q'])):
     _GET['q'] = drupal_get_normal_path(trim(_GET['q'], '/'));
   else:
     _GET['q'] = drupal_get_normal_path(variable_get('site_frontpage', 'node'));
@@ -127,7 +127,7 @@ def drupal_get_normal_path(path, path_language = ''):
   src = drupal_lookup_path('source', path, path_language);
   if (src):
     result = src;
-  if (function_exists(globals(), 'custom_url_rewrite_inbound')):
+  if (function_exists('custom_url_rewrite_inbound')):
     # Modules may alter the inbound request path by reference.
     custom_url_rewrite_inbound(result, path, path_language);
   return result;
@@ -175,7 +175,7 @@ def arg(index = None, path = None):
 def drupal_get_title():
   title = drupal_set_title();
   # during a bootstrap, menu.inc is not included and thus we cannot provide a title
-  if (title == None and function_exists(globals(), 'menu_get_active_title')):
+  if (title == None and function_exists('menu_get_active_title')):
     title = check_plain(menu_get_active_title());
   return title;
 

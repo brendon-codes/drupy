@@ -23,7 +23,7 @@ static('static_ipaddress_ipaddress');
 #
 set_global('user');
 set_global('base_url');
-set_global('base_path');
+set_global('_base_path');
 set_global('base_root');
 set_global('db_url');
 set_global('db_prefix');
@@ -286,7 +286,7 @@ def drupal_unset_globals():
 # session name correctly.
 #
 def conf_init():
-  global base_url, base_path, \
+  global base_url, _base_path, \
     base_root, db_url, db_prefix, \
     cookie_domain, installed_profile, \
     update_free_access, conf;
@@ -299,7 +299,7 @@ def conf_init():
     parts = parse_url(base_url);
     if (not isset(parts, 'path')):
       parts['path'] = '';
-    base_path = parts['path'] + '/';
+    _base_path = parts['path'] + '/';
     # Build base_root (everything until first slash after "scheme://").
     base_root = substr(base_url, 0, strlen(base_url) - strlen(parts['path']));
   else:
@@ -313,11 +313,11 @@ def conf_init():
     # be modified by a visitor.
     dir = trim(dirname(_SERVER['SCRIPT_NAME']), '\,/');
     if (len(dir) > 0):
-      base_path = "/dir";
-      base_url += base_path;
-      base_path += '/';
+      _base_path = "/dir";
+      base_url += _base_path;
+      _base_path += '/';
     else:
-      base_path = '/';
+      _base_path = '/';
   if (cookie_domain != None):
     # If the user specifies the cookie domain, also use it for session name.
     _session_name = cookie_domain;
@@ -326,7 +326,7 @@ def conf_init():
     # to use the same session identifiers across http and https.
     (_dummy, _session_name) = explode('://', base_url, 2);
     # We escape the hostname because it can be modified by a visitor.
-    if (not empty(_SERVER, 'HTTP_HOST')):
+    if (not empty(_SERVER['HTTP_HOST'])):
       cookie_domain = check_plain(_SERVER['HTTP_HOST']);
   # Strip leading periods, www., and port numbers from cookie domain.
   cookie_domain = ltrim(cookie_domain, '.');
@@ -502,7 +502,11 @@ def page_get_cache(status_only = False):
   cache = None;
   if (user == None and _SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_set_message()) == 0):
     cache = cache_get(base_root . request_uri(), 'cache_page');
-    if (empty(locals(), cache)):
+    if (empty(cache)):
+      # This may be needed
+      #
+      # ob_start()
+      #
       static_pagegetcache_status = True;
   return cache;
 
@@ -601,10 +605,10 @@ def drupal_page_cache_header(cache):
   header("Cache-Control: must-revalidate");
   if (variable_get('page_compression', True)):
     # Determine if the browser accepts gzipped data.
-    if (strpos(_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') == False and function_exists(locals(), 'gzencode')):
+    if (strpos(_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') == False and function_exists('gzencode')):
       # Strip the gzip header and run uncompress.
       cache.data = gzinflate(substr(substr(cache.data, 10), 0, -8));
-    elif (function_exists(locals(), 'gzencode')):
+    elif (function_exists('gzencode')):
       header('Content-Encoding: gzip');
   # Send the original request's headers. We send them one after
   # another so PHP's header() def can deal with duplicate
@@ -635,7 +639,7 @@ def bootstrap_hooks():
 #
 def drupal_unpack(obj, field = 'data'):
   data = unserialize(obj.field);
-  if (obj.field and not empty(locals(), data)):
+  if (obj.field and not empty(data)):
     for key,value in data:
       if (not isset(obj, key)):
         setattr(obj, key, value);
@@ -802,7 +806,7 @@ def drupal_set_message(message = None, type = 'status', repeat = True):
 #
 def drupal_get_messages(type = None, clear_queue = True):
   messages = drupal_set_message();
-  if (not empty(locals(), 'messages')):
+  if (not empty('messages')):
     if (type != None and type != False):
       if (clear_queue):
         del(_SESSION['messages'][type]);
@@ -982,7 +986,7 @@ def drupal_maintenance_theme():
 def get_t():
   global static_gett_t;
   if (static_gett_t == None):
-    t =  ('st' if function_exists(locals(), 'install_main') else 't');
+    t =  ('st' if function_exists('install_main') else 't');
   return t;
 
 
@@ -1077,7 +1081,7 @@ def ip_address():
       # If an array of known reverse proxy IPs is provided, then trust
       # the XFF header if request really comes from one of them.
       reverse_proxy_addresses = variable_get('reverse_proxy_addresses', []);
-      if (not empty(locals(), reverse_proxy_addresses) and \
+      if (not empty(reverse_proxy_addresses) and \
           in_array(static_ipaddress_ipaddress, reverse_proxy_addresses)):
         # If there are several arguments, we need to check the most
         # recently added one, i.e. the last one.
