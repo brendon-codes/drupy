@@ -12,6 +12,9 @@
 # @modified 2008-08-20
 #
 #
+
+import sys
+import StringIO
 import time
 import datetime
 import os
@@ -27,7 +30,12 @@ import cgitb; cgitb.enable()
 import urllib
 
 #
-# Constants
+# Drupy helpers
+#
+global DRUPY_OUT; DRUPY_OUT = []
+
+#
+# PHP Constants
 #
 global ENT_QUOTES; ENT_QUOTES = 1
 
@@ -46,6 +54,42 @@ def postFields():
     else:
       a[i] = f[i].value
   return a
+
+
+
+#
+# Output buffering start
+# @return Int
+#
+def ob_start():
+  global DRUPY_OUT
+  DRUY_OUT.append( StringIO.StringIO() )
+  outIndex = len(DRUPY_OUT) - 1
+  sys.stdout = DRUPY_OUT[outIndex]
+  return outIndex
+
+
+#
+# Get output buffering contents
+# @return Str
+#
+def ob_get_clean():
+  global DRUPY_OUT
+  outLen = len(DRUPY_OUT)
+  if outLen < 1:
+    return None
+  outIndex = outLen - 1
+  data = DRUPY_OUT[outIndex].getValue()  
+  if outIndex > 0:
+    sys.stdout = DRUPY_OUT[outIndex - 1]
+  else:
+    sys.stdout = sys.__stdout__
+  close(DRUPY_OUT[outIndex])
+  del DRUPY_OUT[outIndex]
+  return data
+  
+
+
 
 
 #
@@ -696,6 +740,13 @@ def unserialize(val):
 
 
 #
+# Checks for defined var
+#
+def defined(val):
+  return isset(globals(), val)
+
+
+#
 # GMT date
 # @param Str format
 # @param Int stamp
@@ -791,6 +842,6 @@ defined = isset
 global _SERVER; _SERVER = dict(os.environ)
 global _GET; _GET = cgi.parse()
 global _POST; _POST = postFields()
-global _REQUEST; _REQUEST = (_GET + _POST)
+global _REQUEST; _REQUEST = array_merge(_GET, _POST)
 
 
