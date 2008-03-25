@@ -23,6 +23,7 @@ static('static_url_cleanurl');
 static('static_drupaladdcss_css');
 static('static_drupalbuildcsspath_base');
 static('static_drupalloadstylesheet_optimize');
+static('static_drupaladdjs_javascript');
 
 #
 # Return status for saving which involved creating a new item.
@@ -1654,62 +1655,47 @@ def drupal_clear_css_cache():
 #   far for scope is returned. If the first three parameters are None,
 #   an array with all scopes is returned.
 #
-def drupal_add_js(data = None, type = 'module', %(scope)s = 'header', defer = False, cache = True, preprocess = True) {
-  static javascript = array();
-
-  if (isset(data)) {
-
+def drupal_add_js(data = None, _type = 'module', scope = 'header', defer = False, cache = True, preprocess = True):
+  global static_drupaladdjs_javascript;
+  if (data != None):
     # Add jquery.js and drupal.js, as well as the basePath setting, the
     # first time a Javascript file is added.
-    if (empty(javascript)) {
-      javascript['header'] = array(
-        'core' => array(
-          'misc/jquery.js' => array('cache' => True, 'defer' => False, 'preprocess' => True),
-          'misc/drupal.js' => array('cache' => True, 'defer' => False, 'preprocess' => True),
-        ),
-        'module' => array(),
-        'theme' => array(),
-        'setting' => array(
-          array('basePath' => base_path()),
-        ),
-        'inline' => array(),
-      );
-    }
-
-    if (isset(scope) and !isset(javascript[scope])) {
-      javascript[scope] = array('core' => array(), 'module' => array(), 'theme' => array(), 'setting' => array(), 'inline' => array());
-    }
-
-    if (isset(type) and isset(scope) and !isset(javascript[scope][type])) {
-      javascript[scope][type] = array();
-    }
-
-    switch (type) {
-      case 'setting':
-        javascript[scope][type][] = data;
-        break;
-      case 'inline':
-        javascript[scope][type][] = array('code' => %(data)s, 'defer' => defer);
-        break;
-      default:
-        # If cache is False, don't preprocess the JS file.
-        javascript[scope][type][data] = array('cache' => %(cache)s, 'defer' => %(defer)s, 'preprocess' => (!cache ? False : preprocess));
-    }
-  }
-
-  if (isset(scope)) {
-
-    if (isset(javascript[scope])) {
+    if (static_drupaladdjs_javascript == None):
+      static_drupaladdjs_javascript = {};
+      javascript['header'] = {
+        'core' : {
+          'misc/jquery.js' : {'cache' : True, 'defer' : False, 'preprocess' : True},
+          'misc/drupal.js' : {'cache' : True, 'defer' : False, 'preprocess' : True}
+        },
+        'module' : {},
+        'theme' : {},
+        'setting' : [
+          {'basePath' : base_path()}
+        ],
+        'inline' : {},
+      };
+    if (not empty(scope) and not isset(javascript, scope)):
+      javascript[scope] = {'core' : {}, 'module' : {}, 'theme' : {}, 'setting' : {}, 'inline' : {}};
+    if (not empty(type) and not empty(scope) and not isset(javascript[scope], _type)):
+      javascript[scope][_type] = [];
+    if type == 'setting':
+      javascript[scope][_type].append(data);
+    elif type == 'inline':
+      javascript[scope][_type].append({'code' : data, 'defer' : defer});
+    else:
+      # If cache is False, don't preprocess the JS file.
+      javascript[scope][_type][data] = {'cache' : cache, 'defer' : defer, 'preprocess' : (False if not cache else preprocess)};
+  if (not empty(scope)):
+    if (isset(javascript, scope)):
       return javascript[scope];
-    }
-    else {
-      return array();
-    }
-  }
-  else {
+    else:
+      return {};
+  else:
     return javascript;
-  }
-}
+
+
+
+
 #
 # Returns a themed presentation of all JavaScript code for the current page.
 #
@@ -1727,75 +1713,57 @@ def drupal_add_js(data = None, type = 'module', %(scope)s = 'header', defer = Fa
 # @return
 #   All JavaScript code segments and includes for the scope as HTML tags.
 #
-def drupal_get_js(scope = 'header', javascript = None) {
-  if ((!defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update') and function_exists('locale_update_js_files')) {
+def drupal_get_js(scope = 'header', javascript = None):
+  if ((not defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update') and function_exists('locale_update_js_files')):
     locale_update_js_files();
-  }
-
-  if (!isset(javascript)) {
+  if (javascript == None):
     javascript = drupal_add_js(None, None, scope);
-  }
-
-  if (empty(javascript)) {
+  if (empty(javascript)):
     return '';
-  }
-
   output = '';
   preprocessed = '';
-  no_preprocess = array('core' => '', 'module' => '', 'theme' => '');
-  files = array();
-  preprocess_js = (variable_get('preprocess_js', False) and (!defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'));
+  no_preprocess = {'core' : '', 'module' : '', 'theme' : ''};
+  files = {};
+  preprocess_js = (variable_get('preprocess_js', False) and (not defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'));
   directory = file_directory_path();
-  is_writable = is_dir(directory) and is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC);
-
+  _is_writable = is_dir(directory) and is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC);
   # A dummy query-string is added to filenames, to gain control over
   # browser-caching. The string changes on every update or full cache
   # flush, forcing browsers to load a new copy of the files, as the
   # URL changed. Files that should not be cached (see drupal_add_js())
   # get time() as query-string instead, to enforce reload on every
   # page request.
-  query_string = '?'. substr(variable_get('css_js_query_string', '0'), 0, 1);
-
-  foreach (javascript as type => data) {
-
-    if (!data) continue;
-
-    switch (type) {
-      case 'setting':
-        output += '<script type="text/javascript">jQuery.extend(Drupal.settings, '. drupal_to_js(call_user_func_array('array_merge_recursive', %(data)s)) .");</script>\n";
-        break;
-      case 'inline':
-        foreach (data as info) {
-          output += '<script type="text/javascript"'. (%(info)s['defer'] ? ' defer="defer"' : '') .'>'. %(info)s['code'] ."</script>\n";
-        }
-        break;
-      default:
-        # If JS preprocessing is off, we still need to output the scripts.
-        # Additionally, go through any remaining scripts if JS preprocessing is on and output the non-cached ones.
-        foreach (data as path => info) {
-          if (!info['preprocess'] or !is_writable or !preprocess_js) {
-            no_preprocess[type] += '<script type="text/javascript"'. (%(info)s['defer'] ? ' defer="defer"' : '') .' src="'. base_path() . %(path)s . (info['cache'] ? %(query_string)s : '?'. time()) ."\"></script>\n";
-          }
-          else {
-            files[path] = info;
-          }
-        }
-    }
-  }
-
+  query_string = '?' + substr(variable_get('css_js_query_string', '0'), 0, 1);
+  for _type in javascript:
+    data = javascript[_type];
+    if (empty(data)):
+      continue;
+    if _type == 'setting':
+      output += '<script type="text/javascript">jQuery.extend(Drupal.settings, ' + drupal_to_js(call_user_func_array('array_merge_recursive', data)) + ");</script>\n";
+    elif _type == 'inline':
+      for info in data:
+        output += '<script type="text/javascript"' + (' defer="defer"' if info['defer'] else '') + '>' + info['code'] + "</script>\n";
+    else:
+      # If JS preprocessing is off, we still need to output the scripts.
+      # Additionally, go through any remaining scripts if JS preprocessing is on and output the non-cached ones.
+      for path in data:
+        info = data[path];
+        if (not info['preprocess'] or not _is_writable or not preprocess_js):
+          no_preprocess[type] += '<script type="text/javascript"' + (' defer="defer"' if info['defer'] else '') + ' src="' + base_path() + path + (query_string if info['cache'] else '?' + do_time()) + "\"></script>\n";
+        else:
+          files[path] = info;
   # Aggregate any remaining JS files that haven't already been output.
-  if (is_writable and preprocess_js and count(files) > 0) {
-    filename = md5(serialize(files) . query_string) .'.js';
+  if (is_writable and preprocess_js and count(files) > 0):
+    filename = md5(serialize(files) + query_string) + '.js';
     preprocess_file = drupal_build_js_cache(files, filename);
-    preprocessed += '<script type="text/javascript" src="'. base_path() . %(preprocess_file)s .'"></script>'."\n";
-  }
-
+    preprocessed += '<script type="text/javascript" src="' + base_path() + preprocess_file + '"></script>' + "\n";
   # Keep the order of JS files consistent as some are preprocessed and others are not.
   # Make sure any inline or JS setting variables appear last after libraries have loaded.
-  output = preprocessed . implode('', no_preprocess) . output;
-
+  output = preprocessed + implode('', no_preprocess) + output;
   return output;
-}
+
+
+
 #
 # Assist in adding the tableDrag JavaScript behavior to a themed table.
 #
@@ -1903,26 +1871,26 @@ def drupal_get_js(scope = 'header', javascript = None) {
 # @see block-admin-display-form.tpl.php
 # @see theme_menu_overview_form()
 #
-def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = None, source = None, hidden = True, limit = 0) {
-  static js_added = False;
-  if (!js_added) {
+def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = None, source = None, hidden = True, limit = 0):
+  global static_drupaladdtabledrag_jsadded;
+  if (static_drupaladdtabledrag_jsadded == None):
     drupal_add_js('misc/tabledrag.js', 'core');
     js_added = True;
-  }
-
   # If a subgroup or source isn't set, assume it is the same as the group.
-  target = isset(subgroup) ? subgroup : group;
-  source = isset(source) ? source : target;
-  settings['tableDrag'][table_id][group][] = array(
-    'target' => target,
-    'source' => source,
-    'relationship' => relationship,
-    'action' => action,
-    'hidden' => hidden,
-    'limit' => limit,
-  );
+  target = (subgroup if (subgroup != None) else group);
+  source = (source if source != None else target);
+  settings['tableDrag'][table_id][group].append({
+    'target' : target,
+    'source' : source,
+    'relationship' : relationship,
+    'action' : action,
+    'hidden' : hidden,
+    'limit' : limit,
+  });
   drupal_add_js(settings, 'setting');
-}
+
+
+
 #
 # Aggregate JS files, putting them in the files directory.
 #
