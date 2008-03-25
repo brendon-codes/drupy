@@ -141,6 +141,24 @@ def microtime():
 
 
 #
+# CHecks file is writeable
+# @param Str filename
+# @return Bool
+# 
+def is_writable(filename):
+  return os.access(filename, os.W_OK)
+
+
+#
+# Checks file is directory
+# @param Str filename
+# @return Bool
+#
+def is_dir(filename):
+  return os.path.isdir(filename)
+
+
+#
 # Merges lists
 # @param Dict,List a1
 # @param Dict,List a2
