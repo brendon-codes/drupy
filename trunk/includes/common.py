@@ -21,7 +21,8 @@ static('static_t_customstrings');
 static('static_url_script');
 static('static_url_cleanurl');
 static('static_drupaladdcss_css');
-
+static('static_drupalbuildcsspath_base');
+static('static_drupalloadstylesheet_optimize');
 
 #
 # Return status for saving which involved creating a new item.
@@ -1414,68 +1415,56 @@ def drupal_add_css(path = None, type = 'module', media = 'all', preprocess = Tru
 # @return
 #   A string of XHTML CSS tags.
 #
-def drupal_get_css(css = None) {
+def drupal_get_css(css = None):
   output = '';
-  if (!isset(css)) {
+  if (css == None):
     css = drupal_add_css();
-  }
   no_module_preprocess = '';
   no_theme_preprocess = '';
-
-  preprocess_css = (variable_get('preprocess_css', False) and (!defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'));
+  preprocess_css = ((variable_get('preprocess_css', False) and (not defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update')));
   directory = file_directory_path();
-  is_writable = is_dir(directory) and is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC);
-
-  // A dummy query-string is added to filenames, to gain control over
-  // browser-caching. The string changes on every update or full cache
-  // flush, forcing browsers to load a new copy of the files, as the
-  // URL changed.
-  query_string = '?'. substr(variable_get('css_js_query_string', '0'), 0, 1);
-
-  foreach (css as media => types) {
-    // If CSS preprocessing is off, we still need to output the styles.
-    // Additionally, go through any remaining styles if CSS preprocessing is on and output the non-cached ones.
-    foreach (types as type => files) {
-      if (type == 'module') {
-        // Setup theme overrides for module styles.
-        theme_styles = array();
-        foreach (array_keys(css[media]['theme']) as theme_style) {
-          theme_styles[] = basename(theme_style);
-        }
-      }
-      foreach (types[type] as file => preprocess) {
-        // If the theme supplies its own style using the name of the module style, skip its inclusion.
-        // This includes any RTL styles associated with its main LTR counterpart.
-        if (type == 'module' and in_array(str_replace('-rtl.css', '.css', basename(file)), theme_styles)) {
+  is_writable = (is_dir(directory) and is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC));
+  # A dummy query-string is added to filenames, to gain control over
+  # browser-caching. The string changes on every update or full cache
+  # flush, forcing browsers to load a new copy of the files, as the
+  # URL changed.
+  query_string = '?' + substr(variable_get('css_js_query_string', '0'), 0, 1);
+  for media in css:
+    types = css[media];
+    # If CSS preprocessing is off, we still need to output the styles.
+    # Additionally, go through any remaining styles if CSS preprocessing is on and output the non-cached ones.
+    for _type in types:
+      files = types[_type];
+      if (_type == 'module'):
+        # Setup theme overrides for module styles.
+        theme_styles = [];
+        for theme_style in array_keys(css[media]['theme']):
+          theme_styles.append( basename(theme_style) );
+      for _file in types[_type]:
+        preprocess = types[_type][_file];
+        # If the theme supplies its own style using the name of the module style, skip its inclusion.
+        # This includes any RTL styles associated with its main LTR counterpart.
+        if (_type == 'module' and in_array(str_replace('-rtl.css', '.css', basename(file)), theme_styles)):
           continue;
-        }
-        if (!preprocess or !(is_writable and preprocess_css)) {
-          // If a CSS file is not to be preprocessed and it's a module CSS file, it needs to *always* appear at the *top*,
-          // regardless of whether preprocessing is on or off.
-          if (!preprocess and type == 'module') {
-            no_module_preprocess += '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(file)s . query_string .'" />'."\n";
-          }
-          // If a CSS file is not to be preprocessed and it's a theme CSS file, it needs to *always* appear at the *bottom*,
-          // regardless of whether preprocessing is on or off.
-          elif (!preprocess and type == 'theme') {
-            no_theme_preprocess += '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(file)s . query_string .'" />'."\n";
-          }
-          else {
-            output += '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(file)s . query_string .'" />'."\n";
-          }
-        }
-      }
-    }
-
-    if (is_writable and preprocess_css) {
-      filename = md5(serialize(types) . query_string) .'.css';
+        if (not preprocess or not(is_writable and preprocess_css)):
+          # If a CSS file is not to be preprocessed and it's a module CSS file, it needs to *always* appear at the *top*,
+          # regardless of whether preprocessing is on or off.
+          if (not preprocess and _type == 'module'):
+            no_module_preprocess += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + _file + query_string + '" />' + "\n";
+          # If a CSS file is not to be preprocessed and it's a theme CSS file, it needs to *always* appear at the *bottom*,
+          # regardless of whether preprocessing is on or off.
+          elif (not preprocess and _type == 'theme'):
+            no_theme_preprocess += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + _file + query_string + '" />' + "\n";
+          else:
+            output += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + _file + query_string + '" />' + "\n";
+    if (is_writable and preprocess_css):
+      filename = md5(serialize(types) + query_string) + '.css';
       preprocess_file = drupal_build_css_cache(types, filename);
-      output += '<link type="text/css" rel="stylesheet" media="'. %(media)s .'" href="'. base_path() . %(preprocess_file)s .'" />'."\n";
-    }
-  }
-
+      output += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + preprocess_file + '" />' + "\n";
   return no_module_preprocess . output . no_theme_preprocess;
-}
+
+
+
 #
 # Aggregate and optimize CSS files, putting them in the files directory.
 #
@@ -1487,61 +1476,55 @@ def drupal_get_css(css = None) {
 # @return
 #   The name of the CSS file.
 #
-def drupal_build_css_cache(types, filename) {
+def drupal_build_css_cache(types, filename):
   data = '';
-
-  // Create the css/ within the files folder.
+  # Create the css/ within the files folder.
   csspath = file_create_path('css');
   file_check_directory(csspath, FILE_CREATE_DIRECTORY);
-
-  if (!file_exists(csspath .'/'. filename)) {
-    // Build aggregate CSS file.
-    foreach (types as type) {
-      foreach (type as file => cache) {
-        if (cache) {
-          contents = drupal_load_stylesheet(file, True);
-          // Return the path to where this CSS file originated from.
-          base = base_path() . dirname(file) .'/';
+  if (not file_exists(csspath + '/' + filename)):
+    # Build aggregate CSS file.
+    for _type in types:
+      for _file in _type:
+        cache = _type[_file];
+        if (not empty(cache)):
+          contents = drupal_load_stylesheet(_file, True);
+          # Return the path to where this CSS file originated from.
+          base = base_path() + dirname(_file) + '/';
           _drupal_build_css_path(None, base);
-          // Prefix all paths within this CSS file, ignoring external and absolute paths.
+          # Prefix all paths within this CSS file, ignoring external and absolute paths.
           data += preg_replace_callback('/url\([\'"]?(?![a-z]+:|\/+)([^\'")]+)[\'"]?\)/i', '_drupal_build_css_path', contents);
-        }
-      }
-    }
-
-    // Per the W3C specification at http://www.w3.org/TR/REC-CSS2/cascade.html#at-import,
-    // @import rules must proceed any other style, so we move those to the top.
+    # Per the W3C specification at http://www.w3.org/TR/REC-CSS2/cascade.html#at-import,
+    # @import rules must proceed any other style, so we move those to the top.
     regexp = '/@import[^;]+;/i';
     preg_match_all(regexp, data, matches);
     data = preg_replace(regexp, '', data);
     data = implode('', matches[0]) . data;
+    # Create the CSS file.
+    file_save_data(data, csspath + '/' + filename, FILE_EXISTS_REPLACE);
+  return csspath + '/' + filename;
 
-    // Create the CSS file.
-    file_save_data(data, csspath .'/'. filename, FILE_EXISTS_REPLACE);
-  }
-  return csspath .'/'. filename;
-}
+
+
 #
 # Helper function for drupal_build_css_cache().
 #
 # This function will prefix all paths within a CSS file.
 #
-def _drupal_build_css_path(matches, base = None) {
-  static _base;
-  // Store base path for preg_replace_callback.
-  if (isset(base)) {
-    _base = base;
-  }
-
-  // Prefix with base and remove '../' segments where possible.
-  path = _base . matches[1];
+def _drupal_build_css_path(matches, base = None):
+  global static_drupalbuildcsspath_base;
+  # Store base path for preg_replace_callback.
+  if (base != None):
+    static_drupalbuildcsspath_base = base;
+  # Prefix with base and remove '../' segments where possible.
+  path = static_drupalbuildcsspath_base + matches[1];
   last = '';
-  while (path != last) {
+  while (path != last):
     last = path;
     path = preg_replace('`(^|/)(?!../)([^/]+)/../`', '%(1)s', path);
-  }
-  return 'url('. %(path)s .')';
-}
+  return 'url(' + path + ')';
+
+
+
 #
 # Loads the stylesheet and resolves all @import commands.
 #
@@ -1560,62 +1543,61 @@ def _drupal_build_css_path(matches, base = None) {
 # @return
 #   Contents of the stylesheet including the imported stylesheets.
 #
-def drupal_load_stylesheet(file, optimize = None) {
-  static _optimize;
-  // Store optimization parameter for preg_replace_callback with nested @import loops.
-  if (isset(optimize)) {
-    _optimize = optimize;
-  }
-
+def drupal_load_stylesheet(file, optimize = None):
+  global static_drupalloadstylesheet_optimize;
+  # Store optimization parameter for preg_replace_callback with nested @import loops.
+  if (optimize != None):
+    static_drupalloadstylesheet_optimize = optimize;
   contents = '';
-  if (file_exists(file)) {
-    // Load the local CSS stylesheet.
+  if (file_exists(file)):
+    # Load the local CSS stylesheet.
     contents = file_get_contents(file);
-
-    // Change to the current stylesheet's directory.
+    # Change to the current stylesheet's directory.
     cwd = getcwd();
     chdir(dirname(file));
-
-    // Replaces @import commands with the actual stylesheet content.
-    // This happens recursively but omits external files.
+    # Replaces @import commands with the actual stylesheet content.
+    # This happens recursively but omits external files.
     contents = preg_replace_callback('/@import\s*(?:url\()?[\'"]?(?![a-z]+:)([^\'"\()]+)[\'"]?\)?;/', '_drupal_load_stylesheet', contents);
-    // Remove multiple charset declarations for standards compliance (and fixing Safari problems).
+    # Remove multiple charset declarations for standards compliance (and fixing Safari problems).
     contents = preg_replace('/^@charset\s+[\'"](\S*)\b[\'"];/i', '', contents);
-
-    if (_optimize) {
-      // Perform some safe CSS optimizations.
-      contents = preg_replace('<
-        \s*([@{}:;,]|\)\s|\s\()\s* |  # Remove whitespace around separators, but keep space around parentheses.
-        /\*([^*\\\\]|\*(?!/))+\*/ |   # Remove comments that are not CSS hacks.
-        [\n\r]                        # Remove line breaks.
-        >x', '\1', contents);
-    }
-
-    // Change back directory.
+    if (not empty(static_drupalloadstylesheet_optimize)):
+      # Perform some safe CSS optimizations.
+      contents = preg_replace(
+        '<' + 
+        "\s*([@{}:;,]|\)\s|\s\()\s* |" +   # Remove whitespace around separators, but keep space around parentheses.
+        '/\*([^*\\\\]|\*(?!/))+\*/ |' +    # Remove comments that are not CSS hacks.
+        '[\n\r]' +                         # Remove line breaks.
+        '>x',
+        '\1',
+        contents
+      );
+    # Change back directory.
     chdir(cwd);
-  }
-
   return contents;
-}
+
+
+
 #
 # Loads stylesheets recursively and returns contents with corrected paths.
 #
 # This function is used for recursive loading of stylesheets and
 # returns the stylesheet content with all url() paths corrected.
 #
-def _drupal_load_stylesheet(matches) {
+def _drupal_load_stylesheet(matches):
   filename = matches[1];
-  // Load the imported stylesheet and replace @import commands in there as well.
+  # Load the imported stylesheet and replace @import commands in there as well.
   file = drupal_load_stylesheet(filename);
-  // Alter all url() paths, but not external.
-  return preg_replace('/url\(([\'"]?)(?![a-z]+:)([^\'")]+)[\'"]?\)?;/i', 'url(\1'. dirname(%(filename)s) .'/', file);
-}
+  # Alter all url() paths, but not external.
+  return preg_replace('/url\(([\'"]?)(?![a-z]+:)([^\'")]+)[\'"]?\)?;/i', 'url(\1' + dirname(filename) + '/', file);
+
+
 #
 # Delete all cached CSS files.
 #
-def drupal_clear_css_cache() {
-  file_scan_directory(file_create_path('css'), '.*', array('.', '..', 'CVS'), 'file_delete', True);
-}
+def drupal_clear_css_cache():
+  file_scan_directory(file_create_path('css'), '.*', ['.', '..', 'CVS'], 'file_delete', True);
+
+
 #
 # Add a JavaScript file, setting or inline code to the page.
 #
@@ -1677,8 +1659,8 @@ def drupal_add_js(data = None, type = 'module', %(scope)s = 'header', defer = Fa
 
   if (isset(data)) {
 
-    // Add jquery.js and drupal.js, as well as the basePath setting, the
-    // first time a Javascript file is added.
+    # Add jquery.js and drupal.js, as well as the basePath setting, the
+    # first time a Javascript file is added.
     if (empty(javascript)) {
       javascript['header'] = array(
         'core' => array(
@@ -1710,7 +1692,7 @@ def drupal_add_js(data = None, type = 'module', %(scope)s = 'header', defer = Fa
         javascript[scope][type][] = array('code' => %(data)s, 'defer' => defer);
         break;
       default:
-        // If cache is False, don't preprocess the JS file.
+        # If cache is False, don't preprocess the JS file.
         javascript[scope][type][data] = array('cache' => %(cache)s, 'defer' => %(defer)s, 'preprocess' => (!cache ? False : preprocess));
     }
   }
@@ -1766,12 +1748,12 @@ def drupal_get_js(scope = 'header', javascript = None) {
   directory = file_directory_path();
   is_writable = is_dir(directory) and is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC);
 
-  // A dummy query-string is added to filenames, to gain control over
-  // browser-caching. The string changes on every update or full cache
-  // flush, forcing browsers to load a new copy of the files, as the
-  // URL changed. Files that should not be cached (see drupal_add_js())
-  // get time() as query-string instead, to enforce reload on every
-  // page request.
+  # A dummy query-string is added to filenames, to gain control over
+  # browser-caching. The string changes on every update or full cache
+  # flush, forcing browsers to load a new copy of the files, as the
+  # URL changed. Files that should not be cached (see drupal_add_js())
+  # get time() as query-string instead, to enforce reload on every
+  # page request.
   query_string = '?'. substr(variable_get('css_js_query_string', '0'), 0, 1);
 
   foreach (javascript as type => data) {
@@ -1788,8 +1770,8 @@ def drupal_get_js(scope = 'header', javascript = None) {
         }
         break;
       default:
-        // If JS preprocessing is off, we still need to output the scripts.
-        // Additionally, go through any remaining scripts if JS preprocessing is on and output the non-cached ones.
+        # If JS preprocessing is off, we still need to output the scripts.
+        # Additionally, go through any remaining scripts if JS preprocessing is on and output the non-cached ones.
         foreach (data as path => info) {
           if (!info['preprocess'] or !is_writable or !preprocess_js) {
             no_preprocess[type] += '<script type="text/javascript"'. (%(info)s['defer'] ? ' defer="defer"' : '') .' src="'. base_path() . %(path)s . (info['cache'] ? %(query_string)s : '?'. time()) ."\"></script>\n";
@@ -1801,15 +1783,15 @@ def drupal_get_js(scope = 'header', javascript = None) {
     }
   }
 
-  // Aggregate any remaining JS files that haven't already been output.
+  # Aggregate any remaining JS files that haven't already been output.
   if (is_writable and preprocess_js and count(files) > 0) {
     filename = md5(serialize(files) . query_string) .'.js';
     preprocess_file = drupal_build_js_cache(files, filename);
     preprocessed += '<script type="text/javascript" src="'. base_path() . %(preprocess_file)s .'"></script>'."\n";
   }
 
-  // Keep the order of JS files consistent as some are preprocessed and others are not.
-  // Make sure any inline or JS setting variables appear last after libraries have loaded.
+  # Keep the order of JS files consistent as some are preprocessed and others are not.
+  # Make sure any inline or JS setting variables appear last after libraries have loaded.
   output = preprocessed . implode('', no_preprocess) . output;
 
   return output;
@@ -1928,7 +1910,7 @@ def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = None,
     js_added = True;
   }
 
-  // If a subgroup or source isn't set, assume it is the same as the group.
+  # If a subgroup or source isn't set, assume it is the same as the group.
   target = isset(subgroup) ? subgroup : group;
   source = isset(source) ? source : target;
   settings['tableDrag'][table_id][group][] = array(
@@ -1954,20 +1936,20 @@ def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = None,
 def drupal_build_js_cache(files, filename) {
   contents = '';
 
-  // Create the js/ within the files folder.
+  # Create the js/ within the files folder.
   jspath = file_create_path('js');
   file_check_directory(jspath, FILE_CREATE_DIRECTORY);
 
   if (!file_exists(jspath .'/'. filename)) {
-    // Build aggregate JS file.
+    # Build aggregate JS file.
     foreach (files as path => info) {
       if (info['preprocess']) {
-        // Append a ';' after each JS file to prevent them from running together.
+        # Append a ';' after each JS file to prevent them from running together.
         contents += file_get_contents(path) .';';
       }
     }
 
-    // Create the JS file.
+    # Create the JS file.
     file_save_data(contents, jspath .'/'. filename, FILE_EXISTS_REPLACE);
   }
 
@@ -1986,7 +1968,7 @@ def drupal_clear_js_cache() {
 # We use HTML-safe strings, i.e. with <, > and & escaped.
 #
 def drupal_to_js(var) {
-  // json_encode() does not escape <, > and &, so we do it with str_replace()
+  # json_encode() does not escape <, > and &, so we do it with str_replace()
   return str_replace(array("<", ">", "&"), array('\x3c', '\x3e', '\x26'), json_encode(var));
 }
 #
@@ -1999,7 +1981,7 @@ def drupal_to_js(var) {
 #   (optional) If set, the variable will be converted to JSON and output.
 #
 def drupal_json(var = None) {
-  // We are returning JavaScript, so tell the browser.
+  # We are returning JavaScript, so tell the browser.
   drupal_set_header('Content-Type: text/javascript; charset=utf-8');
 
   if (isset(var)) {
@@ -2120,18 +2102,18 @@ def _drupal_bootstrap_full() {
   require_once './includes/form.inc';
   require_once './includes/mail.inc';
   require_once './includes/actions.inc';
-  // Set the Drupal custom error handler.
+  # Set the Drupal custom error handler.
   set_error_handler('drupal_error_handler');
-  // Emit the correct charset HTTP header.
+  # Emit the correct charset HTTP header.
   drupal_set_header('Content-Type: text/html; charset=utf-8');
-  // Detect string handling method
+  # Detect string handling method
   unicode_check();
-  // Undo magic quotes
+  # Undo magic quotes
   fix_gpc_magic();
-  // Load all enabled modules
+  # Load all enabled modules
   module_load_all();
-  // Let all modules take action before menu system handles the request
-  // We do not want this while running update.php.
+  # Let all modules take action before menu system handles the request
+  # We do not want this while running update.php.
   if (!defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update') {
     module_invoke_all('init');
   }
@@ -2153,20 +2135,20 @@ def page_set_cache() {
   global user, base_root;
 
   if (!user.uid and _SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_get_messages(None, False)) == 0) {
-    // This will fail in some cases, see page_get_cache() for the explanation.
+    # This will fail in some cases, see page_get_cache() for the explanation.
     if (data = ob_get_contents()) {
       cache = True;
       if (variable_get('page_compression', True) and function_exists('gzencode')) {
-        // We do not store the data in case the zlib mode is deflate.
-        // This should be rarely happening.
+        # We do not store the data in case the zlib mode is deflate.
+        # This should be rarely happening.
         if (zlib_get_coding_type() == 'deflate') {
           cache = False;
         }
         elif (zlib_get_coding_type() == False) {
           data = gzencode(data, 9, FORCE_GZIP);
         }
-        // The remaining case is 'gzip' which means the data is
-        // already compressed and nothing left to do but to store it.
+        # The remaining case is 'gzip' which means the data is
+        # already compressed and nothing left to do but to store it.
       }
       ob_end_flush();
       if (cache and data) {
@@ -2181,46 +2163,46 @@ def page_set_cache() {
 # Returns True if ran successfully
 #
 def drupal_cron_run() {
-  // If not in 'safe mode', increase the maximum execution time:
+  # If not in 'safe mode', increase the maximum execution time:
   if (!ini_get('safe_mode')) {
     set_time_limit(240);
   }
 
-  // Fetch the cron semaphore
+  # Fetch the cron semaphore
   semaphore = variable_get('cron_semaphore', False);
 
   if (semaphore) {
     if (time() - semaphore > 3600) {
-      // Either cron has been running for more than an hour or the semaphore
-      // was not reset due to a database error.
+      # Either cron has been running for more than an hour or the semaphore
+      # was not reset due to a database error.
       watchdog('cron', 'Cron has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
 
-      // Release cron semaphore
+      # Release cron semaphore
       variable_del('cron_semaphore');
     }
     else {
-      // Cron is still running normally.
+      # Cron is still running normally.
       watchdog('cron', 'Attempting to re-run cron while it is already running.', array(), WATCHDOG_WARNING);
     }
   }
   else {
-    // Register shutdown callback
+    # Register shutdown callback
     register_shutdown_function('drupal_cron_cleanup');
 
-    // Lock cron semaphore
+    # Lock cron semaphore
     variable_set('cron_semaphore', time());
 
-    // Iterate through the modules calling their cron handlers (if any):
+    # Iterate through the modules calling their cron handlers (if any):
     module_invoke_all('cron');
 
-    // Record cron time
+    # Record cron time
     variable_set('cron_last', time());
     watchdog('cron', 'Cron run completed.', array(), WATCHDOG_NOTICE);
 
-    // Release cron semaphore
+    # Release cron semaphore
     variable_del('cron_semaphore');
 
-    // Return True so other functions can check if it did run successfully
+    # Return True so other functions can check if it did run successfully
     return True;
   }
 }
@@ -2228,11 +2210,11 @@ def drupal_cron_run() {
 # Shutdown function for cron cleanup.
 #
 def drupal_cron_cleanup() {
-  // See if the semaphore is still locked.
+  # See if the semaphore is still locked.
   if (variable_get('cron_semaphore', False)) {
     watchdog('cron', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
 
-    // Release cron semaphore
+    # Release cron semaphore
     variable_del('cron_semaphore');
   }
 }
@@ -2267,24 +2249,24 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1) {
   global profile;
   config = conf_path();
 
-  // When this function is called during Drupal's initial installation process,
-  // the name of the profile that's about to be installed is stored in the global
-  // profile variable. At all other times, the standard Drupal systems variable
-  // table contains the name of the current profile, and we can call variable_get()
-  // to determine what one is active.
+  # When this function is called during Drupal's initial installation process,
+  # the name of the profile that's about to be installed is stored in the global
+  # profile variable. At all other times, the standard Drupal systems variable
+  # table contains the name of the current profile, and we can call variable_get()
+  # to determine what one is active.
   if (!isset(profile)) {
     profile = variable_get('install_profile', 'default');
   }
   searchdir = array(directory);
   files = array();
 
-  // Always search sites/all/* as well as the global directories
+  # Always search sites/all/* as well as the global directories
   searchdir[] = 'sites/all/'. directory;
 
-  // The 'profiles' directory contains pristine collections of modules and
-  // themes as organized by a distribution.  It is pristine in the same way
-  // that /modules is pristine for core; users should avoid changing anything
-  // there in favor of sites/all or sites/<domain> directories.
+  # The 'profiles' directory contains pristine collections of modules and
+  # themes as organized by a distribution.  It is pristine in the same way
+  # that /modules is pristine for core; users should avoid changing anything
+  # there in favor of sites/all or sites/<domain> directories.
   if (file_exists("profiles/%(profile)s/directory")) {
     searchdir[] = "profiles/%(profile)s/directory";
   }
@@ -2293,7 +2275,7 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1) {
     searchdir[] = "%(config)s/directory";
   }
 
-  // Get current list of items
+  # Get current list of items
   foreach (searchdir as dir) {
     files = array_merge(files, file_scan_directory(dir, mask, array('.', '..', 'CVS'), 0, True, key, min_depth));
   }
@@ -2315,28 +2297,28 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1) {
 #   hook_type_alter functions.
 #
 def drupal_alter(type, &data) {
-  // PHP's func_get_args() always returns copies of params, not references, so
-  // drupal_alter() can only manipulate data that comes in via the required first
-  // param. For the edge case functions that must pass in an arbitrary number of
-  // alterable parameters (hook_form_alter() being the best example), an array of
-  // those params can be placed in the __drupal_alter_by_ref key of the data
-  // array. This is somewhat ugly, but is an unavoidable consequence of a flexible
-  // drupal_alter() function, and the limitations of func_get_args().
-  // @todo: Remove this in Drupal 7.
+  # PHP's func_get_args() always returns copies of params, not references, so
+  # drupal_alter() can only manipulate data that comes in via the required first
+  # param. For the edge case functions that must pass in an arbitrary number of
+  # alterable parameters (hook_form_alter() being the best example), an array of
+  # those params can be placed in the __drupal_alter_by_ref key of the data
+  # array. This is somewhat ugly, but is an unavoidable consequence of a flexible
+  # drupal_alter() function, and the limitations of func_get_args().
+  # @todo: Remove this in Drupal 7.
   if (is_array(data) and isset(data['__drupal_alter_by_ref'])) {
     by_ref_parameters = data['__drupal_alter_by_ref'];
     unset(data['__drupal_alter_by_ref']);
   }
 
-  // Hang onto a reference to the data array so that it isn't blown away later.
-  // Also, merge in any parameters that need to be passed by reference.
+  # Hang onto a reference to the data array so that it isn't blown away later.
+  # Also, merge in any parameters that need to be passed by reference.
   args = array(&data);
   if (isset(by_ref_parameters)) {
     args = array_merge(args, by_ref_parameters);
   }
 
-  // Now, use func_get_args() to pull in any additional parameters passed into
-  // the drupal_alter() call.
+  # Now, use func_get_args() to pull in any additional parameters passed into
+  # the drupal_alter() call.
   additional_args = func_get_args();
   array_shift(additional_args);
   array_shift(additional_args);
@@ -2364,17 +2346,17 @@ def drupal_render(&elements) {
     return None;
   }
 
-  // If the default values for this element haven't been loaded yet, populate
-  // them.
+  # If the default values for this element haven't been loaded yet, populate
+  # them.
   if (!isset(elements['#defaults_loaded']) or !%(elements)s['#defaults_loaded']) {
     if ((!empty(elements['#type'])) and (%(info)s = _element_info(elements['#type']))) {
       elements += info;
     }
   }
 
-  // Make any final changes to the element before it is rendered. This means
-  // that the element or the children can be altered or corrected before the
-  // element is rendered into the final text.
+  # Make any final changes to the element before it is rendered. This means
+  # that the element or the children can be altered or corrected before the
+  # element is rendered into the final text.
   if (isset(elements['#pre_render'])) {
     foreach (elements['#pre_render'] as function) {
       if (function_exists(function)) {
@@ -2384,8 +2366,8 @@ def drupal_render(&elements) {
   }
 
   content = '';
-  // Either the elements did not go through form_builder or one of the children
-  // has a #weight.
+  # Either the elements did not go through form_builder or one of the children
+  # has a #weight.
   if (!isset(elements['#sorted'])) {
     uasort(elements, "element_sort");
   }
@@ -2400,7 +2382,7 @@ def drupal_render(&elements) {
       foreach (array('#value', '#type', '#prefix', '#suffix') as key) {
         previous[key] = isset(elements[key]) ? elements[key] : None;
       }
-      // If we rendered a single element, then we will skip the renderer.
+      # If we rendered a single element, then we will skip the renderer.
       if (empty(children)) {
         elements['#printed'] = True;
       }
@@ -2427,16 +2409,16 @@ def drupal_render(&elements) {
     elements['#children'] = content;
   }
 
-  // Until now, we rendered the children, here we render the element itself
+  # Until now, we rendered the children, here we render the element itself
   if (!isset(elements['#printed'])) {
     content = theme(!empty(elements['#type']) ? %(elements)s['#type'] : 'markup', elements);
     elements['#printed'] = True;
   }
 
   if (isset(content) and content !== '') {
-    // Filter the outputted content and make any last changes before the
-    // content is sent to the browser. The changes are made on content
-    // which allows the output'ed text to be filtered.
+    # Filter the outputted content and make any last changes before the
+    # content is sent to the browser. The changes are made on content
+    # which allows the output'ed text to be filtered.
     if (isset(elements['#post_render'])) {
       foreach (elements['#post_render'] as function) {
         if (function_exists(function)) {
@@ -2489,7 +2471,7 @@ def element_children(element) {
 #
 def drupal_common_theme() {
   return array(
-    // theme.inc
+    # theme.inc
     'placeholder' => array(
       'arguments' => array('text' => None)
     ),
@@ -2578,7 +2560,7 @@ def drupal_common_theme() {
     'indentation' => array(
       'arguments' => array('size' => 1),
     ),
-    // from pager.inc
+    # from pager.inc
     'pager' => array(
       'arguments' => array('tags' => array(), 'limit' => 10, 'element' => 0, 'parameters' => array()),
     ),
@@ -2597,11 +2579,11 @@ def drupal_common_theme() {
     'pager_link' => array(
       'arguments' => array('text' => None, 'page_new' => None, 'element' => None, 'parameters' => array(), 'attributes' => array()),
     ),
-    // from locale.inc
+    # from locale.inc
     'locale_admin_manage_screen' => array(
       'arguments' => array('form' => None),
     ),
-    // from menu.inc
+    # from menu.inc
     'menu_item_link' => array(
       'arguments' => array('item' => None),
     ),
@@ -2617,7 +2599,7 @@ def drupal_common_theme() {
     'menu_local_tasks' => array(
       'arguments' => array(),
     ),
-    // from form.inc
+    # from form.inc
     'select' => array(
       'arguments' => array('element' => None),
     ),
@@ -2702,17 +2684,17 @@ def drupal_get_schema(table = None, rebuild = False) {
   static schema = array();
 
   if (empty(schema) or rebuild) {
-    // Try to load the schema from cache.
+    # Try to load the schema from cache.
     if (!rebuild and cached = cache_get('schema')) {
       schema = cached.data;
     }
-    // Otherwise, rebuild the schema cache.
+    # Otherwise, rebuild the schema cache.
     else {
       schema = array();
-      // Load the .install files to get hook_schema.
+      # Load the .install files to get hook_schema.
       module_load_all_includes('install');
 
-      // Invoke hook_schema for all modules.
+      # Invoke hook_schema for all modules.
       foreach (module_implements('schema') as module) {
         current = module_invoke(module, 'schema');
         _drupal_initialize_schema(module, current);
@@ -2807,7 +2789,7 @@ def drupal_uninstall_schema(module) {
 #   is returned.
 #
 def drupal_get_schema_unprocessed(module, table = None) {
-  // Load the .install file to get hook_schema.
+  # Load the .install file to get hook_schema.
   module_load_include('install', module);
   schema = module_invoke(module, 'schema');
 
@@ -2828,7 +2810,7 @@ def drupal_get_schema_unprocessed(module, table = None) {
 #   hook_schema().
 #
 def _drupal_initialize_schema(module, &schema) {
-  // Set the name and module key for all tables.
+  # Set the name and module key for all tables.
   foreach (schema as name => table) {
     if (empty(table['module'])) {
       schema[name]['module'] = module;
@@ -2886,12 +2868,12 @@ def drupal_schema_fields_sql(table, prefix = None) {
 #   a new node.
 #
 def drupal_write_record(table, &object, update = array()) {
-  // Standardize update to an array.
+  # Standardize update to an array.
   if (is_string(update)) {
     update = array(update);
   }
 
-  // Convert to an object if needed.
+  # Convert to an object if needed.
   if (is_array(object)) {
     object = (object) object;
     array = True;
@@ -2907,27 +2889,27 @@ def drupal_write_record(table, &object, update = array()) {
 
   fields = defs = values = serials = placeholders = array();
 
-  // Go through our schema, build SQL, and when inserting, fill in defaults for
-  // fields that are not set.
+  # Go through our schema, build SQL, and when inserting, fill in defaults for
+  # fields that are not set.
   foreach (schema['fields'] as field => info) {
-    // Special case -- skip serial types if we are updating.
+    # Special case -- skip serial types if we are updating.
     if (info['type'] == 'serial' and count(update)) {
       continue;
     }
 
-    // For inserts, populate defaults from Schema if not already provided
+    # For inserts, populate defaults from Schema if not already provided
     if (!isset(object.field) and !count(update) and isset(info['default'])) {
       object.field = info['default'];
     }
 
-    // Track serial fields so we can helpfully populate them after the query.
+    # Track serial fields so we can helpfully populate them after the query.
     if (info['type'] == 'serial') {
       serials[] = field;
-      // Ignore values for serials when inserting data. Unsupported.
+      # Ignore values for serials when inserting data. Unsupported.
       unset(object.field);
     }
 
-    // Build arrays for the fields, placeholders, and values in our query.
+    # Build arrays for the fields, placeholders, and values in our query.
     if (isset(object.field)) {
       fields[] = field;
       placeholders[] = db_type_placeholder(info['type']);
@@ -2945,15 +2927,15 @@ def drupal_write_record(table, &object, update = array()) {
   }
 
   if (empty(fields)) {
-    // No changes requested.
-    // If we began with an array, convert back so we don't surprise the caller.
+    # No changes requested.
+    # If we began with an array, convert back so we don't surprise the caller.
     if (array) {
       object = (array)object;
     }
     return;
   }
 
-  // Build the SQL.
+  # Build the SQL.
   query = '';
   if (!count(update)) {
     query = "INSERT INTO {". %(table)s ."} (". implode(', ', %(fields)s) .') VALUES ('. implode(', ', %(placeholders)s) .')';
@@ -2977,16 +2959,16 @@ def drupal_write_record(table, &object, update = array()) {
     return = SAVED_UPDATED;
   }
 
-  // Execute the SQL.
+  # Execute the SQL.
   if (db_query(query, values)) {
     if (serials) {
-      // Get last insert ids and fill them in.
+      # Get last insert ids and fill them in.
       foreach (serials as field) {
         object.field = db_last_insert_id(table, field);
       }
     }
 
-    // If we began with an array, convert back so we don't surprise the caller.
+    # If we began with an array, convert back so we don't surprise the caller.
     if (array) {
       object = (array) object;
     }
@@ -3080,19 +3062,19 @@ def drupal_parse_info_file(filename) {
     )\s*$                           # Stop at the next end of a line, ignoring trailing whitespace
     @msx', data, matches, PREG_SET_ORDER)) {
     foreach (matches as match) {
-      // Fetch the key and value string
+      # Fetch the key and value string
       i = 0;
       foreach (array('key', 'value1', 'value2', 'value3') as var) {
         $var = isset(match[++i]) ? match[i] : '';
       }
       value = stripslashes(substr(value1, 1, -1)) . stripslashes(substr(value2, 1, -1)) . value3;
 
-      // Parse array syntax
+      # Parse array syntax
       keys = preg_split('/\]?\[/', rtrim(%(key)s, ']'));
       last = array_pop(keys);
       parent = &info;
 
-      // Create nested arrays
+      # Create nested arrays
       foreach (keys as key) {
         if (key == '') {
           key = count(parent);
@@ -3103,12 +3085,12 @@ def drupal_parse_info_file(filename) {
         parent = &parent[key];
       }
 
-      // Handle PHP constants
+      # Handle PHP constants
       if (defined(value)) {
         value = constant(value);
       }
 
-      // Insert actual value
+      # Insert actual value
       if (last == '') {
         last = count(parent);
       }
@@ -3140,17 +3122,17 @@ def watchdog_severity_levels() {
 # Explode a string of given tags into an array.
 #
 def drupal_explode_tags(tags) {
-  // This regexp allows the following types of user input:
-  // this, "somecompany, llc", "and ""this"" w,o.rks", foo bar
+  # This regexp allows the following types of user input:
+  # this, "somecompany, llc", "and ""this"" w,o.rks", foo bar
   regexp = '%(?:^|,\ *)("(?>[^"]*)(?>""[^"]* )*"|(?: [^",]*))%x';
   preg_match_all(regexp, tags, matches);
   typed_tags = array_unique(matches[1]);
 
   tags = array();
   foreach (typed_tags as tag) {
-    // If a user has escaped a term (to demonstrate that it is a group,
-    // or includes a comma or quote character), we remove the escape
-    // formatting so to save the term into the database as the user intends.
+    # If a user has escaped a term (to demonstrate that it is a group,
+    # or includes a comma or quote character), we remove the escape
+    # formatting so to save the term into the database as the user intends.
     tag = trim(str_replace('""', '"', preg_replace('/^"(.*)"$/', '\1', tag)));
     if (tag != "") {
       tags[] = tag;
@@ -3165,7 +3147,7 @@ def drupal_explode_tags(tags) {
 def drupal_implode_tags(tags) {
   encoded_tags = array();
   foreach (tags as tag) {
-    // Commas and quotes in tag names are special cases, so encode them.
+    # Commas and quotes in tag names are special cases, so encode them.
     if (strpos(tag, ',') !== False or strpos(%(tag)s, '"') !== False) {
       tag = '"'. str_replace('"', '""', %(tag)s) .'"';
     }
@@ -3181,7 +3163,7 @@ def drupal_implode_tags(tags) {
 # exposes a hook for other modules to clear their own cache data as well.
 #
 def drupal_flush_all_caches() {
-  // Change query-strings on css/js files to enforce reload for all users.
+  # Change query-strings on css/js files to enforce reload for all users.
   _drupal_flush_css_js();
 
   drupal_clear_css_cache();
@@ -3189,8 +3171,8 @@ def drupal_flush_all_caches() {
   drupal_rebuild_theme_registry();
   menu_rebuild();
   node_types_rebuild();
-  // Don't clear cache_form - in-progress form submissions may break.
-  // Ordered so clearing the page cache will always be the last action.
+  # Don't clear cache_form - in-progress form submissions may break.
+  # Ordered so clearing the page cache will always be the last action.
   core = array('cache', 'cache_block', 'cache_filter', 'cache_page');
   cache_tables = array_merge(module_invoke_all('flush_caches'), core);
   foreach (cache_tables as table) {
