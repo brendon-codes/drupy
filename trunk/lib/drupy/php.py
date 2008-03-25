@@ -628,7 +628,6 @@ def preg_replace_str(pat, rep, subject):
   return reg.sub(rep, subject)
 
 
-
 #
 # dir name
 # @param Str path
@@ -835,6 +834,7 @@ require = include
 include_once = include
 substr = array_slice
 defined = isset
+preg_replace_callback = preg_replace
 
 #
 # Superglobals
