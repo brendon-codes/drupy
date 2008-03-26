@@ -19,6 +19,7 @@ import time
 import datetime
 import os
 import urlparse
+import random
 import copy
 import re
 import pickle
@@ -38,6 +39,7 @@ global DRUPY_OUT; DRUPY_OUT = []
 # PHP Constants
 #
 global ENT_QUOTES; ENT_QUOTES = 1
+global E_ALL; E_ALL = 6143
 
 #
 # Get POST fields
@@ -54,6 +56,31 @@ def postFields():
     else:
       a[i] = f[i].value
   return a
+
+
+#
+# Gets error.
+# This does not mimic the exact behaviour of the
+# corresponding PHP function
+#
+# @return Tuple
+# @returnprop Int 0
+# @returnprop Str 1
+# @returnprop Str 2
+# @returnprop Int 3
+# @returnprop Dict 4
+# @returnprop Type 5
+#
+def error_get_last():
+  err = sys.exc_info();
+  return (
+    E_ALL,            #errno
+    err[1],           #errstr
+    "NOT-AVAILABLE",  #errfile
+    err[2].tb_lineno, #errline
+    globals(),        #errcontext
+    err[0]            #errtype
+  )
 
 
 
@@ -295,7 +322,6 @@ def array_shift(item):
       return None
   else:
     return None
-
 
 
 #
@@ -570,12 +596,40 @@ def preg_quote(val, delim = None):
 # @return Dict
 # @returnprop List match
 #
-def preg_match(pat, subject, match = {}):
+def preg_match(pat, subject, match):
+  is_reference(match)
   reg = preg_setup(pat)
   g = list(reg.search(subject).groups())
   g.insert(0, ''.join(g))
-  match['match'] = g
+  match.val = g
   return len(g)
+
+
+#
+# Returns unique id
+# @param Str prefix
+# @param Bool more_entropy
+# @return Str
+#
+def uniqid(prefix = None, more_entropy = False):
+  out = ''
+  num = (23 if more_entropy else 13)
+  if prefix != None:
+    random.seed(prefix)
+  for i in range(0, num):
+    out += random.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+  return out
+
+
+
+#
+# Random
+# @param Int min
+# @param Int max
+# @return Int
+#
+def mt_rand(min = 0, max = sys.maxint):
+  return random.randint(min, max)
 
 
 #
@@ -833,8 +887,28 @@ def array_pop(item):
 # Std class
 #
 class stdClass:
+  def __init__(self): pass
+
+
+
+#
+# Reference class
+#
+class Reference:
   def __init__(self):
-    pass
+    self.val = None
+  #
+  # Enforces a reference
+  # @param Object data
+  # @raise Exception 
+  # @return Bool
+  #
+  @staticmethod
+  def check(data):
+    if not isinstance(data, __class__) or not hasattr(data, 'val'):
+      raise Exception, "Argument must be an object and must contain a 'val' property."
+    else:
+      return True
         
     
     
@@ -853,6 +927,8 @@ include_once = include
 substr = array_slice
 defined = isset
 preg_replace_callback = preg_replace
+is_writeable = is_writable
+
 
 #
 # Superglobals

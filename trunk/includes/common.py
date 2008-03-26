@@ -24,6 +24,7 @@ static('static_drupaladdcss_css');
 static('static_drupalbuildcsspath_base');
 static('static_drupalloadstylesheet_optimize');
 static('static_drupaladdjs_javascript');
+static('static_drupalbootstrapfull_called');
 
 #
 # Return status for saving which involved creating a new item.
@@ -1901,44 +1902,43 @@ def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = None,
 # @return
 #   The name of the JS file.
 #
-def drupal_build_js_cache(files, filename) {
+def drupal_build_js_cache(files, filename):
   contents = '';
-
   # Create the js/ within the files folder.
   jspath = file_create_path('js');
   file_check_directory(jspath, FILE_CREATE_DIRECTORY);
-
-  if (!file_exists(jspath .'/'. filename)) {
+  if (not file_exists(jspath + '/' + filename)):
     # Build aggregate JS file.
-    foreach (files as path => info) {
-      if (info['preprocess']) {
+    for path in files:
+      info = files[path];
+      if (not empty(info['preprocess'])):
         # Append a ';' after each JS file to prevent them from running together.
-        contents += file_get_contents(path) .';';
-      }
-    }
-
+        contents += file_get_contents(path) + ';';
     # Create the JS file.
-    file_save_data(contents, jspath .'/'. filename, FILE_EXISTS_REPLACE);
-  }
+    file_save_data(contents, jspath + '/' + filename, FILE_EXISTS_REPLACE);
+  return jspath + '/' + filename;
 
-  return jspath .'/'. filename;
-}
+
 #
 # Delete all cached JS files.
 #
-def drupal_clear_js_cache() {
+def drupal_clear_js_cache():
   file_scan_directory(file_create_path('js'), '.*', array('.', '..', 'CVS'), 'file_delete', True);
   variable_set('javascript_parsed', array());
-}
+
+
+
 #
 # Converts a PHP variable into its Javascript equivalent.
 #
 # We use HTML-safe strings, i.e. with <, > and & escaped.
 #
-def drupal_to_js(var) {
+def drupal_to_js(var):
   # json_encode() does not escape <, > and &, so we do it with str_replace()
   return str_replace(array("<", ">", "&"), array('\x3c', '\x3e', '\x26'), json_encode(var));
-}
+
+
+
 #
 # Return data in JSON format.
 #
@@ -1948,14 +1948,14 @@ def drupal_to_js(var) {
 # @param var
 #   (optional) If set, the variable will be converted to JSON and output.
 #
-def drupal_json(var = None) {
+def drupal_json(var = None):
   # We are returning JavaScript, so tell the browser.
   drupal_set_header('Content-Type: text/javascript; charset=utf-8');
+  if (var != None):
+    print drupal_to_js(var);
 
-  if (isset(var)) {
-    echo drupal_to_js(var);
-  }
-}
+
+
 #
 # Wrapper around urlencode() which avoids Apache quirks.
 #
@@ -1975,39 +1975,45 @@ def drupal_json(var = None) {
 # @param text
 #   String to encode
 #
-def drupal_urlencode(text) {
-  if (variable_get('clean_url', '0')) {
-    return str_replace(array('%2F', '%26', '%23', '//'),
-                       array('/', '%2526', '%2523', '/%252F'),
-                       rawurlencode(text));
-  }
-  else {
+def drupal_urlencode(text):
+  if (variable_get('clean_url', '0')):
+    return str_replace(
+      ['%2F', '%26', '%23', '//'],
+      ['/', '%2526', '%2523', '/%252F'],
+      rawurlencode(text)
+    );
+  else:
     return str_replace('%2F', '/', rawurlencode(text));
-  }
-}
+
+
+
 #
 # Ensure the private key variable used to generate tokens is set.
 #
 # @return
 #   The private key.
 #
-def drupal_get_private_key() {
-  if (!(key = variable_get('drupal_private_key', 0))) {
-    key = md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true));
+def drupal_get_private_key():
+  key = variable_get('drupal_private_key', 0);
+  if (not key):
+    key = md5(uniqid(mt_rand(), true)) + md5(uniqid(mt_rand(), true));
     variable_set('drupal_private_key', key);
-  }
   return key;
-}
+
+
+
 #
 # Generate a token based on value, the current user session and private key.
 #
 # @param value
 #   An additional value to base the token on.
 #
-def drupal_get_token(value = '') {
+def drupal_get_token(value = ''):
   private_key = drupal_get_private_key();
-  return md5(session_id() . value . private_key);
-}
+  return md5(session_id() + value + private_key);
+
+
+
 #
 # Validate a token based on value, the current user session and private key.
 #
@@ -2021,10 +2027,12 @@ def drupal_get_token(value = '') {
 #   True for a valid token, false for an invalid token. When skip_anonymous
 #   is true, the return value will always be true for anonymous users.
 #
-def drupal_valid_token(token, value = '', skip_anonymous = False) {
+def drupal_valid_token(token, value = '', skip_anonymous = False):
   global user;
-  return ((skip_anonymous and user.uid == 0) or (token == md5(session_id() . value . variable_get('drupal_private_key', ''))));
-}
+  return ((skip_anonymous and user.uid == 0) or (token == md5(session_id() + value + variable_get('drupal_private_key', ''))));
+
+
+
 #
 # Performs one or more XML-RPC request(s).
 #
@@ -2047,45 +2055,51 @@ def drupal_valid_token(token, value = '', skip_anonymous = False) {
 #     returned by the method called, or an xmlrpc_error object if the call
 #     failed. See xmlrpc_error().
 #
-def xmlrpc(url) {
-  require_once './includes/xmlrpc.inc';
+def xmlrpc(url):
+  require_once('./includes/xmlrpc.inc');
   args = func_get_args();
   return call_user_func_array('_xmlrpc', args);
-}
 
-def _drupal_bootstrap_full() {
-  static called;
 
-  if (called) {
+
+
+def _drupal_bootstrap_full():
+  global static_drupalbootstrapfull_called;
+  if (static_drupalbootstrapfull_called != None):
     return;
-  }
-  called = 1;
-  require_once './includes/theme.inc';
-  require_once './includes/pager.inc';
-  require_once './includes/menu.inc';
-  require_once './includes/tablesort.inc';
-  require_once './includes/file.inc';
-  require_once './includes/unicode.inc';
-  require_once './includes/image.inc';
-  require_once './includes/form.inc';
-  require_once './includes/mail.inc';
-  require_once './includes/actions.inc';
+  else:
+    static_drupalbootstrapfull_called = True;
+  require_once( './includes/theme.inc' );
+  require_once( './includes/pager.inc' );
+  require_once( './includes/menu.inc' );
+  require_once( './includes/tablesort.inc' );
+  require_once( './includes/file.inc' );
+  require_once( './includes/unicode.inc' );
+  require_once( './includes/image.inc' );
+  require_once( './includes/form.inc' );
+  require_once( './includes/mail.inc' );
+  require_once( './includes/actions.inc' );
   # Set the Drupal custom error handler.
-  set_error_handler('drupal_error_handler');
-  # Emit the correct charset HTTP header.
-  drupal_set_header('Content-Type: text/html; charset=utf-8');
-  # Detect string handling method
-  unicode_check();
-  # Undo magic quotes
-  fix_gpc_magic();
-  # Load all enabled modules
-  module_load_all();
-  # Let all modules take action before menu system handles the request
-  # We do not want this while running update.php.
-  if (!defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update') {
-    module_invoke_all('init');
-  }
-}
+  try:
+    # Emit the correct charset HTTP header.
+    drupal_set_header('Content-Type: text/html; charset=utf-8');
+    # Detect string handling method
+    unicode_check();
+    # Undo magic quotes
+    fix_gpc_magic();
+    # Load all enabled modules
+    module_load_all();
+    # Let all modules take action before menu system handles the request
+    # We do not want this while running update.php.
+    if (not defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'):
+      module_invoke_all('init');
+  except:
+    # DRUPY(BC): Args get expanded from tuple
+    drupal_error_handler(*error_get_last());
+
+
+
+
 #
 # Store the current page in the cache.
 #
@@ -2099,93 +2113,76 @@ def _drupal_bootstrap_full() {
 #
 # @see drupal_page_header
 #
-def page_set_cache() {
+def page_set_cache():
   global user, base_root;
-
-  if (!user.uid and _SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_get_messages(None, False)) == 0) {
+  if ((user.uid < 1) and _SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_get_messages(None, False)) == 0):
     # This will fail in some cases, see page_get_cache() for the explanation.
-    if (data = ob_get_contents()) {
+    data = ob_get_contents();
+    if (not empty(data = ob_get_contents())):
       cache = True;
-      if (variable_get('page_compression', True) and function_exists('gzencode')) {
+      if (variable_get('page_compression', True) and function_exists('gzencode')):
         # We do not store the data in case the zlib mode is deflate.
         # This should be rarely happening.
-        if (zlib_get_coding_type() == 'deflate') {
+        if (zlib_get_coding_type() == 'deflate'):
           cache = False;
-        }
-        elif (zlib_get_coding_type() == False) {
+        elif (zlib_get_coding_type() == False):
           data = gzencode(data, 9, FORCE_GZIP);
-        }
         # The remaining case is 'gzip' which means the data is
         # already compressed and nothing left to do but to store it.
-      }
       ob_end_flush();
-      if (cache and data) {
+      if (cache and data):
         cache_set(base_root . request_uri(), data, 'cache_page', CACHE_TEMPORARY, drupal_get_headers());
-      }
-    }
-  }
-}
+
+
+
+
 #
 # Executes a cron run when called
 # @return
 # Returns True if ran successfully
 #
-def drupal_cron_run() {
-  # If not in 'safe mode', increase the maximum execution time:
-  if (!ini_get('safe_mode')) {
-    set_time_limit(240);
-  }
-
+def drupal_cron_run():
   # Fetch the cron semaphore
   semaphore = variable_get('cron_semaphore', False);
-
-  if (semaphore) {
-    if (time() - semaphore > 3600) {
+  if (semaphore):
+    if (do_time() - semaphore > 3600):
       # Either cron has been running for more than an hour or the semaphore
       # was not reset due to a database error.
-      watchdog('cron', 'Cron has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
-
+      watchdog('cron', 'Cron has been running for more than an hour and is most likely stuck.', {}, WATCHDOG_ERROR);
       # Release cron semaphore
       variable_del('cron_semaphore');
-    }
-    else {
+    else:
       # Cron is still running normally.
-      watchdog('cron', 'Attempting to re-run cron while it is already running.', array(), WATCHDOG_WARNING);
-    }
-  }
-  else {
+      watchdog('cron', 'Attempting to re-run cron while it is already running.', [], WATCHDOG_WARNING);
+  else:
     # Register shutdown callback
     register_shutdown_function('drupal_cron_cleanup');
-
     # Lock cron semaphore
-    variable_set('cron_semaphore', time());
-
+    variable_set('cron_semaphore', do_time());
     # Iterate through the modules calling their cron handlers (if any):
     module_invoke_all('cron');
-
     # Record cron time
-    variable_set('cron_last', time());
-    watchdog('cron', 'Cron run completed.', array(), WATCHDOG_NOTICE);
-
+    variable_set('cron_last', do_time());
+    watchdog('cron', 'Cron run completed.', [], WATCHDOG_NOTICE);
     # Release cron semaphore
     variable_del('cron_semaphore');
-
     # Return True so other functions can check if it did run successfully
     return True;
-  }
-}
+
+
+
 #
 # Shutdown function for cron cleanup.
 #
-def drupal_cron_cleanup() {
+def drupal_cron_cleanup():
   # See if the semaphore is still locked.
-  if (variable_get('cron_semaphore', False)) {
-    watchdog('cron', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
-
+  if (variable_get('cron_semaphore', False)):
+    watchdog('cron', 'Cron run exceeded the time limit and was aborted.', [], WATCHDOG_WARNING);
     # Release cron semaphore
     variable_del('cron_semaphore');
-  }
-}
+
+
+
 #
 # Return an array of system file objects.
 #
@@ -2213,43 +2210,35 @@ def drupal_cron_cleanup() {
 # @return
 #   An array of file objects of the specified type.
 #
-def drupal_system_listing(mask, directory, key = 'name', min_depth = 1) {
+def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
   global profile;
   config = conf_path();
-
   # When this function is called during Drupal's initial installation process,
   # the name of the profile that's about to be installed is stored in the global
   # profile variable. At all other times, the standard Drupal systems variable
   # table contains the name of the current profile, and we can call variable_get()
   # to determine what one is active.
-  if (!isset(profile)) {
+  if (profile == None):
     profile = variable_get('install_profile', 'default');
-  }
-  searchdir = array(directory);
-  files = array();
-
+  searchdir = [directory];
+  files = [];
   # Always search sites/all/* as well as the global directories
-  searchdir[] = 'sites/all/'. directory;
-
+  searchdir.append( 'sites/all/' + directory );
   # The 'profiles' directory contains pristine collections of modules and
   # themes as organized by a distribution.  It is pristine in the same way
   # that /modules is pristine for core; users should avoid changing anything
   # there in favor of sites/all or sites/<domain> directories.
-  if (file_exists("profiles/%(profile)s/directory")) {
-    searchdir[] = "profiles/%(profile)s/directory";
-  }
-
-  if (file_exists("%(config)s/directory")) {
-    searchdir[] = "%(config)s/directory";
-  }
-
+  if (file_exists("profiles/%(profile)s/directory" % {'profile' : profile})):
+    searchdir.append( "profiles/%(profile)s/directory" % {'profile' : profile} );
+  if (file_exists("%(config)s/directory" % {'config':config})):
+    searchdir.append( "%(config)s/directory" % {'config':config} );
   # Get current list of items
-  foreach (searchdir as dir) {
-    files = array_merge(files, file_scan_directory(dir, mask, array('.', '..', 'CVS'), 0, True, key, min_depth));
-  }
-
+  for dir in searchdir:
+    files = array_merge(files, file_scan_directory(dir, mask, ['.', '..', 'CVS'], 0, True, key, min_depth));
   return files;
-}
+
+
+
 #
 # This dispatch function hands off structured Drupal arrays to type-specific
 # *_alter implementations. It ensures a consistent interface for all altering
@@ -2264,7 +2253,8 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1) {
 #   Any additional params will be passed on to the called
 #   hook_type_alter functions.
 #
-def drupal_alter(type, &data) {
+def drupal_alter(type, data, *_additional_args):
+  Reference.check(data);
   # PHP's func_get_args() always returns copies of params, not references, so
   # drupal_alter() can only manipulate data that comes in via the required first
   # param. For the edge case functions that must pass in an arbitrary number of
@@ -2273,30 +2263,28 @@ def drupal_alter(type, &data) {
   # array. This is somewhat ugly, but is an unavoidable consequence of a flexible
   # drupal_alter() function, and the limitations of func_get_args().
   # @todo: Remove this in Drupal 7.
-  if (is_array(data) and isset(data['__drupal_alter_by_ref'])) {
-    by_ref_parameters = data['__drupal_alter_by_ref'];
-    unset(data['__drupal_alter_by_ref']);
-  }
-
+  if (is_array(data.val) and isset(data.val['__drupal_alter_by_ref'])):
+    by_ref_parameters = data.val['__drupal_alter_by_ref'];
+    del(data.val['__drupal_alter_by_ref']);
+  else:
+    by_ref_parameters = None;
   # Hang onto a reference to the data array so that it isn't blown away later.
   # Also, merge in any parameters that need to be passed by reference.
-  args = array(&data);
-  if (isset(by_ref_parameters)) {
+  args = [data];
+  if (by_ref_parameters != None):
     args = array_merge(args, by_ref_parameters);
-  }
-
   # Now, use func_get_args() to pull in any additional parameters passed into
   # the drupal_alter() call.
-  additional_args = func_get_args();
+  additional_args = _additional_args;
   array_shift(additional_args);
   array_shift(additional_args);
-  args = array_merge(args, additional_args);
+  args = tuple(array_merge(args, additional_args));
+  for module in module_implements(type + '_alter'):
+    function = module + '_' + type + '_alter';
+    call_user_func_array(function, *args);
 
-  foreach (module_implements(type .'_alter') as module) {
-    function = module .'_'. %(type)s .'_alter';
-    call_user_func_array(function, args);
-  }
-}
+
+
 #
 # Renders HTML given a structured array tree.
 #
@@ -2309,30 +2297,23 @@ def drupal_alter(type, &data) {
 # @return
 #   The rendered HTML.
 #
-def drupal_render(&elements) {
-  if (!isset(elements) or (isset(elements['#access']) and !%(elements)s['#access'])) {
+def drupal_render(elements):
+  Reference.check(elements);
+  if (elements.val == None or (isset(elements.val, '#access') and not elements.val['#access'])):
     return None;
-  }
-
   # If the default values for this element haven't been loaded yet, populate
   # them.
-  if (!isset(elements['#defaults_loaded']) or !%(elements)s['#defaults_loaded']) {
-    if ((!empty(elements['#type'])) and (%(info)s = _element_info(elements['#type']))) {
-      elements += info;
-    }
-  }
-
+  if (not isset(elements.val, '#defaults_loaded') or not elements.val['#defaults_loaded']):
+    info = _element_info(elements.val['#type']);
+    if ((not empty(elements.val['#type'])) and (info)):
+      elements.val += info;
   # Make any final changes to the element before it is rendered. This means
   # that the element or the children can be altered or corrected before the
   # element is rendered into the final text.
-  if (isset(elements['#pre_render'])) {
-    foreach (elements['#pre_render'] as function) {
-      if (function_exists(function)) {
+  if (isset(elements.val, '#pre_render')):
+    for function in elements.val['#pre_render']:
+      if (function_exists(function)):
         elements = function(elements);
-      }
-    }
-  }
-
   content = '';
   # Either the elements did not go through form_builder or one of the children
   # has a #weight.
