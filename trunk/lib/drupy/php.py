@@ -127,6 +127,15 @@ def ob_get_clean():
   
 
 
+#
+# Array filter
+# @param Iterable item
+# @param Function func
+# @return Iterable
+#
+def array_filter(item, func):
+  return filter(func, item)
+
 
 
 #

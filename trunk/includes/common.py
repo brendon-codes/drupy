@@ -386,7 +386,7 @@ def drupal_access_denied():
 # @param url
 #   A string containing a fully qualified URI.
 # @param headers
-#   An array containing an HTTP header => value pair.
+#   An array containing an HTTP header : value pair.
 # @param method
 #   A string defining the HTTP request to use.
 # @param data
@@ -493,8 +493,8 @@ def fix_gpc_magic():
 #   }
 #
 #   form['submit'] = array(
-#     '#type' => 'submit',
-#     '#value' => t('Log in'),
+#     '#type' : 'submit',
+#     '#value' : t('Log in'),
 #   );
 # @endcode
 #
@@ -509,29 +509,29 @@ def fix_gpc_magic():
 # For example:
 # @code
 #   output = t('There are currently %members and %visitors online.', array(
-#     '%members' => format_plural(%(total_users)s, '1 user', '@count users'),
-#     '%visitors' => format_plural(%(guests)s.count, '1 guest', '@count guests')));
+#     '%members' : format_plural(%(total_users)s, '1 user', '@count users'),
+#     '%visitors' : format_plural(%(guests)s.count, '1 guest', '@count guests')));
 # @endcode
 #
 # There are three styles of placeholders:
 # - !variable, which indicates that the text should be inserted as-is. This is
 #   useful for inserting variables into things like e-mail.
 #   @code
-#     message[] = t("If you don't want to receive such e-mails, you can change your settings at !url.", array('!url' => url("user/%(account)s.uid", array('absolute' => True))));
+#     message[] = t("If you don't want to receive such e-mails, you can change your settings at !url.", array('!url' : url("user/%(account)s.uid", array('absolute' : True))));
 #   @endcode
 #
 # - @variable, which indicates that the text should be run through check_plain,
 #   to escape HTML characters. Use this for any output that's displayed within
 #   a Drupal page.
 #   @code
-#     drupal_set_title(title = t("@name's blog", array('@name' => account.name)));
+#     drupal_set_title(title = t("@name's blog", array('@name' : account.name)));
 #   @endcode
 #
 # - %variable, which indicates that the string should be HTML escaped and
 #   highlighted with theme_placeholder() which shows up by default as
 #   <em>emphasized</em>.
 #   @code
-#     message = t('%name-from sent %name-to an e-mail.', array('%name-from' => %(user)s.name, '%name-to' => account.name));
+#     message = t('%name-from sent %name-to an e-mail.', array('%name-from' : %(user)s.name, '%name-to' : account.name));
 #   @endcode
 #
 # When using t(), try to put entire sentences and strings in one t() call.
@@ -542,12 +542,12 @@ def fix_gpc_magic():
 #
 # Here is an example of incorrect usage of t():
 # @code
-#   output += t('<p>Go to the @contact-page.</p>', array('@contact-page' => l(t('contact page'), 'contact')));
+#   output += t('<p>Go to the @contact-page.</p>', array('@contact-page' : l(t('contact page'), 'contact')));
 # @endcode
 #
 # Here is an example of t() used correctly:
 # @code
-#   output += '<p>'. t('Go to the <a href="@contact-page">contact page</a>.', array('@contact-page' => url('contact'))) .'</p>';
+#   output += '<p>'. t('Go to the <a href="@contact-page">contact page</a>.', array('@contact-page' : url('contact'))) .'</p>';
 # @endcode
 #
 # Also avoid escaping quotation marks wherever possible.
@@ -758,7 +758,7 @@ def format_rss_item(title, link, description, args = {}):
 #
 # @param array
 #   An array where each item represent an element and is either a:
-#   - (key => value) pair (<key>value</key>)
+#   - (key : value) pair (<key>value</key>)
 #   - Associative array with fields:
 #     - 'key': element name
 #     - 'value': element contents
@@ -803,7 +803,7 @@ def format_xml_elements(_array):
 #   output = format_plural(update_count,
 #     'Changed the content type of 1 post from %old-type to %new-type.',
 #     'Changed the content type of @count posts from %old-type to %new-type.',
-#     array('%old-type' => %(info)s.old_type, '%new-type' => info.new_type)));
+#     array('%old-type' : %(info)s.old_type, '%new-type' : info.new_type)));
 # @endcode
 #
 # @param count
@@ -1777,7 +1777,7 @@ def drupal_get_js(scope = 'header', javascript = None):
 # themed into a table. The table must have an id attribute set. If using
 # theme_table(), the id may be set as such:
 # @code
-# output = theme('table', %(header)s, rows, array('id' => 'my-module-table'));
+# output = theme('table', %(header)s, rows, array('id' : 'my-module-table'));
 # return output;
 # @endcode
 #
@@ -1795,8 +1795,8 @@ def drupal_get_js(scope = 'header', javascript = None):
 # @code
 # row = array(...);
 # rows[] = array(
-#   'data' => row,
-#   'class' => 'draggable',
+#   'data' : row,
+#   'class' : 'draggable',
 # );
 # @endcode
 #
@@ -2386,217 +2386,223 @@ def element_property(key):
 #
 # Get properties of a structured array element. Properties begin with '#'.
 #
-def element_properties(element) {
-  return array_filter(array_keys((array) element), 'element_property');
-}
+def element_properties(element):
+  return array_filter(array_keys(element), 'element_property');
+
+
+
 #
 # Check if the key is a child.
 #
-def element_child(key) {
-  return !isset(key[0]) or key[0] != '#';
-}
+def element_child(key):
+  return (not isset(key, 0) or key[0] != '#');
+
+
+
 #
 # Get keys of a structured array tree element that are not properties (i.e., do not begin with '#').
 #
-def element_children(element) {
-  return array_filter(array_keys((array) element), 'element_child');
-}
+def element_children(element):
+  return array_filter(array_keys(element), 'element_child');
+
+
+
 #
 # Provide theme registration for themes across .inc files.
 #
 def drupal_common_theme() {
   return array(
     # theme.inc
-    'placeholder' => array(
-      'arguments' => array('text' => None)
+    'placeholder' : array(
+      'arguments' : array('text' : None)
     ),
-    'page' => array(
-      'arguments' => array('content' => None, 'show_blocks' => True, 'show_messages' => True),
-      'template' => 'page',
+    'page' : array(
+      'arguments' : array('content' : None, 'show_blocks' : True, 'show_messages' : True),
+      'template' : 'page',
     ),
-    'maintenance_page' => array(
-      'arguments' => array('content' => None, 'show_blocks' => True, 'show_messages' => True),
-      'template' => 'maintenance-page',
+    'maintenance_page' : array(
+      'arguments' : array('content' : None, 'show_blocks' : True, 'show_messages' : True),
+      'template' : 'maintenance-page',
     ),
-    'update_page' => array(
-      'arguments' => array('content' => None, 'show_messages' => True),
+    'update_page' : array(
+      'arguments' : array('content' : None, 'show_messages' : True),
     ),
-    'install_page' => array(
-      'arguments' => array('content' => None),
+    'install_page' : array(
+      'arguments' : array('content' : None),
     ),
-    'task_list' => array(
-      'arguments' => array('items' => None, 'active' => None),
+    'task_list' : array(
+      'arguments' : array('items' : None, 'active' : None),
     ),
-    'status_messages' => array(
-      'arguments' => array('display' => None),
+    'status_messages' : array(
+      'arguments' : array('display' : None),
     ),
-    'links' => array(
-      'arguments' => array('links' => None, 'attributes' => array('class' => 'links')),
+    'links' : array(
+      'arguments' : array('links' : None, 'attributes' : array('class' : 'links')),
     ),
-    'image' => array(
-      'arguments' => array('path' => None, 'alt' => '', 'title' => '', 'attributes' => None, 'getsize' => True),
+    'image' : array(
+      'arguments' : array('path' : None, 'alt' : '', 'title' : '', 'attributes' : None, 'getsize' : True),
     ),
-    'breadcrumb' => array(
-      'arguments' => array('breadcrumb' => None),
+    'breadcrumb' : array(
+      'arguments' : array('breadcrumb' : None),
     ),
-    'help' => array(
-      'arguments' => array(),
+    'help' : array(
+      'arguments' : array(),
     ),
-    'submenu' => array(
-      'arguments' => array('links' => None),
+    'submenu' : array(
+      'arguments' : array('links' : None),
     ),
-    'table' => array(
-      'arguments' => array('header' => None, 'rows' => None, 'attributes' => array(), 'caption' => None),
+    'table' : array(
+      'arguments' : array('header' : None, 'rows' : None, 'attributes' : array(), 'caption' : None),
     ),
-    'table_select_header_cell' => array(
-      'arguments' => array(),
+    'table_select_header_cell' : array(
+      'arguments' : array(),
     ),
-    'tablesort_indicator' => array(
-      'arguments' => array('style' => None),
+    'tablesort_indicator' : array(
+      'arguments' : array('style' : None),
     ),
-    'box' => array(
-      'arguments' => array('title' => None, 'content' => None, 'region' => 'main'),
-      'template' => 'box',
+    'box' : array(
+      'arguments' : array('title' : None, 'content' : None, 'region' : 'main'),
+      'template' : 'box',
     ),
-    'block' => array(
-      'arguments' => array('block' => None),
-      'template' => 'block',
+    'block' : array(
+      'arguments' : array('block' : None),
+      'template' : 'block',
     ),
-    'mark' => array(
-      'arguments' => array('type' => MARK_NEW),
+    'mark' : array(
+      'arguments' : array('type' : MARK_NEW),
     ),
-    'item_list' => array(
-      'arguments' => array('items' => array(), 'title' => None, 'type' => 'ul', 'attributes' => None),
+    'item_list' : array(
+      'arguments' : array('items' : array(), 'title' : None, 'type' : 'ul', 'attributes' : None),
     ),
-    'more_help_link' => array(
-      'arguments' => array('url' => None),
+    'more_help_link' : array(
+      'arguments' : array('url' : None),
     ),
-    'xml_icon' => array(
-      'arguments' => array('url' => None),
+    'xml_icon' : array(
+      'arguments' : array('url' : None),
     ),
-    'feed_icon' => array(
-      'arguments' => array('url' => None, 'title' => None),
+    'feed_icon' : array(
+      'arguments' : array('url' : None, 'title' : None),
     ),
-    'more_link' => array(
-      'arguments' => array('url' => None, 'title' => None)
+    'more_link' : array(
+      'arguments' : array('url' : None, 'title' : None)
     ),
-    'closure' => array(
-      'arguments' => array('main' => 0),
+    'closure' : array(
+      'arguments' : array('main' : 0),
     ),
-    'blocks' => array(
-      'arguments' => array('region' => None),
+    'blocks' : array(
+      'arguments' : array('region' : None),
     ),
-    'username' => array(
-      'arguments' => array('object' => None),
+    'username' : array(
+      'arguments' : array('object' : None),
     ),
-    'progress_bar' => array(
-      'arguments' => array('percent' => None, 'message' => None),
+    'progress_bar' : array(
+      'arguments' : array('percent' : None, 'message' : None),
     ),
-    'indentation' => array(
-      'arguments' => array('size' => 1),
+    'indentation' : array(
+      'arguments' : array('size' : 1),
     ),
     # from pager.inc
-    'pager' => array(
-      'arguments' => array('tags' => array(), 'limit' => 10, 'element' => 0, 'parameters' => array()),
+    'pager' : array(
+      'arguments' : array('tags' : array(), 'limit' : 10, 'element' : 0, 'parameters' : array()),
     ),
-    'pager_first' => array(
-      'arguments' => array('text' => None, 'limit' => None, 'element' => 0, 'parameters' => array()),
+    'pager_first' : array(
+      'arguments' : array('text' : None, 'limit' : None, 'element' : 0, 'parameters' : array()),
     ),
-    'pager_previous' => array(
-      'arguments' => array('text' => None, 'limit' => None, 'element' => 0, 'interval' => 1, 'parameters' => array()),
+    'pager_previous' : array(
+      'arguments' : array('text' : None, 'limit' : None, 'element' : 0, 'interval' : 1, 'parameters' : array()),
     ),
-    'pager_next' => array(
-      'arguments' => array('text' => None, 'limit' => None, 'element' => 0, 'interval' => 1, 'parameters' => array()),
+    'pager_next' : array(
+      'arguments' : array('text' : None, 'limit' : None, 'element' : 0, 'interval' : 1, 'parameters' : array()),
     ),
-    'pager_last' => array(
-      'arguments' => array('text' => None, 'limit' => None, 'element' => 0, 'parameters' => array()),
+    'pager_last' : array(
+      'arguments' : array('text' : None, 'limit' : None, 'element' : 0, 'parameters' : array()),
     ),
-    'pager_link' => array(
-      'arguments' => array('text' => None, 'page_new' => None, 'element' => None, 'parameters' => array(), 'attributes' => array()),
+    'pager_link' : array(
+      'arguments' : array('text' : None, 'page_new' : None, 'element' : None, 'parameters' : array(), 'attributes' : array()),
     ),
     # from locale.inc
-    'locale_admin_manage_screen' => array(
-      'arguments' => array('form' => None),
+    'locale_admin_manage_screen' : array(
+      'arguments' : array('form' : None),
     ),
     # from menu.inc
-    'menu_item_link' => array(
-      'arguments' => array('item' => None),
+    'menu_item_link' : array(
+      'arguments' : array('item' : None),
     ),
-    'menu_tree' => array(
-      'arguments' => array('tree' => None),
+    'menu_tree' : array(
+      'arguments' : array('tree' : None),
     ),
-    'menu_item' => array(
-      'arguments' => array('link' => None, 'has_children' => None, 'menu' => ''),
+    'menu_item' : array(
+      'arguments' : array('link' : None, 'has_children' : None, 'menu' : ''),
     ),
-    'menu_local_task' => array(
-      'arguments' => array('link' => None, 'active' => False),
+    'menu_local_task' : array(
+      'arguments' : array('link' : None, 'active' : False),
     ),
-    'menu_local_tasks' => array(
-      'arguments' => array(),
+    'menu_local_tasks' : array(
+      'arguments' : array(),
     ),
     # from form.inc
-    'select' => array(
-      'arguments' => array('element' => None),
+    'select' : array(
+      'arguments' : array('element' : None),
     ),
-    'fieldset' => array(
-      'arguments' => array('element' => None),
+    'fieldset' : array(
+      'arguments' : array('element' : None),
     ),
-    'radio' => array(
-      'arguments' => array('element' => None),
+    'radio' : array(
+      'arguments' : array('element' : None),
     ),
-    'radios' => array(
-      'arguments' => array('element' => None),
+    'radios' : array(
+      'arguments' : array('element' : None),
     ),
-    'password_confirm' => array(
-      'arguments' => array('element' => None),
+    'password_confirm' : array(
+      'arguments' : array('element' : None),
     ),
-    'date' => array(
-      'arguments' => array('element' => None),
+    'date' : array(
+      'arguments' : array('element' : None),
     ),
-    'item' => array(
-      'arguments' => array('element' => None),
+    'item' : array(
+      'arguments' : array('element' : None),
     ),
-    'checkbox' => array(
-      'arguments' => array('element' => None),
+    'checkbox' : array(
+      'arguments' : array('element' : None),
     ),
-    'checkboxes' => array(
-      'arguments' => array('element' => None),
+    'checkboxes' : array(
+      'arguments' : array('element' : None),
     ),
-    'submit' => array(
-      'arguments' => array('element' => None),
+    'submit' : array(
+      'arguments' : array('element' : None),
     ),
-    'button' => array(
-      'arguments' => array('element' => None),
+    'button' : array(
+      'arguments' : array('element' : None),
     ),
-    'image_button' => array(
-      'arguments' => array('element' => None),
+    'image_button' : array(
+      'arguments' : array('element' : None),
     ),
-    'hidden' => array(
-      'arguments' => array('element' => None),
+    'hidden' : array(
+      'arguments' : array('element' : None),
     ),
-    'token' => array(
-      'arguments' => array('element' => None),
+    'token' : array(
+      'arguments' : array('element' : None),
     ),
-    'textfield' => array(
-      'arguments' => array('element' => None),
+    'textfield' : array(
+      'arguments' : array('element' : None),
     ),
-    'form' => array(
-      'arguments' => array('element' => None),
+    'form' : array(
+      'arguments' : array('element' : None),
     ),
-    'textarea' => array(
-      'arguments' => array('element' => None),
+    'textarea' : array(
+      'arguments' : array('element' : None),
     ),
-    'markup' => array(
-      'arguments' => array('element' => None),
+    'markup' : array(
+      'arguments' : array('element' : None),
     ),
-    'password' => array(
-      'arguments' => array('element' => None),
+    'password' : array(
+      'arguments' : array('element' : None),
     ),
-    'file' => array(
-      'arguments' => array('element' => None),
+    'file' : array(
+      'arguments' : array('element' : None),
     ),
-    'form_element' => array(
-      'arguments' => array('element' => None, 'value' => None),
+    'form_element' : array(
+      'arguments' : array('element' : None, 'value' : None),
     ),
   );
 }
@@ -2670,7 +2676,7 @@ def drupal_install_schema(module) {
   _drupal_initialize_schema(module, schema);
 
   ret = array();
-  foreach (schema as name => table) {
+  foreach (schema as name : table) {
     db_create_table(ret, name, table);
   }
   return ret;
@@ -2746,7 +2752,7 @@ def drupal_get_schema_unprocessed(module, table = None) {
 #
 def _drupal_initialize_schema(module, &schema) {
   # Set the name and module key for all tables.
-  foreach (schema as name => table) {
+  foreach (schema as name : table) {
     if (empty(table['module'])) {
       schema[name]['module'] = module;
     }
@@ -2826,7 +2832,7 @@ def drupal_write_record(table, &object, update = array()) {
 
   # Go through our schema, build SQL, and when inserting, fill in defaults for
   # fields that are not set.
-  foreach (schema['fields'] as field => info) {
+  foreach (schema['fields'] as field : info) {
     # Special case -- skip serial types if we are updating.
     if (info['type'] == 'serial' and count(update)) {
       continue;
@@ -2878,7 +2884,7 @@ def drupal_write_record(table, &object, update = array()) {
   }
   else {
     query = '';
-    foreach (fields as id => field) {
+    foreach (fields as id : field) {
       if (query) {
         query += ', ';
       }
@@ -3043,14 +3049,14 @@ def drupal_parse_info_file(filename) {
 #
 def watchdog_severity_levels() {
   return array(
-    WATCHDOG_EMERG    => t('emergency'),
-    WATCHDOG_ALERT    => t('alert'),
-    WATCHDOG_CRITICAL => t('critical'),
-    WATCHDOG_ERROR    => t('error'),
-    WATCHDOG_WARNING  => t('warning'),
-    WATCHDOG_NOTICE   => t('notice'),
-    WATCHDOG_INFO     => t('info'),
-    WATCHDOG_DEBUG    => t('debug'),
+    WATCHDOG_EMERG    : t('emergency'),
+    WATCHDOG_ALERT    : t('alert'),
+    WATCHDOG_CRITICAL : t('critical'),
+    WATCHDOG_ERROR    : t('error'),
+    WATCHDOG_WARNING  : t('warning'),
+    WATCHDOG_NOTICE   : t('notice'),
+    WATCHDOG_INFO     : t('info'),
+    WATCHDOG_DEBUG    : t('debug'),
   );
 }
 #
