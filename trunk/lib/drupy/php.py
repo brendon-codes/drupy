@@ -85,6 +85,16 @@ def error_get_last():
 
 
 #
+# Sort on func
+# @param Iterable item
+# @param Function func
+# @return Iterable
+#
+def uasort(item, func):
+  return sort(item, func)
+
+
+#
 # Output buffering start
 # @return Int
 #

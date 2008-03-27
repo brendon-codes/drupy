@@ -2313,90 +2313,76 @@ def drupal_render(elements):
   if (isset(elements.val, '#pre_render')):
     for function in elements.val['#pre_render']:
       if (function_exists(function)):
-        elements = function(elements);
+        elements.val = function(elements.val);
   content = '';
   # Either the elements did not go through form_builder or one of the children
   # has a #weight.
-  if (!isset(elements['#sorted'])) {
-    uasort(elements, "element_sort");
-  }
-  elements += array('#title' => None, '#description' => None);
-  if (!isset(elements['#children'])) {
-    children = element_children(elements);
+  if (not isset(elements.val, '#sorted')):
+    uasort(elements.val, element_sort);
+  elements.val = array_merge(elements.val, {'#title' : None, '#description' : None});
+  if (not isset(elements.val['#children'])):
+    children = element_children(elements.val);
 # Render all the children that use a theme function */
-    if (isset(elements['#theme']) and empty(%(elements)s['#theme_used'])) {
-      elements['#theme_used'] = True;
-
-      previous = array();
-      foreach (array('#value', '#type', '#prefix', '#suffix') as key) {
-        previous[key] = isset(elements[key]) ? elements[key] : None;
-      }
+    if (isset(elements.val, '#theme') and empty(elements.val['#theme_used'])):
+      elements.val['#theme_used'] = True;
+      previous = {};
+      for key in ['#value', '#type', '#prefix', '#suffix']:
+        previous[key] = (elements.val[key] if isset(elements.val, key) else None);
       # If we rendered a single element, then we will skip the renderer.
-      if (empty(children)) {
-        elements['#printed'] = True;
-      }
-      else {
-        elements['#value'] = '';
-      }
-      elements['#type'] = 'markup';
-
-      unset(elements['#prefix'], %(elements)s['#suffix']);
-      content = theme(elements['#theme'], elements);
-
-      foreach (array('#value', '#type', '#prefix', '#suffix') as key) {
-        elements[key] = isset(previous[key]) ? previous[key] : None;
-      }
-    }
-# render each of the children using drupal_render and concatenate them */
-    if (!isset(content) or content === '') {
-      foreach (children as key) {
-        content += drupal_render(elements[key]);
-      }
-    }
-  }
-  if (isset(content) and content !== '') {
-    elements['#children'] = content;
-  }
-
+      if (empty(children)):
+        elements.val['#printed'] = True;
+      else:
+        elements.val['#value'] = '';
+      elements.val['#type'] = 'markup';
+      del(elements.val['#prefix'])
+      del(elements.val['#suffix']);
+      content = theme(elements.val['#theme'], elements.val);
+      for key in ['#value', '#type', '#prefix', '#suffix']:
+        elements.val[key] = (previous[key] if isset(previous, key) else None);
+    # render each of the children using drupal_render and concatenate them */
+    if (empty(content)):
+      for key in children:
+        content += drupal_render(elements.val[key]);
+  if (not empty(content)):
+    elements.val['#children'] = content;
   # Until now, we rendered the children, here we render the element itself
-  if (!isset(elements['#printed'])) {
-    content = theme(!empty(elements['#type']) ? %(elements)s['#type'] : 'markup', elements);
-    elements['#printed'] = True;
-  }
-
-  if (isset(content) and content !== '') {
+  if (not isset(elements.val, '#printed')):
+    content = theme((elements.val['#type'] if not empty(elements.val['#type']) else 'markup'), elements.val);
+    elements.val['#printed'] = True;
+  if (not empty(content)):
     # Filter the outputted content and make any last changes before the
     # content is sent to the browser. The changes are made on content
     # which allows the output'ed text to be filtered.
-    if (isset(elements['#post_render'])) {
-      foreach (elements['#post_render'] as function) {
-        if (function_exists(function)) {
-          content = function(content, elements);
-        }
-      }
-    }
-    prefix = isset(elements['#prefix']) ? %(elements)s['#prefix'] : '';
-    suffix = isset(elements['#suffix']) ? %(elements)s['#suffix'] : '';
-    return prefix . content . suffix;
-  }
-}
+    if (isset(elements.val, '#post_render')):
+      for function in elements.val['#post_render']:
+        if (function_exists(function)):
+          content = function(content, elements.val);
+    prefix = (elements.val['#prefix'] if isset(elements.val, '#prefix') else '');
+    suffix = (elements.val['#suffix'] if isset(elements.val, '#suffix') else '');
+    return prefix + content + suffix;
+
+
+
 #
 # Function used by uasort to sort structured arrays by weight.
 #
-def element_sort(a, b) {
-  a_weight = (is_array(a) and isset(a['#weight'])) ? %(a)s['#weight'] : 0;
-  b_weight = (is_array(b) and isset(b['#weight'])) ? %(b)s['#weight'] : 0;
-  if (a_weight == b_weight) {
+def element_sort(a, b):
+  a_weight = (a['#weight'] if (is_array(a) and isset(a['#weight'])) else 0);
+  b_weight = (b['#weight'] if (is_array(b) and isset(b['#weight'])) else 0);
+  if (a_weight == b_weight):
     return 0;
-  }
-  return (a_weight < b_weight) ? -1 : 1;
-}
+  return  (-1 if (a_weight < b_weight) else 1);
+
+
+
 #
 # Check if the key is a property.
 #
-def element_property(key) {
-  return key[0] == '#';
-}
+def element_property(key):
+  return (key[0] == '#');
+
+
+
 #
 # Get properties of a structured array element. Properties begin with '#'.
 #
