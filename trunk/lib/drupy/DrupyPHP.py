@@ -29,7 +29,7 @@ import htmlentitydefs
 import cgi
 import cgitb; cgitb.enable()
 import urllib
-import DrupyHelper
+from lib.drupy import DrupyHelper
 
 #
 # Drupy helpers
@@ -385,28 +385,28 @@ def htmlspecialchars(val, flags = None):
 def empty(val):
   # Boolean
   if \
-      isinstance(data['val'], bool) and \
-      (data['val'] == False):
+      isinstance(val, bool) and \
+      (val == False):
     return True
   # None
   elif \
-      data['val'] == None:
+      val == None:
     return True  
   # Lists
   elif \
-      isinstance(data['val'], list) or \
-      isinstance(data['val'], tuple) or \
-      isinstance(data['val'], dict):
-    return (len(data['val']) <= 0)
+      isinstance(val, list) or \
+      isinstance(val, tuple) or \
+      isinstance(val, dict):
+    return (len(val) <= 0)
   # Numbers
   elif \
-      isinstance(data['val'], int) or \
-      isinstance(data['val'], float):
-    return (data['val'] <= 0)
+      isinstance(val, int) or \
+      isinstance(val, float):
+    return (val <= 0)
   # String
   elif \
-      isinstance(data['val'], str):
-    return (data['val'].strip() == '')
+      isinstance(val, str):
+    return (val.strip() == '')
   # Anything else
   else:
     return False
@@ -713,7 +713,7 @@ def str_replace(pat, rep, subject):
 # @return Str
 #
 def __str_replace_str(pat, rep, subject):
-  return sub.replace(pat, rep)
+  return subject.replace(pat, rep)
 
 
 
@@ -724,7 +724,7 @@ def __str_replace_str(pat, rep, subject):
 # @param Str subject
 # @return Str
 #
-def preg_replace(pat, replace, subject):
+def preg_replace(pat, rep, subject):
   out = subject
   if isinstance(pat, list):
     repIsStr = isinstance(rep, list)
@@ -747,7 +747,7 @@ def preg_replace(pat, replace, subject):
 # @return Str
 #
 def __preg_replace_str(pat, rep, subject):
-  reg = preg_setup(pat)
+  reg = __preg_setup(pat)
   return reg.sub(rep, subject)
 
 

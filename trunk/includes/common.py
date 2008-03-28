@@ -2274,7 +2274,7 @@ def drupal_alter(type, data, *_additional_args):
   args = tuple(array_merge(args, additional_args));
   for module in module_implements(type + '_alter'):
     function = module + '_' + type + '_alter';
-    call_user_func_array(function, *args);
+    function( *args );
 
 
 
