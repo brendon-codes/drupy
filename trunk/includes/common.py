@@ -5,6 +5,7 @@
 #
 
 import urllib2
+from lib.drupy import DrupyHelper
 
 
 
@@ -25,6 +26,7 @@ static('static_drupalbuildcsspath_base');
 static('static_drupalloadstylesheet_optimize');
 static('static_drupaladdjs_javascript');
 static('static_drupalbootstrapfull_called');
+static('static_drupalgetschema_schema');
 
 #
 # Return status for saving which involved creating a new item.
@@ -208,8 +210,7 @@ def drupal_get_feeds(delimiter = "\n"):
 #
 def drupal_query_string_encode(query, exclude = [], parent = ''):
   params = [];
-  for key in query:
-    value = query[key];
+  for key,value in query.items():
     key = drupal_urlencode(key);
     if (parent):
       key = parent + '[' + key + ']';
@@ -416,7 +417,7 @@ def drupal_http_request(url, headers = {}, method = 'GET', data = None, retry = 
   headers['User-Agent'] = 'Drupy (+http://drupy.sourceforge.net/)';
   req = urllib2.Request(url, data, headers);
   res = urllib2.urlopen(req);
-  result = do_object({
+  result = drupy_object({
     'error' : res.msg,
     'code' : res.code,
     'request' : 'NOT-AVAILABLE',
@@ -600,8 +601,7 @@ def t(string, args = {}, langcode = None):
     return string;
   else:
     # Transform arguments before inserting them.
-    for key in args:
-      value = args[key];
+    for key,value in args.items():
       if key[0] == '@':
         # Escaped only.
         args[key] = check_plain(value);
@@ -637,6 +637,7 @@ def valid_email_address(mail):
     ipv4 : '[0-9]{1,3}(\.[0-9]{1,3}){3}',
     ipv6 : '[0-9a-fA-F]{1,4}(\:[0-9a-fA-F]{1,4}){7}'
   };
+  mail = DrupyHelper.Reference();
   cnt = preg_match("/^%(user)s@(%(domain)s|(\[(%(ipv4)s|%(ipv6)s)\]))$/" % items, mail);
   return (cnt > 0);
 
@@ -658,9 +659,11 @@ def valid_email_address(mail):
 def valid_url(url, absolute = False):
   allowed_characters = '[a-z0-9\/:_\-_\.\?\$,;~=#&%\+]';
   if (absolute):
+    url = DrupyHelper.Reference();
     cnt = preg_match("/^(http|https|ftp):\/\/" + allowed_characters + "+$/i", url);
     return (cnt > 0);
   else:
+    url = DrupyHelper.Reference();
     cnt = preg_match("/^" + allowed_characters + "+$/i", url);
     return (cnt > 0);
 
@@ -675,7 +678,7 @@ def valid_url(url, absolute = False):
 #   The name of an event.
 #
 def flood_register_event(name):
-  db_query("INSERT INTO {flood} (event, hostname, timestamp) VALUES ('%s', '%s', %d)", name, ip_address(), do_time());
+  db_query("INSERT INTO {flood} (event, hostname, timestamp) VALUES ('%s', '%s', %d)", name, ip_address(), drupy_time());
 
 
 
@@ -693,7 +696,7 @@ def flood_register_event(name):
 #   True if the user did not exceed the hourly threshold. False otherwise.
 #
 def flood_is_allowed(name, threshold):
-  number = db_result(db_query("SELECT COUNT(*) FROM {flood} WHERE event = '%s' AND hostname = '%s' AND timestamp > %d", name, ip_address(), do_time() - 3600));
+  number = db_result(db_query("SELECT COUNT(*) FROM {flood} WHERE event = '%s' AND hostname = '%s' AND timestamp > %d", name, ip_address(), drupy_time() - 3600));
   return (number < threshold);
 
 
@@ -769,8 +772,7 @@ def format_rss_item(title, link, description, args = {}):
 #
 def format_xml_elements(_array):
   output = '';
-  for key in _array:
-    value = _array[key];
+  for key,value in _array.items():
     if (is_numeric(key)):
       if (not empty(value['key'])):
         output += ' <' + value['key'];
@@ -869,8 +871,9 @@ def parse_size(size):
     'm' : 1048576, # 1024 * 1024
     'g' : 1073741824, # 1024 * 1024 * 1024
   };
+  match = DrupyHelper.Reference()
   if (preg_match('/([0-9]+)\s*(k|m|g)?(b?(ytes?)?)/i', size, match) > 0):
-    return match[1] * suffixes[drupal_strtolower(match[2])];
+    return match.val[1] * suffixes[drupal_strtolower(match.val[2])];
 
 
 
@@ -920,8 +923,7 @@ def format_interval(timestamp, granularity = 2, langcode = None):
     '1 sec|@count sec' : 1
   };
   output = '';
-  for key in units:
-    value = units[key];
+  for key,value in units.items():
     key = explode('|', key);
     if (timestamp >= value):
       output += (' ' if (output != '') else '') + format_plural(floor(timestamp / value), key[0], key[1], {}, langcode);
@@ -976,7 +978,7 @@ def format_date(timestamp, type = 'medium', format = '', timezone = None, langco
     format = variable_get('date_format_medium', 'D, m/d/Y - H:i');
   max = strlen(format);
   date = '';
-  for i in range(0, max):
+  for i in range(max):
     c = format[i];
     if (strpos('AaDlM', c) != False):
       date += t(gmdate(c, timestamp), {}, langcode);
@@ -1140,8 +1142,7 @@ def url(path = None, options = {}):
 def drupal_attributes(attributes = {}):
   if (is_array(attributes)):
     t = '';
-    for key in attributes:
-      value = attributes[key];
+    for key,value in attributes.items():
       t += ' %s=%s' % (key, check_plain(value));
     return t;
 
@@ -1241,14 +1242,12 @@ def drupal_page_footer():
 def drupal_map_assoc(_array, function = None):
   if (function != None):
     result = {};
-    for key in _array:
-      value = _array[key];
+    for key,value in _array.items():
       result[value] = value;
     return result;
   elif (function_exists(function)):
     result = {};
-    for key in _array:
-      value = _array[key];
+    for key,value in _array.items():
       result[value] = function(value);
     return result;
 
@@ -1431,19 +1430,16 @@ def drupal_get_css(css = None):
   # flush, forcing browsers to load a new copy of the files, as the
   # URL changed.
   query_string = '?' + substr(variable_get('css_js_query_string', '0'), 0, 1);
-  for media in css:
-    types = css[media];
+  for media,types in css.items():
     # If CSS preprocessing is off, we still need to output the styles.
     # Additionally, go through any remaining styles if CSS preprocessing is on and output the non-cached ones.
-    for _type in types:
-      files = types[_type];
+    for _type,files in types.items():
       if (_type == 'module'):
         # Setup theme overrides for module styles.
         theme_styles = [];
         for theme_style in array_keys(css[media]['theme']):
           theme_styles.append( basename(theme_style) );
-      for _file in types[_type]:
-        preprocess = types[_type][_file];
+      for _file,preprocess in types[_type].items():
         # If the theme supplies its own style using the name of the module style, skip its inclusion.
         # This includes any RTL styles associated with its main LTR counterpart.
         if (_type == 'module' and in_array(str_replace('-rtl.css', '.css', basename(file)), theme_styles)):
@@ -1486,8 +1482,7 @@ def drupal_build_css_cache(types, filename):
   if (not file_exists(csspath + '/' + filename)):
     # Build aggregate CSS file.
     for _type in types:
-      for _file in _type:
-        cache = _type[_file];
+      for _file,cache in _type.items():
         if (not empty(cache)):
           contents = drupal_load_stylesheet(_file, True);
           # Return the path to where this CSS file originated from.
@@ -1498,9 +1493,10 @@ def drupal_build_css_cache(types, filename):
     # Per the W3C specification at http://www.w3.org/TR/REC-CSS2/cascade.html#at-import,
     # @import rules must proceed any other style, so we move those to the top.
     regexp = '/@import[^;]+;/i';
+    matches = DrupyHelper.Reference()
     preg_match_all(regexp, data, matches);
     data = preg_replace(regexp, '', data);
-    data = implode('', matches[0]) . data;
+    data = implode('', matches.val[0]) . data;
     # Create the CSS file.
     file_save_data(data, csspath + '/' + filename, FILE_EXISTS_REPLACE);
   return csspath + '/' + filename;
@@ -1735,22 +1731,20 @@ def drupal_get_js(scope = 'header', javascript = None):
   # get time() as query-string instead, to enforce reload on every
   # page request.
   query_string = '?' + substr(variable_get('css_js_query_string', '0'), 0, 1);
-  for _type in javascript:
-    data = javascript[_type];
+  for _type,data in javascript.items():
     if (empty(data)):
       continue;
     if _type == 'setting':
       output += '<script type="text/javascript">jQuery.extend(Drupal.settings, ' + drupal_to_js(call_user_func_array('array_merge_recursive', data)) + ");</script>\n";
     elif _type == 'inline':
-      for info in data:
+      for _infoKey,info in data.items():
         output += '<script type="text/javascript"' + (' defer="defer"' if info['defer'] else '') + '>' + info['code'] + "</script>\n";
     else:
       # If JS preprocessing is off, we still need to output the scripts.
       # Additionally, go through any remaining scripts if JS preprocessing is on and output the non-cached ones.
-      for path in data:
-        info = data[path];
+      for path,info in data.items():
         if (not info['preprocess'] or not _is_writable or not preprocess_js):
-          no_preprocess[type] += '<script type="text/javascript"' + (' defer="defer"' if info['defer'] else '') + ' src="' + base_path() + path + (query_string if info['cache'] else '?' + do_time()) + "\"></script>\n";
+          no_preprocess[type] += '<script type="text/javascript"' + (' defer="defer"' if info['defer'] else '') + ' src="' + base_path() + path + (query_string if info['cache'] else '?' + drupy_time()) + "\"></script>\n";
         else:
           files[path] = info;
   # Aggregate any remaining JS files that haven't already been output.
@@ -1909,8 +1903,7 @@ def drupal_build_js_cache(files, filename):
   file_check_directory(jspath, FILE_CREATE_DIRECTORY);
   if (not file_exists(jspath + '/' + filename)):
     # Build aggregate JS file.
-    for path in files:
-      info = files[path];
+    for path,info in files.items():
       if (not empty(info['preprocess'])):
         # Append a ';' after each JS file to prevent them from running together.
         contents += file_get_contents(path) + ';';
@@ -2145,7 +2138,7 @@ def drupal_cron_run():
   # Fetch the cron semaphore
   semaphore = variable_get('cron_semaphore', False);
   if (semaphore):
-    if (do_time() - semaphore > 3600):
+    if (drupy_time() - semaphore > 3600):
       # Either cron has been running for more than an hour or the semaphore
       # was not reset due to a database error.
       watchdog('cron', 'Cron has been running for more than an hour and is most likely stuck.', {}, WATCHDOG_ERROR);
@@ -2158,11 +2151,11 @@ def drupal_cron_run():
     # Register shutdown callback
     register_shutdown_function('drupal_cron_cleanup');
     # Lock cron semaphore
-    variable_set('cron_semaphore', do_time());
+    variable_set('cron_semaphore', drupy_time());
     # Iterate through the modules calling their cron handlers (if any):
     module_invoke_all('cron');
     # Record cron time
-    variable_set('cron_last', do_time());
+    variable_set('cron_last', drupy_time());
     watchdog('cron', 'Cron run completed.', [], WATCHDOG_NOTICE);
     # Release cron semaphore
     variable_del('cron_semaphore');
@@ -2254,7 +2247,7 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
 #   hook_type_alter functions.
 #
 def drupal_alter(type, data, *_additional_args):
-  Reference.check(data);
+  DrupyHelper.Reference.check(data);
   # PHP's func_get_args() always returns copies of params, not references, so
   # drupal_alter() can only manipulate data that comes in via the required first
   # param. For the edge case functions that must pass in an arbitrary number of
@@ -2298,7 +2291,7 @@ def drupal_alter(type, data, *_additional_args):
 #   The rendered HTML.
 #
 def drupal_render(elements):
-  Reference.check(elements);
+  DrupyHelper.Reference.check(elements);
   if (elements.val == None or (isset(elements.val, '#access') and not elements.val['#access'])):
     return None;
   # If the default values for this element haven't been loaded yet, populate
@@ -2410,202 +2403,205 @@ def element_children(element):
 #
 # Provide theme registration for themes across .inc files.
 #
-def drupal_common_theme() {
-  return array(
+def drupal_common_theme():
+  return {
     # theme.inc
-    'placeholder' : array(
-      'arguments' : array('text' : None)
-    ),
-    'page' : array(
-      'arguments' : array('content' : None, 'show_blocks' : True, 'show_messages' : True),
+    'placeholder' : {
+      'arguments' : {'text' : None}
+    },
+    'page' : {
+      'arguments' : {'content' : None, 'show_blocks' : True, 'show_messages' : True},
       'template' : 'page',
-    ),
-    'maintenance_page' : array(
-      'arguments' : array('content' : None, 'show_blocks' : True, 'show_messages' : True),
+    },
+    'maintenance_page' : {
+      'arguments' : {'content' : None, 'show_blocks' : True, 'show_messages' : True},
       'template' : 'maintenance-page',
-    ),
-    'update_page' : array(
-      'arguments' : array('content' : None, 'show_messages' : True),
-    ),
-    'install_page' : array(
-      'arguments' : array('content' : None),
-    ),
-    'task_list' : array(
-      'arguments' : array('items' : None, 'active' : None),
-    ),
-    'status_messages' : array(
-      'arguments' : array('display' : None),
-    ),
-    'links' : array(
-      'arguments' : array('links' : None, 'attributes' : array('class' : 'links')),
-    ),
-    'image' : array(
-      'arguments' : array('path' : None, 'alt' : '', 'title' : '', 'attributes' : None, 'getsize' : True),
-    ),
-    'breadcrumb' : array(
-      'arguments' : array('breadcrumb' : None),
-    ),
-    'help' : array(
-      'arguments' : array(),
-    ),
-    'submenu' : array(
-      'arguments' : array('links' : None),
-    ),
-    'table' : array(
-      'arguments' : array('header' : None, 'rows' : None, 'attributes' : array(), 'caption' : None),
-    ),
-    'table_select_header_cell' : array(
-      'arguments' : array(),
-    ),
-    'tablesort_indicator' : array(
-      'arguments' : array('style' : None),
-    ),
-    'box' : array(
-      'arguments' : array('title' : None, 'content' : None, 'region' : 'main'),
+    },
+    'update_page' : {
+      'arguments' : {'content' : None, 'show_messages' : True}
+    },
+    'install_page' : {
+      'arguments' : {'content' : None}
+    },
+    'task_list' : {
+      'arguments' : {'items' : None, 'active' : None}
+    },
+    'status_messages' : {
+      'arguments' : {'display' : None}
+    },
+    'links' : {
+      'arguments' : {'links' : None, 'attributes' : {'class' : 'links'}}
+    },
+    'image' : {
+      'arguments' : {'path' : None, 'alt' : '', 'title' : '', 'attributes' : None, 'getsize' : True}
+    },
+    'breadcrumb' : {
+      'arguments' : {'breadcrumb' : None}
+    },
+    'help' : {
+      'arguments' : {}
+    },
+    'submenu' : {
+      'arguments' : {'links' : None}
+    },
+    'table' : {
+      'arguments' : {'header' : None, 'rows' : None, 'attributes' : {}, 'caption' : None}
+    },
+    'table_select_header_cell' : {
+      'arguments' : {}
+    },
+    'tablesort_indicator' : {
+      'arguments' : {'style' : None}
+    },
+    'box' : {
+      'arguments' : {'title' : None, 'content' : None, 'region' : 'main'},
       'template' : 'box',
-    ),
-    'block' : array(
-      'arguments' : array('block' : None),
+    },
+    'block' : {
+      'arguments' : {'block' : None},
       'template' : 'block',
-    ),
-    'mark' : array(
-      'arguments' : array('type' : MARK_NEW),
-    ),
-    'item_list' : array(
-      'arguments' : array('items' : array(), 'title' : None, 'type' : 'ul', 'attributes' : None),
-    ),
-    'more_help_link' : array(
-      'arguments' : array('url' : None),
-    ),
-    'xml_icon' : array(
-      'arguments' : array('url' : None),
-    ),
-    'feed_icon' : array(
-      'arguments' : array('url' : None, 'title' : None),
-    ),
-    'more_link' : array(
-      'arguments' : array('url' : None, 'title' : None)
-    ),
-    'closure' : array(
-      'arguments' : array('main' : 0),
-    ),
-    'blocks' : array(
-      'arguments' : array('region' : None),
-    ),
-    'username' : array(
-      'arguments' : array('object' : None),
-    ),
-    'progress_bar' : array(
-      'arguments' : array('percent' : None, 'message' : None),
-    ),
-    'indentation' : array(
-      'arguments' : array('size' : 1),
-    ),
+    },
+    'mark' : {
+      'arguments' : {'type' : MARK_NEW}
+    },
+    'item_list' : {
+      'arguments' : {'items' : {}, 'title' : None, 'type' : 'ul', 'attributes' : None}
+    },
+    'more_help_link' : {
+      'arguments' : {'url' : None}
+    },
+    'xml_icon' : {
+      'arguments' : {'url' : None}
+    },
+    'feed_icon' : {
+      'arguments' : {'url' : None, 'title' : None}
+    },
+    'more_link' : {
+      'arguments' : {'url' : None, 'title' : None}
+    },
+    'closure' : {
+      'arguments' : {'main' : 0}
+    },
+    'blocks' : {
+      'arguments' : {'region' : None}
+    },
+    'username' : {
+      'arguments' : {'object' : None}
+    },
+    'progress_bar' : {
+      'arguments' : {'percent' : None, 'message' : None}
+    },
+    'indentation' : {
+      'arguments' : {'size' : 1}
+    },
     # from pager.inc
-    'pager' : array(
-      'arguments' : array('tags' : array(), 'limit' : 10, 'element' : 0, 'parameters' : array()),
-    ),
-    'pager_first' : array(
-      'arguments' : array('text' : None, 'limit' : None, 'element' : 0, 'parameters' : array()),
-    ),
-    'pager_previous' : array(
-      'arguments' : array('text' : None, 'limit' : None, 'element' : 0, 'interval' : 1, 'parameters' : array()),
-    ),
-    'pager_next' : array(
-      'arguments' : array('text' : None, 'limit' : None, 'element' : 0, 'interval' : 1, 'parameters' : array()),
-    ),
-    'pager_last' : array(
-      'arguments' : array('text' : None, 'limit' : None, 'element' : 0, 'parameters' : array()),
-    ),
-    'pager_link' : array(
-      'arguments' : array('text' : None, 'page_new' : None, 'element' : None, 'parameters' : array(), 'attributes' : array()),
-    ),
+    'pager' : {
+      'arguments' : {'tags' : {}, 'limit' : 10, 'element' : 0, 'parameters' : {}}
+    },
+    'pager_first' : {
+      'arguments' : {'text' : None, 'limit' : None, 'element' : 0, 'parameters' : {}}
+    },
+    'pager_previous' : {
+      'arguments' : {'text' : None, 'limit' : None, 'element' : 0, 'interval' : 1, 'parameters' : {}}
+    },
+    'pager_next' : {
+      'arguments' : {'text' : None, 'limit' : None, 'element' : 0, 'interval' : 1, 'parameters' : {}}
+    },
+    'pager_last' : {
+      'arguments' : {'text' : None, 'limit' : None, 'element' : 0, 'parameters' : {}}
+    },
+    'pager_link' : {
+      'arguments' : {'text' : None, 'page_new' : None, 'element' : None, 'parameters' : {}, 'attributes' : {}}
+    },
     # from locale.inc
-    'locale_admin_manage_screen' : array(
-      'arguments' : array('form' : None),
-    ),
+    'locale_admin_manage_screen' : {
+      'arguments' : {'form' : None}
+    },
     # from menu.inc
-    'menu_item_link' : array(
-      'arguments' : array('item' : None),
-    ),
-    'menu_tree' : array(
-      'arguments' : array('tree' : None),
-    ),
-    'menu_item' : array(
-      'arguments' : array('link' : None, 'has_children' : None, 'menu' : ''),
-    ),
-    'menu_local_task' : array(
-      'arguments' : array('link' : None, 'active' : False),
-    ),
-    'menu_local_tasks' : array(
-      'arguments' : array(),
-    ),
+    'menu_item_link' : {
+      'arguments' : {'item' : None}
+    },
+    'menu_tree' : {
+      'arguments' : {'tree' : None}
+    },
+    'menu_item' : {
+      'arguments' : {'link' : None, 'has_children' : None, 'menu' : ''}
+    },
+    'menu_local_task' : {
+      'arguments' : {'link' : None, 'active' : False}
+    },
+    'menu_local_tasks' : {
+      'arguments' : {}
+    },
     # from form.inc
-    'select' : array(
-      'arguments' : array('element' : None),
-    ),
-    'fieldset' : array(
-      'arguments' : array('element' : None),
-    ),
-    'radio' : array(
-      'arguments' : array('element' : None),
-    ),
-    'radios' : array(
-      'arguments' : array('element' : None),
-    ),
-    'password_confirm' : array(
-      'arguments' : array('element' : None),
-    ),
-    'date' : array(
-      'arguments' : array('element' : None),
-    ),
-    'item' : array(
-      'arguments' : array('element' : None),
-    ),
-    'checkbox' : array(
-      'arguments' : array('element' : None),
-    ),
-    'checkboxes' : array(
-      'arguments' : array('element' : None),
-    ),
-    'submit' : array(
-      'arguments' : array('element' : None),
-    ),
-    'button' : array(
-      'arguments' : array('element' : None),
-    ),
-    'image_button' : array(
-      'arguments' : array('element' : None),
-    ),
-    'hidden' : array(
-      'arguments' : array('element' : None),
-    ),
-    'token' : array(
-      'arguments' : array('element' : None),
-    ),
-    'textfield' : array(
-      'arguments' : array('element' : None),
-    ),
-    'form' : array(
-      'arguments' : array('element' : None),
-    ),
-    'textarea' : array(
-      'arguments' : array('element' : None),
-    ),
-    'markup' : array(
-      'arguments' : array('element' : None),
-    ),
-    'password' : array(
-      'arguments' : array('element' : None),
-    ),
-    'file' : array(
-      'arguments' : array('element' : None),
-    ),
-    'form_element' : array(
-      'arguments' : array('element' : None, 'value' : None),
-    ),
-  );
-}
+    'select' : {
+      'arguments' : {'element' : None}
+    },
+    'fieldset' : {
+      'arguments' : {'element' : None}
+    },
+    'radio' : {
+      'arguments' : {'element' : None}
+    },
+    'radios' : {
+      'arguments' : {'element' : None}
+    },
+    'password_confirm' : {
+      'arguments' : {'element' : None}
+    },
+    'date' : {
+      'arguments' : {'element' : None}
+    },
+    'item' : {
+      'arguments' : {'element' : None}
+    },
+    'checkbox' : {
+      'arguments' : {'element' : None}
+    },
+    'checkboxes' : {
+      'arguments' : {'element' : None}
+    },
+    'submit' : {
+      'arguments' : {'element' : None}
+    },
+    'button' : {
+      'arguments' : {'element' : None}
+    },
+    'image_button' : {
+      'arguments' : {'element' : None}
+    },
+    'hidden' : {
+      'arguments' : {'element' : None}
+    },
+    'token' : {
+      'arguments' : {'element' : None}
+    },
+    'textfield' : {
+      'arguments' : {'element' : None}
+    },
+    'form' : {
+      'arguments' : {'element' : None}
+    },
+    'textarea' : {
+      'arguments' : {'element' : None}
+    },
+    'markup' : {
+      'arguments' : {'element' : None}
+    },
+    'password' : {
+      'arguments' : {'element' : None}
+    },
+    'file' : {
+      'arguments' : {'element' : None}
+    },
+    'form_element' : {
+      'arguments' : {'element' : None, 'value' : None}
+    },
+  };
+
+
+
+
 #
 # @ingroup schemaapi
 # @{
@@ -2621,42 +2617,34 @@ def drupal_common_theme() {
 # @param rebuild
 #   If true, the schema will be rebuilt instead of retrieved from the cache.
 #
-def drupal_get_schema(table = None, rebuild = False) {
-  static schema = array();
-
-  if (empty(schema) or rebuild) {
+def drupal_get_schema(table = None, rebuild = False):
+  global static_drupalgetschema_schema;
+  if (static_drupalgetschema_schema == None or rebuild):
     # Try to load the schema from cache.
-    if (!rebuild and cached = cache_get('schema')) {
-      schema = cached.data;
-    }
+    cached = cache_get('schema')
+    if (not rebuild and cached):
+      static_drupalgetschema_schema = cached.data;
     # Otherwise, rebuild the schema cache.
-    else {
-      schema = array();
+    else:
+      static_drupalgetschema_schema = [];
       # Load the .install files to get hook_schema.
       module_load_all_includes('install');
-
       # Invoke hook_schema for all modules.
-      foreach (module_implements('schema') as module) {
+      for module in module_implements('schema'):
         current = module_invoke(module, 'schema');
         _drupal_initialize_schema(module, current);
-        schema = array_merge(schema, current);
-      }
-
-      drupal_alter('schema', schema);
-      cache_set('schema', schema);
-    }
-  }
-
-  if (!isset(table)) {
-    return schema;
-  }
-  elseif (isset(schema[table])) {
-    return schema[table];
-  }
-  else {
+        schema = array_merge(static_drupalgetschema_schema, current);
+      drupal_alter('schema', static_drupalgetschema_schema);
+      cache_set('schema', static_drupalgetschema_schema);
+  if (not isset(table)):
+    return static_drupalgetschema_schema;
+  elif (isset(static_drupalgetschema_schema, table)):
+    return static_drupalgetschema_schema[table];
+  else:
     return False;
-  }
-}
+
+
+
 #
 # Create all tables that a module defines in its hook_schema().
 #
@@ -2671,16 +2659,16 @@ def drupal_get_schema(table = None, rebuild = False) {
 #      success: a boolean indicating whether the query succeeded
 #      query: the SQL query(s) executed, passed through check_plain()
 #
-def drupal_install_schema(module) {
+def drupal_install_schema(module):
   schema = drupal_get_schema_unprocessed(module);
   _drupal_initialize_schema(module, schema);
-
   ret = array();
-  foreach (schema as name : table) {
+  for name,table in schema.items():
     db_create_table(ret, name, table);
-  }
   return ret;
-}
+
+
+
 #
 # Remove all tables that a module defines in its hook_schema().
 #
@@ -2695,16 +2683,16 @@ def drupal_install_schema(module) {
 #      success: a boolean indicating whether the query succeeded
 #      query: the SQL query(s) executed, passed through check_plain()
 #
-def drupal_uninstall_schema(module) {
+def drupal_uninstall_schema(module):
   schema = drupal_get_schema_unprocessed(module);
   _drupal_initialize_schema(module, schema);
-
-  ret = array();
-  foreach (schema as table) {
+  ret = [];
+  for table in schema:
     db_drop_table(ret, table['name']);
-  }
   return ret;
-}
+
+
+
 #
 # Returns the unprocessed and unaltered version of a module's schema.
 #
@@ -2729,38 +2717,39 @@ def drupal_uninstall_schema(module) {
 #   The name of the table. If not given, the module's complete schema
 #   is returned.
 #
-def drupal_get_schema_unprocessed(module, table = None) {
+def drupal_get_schema_unprocessed(module, table = None):
   # Load the .install file to get hook_schema.
   module_load_include('install', module);
   schema = module_invoke(module, 'schema');
-
-  if (!is_null(table) and isset(schema[table])) {
+  if (not is_null(table) and isset(schema, table)):
     return schema[table];
-  }
-  else {
+  else:
     return schema;
-  }
-}
+
+
+
 #
 # Fill in required default values for table definitions returned by hook_schema().
 #
 # @param module
 #   The module for which hook_schema() was invoked.
-# @param schema
+# @param &schema
 #   The schema definition array as it was returned by the module's
 #   hook_schema().
 #
-def _drupal_initialize_schema(module, &schema) {
+# Drupy(BC): schema is a reference
+
+def _drupal_initialize_schema(module, schema):
+  DrupyHelper.Reference.check(schema);
   # Set the name and module key for all tables.
-  foreach (schema as name : table) {
-    if (empty(table['module'])) {
-      schema[name]['module'] = module;
-    }
-    if (!isset(table['name'])) {
-      schema[name]['name'] = name;
-    }
-  }
-}
+  for name,table in schema.val.items():
+    if (empty(table['module'])):
+      schema.val[name]['module'] = module;
+    if (not isset(table, 'name')):
+      schema.val[name]['name'] = name;
+
+
+
 #
 # Retrieve a list of fields from a table schema. The list is suitable for use in a SQL query.
 #
@@ -2771,20 +2760,19 @@ def _drupal_initialize_schema(module, &schema) {
 #
 # @return An array of fields.
 #*/
-def drupal_schema_fields_sql(table, prefix = None) {
+def drupal_schema_fields_sql(table, prefix = None):
   schema = drupal_get_schema(table);
   fields = array_keys(schema['fields']);
-  if (prefix) {
-    columns = array();
-    foreach (fields as field) {
-      columns[] = "%(prefix)s.field";
-    }
+  if (prefix != None):
+    columns = [];
+    for field in fields:
+      columns.append( "%(prefix)s.field" % {'prefix':prefix} );
     return columns;
-  }
-  else {
+  else:
     return fields;
-  }
-}
+
+
+
 #
 # Save a record to the database based upon the schema.
 #
@@ -2793,7 +2781,7 @@ def drupal_schema_fields_sql(table, prefix = None) {
 #
 # @param table
 #   The name of the table; this must exist in schema API.
-# @param object
+# @param &object
 #   The object to write. This is a reference, as defaults according to
 #   the schema may be filled in on the object, as well as ID on the serial
 #   type(s). Both array an object types may be passed.
@@ -2808,117 +2796,82 @@ def drupal_schema_fields_sql(table, prefix = None) {
 #   the table. For example, object.nid will be populated after inserting
 #   a new node.
 #
-def drupal_write_record(table, &object, update = array()) {
+#
+def drupal_write_record(table, _object, update = []):
+  DrupyHelper.Reference.check(_object);
   # Standardize update to an array.
-  if (is_string(update)) {
-    update = array(update);
-  }
-
+  if (is_string(update)):
+    update = [update];
   # Convert to an object if needed.
-  if (is_array(object)) {
-    object = (object) object;
-    array = True;
-  }
-  else {
-    array = False;
-  }
-
+  if (is_array(_object.val)):
+    _object.val = drupy_object(_object.val);
+    _array = True;
+  else:
+    _array = False;
   schema = drupal_get_schema(table);
-  if (empty(schema)) {
+  if (empty(schema)):
     return False;
-  }
-
-  fields = defs = values = serials = placeholders = array();
-
+  fields = defs = values = serials = placeholders = [];
   # Go through our schema, build SQL, and when inserting, fill in defaults for
   # fields that are not set.
-  foreach (schema['fields'] as field : info) {
+  for field,info in schema['fields'].items():
     # Special case -- skip serial types if we are updating.
-    if (info['type'] == 'serial' and count(update)) {
+    if (info['type'] == 'serial' and count(update)):
       continue;
-    }
-
     # For inserts, populate defaults from Schema if not already provided
-    if (!isset(object.field) and !count(update) and isset(info['default'])) {
-      object.field = info['default'];
-    }
-
+    if (not isset(_object.val, field) and not count(update) and isset(info, 'default')):
+      setattr(_object.val, field, info['default']);
     # Track serial fields so we can helpfully populate them after the query.
-    if (info['type'] == 'serial') {
-      serials[] = field;
+    if (info['type'] == 'serial'):
+      serials.append( field );
       # Ignore values for serials when inserting data. Unsupported.
-      unset(object.field);
-    }
-
+      delattr(_object.val, field);
     # Build arrays for the fields, placeholders, and values in our query.
-    if (isset(object.field)) {
-      fields[] = field;
-      placeholders[] = db_type_placeholder(info['type']);
-
-      if (empty(info['serialize'])) {
-        values[] = object.field;
-      }
-      elseif (!empty(object.field)) {
-        values[] = serialize(object.field);
-      }
-      else {
-        values[] = '';
-      }
-    }
-  }
-
-  if (empty(fields)) {
+    if (isset(_object.val, field)):
+      fields.append( field );
+      placeholders.append( db_type_placeholder(info['type']) );
+      if (empty(info['serialize'])):
+        values.append( getattr( _object.val, field ) );
+      elif (not empty(getattr( _object.val, field ))):
+        values.append( serialize( getattr(_object.val, field) ) );
+      else:
+        values.append( '' );
+  if (empty(fields)):
     # No changes requested.
     # If we began with an array, convert back so we don't surprise the caller.
-    if (array) {
-      object = (array)object;
-    }
+    if (_array):
+      _object.val = drupy_array(_object.val);
     return;
-  }
-
   # Build the SQL.
   query = '';
-  if (!count(update)) {
-    query = "INSERT INTO {". %(table)s ."} (". implode(', ', %(fields)s) .') VALUES ('. implode(', ', %(placeholders)s) .')';
-    return = SAVED_NEW;
-  }
-  else {
+  if (count(update) == 0):
+    query = "INSERT INTO {" + table + "} (" + implode(', ', fields) + ') VALUES (' + implode(', ', placeholders) + ')';
+    _return = SAVED_NEW;
+  else:
     query = '';
-    foreach (fields as id : field) {
-      if (query) {
+    for id,field in fields.items():
+      if (not empty(query)):
         query += ', ';
-      }
-      query += field .' = '. placeholders[id];
-    }
-
-    foreach (update as key){
-      conditions[] = "%(key)s = ". db_type_placeholder(schema['fields'][%(key)s]['type']);
-      values[] = object.key;
-    }
-
-    query = "UPDATE {". %(table)s ."} SET query WHERE ". implode(' AND ', conditions);
-    return = SAVED_UPDATED;
-  }
-
+      query += field + ' = ' + placeholders[id];
+    for key in update:
+      conditions.append( key + " = " + db_type_placeholder(schema['fields'][key]['type']) );
+      values.append( _object.val.key );
+    query = "UPDATE {" + table + "} SET query WHERE " + implode(' AND ', conditions);
+    _return = SAVED_UPDATED;
   # Execute the SQL.
-  if (db_query(query, values)) {
-    if (serials) {
+  if (db_query(query, values)):
+    if (not empty(serials)):
       # Get last insert ids and fill them in.
-      foreach (serials as field) {
-        object.field = db_last_insert_id(table, field);
-      }
-    }
-
+      for field in serials:
+        setattr( object.val, field, db_last_insert_id(table, field) );
     # If we began with an array, convert back so we don't surprise the caller.
-    if (array) {
-      object = (array) object;
-    }
-
-    return return;
-  }
-
+    if (not empty(_array)):
+      _object.val = drupy_array(_object.val);
+    return _return;
   return False;
-}
+
+
+
 #
 # @} End of "ingroup schemaapi".
 #
@@ -2981,74 +2934,19 @@ def drupal_write_record(table, &object, update = array()) {
 # @return
 #   The info array.
 #
-def drupal_parse_info_file(filename) {
-  info = array();
+def drupal_parse_info_file(filename):
+  return DrupyHelper.get_import(filename).__all__;
 
-  if (!file_exists(filename)) {
-    return info;
-  }
 
-  data = file_get_contents(filename);
-  if (preg_match_all('
-    @^\s*                           # Start at the beginning of a line, ignoring leading whitespace
-    ((?:
-      [^=;\[\]]|                    # Key names cannot contain equal signs, semi-colons or square brackets,
-      \[[^\[\]]*\]                  # unless they are balanced and not nested
-    )+?)
-    \s*=\s*                         # Key/value pairs are separated by equal signs (ignoring white-space)
-    (?:
-      ("(?:[^"]|(?<=\\\\)")*")|     # Double-quoted string, which may contain slash-escaped quotes/slashes
-      (\'(?:[^\']|(?<=\\\\)\')*\')| # Single-quoted string, which may contain slash-escaped quotes/slashes
-      ([^\r\n]*?)                   # Non-quoted string
-    )\s*$                           # Stop at the next end of a line, ignoring trailing whitespace
-    @msx', data, matches, PREG_SET_ORDER)) {
-    foreach (matches as match) {
-      # Fetch the key and value string
-      i = 0;
-      foreach (array('key', 'value1', 'value2', 'value3') as var) {
-        $var = isset(match[++i]) ? match[i] : '';
-      }
-      value = stripslashes(substr(value1, 1, -1)) . stripslashes(substr(value2, 1, -1)) . value3;
 
-      # Parse array syntax
-      keys = preg_split('/\]?\[/', rtrim(%(key)s, ']'));
-      last = array_pop(keys);
-      parent = &info;
-
-      # Create nested arrays
-      foreach (keys as key) {
-        if (key == '') {
-          key = count(parent);
-        }
-        if (!isset(parent[key]) or !is_array(parent[key])) {
-          parent[key] = array();
-        }
-        parent = &parent[key];
-      }
-
-      # Handle PHP constants
-      if (defined(value)) {
-        value = constant(value);
-      }
-
-      # Insert actual value
-      if (last == '') {
-        last = count(parent);
-      }
-      parent[last] = value;
-    }
-  }
-
-  return info;
-}
 #
 # @return
 #   Array of the possible severity levels for log messages.
 #
 # @see watchdog
 #
-def watchdog_severity_levels() {
-  return array(
+def watchdog_severity_levels():
+  return {
     WATCHDOG_EMERG    : t('emergency'),
     WATCHDOG_ALERT    : t('alert'),
     WATCHDOG_CRITICAL : t('critical'),
@@ -3056,57 +2954,56 @@ def watchdog_severity_levels() {
     WATCHDOG_WARNING  : t('warning'),
     WATCHDOG_NOTICE   : t('notice'),
     WATCHDOG_INFO     : t('info'),
-    WATCHDOG_DEBUG    : t('debug'),
-  );
-}
+    WATCHDOG_DEBUG    : t('debug')
+  };
+
+
+
 #
 # Explode a string of given tags into an array.
 #
-def drupal_explode_tags(tags) {
+def drupal_explode_tags(tags):
   # This regexp allows the following types of user input:
   # this, "somecompany, llc", "and ""this"" w,o.rks", foo bar
   regexp = '%(?:^|,\ *)("(?>[^"]*)(?>""[^"]* )*"|(?: [^",]*))%x';
+  matches = DrupyHelper.Reference()
   preg_match_all(regexp, tags, matches);
-  typed_tags = array_unique(matches[1]);
-
-  tags = array();
-  foreach (typed_tags as tag) {
+  typed_tags = array_unique(matches.val[1]);
+  tags = [];
+  for tag in typed_tags:
     # If a user has escaped a term (to demonstrate that it is a group,
     # or includes a comma or quote character), we remove the escape
     # formatting so to save the term into the database as the user intends.
     tag = trim(str_replace('""', '"', preg_replace('/^"(.*)"$/', '\1', tag)));
-    if (tag != "") {
-      tags[] = tag;
-    }
-  }
-
+    if (tag != ""):
+      tags.append( tag );
   return tags;
-}
+
+
+
 #
 # Implode an array of tags into a string.
 #
-def drupal_implode_tags(tags) {
-  encoded_tags = array();
-  foreach (tags as tag) {
+def drupal_implode_tags(tags):
+  encoded_tags = [];
+  for tag in tags:
     # Commas and quotes in tag names are special cases, so encode them.
-    if (strpos(tag, ',') !== False or strpos(%(tag)s, '"') !== False) {
-      tag = '"'. str_replace('"', '""', %(tag)s) .'"';
-    }
-
-    encoded_tags[] = tag;
-  }
+    if (strpos(tag, ',') != False or strpos(tag, '"') != False):
+      tag = '"' + str_replace('"', '""', tag) + '"';
+    encoded_tags.append( tag );
   return implode(', ', encoded_tags);
-}
+
+
+
 #
 # Flush all cached data on the site.
 #
 # Empties cache tables, rebuilds the menu cache and theme registries, and
 # exposes a hook for other modules to clear their own cache data as well.
 #
-def drupal_flush_all_caches() {
+def drupal_flush_all_caches():
   # Change query-strings on css/js files to enforce reload for all users.
   _drupal_flush_css_js();
-
   drupal_clear_css_cache();
   drupal_clear_js_cache();
   drupal_rebuild_theme_registry();
@@ -3114,12 +3011,13 @@ def drupal_flush_all_caches() {
   node_types_rebuild();
   # Don't clear cache_form - in-progress form submissions may break.
   # Ordered so clearing the page cache will always be the last action.
-  core = array('cache', 'cache_block', 'cache_filter', 'cache_page');
+  core = ['cache', 'cache_block', 'cache_filter', 'cache_page'];
   cache_tables = array_merge(module_invoke_all('flush_caches'), core);
-  foreach (cache_tables as table) {
+  for table in cache_tables:
     cache_clear_all('*', table, True);
-  }
-}
+
+
+
 #
 # Helper function to change query-strings on css/js files.
 #
@@ -3129,12 +3027,12 @@ def drupal_flush_all_caches() {
 # (newest) character is actually used on urls, to keep them short.
 # This is also called from update.php.
 #
-def _drupal_flush_css_js() {
+def _drupal_flush_css_js():
   string_history = variable_get('css_js_query_string', '00000000000000000000');
   new_character = string_history[0];
   characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  while (strpos(string_history, new_character) !== False) {
+  while (strpos(string_history, new_character) != False):
     new_character = characters[mt_rand(0, strlen(characters) - 1)];
-  }
-  variable_set('css_js_query_string', new_character . substr(string_history, 0, 19));
-}
+  variable_set('css_js_query_string', new_character + substr(string_history, 0, 19));
+
+
