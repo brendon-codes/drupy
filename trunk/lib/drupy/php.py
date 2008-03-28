@@ -29,11 +29,12 @@ import htmlentitydefs
 import cgi
 import cgitb; cgitb.enable()
 import urllib
+import DrupyHelper
 
 #
 # Drupy helpers
 #
-global DRUPY_OUT; DRUPY_OUT = []
+global drupy_buffer; drupy_buffer = []
 
 #
 # PHP Constants
@@ -45,7 +46,7 @@ global E_ALL; E_ALL = 6143
 # Get POST fields
 # @return Dict[Str,List]
 #
-def postFields():
+def __postFields():
   a = {}
   f = cgi.FieldStorage()
   for i in f:
@@ -99,10 +100,10 @@ def uasort(item, func):
 # @return Int
 #
 def ob_start():
-  global DRUPY_OUT
-  DRUY_OUT.append( StringIO.StringIO() )
-  outIndex = len(DRUPY_OUT) - 1
-  sys.stdout = DRUPY_OUT[outIndex]
+  global drupy_buffer
+  drupy_buffer.append( StringIO.StringIO() )
+  outIndex = len(drupy_buffer) - 1
+  sys.stdout = drupy_buffer[outIndex]
   return outIndex
 
 
@@ -111,18 +112,18 @@ def ob_start():
 # @return Str
 #
 def ob_get_clean():
-  global DRUPY_OUT
-  outLen = len(DRUPY_OUT)
+  global drupy_buffer
+  outLen = len(drupy_buffer)
   if outLen < 1:
     return None
   outIndex = outLen - 1
-  data = DRUPY_OUT[outIndex].getValue()  
+  data = drupy_buffer[outIndex].getValue()  
   if outIndex > 0:
-    sys.stdout = DRUPY_OUT[outIndex - 1]
+    sys.stdout = drupy_buffer[outIndex - 1]
   else:
     sys.stdout = sys.__stdout__
-  close(DRUPY_OUT[outIndex])
-  del DRUPY_OUT[outIndex]
+  close(drupy_buffer[outIndex])
+  del drupy_buffer[outIndex]
   return data
   
 
@@ -292,7 +293,7 @@ def isset(obj, val, searchGlobal = False, data = {}):
 # Get time
 # @return Int
 # 
-def do_time():
+def drupy_time():
   return time.time()
 
 
@@ -543,7 +544,7 @@ def parse_url(url):
 # @param Dict dic
 # @return Object
 #
-def do_object(dic):
+def drupy_object(dic):
   out = stdClass()
   for i in dic:
     setattr(out, i, dic[i])
@@ -577,7 +578,7 @@ def array_reverse(items):
 # @return _sre.SRE_Pattern
 #    Regular Expression object
 #
-def preg_setup(pat):
+def __preg_setup(pat):
   delim = pat[0]
   flg = 0
   pat = pat.lstrip(delim)
@@ -615,13 +616,44 @@ def preg_quote(val, delim = None):
 # @return Dict
 # @returnprop List match
 #
-def preg_match(pat, subject, match):
-  is_reference(match)
-  reg = preg_setup(pat)
+def preg_match(pat, subject, match = None):
+  if match != None:
+    DrupyHelper.Reference.check(match)
+  reg = __preg_setup(pat)
   g = list(reg.search(subject).groups())
   g.insert(0, ''.join(g))
-  match.val = g
+  if match != None:
+    match.val = g
   return len(g)
+
+
+
+#
+# Preg Match all
+# @param Str pat
+# @param Str subject
+# @param Reference &matches
+# @return Int
+#
+def preg_match_all(pat, subject, matches = None):
+  if matches != None:
+    DrupyHelper.Reference.check(matches)
+  reg = __preg_setup(pat)
+  g = list( reg.finditer(subject) )
+  if len(g) > 0:
+    out = range(len(g[0].groups()))
+    for i in range(len(out)):
+      out[i] = []
+      for j in g:
+        out[i].append(j.group(i))
+    matches.val = out
+    return len(g)
+  else:
+    out = [[]]
+    matches.val = out
+    return 0
+    
+
 
 
 #
@@ -667,9 +699,9 @@ def str_replace(pat, rep, subject):
         repStr = rep
       else:
         repStr = rep[i]
-      out = str_replace_str(pat[i], repStr, out)
+      out = __str_replace_str(pat[i], repStr, out)
   else:
-    out = str_replace_str(pat, rep, subject)
+    out = __str_replace_str(pat, rep, subject)
   return out
   
 
@@ -680,7 +712,7 @@ def str_replace(pat, rep, subject):
 # @param Str subject
 # @return Str
 #
-def str_replace_str(pat, rep, subject):
+def __str_replace_str(pat, rep, subject):
   return sub.replace(pat, rep)
 
 
@@ -701,9 +733,9 @@ def preg_replace(pat, replace, subject):
         repStr = rep
       else:
         repStr = rep[i]
-      out = preg_replace_str(pat[i], repStr, out)
+      out = __preg_replace_str(pat[i], repStr, out)
   else:
-    out = preg_replace_str(pat, rep, subject)
+    out = __preg_replace_str(pat, rep, subject)
   return out
     
 
@@ -714,7 +746,7 @@ def preg_replace(pat, replace, subject):
 # @param Str subject
 # @return Str
 #
-def preg_replace_str(pat, rep, subject):
+def __preg_replace_str(pat, rep, subject):
   reg = preg_setup(pat)
   return reg.sub(rep, subject)
 
@@ -907,27 +939,6 @@ def array_pop(item):
 #
 class stdClass:
   def __init__(self): pass
-
-
-
-#
-# Reference class
-#
-class Reference:
-  def __init__(self):
-    self.val = None
-  #
-  # Enforces a reference
-  # @param Object data
-  # @raise Exception 
-  # @return Bool
-  #
-  @staticmethod
-  def check(data):
-    if not isinstance(data, __class__) or not hasattr(data, 'val'):
-      raise Exception, "Argument must be an object and must contain a 'val' property."
-    else:
-      return True
         
     
     
@@ -954,7 +965,7 @@ is_writeable = is_writable
 #
 global _SERVER; _SERVER = dict(os.environ)
 global _GET; _GET = cgi.parse()
-global _POST; _POST = postFields()
+global _POST; _POST = __postFields()
 global _REQUEST; _REQUEST = array_merge(_GET, _POST)
 
 

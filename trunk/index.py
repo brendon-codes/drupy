@@ -13,7 +13,7 @@
 # See COPYRIGHT.txt and LICENSE.txt.
 #
 
-execfile('./lib/drupy/php.py', globals());
+execfile('./lib/drupy/DrupyPHP.py', globals());
 execfile('./includes/bootstrap.py', globals());
 
 #

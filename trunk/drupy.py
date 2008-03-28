@@ -4,7 +4,7 @@
 # Test Execution script for drupy
 #
 
-execfile('./lib/drupy/php.py', globals())
+execfile('./lib/drupy/DrupyPHP.py', globals())
 require_once('./includes/bootstrap.py', globals());
 
 phases = [
