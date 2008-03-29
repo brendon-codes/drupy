@@ -88,13 +88,11 @@ def db_prefix_tables(sql):
     if (array_key_exists('default', db_prefix)):
       tmp = db_prefix;
       del(tmp['default']);
-      for key in tmp:
-        val = tmp[tmp];
+      for key,val in tmp.items():
         sql = strtr(sql, {('{' + key + '}') : (val + key)});
       return strtr(sql, {'{' : db_prefix['default'], '}' : ''});
     else:
-      for key in db_prefix:
-        val = db_prefix[key];
+      for key,val in db_prefix.items():
         sql = strtr(sql, {('{' + key + '}') : (val + key)});
       return strtr(sql, {'{' : '', '}' : ''});
   else:

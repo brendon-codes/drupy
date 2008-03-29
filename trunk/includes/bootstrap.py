@@ -430,7 +430,7 @@ def variable_init(_conf = {}):
         break;
       variables[variable.name] = unserialize(variable.value);
     cache_set('variables', variables);
-  for name,value in _conf:
+  for name,value in _conf.items():
     variables[name] = value;
   return variables;
 
@@ -640,7 +640,7 @@ def bootstrap_hooks():
 def drupal_unpack(obj, field = 'data'):
   data = unserialize(obj.field);
   if (obj.field and not empty(data)):
-    for key,value in data:
+    for key,value in data.items():
       if (not isset(obj, key)):
         setattr(obj, key, value);
   return obj;
