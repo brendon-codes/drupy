@@ -904,7 +904,7 @@ def addslashes(val):
 # @param Str val
 # @return Str
 #
-def do_md5(val):
+def drupy_md5(val):
   return hashlib.md5(val).hexdigest()
 
 

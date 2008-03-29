@@ -339,7 +339,7 @@ def conf_init():
   if (count(explode('.', cookie_domain)) > 2 and not is_numeric(str_replace('.', '', cookie_domain))):
     ini_set('session.cookie_domain', cookie_domain);
   #print session_name;
-  session_name('SESS' + do_md5(_session_name));
+  session_name('SESS' + drupy_md5(_session_name));
 
 
 
@@ -584,7 +584,7 @@ def drupal_page_header():
 def drupal_page_cache_header(cache):
   # Set default values:
   last_modified = gmdate('D, d M Y H:i:s', cache.created) + ' GMT';
-  etag = '"' + do_md5(last_modified) + '"';
+  etag = '"' + drupy_md5(last_modified) + '"';
   # See if the client has provided the required HTTP headers:
   if_modified_since =  (stripslashes(_SERVER['HTTP_IF_MODIFIED_SINCE']) \
     if isset(_SERVER, 'HTTP_IF_MODIFIED_SINCE') else False);
@@ -752,7 +752,7 @@ def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, link = N
     'request_uri' : base_root . request_uri(),
     'referer'     : referer_uri(),
     'ip'          : ip_address(),
-    'timestamp'   : do_time(),
+    'timestamp'   : drupy_time(),
   }
   # Call the logging hooks to log/process the message
   for module in module_implements('watchdog', True):
@@ -1048,7 +1048,7 @@ def language_list(field = 'language', reset = False):
 #   Optional property of the language object to return
 #
 def language_default(property = None):
-  theList = do_object({
+  theList = drupy_object({
     'language' : 'en',
     'name' : 'English',
     'native' : 'English',

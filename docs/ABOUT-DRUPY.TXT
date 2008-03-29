@@ -1,0 +1,102 @@
+########################
+
+Drupy: Drupal in Python
+
+########################
+
+In a nutshell, Drupy aims to offer Drupal in Python.
+
+
+
+####################
+
+Primary Objectives
+
+####################
+
+(1) Offer function/class/module level compatibility with Drupal HEAD.
+
+This allows for the following:
+
+ a) Documentation reusability
+ b) Portability of user-contributed Drupal modules
+ c) Possible endorsement from the Drupal project
+ d) Portability of Drupal core enhancements
+ e) Easy transition for current Drupal users
+
+The policy until now has been to make whatever improvements necessary within API functions without modifying the external interfaces to those functions and/or classes.
+
+(2) Improve namespace support
+
+For the first release of Drupy, it will not be practical to completely compartmentalize every component. However, there are certain key areas where namespace support can be drastically improved, such as in Drupal modules. The policy until now has been that core includes will remain in the global namespace but all Drupal modules, both core and non core will remain within their respective namespaces.
+
+(3) Implement security and performance improvements where possible.
+
+Drupal is not necesarily known for security and performance. Of course with any application with the scope and flexibility of Drupal, security and performnce become more difficult to maintain.
+
+Where possible, Drupy seeks to add improvements, but only where it will not drastically break current functionality. Great care needs to be taken to maintain a balance.
+
+(4) Improve theming support
+
+Obviously, Drupy cannot completely mimic the PHPTemplate engine, but the strengths of PHPTemplate can certainly be embraced. Embedding application code such as PHP directly into HTML is far from preferable.
+
+My goal for theming is to take the general principles of PHPTemplate and apply them in the context of a good templating engine such as Mako.
+
+
+##################
+
+Status of Project
+
+##################
+
+I had spent about 5 months in the planning stages for the Drupy project. This involved weighing out many of the difficult choices to be made when porting Drupal. Drupal was in no way written "elegantly", but it does its job quite well. A lot of Drupal lack of elegance comes from the inherent lack of elegance in PHP itself.
+
+Currently, this is what we have:
+
+(1) A robust and well tested PHP function abstraction module for Python. This allows us to use most Drupal function calls without any modification. (Examples: preg_replace, isset, empty, ob_start)
+
+(2) About 8 of the big Drupal core includes working
+
+(3) Bootstrap Stage 3 ALMOST working
+
+(4) Beginning stages of theming support
+
+(5) A solid, well informed, plan of action
+
+Although we have other developers who have just recently shown initial interest in contributing, all of this code so far has been written by me in the last 4 weeks.
+
+
+###################
+
+Call to Action
+
+###################
+
+
+I have approached this project as someone highly experienced with Drupal, but certainly not as an expert in Python. The Drupy project could greatly benefit from more proficient Python programmers.
+
+Unfortunately, I have received many harsh criticisms from more experienced Python developers for my moderate stance on the use of global state, PHP abstraction functions, and various other details.
+
+The truth of the matter is that Drupal is one gigantic global namespace. Compromises will need to be made to get this project finished. Rewriting the entire Drupal codebase for Django or Turbogears is a 2 - 4 year project. I want to see this project running much sooner than that.
+
+So, with that said, I am asking for the assistance of skilled Python developers who are willing to compromise certain (but not all) Pythnoic practices for a short while so we can finally get Drupal in Python. I would love to bring on other core developers who I can learn from and who can help steer the direction of this project.
+
+Of course, this should be an iterative process. Once a working application is built. More elegant solutions can steadily be integrated.
+
+####################
+
+Contact
+
+####################
+
+Website: http://drupy.sourceforge.net
+Sourceforge: http://sourceforge.net/projects/drupy
+IRC: #drupy at freenode
+
+If you want SVN access, please get in touch with me personally.
+
+Thank You
+
+
+
+
