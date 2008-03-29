@@ -77,11 +77,10 @@ def _theme_load_offline_registry(this_theme, base_theme = None, theme_engine = N
 #
 # @ingroup themeable
 #
-def theme_task_list(items, active = None):
+def theme_task_list(_items, active = None):
   done = ((active == None) or (isset(items, active)));
   output = '<ol class="task-list">';
-  for k in items:
-    item = items[k];
+  for k,item in _items.items():
     if (active == k):
       _class = 'active';
       done = false;
