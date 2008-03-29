@@ -1,4 +1,15 @@
-<?php
+##############################
+#
+# THIS FILE IS NOT COMPLETE
+#
+##############################
+
+
+
+
+
+
+
 # Id: theme.inc,v 1.418 2008/03/25 14:10:01 dries Exp $
 #
 # @file
@@ -26,7 +37,7 @@ define('MARK_UPDATED', 2);
 # Initialize the theme system by loading the theme.
 #
 def init_theme() {
-  global theme, user, custom_theme, theme_key;
+  global _theme, user, custom_theme, theme_key;
 
   # If theme is already set, assume the others are set, too, and do nothing
   if (isset(theme)) {

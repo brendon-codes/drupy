@@ -120,7 +120,7 @@ def cache_set(cid, data, table = 'cache', expire = CACHE_PERMANENT, headers = No
 #
 def cache_clear_all(cid = None, table = None, wildcard = False):
   global user;
-  thisTime = do_time();
+  thisTime = drupy_time();
   if (cid == None and table == None):
     # Clear the block cache first, so stale data will
     # not end up in the page cache.
