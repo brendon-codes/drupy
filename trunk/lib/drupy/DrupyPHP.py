@@ -96,6 +96,17 @@ def uasort(item, func):
 
 
 #
+# Call user func
+# @param Function func
+# @param Tuple,List args
+# @return Unknown
+#
+def call_user_func_array(func, args):
+  return (eval(func)(*tuple(args)))
+
+
+
+#
 # Output buffering start
 # @return Int
 #

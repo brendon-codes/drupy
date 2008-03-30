@@ -5,7 +5,7 @@
 #
 
 execfile('./lib/drupy/DrupyPHP.py', globals())
-require_once('./includes/bootstrap.py', globals());
+execfile('./includes/bootstrap.py', globals());
 
 phases = [
   DRUPAL_BOOTSTRAP_CONFIGURATION,
