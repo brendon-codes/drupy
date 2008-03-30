@@ -4,12 +4,6 @@
 #
 ##############################
 
-
-
-
-
-
-
 # Id: theme.inc,v 1.418 2008/03/25 14:10:01 dries Exp $
 #
 # @file
@@ -18,6 +12,16 @@
 # The theme system allows for nearly all output of the Drupal system to be
 # customized by user themes.
 #
+
+from lib.drupy import DrupyHelper
+
+
+static('static_themegetregistry_themeregistry');
+static('static_listthemes_list');
+static('static_theme_hooks');
+
+
+
 # @see <a href="http://drupal.org/node/253">Theme system</a>
 # @see themeable
 #
@@ -36,37 +40,32 @@ define('MARK_UPDATED', 2);
 #
 # Initialize the theme system by loading the theme.
 #
-def init_theme() {
+def init_theme():
   global _theme, user, custom_theme, theme_key;
-
   # If theme is already set, assume the others are set, too, and do nothing
-  if (isset(theme)) {
-    return;
-  }
-
+  if (_theme != None):
+    return True;
   drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE);
   themes = list_themes();
-
   # Only select the user selected theme if it is available in the
   # list of enabled themes.
-  theme = !empty(user.theme) and !empty(themes[user.theme].status) ? user.theme : variable_get('theme_default', 'garland');
-
+  _theme = (user.theme if (not empty(user.theme) and not empty(themes[user.theme].status)) else variable_get('theme_default', 'garland'));
   # Allow modules to override the present theme... only select custom theme
   # if it is available in the list of installed themes.
-  theme = custom_theme and themes[custom_theme] ? custom_theme : theme;
-
+  _theme = (custom_theme if (custom_theme and themes[custom_theme]) else _theme);
   # Store the identifier for retrieving theme settings with.
-  theme_key = theme;
-
+  theme_key = _theme;
   # Find all our ancestor themes and put them in an array.
-  base_theme = array();
-  ancestor = theme;
-  while (ancestor and isset(themes[ancestor].base_theme)) {
-    base_theme[] = new_base_theme = themes[themes[ancestor].base_theme];
+  base_theme = [];
+  ancestor = _theme;
+  while (ancestor and isset(themes[ancestor].base_theme)):
+    new_base_theme = themes[themes[ancestor].base_theme];
+    base_theme.append(new_base_theme);
     ancestor = themes[ancestor].base_theme;
-  }
-  _init_theme(themes[theme], array_reverse(base_theme));
-}
+  _init_theme(themes[_theme], array_reverse(base_theme));
+
+
+
 #
 # Initialize the theme system given already loaded information. This
 # function is useful to initialize a theme when no database is present.
@@ -92,121 +91,90 @@ def init_theme() {
 # @param registry_callback
 #   The callback to invoke to set the theme registry.
 #
-def _init_theme(theme, base_theme = array(), registry_callback = '_theme_load_registry') {
+def _init_theme(_theme, base_theme = [], registry_callback = '_theme_load_registry'):
   global theme_info, base_theme_info, theme_engine, theme_path;
-  theme_info = theme;
+  theme_info = _theme;
   base_theme_info = base_theme;
-
   theme_path = dirname(theme.filename);
-
   # Prepare stylesheets from this theme as well as all ancestor themes.
   # We work it this way so that we can have child themes override parent
   # theme stylesheets easily.
-  final_stylesheets = array();
-
+  final_stylesheets = {};
   # Grab stylesheets from base theme
-  foreach (base_theme as base) {
-    if (!empty(base.stylesheets)) {
-      foreach (base.stylesheets as media : stylesheets) {
-        foreach (stylesheets as name : stylesheet) {
+  for base in base_theme:
+    if (not empty(base.stylesheets)):
+      for media,stylesheets in base.stylesheets.items():
+        for name,stylesheet in stylesheets.items():
           final_stylesheets[media][name] = stylesheet;
-        }
-      }
-    }
-  }
-
   # Add stylesheets used by this theme.
-  if (!empty(theme.stylesheets)) {
-    foreach (theme.stylesheets as media : stylesheets) {
-      foreach (stylesheets as name : stylesheet) {
+  if (not empty(theme.stylesheets)):
+    for media,stylesheets in theme.stylesheets.items():
+      for name,stylesheet in stylesheets.items():
         final_stylesheets[media][name] = stylesheet;
-      }
-    }
-  }
-
   # And now add the stylesheets properly
-  foreach (final_stylesheets as media : stylesheets) {
-    foreach (stylesheets as stylesheet) {
+  for media,stylesheets in final_stylesheets.items():
+    for stylesheet in stylesheets:
       drupal_add_css(stylesheet, 'theme', media);
-    }
-  }
-
   # Do basically the same as the above for scripts
-  final_scripts = array();
-
+  final_scripts = {};
   # Grab scripts from base theme
-  foreach (base_theme as base) {
-    if (!empty(base.scripts)) {
-      foreach (base.scripts as name : script) {
+  for base in base_theme:
+    if (not empty(base.scripts)):
+      for name,script in base.scripts.items():
         final_scripts[name] = script;
-      }
-    }
-  }
-
   # Add scripts used by this theme.
-  if (!empty(theme.scripts)) {
-    foreach (theme.scripts as name : script) {
+  if (not empty(_theme.scripts)):
+    for name,script in _theme.scripts.items():
       final_scripts[name] = script;
-    }
-  }
-
   # Add scripts used by this theme.
-  foreach (final_scripts as script) {
+  for script in final_scripts:
     drupal_add_js(script, 'theme');
-  }
-
   theme_engine = None;
-
   # Initialize the theme.
-  if (isset(theme.engine)) {
+  if (isset(_theme, 'engine')):
     # Include the engine.
-    include_once './'. theme.owner;
-
+    include_once( './' + _theme.owner );
     theme_engine = theme.engine;
-    if (function_exists(theme_engine .'_init')) {
-      foreach (base_theme as base) {
-        call_user_func(theme_engine .'_init', base);
-      }
-      call_user_func(theme_engine .'_init', theme);
-    }
-  }
-  else {
+    if (function_exists(theme_engine + '_init')):
+      for base in base_theme:
+        call_user_func(theme_engine + '_init', base);
+      call_user_func(theme_engine + '_init', theme);
+  else:
     # include non-engine theme files
-    foreach (base_theme as base) {
+    for base in base_theme:
       # Include the theme file or the engine.
-      if (!empty(base.owner)) {
-        include_once './'. base.owner;
-      }
-    }
+      if (not empty(base.owner)):
+        include_once( './'  + base.owner );
     # and our theme gets one too.
-    if (!empty(theme.owner)) {
-      include_once './'. theme.owner;
-    }
-  }
-
+    if (not empty(theme.owner)):
+      include_once( './' + theme.owner );
   registry_callback(theme, base_theme, theme_engine);
-}
+
+
+
 #
 # Retrieve the stored theme registry. If the theme registry is already
 # in memory it will be returned; otherwise it will attempt to load the
 # registry from cache. If this fails, it will construct the registry and
 # cache it.
 #
-def theme_get_registry(registry = None) {
-  static theme_registry = None;
-  if (isset(registry)) {
-    theme_registry = registry;
-  }
+def theme_get_registry(registry = None):
+  global static_themegetregistry_themeregistry;
+  if (static_themegetregistry_themeregistry != None):
+    static_themegetregistry_themeregistry = registry;
+  return static_themegetregistry_themeregistry;
 
-  return theme_registry;
-}
+
+
 #
 # Store the theme registry in memory.
 #
-def _theme_set_registry(registry) {
+def _theme_set_registry(registry):
   # Pass through for setting of static variable.
   return theme_get_registry(registry);
-}
+
+
+
 #
 # Get the theme_registry cache from the database; if it doesn't exist, build
 # it.
@@ -219,33 +187,37 @@ def _theme_set_registry(registry) {
 # @param theme_engine
 #   The name of the theme engine.
 #
-def _theme_load_registry(theme, base_theme = None, theme_engine = None) {
+def _theme_load_registry(_theme, base_theme = None, theme_engine = None):
   # Check the theme registry cache; if it exists, use it.
-  cache = cache_get("theme_registry:theme.name", 'cache');
-  if (isset(cache.data)) {
+  cache = cache_get("theme_registry:t%s" % theme.name, 'cache');
+  if (isset(cache, 'data')):
     registry = cache.data;
-  }
-  else {
+  else:
     # If not, build one and cache it.
-    registry = _theme_build_registry(theme, base_theme, theme_engine);
-    _theme_save_registry(theme, registry);
-  }
+    registry = _theme_build_registry(_theme, base_theme, theme_engine);
+    _theme_save_registry(_theme, registry);
   _theme_set_registry(registry);
-}
+
+
+
 #
 # Write the theme_registry cache into the database.
 #
-def _theme_save_registry(theme, registry) {
-  cache_set("theme_registry:theme.name", registry);
-}
+def _theme_save_registry(_theme, registry):
+  cache_set("theme_registry:%s" % theme.name, registry);
+
+
+
 #
 # Force the system to rebuild the theme registry; this should be called
 # when modules are added to the system, or when a dynamic system needs
 # to add more theme hooks.
 #
-def drupal_rebuild_theme_registry() {
+def drupal_rebuild_theme_registry():
   cache_clear_all('theme_registry', 'cache', True);
-}
+
+
+
 #
 # Process a single invocation of the theme hook. type will be one
 # of 'module', 'theme_engine' or 'theme' and it tells us some
@@ -261,97 +233,78 @@ def drupal_rebuild_theme_registry() {
 # This can be useful to themes and theme engines by giving them more control
 # over how and when the preprocess functions are run.
 #
-def _theme_process_registry(&cache, name, type, theme, path) {
-  function = name .'_theme';
-  if (function_exists(function)) {
-    result = function(cache, type, theme, path);
-
-    foreach (result as hook : info) {
-      result[hook]['type'] = type;
+def _theme_process_registry(cache, name, _type, _theme, path):
+  drupy.helper.Reference.check(cache);
+  function = name + '_theme';
+  if (function_exists(function)):
+    result = function(cache.val, _type, _theme, path);
+    for hook,info in result.items():
+      result[hook]['type'] = _type;
       result[hook]['theme path'] = path;
       # if function and file are left out, default to standard naming
       # conventions.
-      if (!isset(info['template']) and !isset(info['function'])) {
-        result[hook]['function'] = (type == 'module' ? 'theme_' : name .'_') . hook;
-      }
+      if (not isset(info, 'template') and not isset(info, 'function')):
+        result[hook]['function'] = ('theme_' if (_type == 'module') else name + '_') + hook;
       # If a path is set in the info, use what was set. Otherwise use the
       # default path. This is mostly so system.module can declare theme
       # functions on behalf of core .include files.
       # All files are included to be safe. Conditionally included
       # files can prevent them from getting registered.
-      if (isset(info['file']) and !isset(info['path'])) {
-        result[hook]['file'] = path .'/'. info['file'];
+      if (isset(info, 'file') and not isset(info['path'])):
+        result[hook]['file'] = path + '/' + info['file'];
         include_once(result[hook]['file']);
-      }
-      elseif (isset(info['file']) and isset(info['path'])) {
-        include_once(info['path'] .'/'. info['file']);
-      }
-
-      if (isset(info['template']) and !isset(info['path'])) {
-        result[hook]['template'] = path .'/'. info['template'];
-      }
+      elif (isset(info, 'file') and isset(info, 'path')):
+        include_once(info['path'] + '/' + info['file']);
+      if (isset(info, 'template') and not isset(info, 'path')):
+        result[hook]['template'] = path + '/' + info['template'];
       # If 'arguments' have been defined previously, carry them forward.
       # This should happen if a theme overrides a Drupal defined theme
       # function, for example.
-      if (!isset(info['arguments']) and isset(cache[hook])) {
+      if (not isset(info, 'arguments') and isset(cache.val, hook)):
         result[hook]['arguments'] = cache[hook]['arguments'];
-      }
       # Likewise with theme paths. These are used for template naming suggestions.
       # Theme implementations can occur in multiple paths. Suggestions should follow.
-      if (!isset(info['theme paths']) and isset(cache[hook])) {
+      if (not isset(info, 'theme paths') and isset(cache.val, hook)):
         result[hook]['theme paths'] = cache[hook]['theme paths'];
-      }
       # Check for sub-directories.
-      result[hook]['theme paths'][] = isset(info['path']) ? info['path'] : path;
-
+      result[hook]['theme paths'].append( info['path'] if isset(info, 'path') else path );
       # Check for default _preprocess_ functions. Ensure arrayness.
-      if (!isset(info['preprocess functions']) or !is_array(info['preprocess functions'])) {
-        info['preprocess functions'] = array();
-        prefixes = array();
-        if (type == 'module') {
+      if (not isset(info, 'preprocess functions') or not is_array(info['preprocess functions'])):
+        info['preprocess functions'] = [];
+        prefixes = [];
+        if (type == 'module'):
           # Default preprocessor prefix.
-          prefixes[] = 'template';
+          prefixes.append( 'template' );
           # Add all modules so they can intervene with their own preprocessors. This allows them
           # to provide preprocess functions even if they are not the owner of the current hook.
           prefixes += module_list();
-        }
-        elseif (type == 'theme_engine') {
+        elif (_type == 'theme_engine'):
           # Theme engines get an extra set that come before the normally named preprocessors.
-          prefixes[] = name .'_engine';
+          prefixes.append( name + '_engine' );
           # The theme engine also registers on behalf of the theme. The theme or engine name can be used.
-          prefixes[] = name;
-          prefixes[] = theme;
-        }
-        else {
+          prefixes.append( name );
+          prefixes.append( _theme );
+        else:
           # This applies when the theme manually registers their own preprocessors.
-          prefixes[] = name;
-        }
-
-        foreach (prefixes as prefix) {
-          if (function_exists(prefix .'_preprocess')) {
-            info['preprocess functions'][] = prefix .'_preprocess';
-          }
-          if (function_exists(prefix .'_preprocess_'. hook)) {
-            info['preprocess functions'][] = prefix .'_preprocess_'. hook;
-          }
-        }
-      }
+          prefixes.append( name );
+        for prefix in prefixes:
+          if (function_exists(prefix + '_preprocess')):
+            info['preprocess functions'].append( prefix + '_preprocess' );
+          if (function_exists(prefix + '_preprocess_' + hook)):
+            info['preprocess functions'].append( prefix + '_preprocess_' + hook );
       # Check for the override flag and prevent the cached preprocess functions from being used.
       # This allows themes or theme engines to remove preprocessors set earlier in the registry build.
-      if (!empty(info['override preprocess functions'])) {
+      if (not empty(info['override preprocess functions'])):
         # Flag not needed inside the registry.
-        unset(result[hook]['override preprocess functions']);
-      }
-      elseif (isset(cache[hook]['preprocess functions']) and is_array(cache[hook]['preprocess functions'])) {
+        del(result[hook]['override preprocess functions']);
+      elif (isset(cache[hook], 'preprocess functions') and is_array(cache.val[hook]['preprocess functions'])):
         info['preprocess functions'] = array_merge(cache[hook]['preprocess functions'], info['preprocess functions']);
-      }
       result[hook]['preprocess functions'] = info['preprocess functions'];
-    }
-
     # Merge the newly created theme hooks into the existing cache.
-    cache = array_merge(cache, result);
-  }
-}
+    cache.val = array_merge(cache.val, result);
+
+
+
 #
 # Rebuild the hook theme_registry cache.
 #
@@ -363,36 +316,30 @@ def _theme_process_registry(&cache, name, type, theme, path) {
 # @param theme_engine
 #   The name of the theme engine.
 #
-def _theme_build_registry(theme, base_theme, theme_engine) {
-  cache = array();
+def _theme_build_registry(_theme, base_theme, theme_engine):
+  cache = {};
   # First, process the theme hooks advertised by modules. This will
   # serve as the basic registry.
-  foreach (module_implements('theme') as module) {
+  for module in module_implements('theme'):
     _theme_process_registry(cache, module, 'module', module, drupal_get_path('module', module));
-  }
-
   # Process each base theme.
-  foreach (base_theme as base) {
+  for base in base_theme:
     # If the theme uses a theme engine, process its hooks.
     base_path = dirname(base.filename);
-    if (theme_engine) {
-      _theme_process_registry(cache, theme_engine, 'base_theme_engine', base.name, base_path);
-    }
+    if (theme_engine):
+      _theme_process_registry(cache, _theme_engine, 'base_theme_engine', base.name, base_path);
     _theme_process_registry(cache, base.name, 'base_theme', base.name, base_path);
-  }
-
   # And then the same thing, but for the theme.
-  if (theme_engine) {
-    _theme_process_registry(cache, theme_engine, 'theme_engine', theme.name, dirname(theme.filename));
-  }
-
+  if (theme_engine):
+    _theme_process_registry(cache, theme_engine, 'theme_engine', theme.name, dirname(_theme.filename));
   # Finally, hooks provided by the theme itself.
-  _theme_process_registry(cache, theme.name, 'theme', theme.name, dirname(theme.filename));
-
+  _theme_process_registry(cache, _theme.name, 'theme', _theme.name, dirname(_theme.filename));
   # Let modules alter the registry
   drupal_alter('theme_registry', cache);
   return cache;
-}
+
+
+
 #
 # Provides a list of currently available themes.
 #
@@ -404,62 +351,48 @@ def _theme_build_registry(theme, base_theme, theme_engine) {
 # @return
 #   An array of the currently available themes.
 #
-def list_themes(refresh = False) {
-  static list = array();
-
-  if (refresh) {
-    list = array();
-  }
-
-  if (empty(list)) {
-    list = array();
-    themes = array();
+def list_themes(refresh = False):
+  global static_listthemes_list;
+  if (refresh):
+    static_listthemes_list = [];
+  if (empty(static_listthemes_list)):
+    static_listthemes_list = [];
+    themes = [];
     # Extract from the database only when it is available.
     # Also check that the site is not in the middle of an install or update.
-    if (db_is_active() and !defined('MAINTENANCE_MODE')) {
+    if (db_is_active() and not defined('MAINTENANCE_MODE')):
       result = db_query("SELECT * FROM {system} WHERE type = '%s'", 'theme');
-      while (theme = db_fetch_object(result)) {
-        if (file_exists(theme.filename)) {
-          theme.info = unserialize(theme.info);
-          themes[] = theme;
-        }
-      }
-    }
-    else {
+      while True:
+        _theme = db_fetch_object(result);
+        if _theme == False or _theme == None:
+          break;
+        if (file_exists(_theme.filename)):
+          _theme.info = unserialize(_theme.info);
+          themes.append( _theme );
+    else:
       # Scan the installation when the database should not be read.
       themes = _system_theme_data();
-    }
-
-    foreach (themes as theme) {
-      foreach (theme.info['stylesheets'] as media : stylesheets) {
-        foreach (stylesheets as stylesheet : path) {
-          if (file_exists(path)) {
-            theme.stylesheets[media][stylesheet] = path;
-          }
-        }
-      }
-      foreach (theme.info['scripts'] as script : path) {
-        if (file_exists(path)) {
-          theme.scripts[script] = path;
-        }
-      }
-      if (isset(theme.info['engine'])) {
-        theme.engine = theme.info['engine'];
-      }
-      if (isset(theme.info['base theme'])) {
-        theme.base_theme = theme.info['base theme'];
-      }
+    for _theme in themes:
+      for media,stylesheets in _theme.info['stylesheets']:
+        for stylesheet,path in stylesheets:
+          if (file_exists(path)):
+            _theme.stylesheets[media][stylesheet] = path;
+      for script,path in theme.info['scripts'].items():
+        if (file_exists(path)):
+          _theme.scripts[script] = path;
+      if (isset(_theme.info, 'engine')):
+        _theme.engine = _theme.info['engine'];
+      if (isset(_theme.info, 'base theme')):
+        _theme.base_theme = _theme.info['base theme'];
       # Status is normally retrieved from the database. Add zero values when
       # read from the installation directory to prevent notices.
-      if (!isset(theme.status)) {
-        theme.status = 0;
-      }
-      list[theme.name] = theme;
-    }
-  }
+      if (not isset(_theme, 'status')):
+        _theme.status = 0;
+      static_listthemes_list[_theme.name] = _theme;
+  return static_listthemes_list;
 
-  return list;
-}
+
+
 #
 # Generate the themed output.
 #
@@ -547,153 +480,118 @@ def list_themes(refresh = False) {
 # @return
 #   An HTML string that generates the themed output.
 #
-def theme() {
+def theme():
+  global theme_path;
+  global theme_engine;
+  global static_theme_hooks;
   args = func_get_args();
   hook = array_shift(args);
-
-  static hooks = None;
-  if (!isset(hooks)) {
+  if (static_theme_hooks == None):
     init_theme();
-    hooks = theme_get_registry();
-  }
-
-  if (is_array(hook)) {
-    foreach (hook as candidate) {
-      if (isset(hooks[candidate])) {
+    static_theme_hooks = theme_get_registry();
+  if (is_array(hook)):
+    for candidate in hook:
+      if (isset(hooks, candidate)):
         break;
-      }
-    }
     hook = candidate;
-  }
-
-  if (!isset(hooks[hook])) {
+  if (not isset(hooks, hook)):
     return;
-  }
-
-  info = hooks[hook];
-  global theme_path;
+  info = static_theme_hooks[hook];
   temp = theme_path;
   # point path_to_theme() to the currently used theme path:
   theme_path = info['theme path'];
-
   # Include a file if the theme function or preprocess function is held elsewhere.
-  if (!empty(info['file'])) {
+  if (not empty(info['file'])):
     include_file = info['file'];
-    if (isset(info['path'])) {
-      include_file = info['path'] .'/'. include_file;
-    }
+    if (isset(info, 'path')):
+      include_file = info['path'] + '/' + include_file;
     include_once(include_file);
-  }
-  if (isset(info['function'])) {
+  if (isset(info, 'function')):
     # The theme call is a function.
     output = call_user_func_array(info['function'], args);
-  }
-  else {
+  else:
     # The theme call is a template.
-    variables = array(
-      'template_files' : array()
-    );
-    if (!empty(info['arguments'])) {
+    variables = {
+      'template_files' : []
+    };
+    if (not empty(info['arguments'])):
       count = 0;
-      foreach (info['arguments'] as name : default) {
-        variables[name] = isset(args[count]) ? args[count] : default;
-        count++;
-      }
-    }
-
+      for name,default in info['arguments'].items():
+        variables[name] = (args[count] if isset(args[count]) else default);
+        count += 1;
     # default render function and extension.
     render_function = 'theme_render_template';
-    extension = '.tpl.php';
-
+    extension = '.tpl.py';
     # Run through the theme engine variables, if necessary
-    global theme_engine;
-    if (isset(theme_engine)) {
+    if (theme_engine != None):
       # If theme or theme engine is implementing this, it may have
       # a different extension and a different renderer.
-      if (info['type'] != 'module') {
-        if (function_exists(theme_engine .'_render_template')) {
-          render_function = theme_engine .'_render_template';
-        }
-        extension_function = theme_engine .'_extension';
-        if (function_exists(extension_function)) {
+      if (info['type'] != 'module'):
+        if (function_exists(theme_engine + '_render_template')):
+          render_function = theme_engine + '_render_template';
+        extension_function = theme_engine + '_extension';
+        if (function_exists(extension_function)):
           extension = extension_function();
-        }
-      }
-    }
-
-    if (isset(info['preprocess functions']) and is_array(info['preprocess functions'])) {
+    if (isset(info['preprocess functions']) and is_array(info['preprocess functions'])):
       # This construct ensures that we can keep a reference through
       # call_user_func_array.
-      args = array(&variables, hook);
-      foreach (info['preprocess functions'] as preprocess_function) {
-        if (function_exists(preprocess_function)) {
+      _variables = drupy.helper.Reference(variables);
+      args = (_variables, hook);
+      for preprocess_function in info['preprocess functions']:
+        if (function_exists(preprocess_function)):
           call_user_func_array(preprocess_function, args);
-        }
-      }
-    }
-
     # Get suggestions for alternate templates out of the variables
     # that were set. This lets us dynamically choose a template
     # from a list. The order is FILO, so this array is ordered from
     # least appropriate first to most appropriate last.
-    suggestions = array();
-
-    if (isset(variables['template_files'])) {
-      suggestions = variables['template_files'];
-    }
-    if (isset(variables['template_file'])) {
-      suggestions[] = variables['template_file'];
-    }
-
-    if (suggestions) {
+    suggestions = {};
+    if (isset(_variables.val, 'template_files')):
+      suggestions = _variables.val['template_files'];
+    if (isset(_variables.val, 'template_file')):
+      suggestions.append( _variables.val['template_file'] );
+    if (suggestions):
       template_file = drupal_discover_template(info['theme paths'], suggestions, extension);
-    }
-
-    if (empty(template_file)) {
-      template_file = info['template'] . extension;
-      if (isset(info['path'])) {
-        template_file = info['path'] .'/'. template_file;
-      }
-    }
+    if (empty(template_file)):
+      template_file = info['template'] + extension;
+      if (isset(info, 'path')):
+        template_file = info['path'] + '/' + template_file;
     output = render_function(template_file, variables);
-  }
   # restore path_to_theme()
   theme_path = temp;
   return output;
-}
+
+
+
 #
 # Choose which template file to actually render. These are all suggested
 # templates from themes and modules. Theming implementations can occur on
 # multiple levels. All paths are checked to account for this.
 #
-def drupal_discover_template(paths, suggestions, extension = '.tpl.php') {
+def drupal_discover_template(paths, suggestions, extension = '.tpl.php'):
   global theme_engine;
-
   # Loop through all paths and suggestions in FIFO order.
   suggestions = array_reverse(suggestions);
   paths = array_reverse(paths);
-  foreach (suggestions as suggestion) {
-    if (!empty(suggestion)) {
-      foreach (paths as path) {
-        if (file_exists(file = path .'/'. suggestion . extension)) {
+  for suggesiton in suggestions:
+    if (not empty(suggestion)):
+      for path in paths:
+        file = path + '/' + suggestion + extension;
+        if (file_exists(file)):
           return file;
-        }
-      }
-    }
-  }
-}
+
+
+
 #
 # Return the path to the currently selected theme.
 #
-def path_to_theme() {
+def path_to_theme():
   global theme_path;
-
-  if (!isset(theme_path)) {
+  if (theme_path == None):
     init_theme();
-  }
-
   return theme_path;
-}
+
+
+
 #
 # Find overridden theme functions. Called by themes and/or theme engines to
 # easily discover theme functions.
@@ -912,7 +810,7 @@ def theme_get_setting(setting_name, refresh = False) {
       if (settings['default_logo']) {
         settings['logo'] = base_path() . dirname(theme_object.filename) .'/logo.png';
       }
-      elseif (settings['logo_path']) {
+      elif (settings['logo_path']) {
         settings['logo'] = base_path() . settings['logo_path'];
       }
     }
@@ -926,7 +824,7 @@ def theme_get_setting(setting_name, refresh = False) {
           settings['favicon'] = base_path() .'misc/favicon.ico';
         }
       }
-      elseif (settings['favicon_path']) {
+      elif (settings['favicon_path']) {
         settings['favicon'] = base_path() . settings['favicon_path'];
       }
       else {
@@ -1394,7 +1292,7 @@ def theme_item_list(items = array(), title = None, type = 'ul', attributes = Non
           if (key == 'data') {
             data = value;
           }
-          elseif (key == 'children') {
+          elif (key == 'children') {
             children = value;
           }
           else {
@@ -1760,7 +1658,7 @@ def template_preprocess_page(&variables) {
   if (variables['layout'] == 'both') {
     body_classes[] = 'two-sidebars';
   }
-  elseif (variables['layout'] == 'none') {
+  elif (variables['layout'] == 'none') {
     body_classes[] = 'no-sidebars';
   }
   else {
@@ -1822,7 +1720,7 @@ def template_preprocess_node(&variables) {
   if (variables['teaser'] and node.teaser) {
     variables['content'] = node.teaser;
   }
-  elseif (isset(node.body)) {
+  elif (isset(node.body)) {
     variables['content'] = node.body;
   }
   else {
