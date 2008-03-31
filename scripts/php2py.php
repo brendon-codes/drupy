@@ -1,95 +1,112 @@
 #!/usr/bin/env php
 <?PHP
 
+$rules = array(
+  // brace open
+  array(
+    "/(\)|else)\s*\{/i",
+    "\\1:"
+  ),
+  // brace close
+  array(
+    "/[\r\n]+[\t\f\040]*\}/im",
+    ""
+  ),
+  // not
+  array(
+    "/!(?!=)/i",
+    "not "
+  ),
+  // concat pre
+  array(
+    "/(\S)\s+\./i",
+    "\\1 +"
+  ),
+  //concat post
+  array(
+    "/\.\s+(\S)/i",
+    "+ \\1"
+  ),
+  // elseif
+  array(
+    "/else\s*if/i",
+    "elif"
+  ),
+  // null
+  array(
+    "/null/i",
+    "None"
+  ),
+  // false
+  array(
+    "/false/i",
+    "False"
+  ),
+  // true
+  array(
+    "/true/i",
+    "True"
+  ),
+  // and
+  array(
+    "/&&/i",
+    "and"
+  ),
+  // or
+  array(
+    "/\|\|/i",
+    "or"
+  ),
+  // comments 1
+  array(
+    "|^\s*\*/?|im",
+    "#"
+  ),
+  // comments 2
+  array(
+    "|^\s*/\*+|im",
+    "#"
+  ),
+  // comments 3
+  array(
+    "|^(\s*)//|im",
+    "\\1#"
+  ),
+  // funcs
+  array(
+    "/^(\s*)function\s+([a-z_])/im",
+    "\\1def \\2"
+  ),
+  // vars
+  array(
+    "/(?<!->)\\$(\w+)/i",
+    "\\1"
+  ),
+  // dots
+  array(
+    "/->/",
+    "."
+  ),
+  // foreach key,val
+  array(
+    "/foreach\s*\(\s*([a-z0-9\(\)\._]+)\s+as\s+([a-z0-9_]+)\s*=>\s*([a-z0-9_]+)\s*\)/i",
+    "for \\2,\\3 in \\1.items()"
+  ),
+  // foreach
+  array(
+    "/foreach\s*\(\s*([a-z0-9\(\)\._]+)\s+as\s+([a-z0-9_]+)\s*\)/i",
+    "for \\2 in \\1"
+  ),
+  // hash
+  array(
+    "/=>/",
+    ":"
+  )
+);
+
+
 $data = file_get_contents($_SERVER['argv'][1]);
-
-//Do conversions
-$data = p2p_null($data);
-$data = p2p_false($data);
-$data = p2p_true($data);
-$data = p2p_and($data);
-$data = p2p_or($data);
-$data = p2p_funcs($data);
-$data = p2p_comments_1($data);
-$data = p2p_comments_2($data);
-$data = p2p_comments_3($data);
-$data = p2p_vars($data);
-$data = p2p_dots($data);
-$data = p2p_hashassign($data);
-
-//write output
+foreach ($rules as $rule) $data = preg_replace($rule[0], $rule[1], $data);
 fwrite(STDOUT, $data);
-
-function p2p_null($data) {
- $pat = "/null/i";
- $rep = "None";
- return preg_replace($pat, $rep, $data);
-}
-
-function p2p_false($data) {
- $pat = "/false/i";
- $rep = "False";
- return preg_replace($pat, $rep, $data);
-}
-
-function p2p_true($data) {
- $pat = "/true/i";
- $rep = "True";
- return preg_replace($pat, $rep, $data);
-}
-
-function p2p_and($data) {
- $pat = "/&&/i";
- $rep = "and";
- return preg_replace($pat, $rep, $data);
-}
-
-function p2p_or($data) {
- $pat = "/\|\|/i";
- $rep = "or";
- return preg_replace($pat, $rep, $data);
-}
-
-function p2p_comments_1($data) {
- $pat = "|^\s*\*/?|im";
- $rep = "#";
- return preg_replace($pat, $rep, $data);
-}
-
-function p2p_comments_2($data) {
- $pat = "|^\s*/\*+|im";
- $rep = "#";
- return preg_replace($pat, $rep, $data);
-}
-
-function p2p_comments_3($data) {
- $pat = "|^(\s*)//|im";
- $rep = "\\1#";
- return preg_replace($pat, $rep, $data);
-}
-
-function p2p_funcs($data) {
- $pat = "/^(\s*)function\s+([a-z_])/im";
- $rep = "\\1def \\2";
- return preg_replace($pat, $rep, $data);
-}
-
-function p2p_vars($data) {
- $pat = "/(?<!->)\\$(\w+)/i";
- $rep = "\\1";
- return preg_replace($pat, $rep, $data);
-}
-
-function p2p_dots($data) {
- $pat = "/->/";
- $rep = ".";
- return preg_replace($pat, $rep, $data);
-}
-
-function p2p_hashassign($data) {
- $pat = "/=>/";
- $rep = ":";
- return preg_replace($pat, $rep, $data);
-}
 
 ?>
