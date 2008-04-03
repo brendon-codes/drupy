@@ -19,6 +19,7 @@ from lib.drupy import DrupyHelper
 static('static_themegetregistry_themeregistry');
 static('static_listthemes_list');
 static('static_theme_hooks');
+static('static_themegetsetting_settings');
 
 
 
@@ -647,45 +648,44 @@ def drupal_find_theme_templates(cache, extension, path):
       theme_paths[theme_info.base_theme][theme_info.name] = dirname(theme_info.filename);
   for basetheme,subthemes in theme_paths.items():
     for subtheme,subtheme_path in subthemes.items():
-      if (isset(theme_paths[subtheme])):
+      if (isset(theme_paths, subtheme)):
         theme_paths[basetheme] = array_merge(theme_paths[basetheme], theme_paths[subtheme]);
-  subtheme_paths = isset(theme_paths[theme]) ? theme_paths[theme] : array();
-
+  subtheme_paths = (theme_paths[theme] if isset(theme_paths, theme) else []);
   # Escape the periods in the extension+ regex = str_replace('.', '\.', extension) +'$';
   # Because drupal_system_listing works the way it does, we check for real
   # templates separately from checking for patterns+ files = drupal_system_listing(regex, path, 'name', 0);
   for template,file in files.items():
     # Ignore sub-theme templates for the current theme+ if (strpos(file.filename, str_replace(subtheme_paths, '', file.filename)) !== 0):
-      continue;
+    continue;
     # Chop off the remaining extensions if there are any+ template already
     # has the rightmost extension removed, but there might still be more,
     # such as with +tpl.php, which still has +tpl in template at this point+ if ((pos = strpos(template, '.')) !== False):
-      template = substr(template, 0, pos);
+    template = substr(template, 0, pos);
     # Transform - in filenames to _ to match function naming scheme
     # for the purposes of searching+ hook = strtr(template, '-', '_');
-    if (isset(cache[hook])):
-      templates[hook] = array(
+    if (isset(cache, hook)):
+      templates[hook] = {
         'template' : template,
         'path' : dirname(file.filename),
-      );
-
+      };
   patterns = array_keys(files);
-
   for hook,info in cache.items():
-    if (not empty(info['pattern'])):
+    if (not empty(info, 'pattern')):
       # Transform _ in pattern to - to match file naming scheme
       # for the purposes of searching+ pattern = strtr(info['pattern'], '_', '-');
-
       matches = preg_grep('/^'+ pattern +'/', patterns);
       if (matches):
         for match in matches:
           file = substr(match, 0, strpos(match, '.'));
-          # Put the underscores back in for the hook name and register this pattern+ templates[strtr(file, '-', '_')] = array(
+          # Put the underscores back in for the hook name and register this pattern+
+          templates[strtr(file, '-', '_')] = {
             'template' : file,
             'path' : dirname(files[match].filename),
             'arguments' : info['arguments'],
-          );
+          };
   return templates;
+
+
 #
 # Retrieve an associative array containing the settings for a theme+ *
 # The final settings are arrived at by merging the default settings,
@@ -697,7 +697,7 @@ def drupal_find_theme_templates(cache, extension, path):
 # @return
 #   An associative array containing theme settings+ */
 def theme_get_settings(key = None):
-  defaults = array(
+  defaults = {
     'mission'                       :  '',
     'default_logo'                  :  1,
     'logo_path'                     :  '',
@@ -714,21 +714,20 @@ def theme_get_settings(key = None):
     'toggle_node_user_picture'      :  0,
     'toggle_comment_user_picture'   :  0,
     'toggle_primary_links'          :  1,
-    'toggle_secondary_links'        :  1,
-  );
-
+    'toggle_secondary_links'        :  1
+  };
   if (module_exists('node')):
     for type,name in node_get_types().items():
       defaults['toggle_node_info_'+ type] = 1;
   settings = array_merge(defaults, variable_get('theme_settings', array()));
-
-  if (key):
-    settings = array_merge(settings, variable_get(str_replace('/', '_', 'theme_'+ key +'_settings'), array()));
-
+  if (key != None):
+    settings = array_merge(settings, variable_get(str_replace('/', '_', 'theme_'+ key +'_settings'), []));
   # Only offer search box if search.module is enabled+ if (not module_exists('search') or not user_access('search content')):
     settings['toggle_search'] = 0;
-
   return settings;
+
+
+
 #
 # Retrieve a setting for the current theme+ * This function is designed for use from within themes & engines
 # to determine theme settings made in the admin interface+ *
@@ -742,38 +741,35 @@ def theme_get_settings(key = None):
 #   The value of the requested setting, None if the setting does not exist+ */
 def theme_get_setting(setting_name, refresh = False):
   global theme_key;
-  static settings;
-
-  if (empty(settings) or refresh):
-    settings = theme_get_settings(theme_key);
-
+  global static_themegetsetting_settings;
+  if (static_themegetsetting_settings == None or refresh):
+    static_themegetsetting_settings = theme_get_settings(theme_key);
     themes = list_themes();
     theme_object = themes[theme_key];
-
-    if (settings['mission'] == ''):
-      settings['mission'] = variable_get('site_mission', '');
-
-    if (not settings['toggle_mission']):
-      settings['mission'] = '';
-
-    if (settings['toggle_logo']):
-      if (settings['default_logo']):
-        settings['logo'] = base_path() + dirname(theme_object.filename) +'/logo.png';
-      elif (settings['logo_path']):
-        settings['logo'] = base_path() + settings['logo_path'];
-
-    if (settings['toggle_favicon']):
-      if (settings['default_favicon']):
-        if (file_exists(favicon = dirname(theme_object.filename) +'/favicon.ico')):
-          settings['favicon'] = base_path() + favicon;
+    if (static_themegetsetting_settings['mission'] == ''):
+      static_themegetsetting_settings['mission'] = variable_get('site_mission', '');
+    if (not static_themegetsetting_settings['toggle_mission']):
+      static_themegetsetting_settings['mission'] = '';
+    if (static_themegetsetting_settings['toggle_logo']):
+      if (static_themegetsetting_settings['default_logo']):
+        static_themegetsetting_settings['logo'] = base_path() + dirname(theme_object.filename) +'/logo.png';
+      elif (static_themegetsetting_settings['logo_path']):
+        static_themegetsetting_settings['logo'] = base_path() + static_themegetsetting_settings['logo_path'];
+    if (static_themegetsetting_settings['toggle_favicon']):
+      if (static_themegetsetting_settings['default_favicon']):
+        favicon = (dirname(theme_object.filename) +'/favicon.ico');
+        if (file_exists(favicon)):
+          static_themegetsetting_settings['favicon'] = base_path() + favicon;
         else:
-          settings['favicon'] = base_path() +'misc/favicon.ico';
-      elif (settings['favicon_path']):
-        settings['favicon'] = base_path() + settings['favicon_path'];
+          static_themegetsetting_settings['favicon'] = base_path() +'misc/favicon.ico';
+      elif (static_themegetsetting_settings['favicon_path']):
+        static_themegetsetting_settings['favicon'] = base_path() + static_themegetsetting_settings['favicon_path'];
       else:
-        settings['toggle_favicon'] = False;
+        static_themegetsetting_settings['toggle_favicon'] = False;
+  return (static_themegetsetting_settings[setting_name] if isset(settings, setting_name) else None);
 
-  return isset(settings[setting_name]) ? settings[setting_name] : None;
+
+
 #
 # Render a system default template, which is essentially a PHP template+ *
 # @param file
@@ -782,12 +778,15 @@ def theme_get_setting(setting_name, refresh = False):
 # @return
 #   The output generated by the template+ */
 def theme_render_template(file, variables):
-  extract(variables, EXTR_SKIP);  // Extract the variables to a local namespace
-  ob_start();                      // Start output buffering
-  include "./file";               // Include the file
-  contents = ob_get_contents();   // Get the contents of the buffer
-  ob_end_clean();                  // End buffering and discard
-  return contents;                // Return the contents
+  extract(variables, EXTR_SKIP);  # Extract the variables to a local namespace
+  ob_start();                     # Start output buffering
+  include( "./file" );               # Include the file
+  contents = ob_get_contents();   # Get the contents of the buffer
+  ob_end_clean();                 # End buffering and discard
+  return contents;                # Return the contents
+
+
+
 #
 # @defgroup themeable Default theme implementations
 # @{
@@ -850,6 +849,10 @@ def theme_render_template(file, variables):
 #   The formatted text (html)+ */
 def theme_placeholder(text):
   return '<em>'+ check_plain(text) +'</em>';
+
+
+
+
 #
 # Return a themed set of status and/or error messages+ The messages are grouped
 # by type+ *
@@ -870,6 +873,9 @@ def theme_status_messages(display = None):
       output += messages[0];
     output += "</div>\n";
   return output;
+
+
+
 #
 # Return a themed set of links+ *
 # @param links
@@ -877,43 +883,40 @@ def theme_status_messages(display = None):
 #   A keyed array of attributes
 # @return
 #   A string containing an unordered list of links+ */
-def theme_links(links, attributes = array('class' : 'links')):
+def theme_links(links, attributes = {'class' : 'links'}):
   output = '';
-
   if (count(links) > 0):
     output = '<ul'+ drupal_attributes(attributes) +'>';
-
     num_links = count(links);
     i = 1;
-
     for key,link in links.items():
-      class = key;
-
-      # Add first, last and active classes to the list of links to help out themers+ if (i == 1):
-        class += ' first';
+      _class = key;
+      # Add first, last and active classes to the list of links to help out themers+
+      if (i == 1):
+        _class += ' first';
       if (i == num_links):
-        class += ' last';
+        _class += ' last';
       if (isset(link['href']) and (link['href'] == _GET['q'] or (link['href'] == '<front>' and drupal_is_front_page()))):
-        class += ' active';
-      output += '<li class="'+ class +'">';
-
+        _class += ' active';
+      output += '<li class="'+ _class +'">';
       if (isset(link['href'])):
-        # Pass in link as options, they share the same keys+ output += l(link['title'], link['href'], link);
-      elif (not empty(link['title'])):
+        # Pass in link as options, they share the same keys
+        output += l(link['title'], link['href'], link);
+      elif (not empty(link, 'title')):
         # Some links are actually not links, but we wrap these in <span> for adding title and class attributes
-        if (empty(link['html'])):
+        if (empty(link, 'html')):
           link['title'] = check_plain(link['title']);
         span_attributes = '';
-        if (isset(link['attributes'])):
+        if (isset(link, 'attributes')):
           span_attributes = drupal_attributes(link['attributes']);
         output += '<span'+ span_attributes +'>'+ link['title'] +'</span>';
-
-      i++;
+      i += 1;
       output += "</li>\n";
-
     output += '</ul>';
-
   return output;
+
+
+
 #
 # Return a themed image+ *
 # @param path
@@ -924,10 +927,15 @@ def theme_links(links, attributes = array('class' : 'links')):
 #   If set to True, the image's dimension are fetched and added as width/height attributes+ * @return
 #   A string containing the image tag+ */
 def theme_image(path, alt = '', title = '', attributes = None, getsize = True):
-  if (not getsize or (is_file(path) and (list(width, height, type, image_attributes) = @getimagesize(path)))):
+  imageSize = getimagesize(path);
+  if (not getsize or (is_file(path) and (imageSize != False))):
+    width, height, type, image_attributes = imageSize; 
     attributes = drupal_attributes(attributes);
-    url = (url(path) == path) ? path : (base_path() + path);
-    return '<img src="'+ check_url(url) +'" alt="'+ check_plain(alt) +'" title="'+ check_plain(title) +'" '+ (isset(image_attributes) ? image_attributes : '') + attributes +' />';
+    url =  path if (url(path) == path) else (base_path() + path);
+    return '<img src="'+ check_url(url) +'" alt="'+ check_plain(alt) +'" title="'+ check_plain(title) +'" '+ (image_attributes if not empty(image_attributes) else '') + attributes +' />';
+
+
+
 #
 # Return a themed breadcrumb trail+ *
 # @param breadcrumb
@@ -935,18 +943,28 @@ def theme_image(path, alt = '', title = '', attributes = None, getsize = True):
 def theme_breadcrumb(breadcrumb):
   if (not empty(breadcrumb)):
     return '<div class="breadcrumb">'+ implode(' » ', breadcrumb) +'</div>';
+
+
+
 #
 # Return a themed help message+ *
 # @return a string containing the helptext for the current page+ */
 def theme_help():
-  if (help = menu_get_active_help()):
+  help = menu_get_active_help()
+  if (help != False):
     return '<div class="help">'+ help +'</div>';
+
+
+
 #
 # Return a themed submenu, typically displayed under the tabs+ *
 # @param links
 #   An array of links+ */
 def theme_submenu(links):
   return '<div class="submenu">'+ implode(' | ', links) +'</div>';
+
+
+
 #
 # Return a themed table+ *
 # @param header
@@ -977,19 +995,17 @@ def theme_submenu(links):
 #   An array of HTML attributes to apply to the table tag+ * @param caption
 #   A localized string to use for the <caption> tag+ * @return
 #   An HTML string representing the table+ */
-def theme_table(header, rows, attributes = array(), caption = None):
+def theme_table(header, rows, attributes = [], caption = None):
 
-  # Add sticky headers, if applicable+ if (count(header)):
+  # Add sticky headers, if applicable+
+  if (count(header) > 0):
     drupal_add_js('misc/tableheader.js');
     # Add 'sticky-enabled' class to the table to identify it for JS+ // This is needed to target tables constructed by this function+ attributes['class'] = empty(attributes['class']) ? 'sticky-enabled' : (attributes['class'] +' sticky-enabled');
-
   output = '<table'+ drupal_attributes(attributes) +">\n";
-
-  if (isset(caption)):
+  if (caption != None):
     output += '<caption>'+ caption +"</caption>\n";
-
   # Format the table header:
-  if (count(header)):
+  if (count(header) > 0):
     ts = tablesort_init(header);
     # HTML requires that the thead tag has tr tags in it follwed by tbody
     # tags+ Using ternary operator to check and see if we have any rows+ output += (count(rows) ? ' <thead><tr>' : ' <tr>');
@@ -997,20 +1013,18 @@ def theme_table(header, rows, attributes = array(), caption = None):
       cell = tablesort_header(cell, header, ts);
       output += _theme_table_cell(cell, True);
     # Using ternary operator to close the tags based on whether or not there are rows
-    output += (count(rows) ? " </tr></thead>\n" : "</tr>\n");
+    output += (" </tr></thead>\n" if (count(rows) > 0) else "</tr>\n");
   else:
-    ts = array();
-
+    ts = [];
   # Format the table rows:
-  if (count(rows)):
+  if (count(rows) > 0):
     output += "<tbody>\n";
-    flip = array('even' : 'odd', 'odd' : 'even');
-    class = 'even';
+    flip = {'even' : 'odd', 'odd' : 'even'};
+    _class = 'even';
     for number,row in rows.items():
-      attributes = array();
-
+      attributes = [];
       # Check if we're dealing with a simple or complex row
-      if (isset(row['data'])):
+      if (isset(row, 'data')):
         for key,value in row.items():
           if (key == 'data'):
             cells = value;
@@ -1018,31 +1032,35 @@ def theme_table(header, rows, attributes = array(), caption = None):
             attributes[key] = value;
       else:
         cells = row;
-      if (count(cells)):
+      if (count(cells) > 0):
         # Add odd/even class
-        class = flip[class];
-        if (isset(attributes['class'])):
-          attributes['class'] += ' '+ class;
+        _class = flip[_class];
+        if (isset(attributes, 'class')):
+          attributes['class'] += ' '+ _class;
         else:
-          attributes['class'] = class;
-
+          attributes['class'] = _class;
         # Build row
         output += ' <tr'+ drupal_attributes(attributes) +'>';
         i = 0;
         for cell in cells:
-          cell = tablesort_cell(cell, header, ts, i++);
+          cell = tablesort_cell(cell, header, ts, i);
+          i += 1;
           output += _theme_table_cell(cell);
         output += " </tr>\n";
     output += "</tbody>\n";
-
   output += "</table>\n";
   return output;
+
+
+
+
 #
 # Returns a header cell for tables that have a select all functionality+ */
 def theme_table_select_header_cell():
   drupal_add_js('misc/tableselect.js');
+  return {'class' : 'select-all'};
 
-  return array('class' : 'select-all');
+
 #
 # Return a themed sort icon+ *
 # @param style
@@ -1053,6 +1071,9 @@ def theme_tablesort_indicator(style):
     return theme('image', 'misc/arrow-asc.png', t('sort icon'), t('sort ascending'));
   else:
     return theme('image', 'misc/arrow-desc.png', t('sort icon'), t('sort descending'));
+
+
+
 #
 # Return a themed box+ *
 # @param title
@@ -1063,6 +1084,8 @@ def theme_tablesort_indicator(style):
 def theme_box(title, content, region = 'main'):
   output = '<h2 class="title">'+ title +'</h2><div>'+ content +'</div>';
   return output;
+
+
 #
 # Return a themed marker, useful for marking new or updated
 # content+ *
@@ -1073,11 +1096,14 @@ def theme_box(title, content, region = 'main'):
 #   A string containing the marker+ */
 def theme_mark(type = MARK_NEW):
   global user;
-  if (user.uid):
+  if (user.uid > 0):
     if (type == MARK_NEW):
       return ' <span class="marker">'+ t('new') +'</span>';
     elif (type == MARK_UPDATED):
       return ' <span class="marker">'+ t('updated') +'</span>';
+
+
+
 #
 # Return a themed list of items+ *
 # @param items
@@ -1090,17 +1116,16 @@ def theme_mark(type = MARK_NEW):
 #   The type of list to return (e.g+ "ul", "ol")
 # @return
 #   A string containing the list output+ */
-def theme_item_list(items = array(), title = None, type = 'ul', attributes = None):
+def theme_item_list(items = [], title = None, type = 'ul', attributes = None):
   output = '<div class="item-list">';
-  if (isset(title)):
+  if (title != None):
     output += '<h3>'+ title +'</h3>';
-
   if (not empty(items)):
     output += "<type"+ drupal_attributes(attributes) +'>';
     num_items = count(items);
     for i,item in items.items():
-      attributes = array();
-      children = array();
+      attributes = {};
+      children = {};
       if (is_array(item)):
         for key,value in item.items():
           if (key == 'data'):
@@ -1112,19 +1137,25 @@ def theme_item_list(items = array(), title = None, type = 'ul', attributes = Non
       else:
         data = item;
       if (count(children) > 0):
-        data += theme_item_list(children, None, type, attributes); // Render nested list
+        data += theme_item_list(children, None, type, attributes); # Render nested list
       if (i == 0):
-        attributes['class'] = empty(attributes['class']) ? 'first' : (attributes['class'] +' first');
+        attributes['class'] = ('first' if empty(attributes['class']) else (attributes['class'] +' first'));
       if (i == num_items - 1):
-        attributes['class'] = empty(attributes['class']) ? 'last' : (attributes['class'] +' last');
+        attributes['class'] = ('last' if empty(attributes['class']) else (attributes['class'] +' last'));
       output += '<li'+ drupal_attributes(attributes) +'>'+ data +"</li>\n";
     output += "</type>";
   output += '</div>';
   return output;
+
+
+
 #
 # Returns code that emits the 'more help'-link+ */
 def theme_more_help_link(url):
-  return '<div class="more-help-link">'+ t('[<a href="@link">more help...</a>]', array('@link' : check_url(url))) +'</div>';
+  return '<div class="more-help-link">' +  t('<a href="@link">More help</a>', {'@link' : check_url(url)}) + '</div>';
+
+
+
 #
 # Return code that emits an XML icon+ *
 # For most use cases, this function has been superseded by theme_feed_icon()+ *
@@ -1134,6 +1165,8 @@ def theme_more_help_link(url):
 def theme_xml_icon(url):
   if (image = theme('image', 'misc/xml.png', t('XML feed'), t('XML feed'))):
     return '<a href="'+ check_url(url) +'" class="xml-icon">'+ image +'</a>';
+  }
+}
 #
 # Return code that emits an feed icon+ *
 # @param url
@@ -1142,6 +1175,8 @@ def theme_xml_icon(url):
 def theme_feed_icon(url, title):
   if (image = theme('image', 'misc/feed.png', t('Syndicate content'), title)):
     return '<a href="'+ check_url(url) +'" class="feed-icon">'+ image +'</a>';
+  }
+}
 #
 # Returns code that emits the 'more' link used on blocks+ *
 # @param url
@@ -1151,6 +1186,7 @@ def theme_feed_icon(url, title):
 #
 def theme_more_link(url, title):
   return '<div class="more-link">'+ t('<a href="@link" title="@title">more</a>', array('@link' : check_url(url), '@title' : title)) +'</div>';
+}
 #
 # Execute hook_footer() which is run at the end of the page right before the
 # close of the body tag+ *
@@ -1160,6 +1196,7 @@ def theme_more_link(url, title):
 def theme_closure(main = 0):
   footer = module_invoke_all('footer', main);
   return implode("\n", footer) + drupal_get_js('footer');
+}
 #
 # Return a set of blocks available for the current user+ *
 # @param region
@@ -1172,10 +1209,13 @@ def theme_blocks(region):
     for key,block in list.items():
       # key == <i>module</i>_<i>delta</i>
       output += theme('block', block);
+    }
+  }
 
   # Add any content assigned to this region through drupal_set_content() calls+ output += drupal_get_content(region);
 
   return output;
+}
 #
 # Format a username+ *
 # @param object
@@ -1187,27 +1227,37 @@ def theme_username(object):
   if (object.uid and object.name):
     # Shorten the name when it is too long or it will break many tables+ if (drupal_strlen(object.name) > 20):
       name = drupal_substr(object.name, 0, 15) +'...';
+    }
     else:
       name = object.name;
+    }
 
     if (user_access('access user profiles')):
       output = l(name, 'user/'+ object.uid, array('title' : t('View user profile.')));
+    }
     else:
       output = check_plain(name);
+    }
+  }
   elif (object.name):
     # Sometimes modules display content composed by people who are
     # not registered members of the site (e.g+ mailing list or news
     # aggregator modules)+ This clause enables modules to display
     # the True author of the content+ if (not empty(object.homepage)):
       output = l(object.name, object.homepage, array('rel' : 'nofollow'));
+    }
     else:
       output = check_plain(object.name);
+    }
 
     output += ' ('+ t('not verified') +')';
+  }
   else:
     output = variable_get('anonymous', t('Anonymous'));
+  }
 
   return output;
+}
 #
 # Return a themed progress bar+ *
 # @param percent
@@ -1222,6 +1272,7 @@ def theme_progress_bar(percent, message):
   output += '</div>';
 
   return output;
+}
 #
 # Create a standard indentation div+ Used for drag and drop tables+ *
 # @param size
@@ -1231,7 +1282,9 @@ def theme_indentation(size = 1):
   output = '';
   for (n = 0; n < size; n++):
     output += '<div class="indentation">&nbsp;</div>';
+  }
   return output;
+}
 #
 # @} End of "defgroup themeable"+ */
 
@@ -1244,15 +1297,20 @@ def _theme_table_cell(cell, header = False):
     unset(cell['data']);
     unset(cell['header']);
     attributes = drupal_attributes(cell);
+  }
   else:
     data = cell;
+  }
 
   if (header):
     output = "<thattributes>data</th>";
+  }
   else:
     output = "<tdattributes>data</td>";
+  }
 
   return output;
+}
 #
 # Adds a default set of helper variables for preprocess functions and
 # templates+ This comes in before any other preprocess function which makes
@@ -1274,10 +1332,13 @@ def template_preprocess(&variables, hook):
   if (variables['db_is_active'] = db_is_active()  and not defined('MAINTENANCE_MODE')):
     # Check for administrators+ if (user_access('access administration pages')):
       variables['is_admin'] = True;
+    }
     # Flag front page status+ variables['is_front'] = drupal_is_front_page();
     # Tell all templates by which kind of user they're viewed+ variables['logged_in'] = (user.uid > 0);
     # Provide user object to all templates
     variables['user'] = user;
+  }
+}
 #
 # Process variables for page.tpl.php
 #
@@ -1298,32 +1359,42 @@ def template_preprocess_page(&variables):
   # Add favicon
   if (theme_get_setting('toggle_favicon')):
     drupal_set_html_head('<link rel="shortcut icon" href="'+ check_url(theme_get_setting('favicon')) +'" type="image/x-icon" />');
+  }
 
   global theme;
   # Populate all block regions+ regions = system_region_list(theme);
   # Load all region content assigned via blocks+ for region in array_keys(regions):
     # Prevent left and right regions from rendering blocks when 'show_blocks' == False+ if (not (not variables['show_blocks'] and (region == 'left' or region == 'right'))):
       blocks = theme('blocks', region);
+    }
     else:
       blocks = '';
+    }
     # Assign region to a region variable+ isset(variables[region]) ? variables[region] += blocks : variables[region] = blocks;
+  }
 
   # Set up layout variable+ variables['layout'] = 'none';
   if (not empty(variables['left'])):
     variables['layout'] = 'left';
+  }
   if (not empty(variables['right'])):
     variables['layout'] = (variables['layout'] == 'left') ? 'both' : 'right';
+  }
 
   # Set mission when viewing the frontpage+ if (drupal_is_front_page()):
     mission = filter_xss_admin(theme_get_setting('mission'));
+  }
 
   # Construct page title
   if (drupal_get_title()):
     head_title = array(strip_tags(drupal_get_title()), variable_get('site_name', 'Drupal'));
+  }
   else:
     head_title = array(variable_get('site_name', 'Drupal'));
     if (variable_get('site_slogan', '')):
       head_title[] = variable_get('site_slogan', '');
+    }
+  }
   variables['head_title']        = implode(' | ', head_title);
   variables['base_path']         = base_path();
   variables['front_page']        = url();
@@ -1351,6 +1422,7 @@ def template_preprocess_page(&variables):
 
   if (node = menu_get_object()):
     variables['node'] = node;
+  }
 
   # Compile a list of classes that are going to be applied to the body element+ // This allows advanced theming based on context (home page, node of certain type, etc.)+ body_classes = array();
   # Add a class that tells us whether we're on the front page or not+ body_classes[] = variables['is_front'] ? 'front' : 'not-front';
@@ -1361,12 +1433,16 @@ def template_preprocess_page(&variables):
   # in certain international characters (e.g+ German umlauts)+ body_classes[] = preg_replace('not [^abcdefghijklmnopqrstuvwxyz0-9-_]+not s', '', 'page-'+ form_clean_id(drupal_strtolower(arg(0))));
   # If on an individual node page, add the node type+ if (isset(variables['node']) and variables['node'].type):
     body_classes[] = 'node-type-'+ form_clean_id(variables['node'].type);
+  }
   # Add information about the number of sidebars+ if (variables['layout'] == 'both'):
     body_classes[] = 'two-sidebars';
+  }
   elif (variables['layout'] == 'none'):
     body_classes[] = 'no-sidebars';
+  }
   else:
     body_classes[] = 'one-sidebar sidebar-'+ variables['layout'];
+  }
   # Implode with spaces+ variables['body_classes'] = implode(' ', body_classes);
 
   # Build a list of suggested template files in order of specificity+ One
@@ -1386,11 +1462,16 @@ def template_preprocess_page(&variables):
     suggestions[] = suggestion +'-'+ arg;
     if (not is_numeric(arg)):
       suggestion += '-'+ arg;
+    }
+  }
   if (drupal_is_front_page()):
     suggestions[] = 'page-front';
+  }
 
   if (suggestions):
     variables['template_files'] = suggestions;
+  }
+}
 #
 # Process variables for node.tpl.php
 #
@@ -1408,15 +1489,20 @@ def template_preprocess_node(&variables):
   node = variables['node'];
   if (module_exists('taxonomy')):
     variables['taxonomy'] = taxonomy_link('taxonomy terms', node);
+  }
   else:
     variables['taxonomy'] = array();
+  }
 
   if (variables['teaser'] and node.teaser):
     variables['content'] = node.teaser;
+  }
   elif (isset(node.body)):
     variables['content'] = node.body;
+  }
   else:
     variables['content'] = '';
+  }
 
   variables['date']      = format_date(node.created);
   variables['links']     = not empty(node.links) ? theme('links', node.links, array('class' : 'links inline')) : '';
@@ -1430,10 +1516,13 @@ def template_preprocess_node(&variables):
   # Display info only on certain node types+ if (theme_get_setting('toggle_node_info_'+ node.type)):
     variables['submitted'] = theme('node_submitted', node);
     variables['picture'] = theme_get_setting('toggle_node_user_picture') ? theme('user_picture', node) : '';
+  }
   else:
     variables['submitted'] = '';
     variables['picture'] = '';
+  }
   # Clean up name so there are no underscores+ variables['template_files'][] = 'node-'+ node.type;
+}
 #
 # Process variables for block.tpl.php
 #
@@ -1453,10 +1542,12 @@ def template_preprocess_block(&variables):
   static block_counter = array();
   # All blocks get an independent counter for each region+ if (not isset(block_counter[variables['block'].region])):
     block_counter[variables['block'].region] = 1;
+  }
   # Same with zebra striping+ variables['block_zebra'] = (block_counter[variables['block'].region] % 2) ? 'odd' : 'even';
   variables['block_id'] = block_counter[variables['block'].region]++;
 
   variables['template_files'][] = 'block-'+ variables['block'].region;
   variables['template_files'][] = 'block-'+ variables['block'].module;
   variables['template_files'][] = 'block-'+ variables['block'].module +'-'+ variables['block'].delta;
+}
 

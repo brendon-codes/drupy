@@ -11,6 +11,10 @@
 # @version 0.1.1
 # @modified 2008-08-20
 #
+# Required modules that might not be installed by default or included with Drupy:
+#    Image (http://www.pythonware.com/products/pil/)
+#    Hashlib (http://code.krypto.org/python/hashlib/)
+#    Zlib (http://linux.maruhn.com/sec/python-zlib.html)
 #
 
 import sys
@@ -29,6 +33,7 @@ import htmlentitydefs
 import cgi
 import cgitb; cgitb.enable()
 import urllib
+from PIL import Image
 from lib.drupy import DrupyHelper
 
 #
@@ -174,6 +179,21 @@ def define(name, val = None):
     % vars
   exec(out, globals())
   return True
+
+
+
+#
+# GD image size
+# @param Str filename
+# @return 
+#
+def getimagesize(filename):
+  img = Image.open(filename)
+  (w,h) = img.size
+  t = "IMAGETPE_%S" % img.format
+  a = "width=\"%d\" height=\"%d\"" % img.size
+  return (w,h,t,a)
+
 
 
 #

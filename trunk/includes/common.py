@@ -1981,6 +1981,42 @@ def drupal_urlencode(text):
 
 
 #
+# Returns a string of highly randomized bytes (over the full 8-bit range).
+#
+# This function is better than simply calling mt_rand() or any other built-in
+# PHP function because it can return a long string of bytes (compared to < 4
+# bytes normally from mt_rand()) and uses the best available pseudo-random source.
+#
+# @param $count
+#   The number of characters (bytes) to return in the string.
+#
+def drupal_random_bytes(_count):
+  global static_drupalrandombytes_randomstate;
+  # We initialize with the somewhat random PHP process ID on the first call.
+  if (empty(static_drupalrandombytes_randomstate)):
+    static_drupalrandombytes_randomstate = getmypid();
+  output = '';
+  # /dev/urandom is available on many *nix systems and is considered the best
+  # commonly available pseudo-random source.
+  fh = fopen('/dev/urandom', 'rb')
+  if (fh != False):
+    output = fread(fh, _count);
+    fclose(fh);
+  # If /dev/urandom is not available or returns no bytes, this loop will
+  # generate a good set of pseudo-random bytes on any system.
+  # Note that it may be important that our $random_state is passed
+  # through md5() prior to being rolled into $output, that the two md5()
+  # invocations are different, and that the extra input into the first one -
+  # the microtime() - is prepended rather than appended.  This is to avoid
+  # directly leaking $random_state via the $output stream, which could
+  # allow for trivial prediction of further "random" numbers.
+  while (strlen(output) < _count):
+    static_drupalrandombytes_randomstate = md5(microtime() + mt_rand() + static_drupalrandombytes_randomstate);
+    output += md5(mt_rand() + static_drupalrandombytes_randomstate, True);
+  return substr(output, 0, count);
+
+
+#
 # Ensure the private key variable used to generate tokens is set.
 #
 # @return
@@ -1989,7 +2025,7 @@ def drupal_urlencode(text):
 def drupal_get_private_key():
   key = variable_get('drupal_private_key', 0);
   if (not key):
-    key = md5(uniqid(mt_rand(), true)) + md5(uniqid(mt_rand(), true));
+    key = md5(drupal_random_bytes(64));
     variable_set('drupal_private_key', key);
   return key;
 
@@ -3006,6 +3042,7 @@ def drupal_flush_all_caches():
   _drupal_flush_css_js();
   drupal_clear_css_cache();
   drupal_clear_js_cache();
+  system_theme_data();
   drupal_rebuild_theme_registry();
   menu_rebuild();
   node_types_rebuild();

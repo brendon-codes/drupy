@@ -7,11 +7,6 @@ $rules = array(
     "/(\)|else)\s*\{/i",
     "\\1:"
   ),
-  // brace close
-  array(
-    "/[\r\n]+[\t\f\040]*\}/im",
-    ""
-  ),
   // not
   array(
     "/!(?!=)/i",
