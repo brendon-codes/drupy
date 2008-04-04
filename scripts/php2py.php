@@ -14,7 +14,7 @@ $rules = array(
   ),
   // concat pre
   array(
-    "/(\S)\s+\./i",
+    "/(\S)\s+\.(?![\f\t\040]*[\r\n])/i",
     "\\1 +"
   ),
   //concat post
