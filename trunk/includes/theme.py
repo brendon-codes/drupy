@@ -1163,20 +1163,22 @@ def theme_more_help_link(url):
 # @param url
 #   The url of the feed+ */
 def theme_xml_icon(url):
-  if (image = theme('image', 'misc/xml.png', t('XML feed'), t('XML feed'))):
+  image = theme('image', 'misc/xml.png', t('XML feed'), t('XML feed'));
+  if (image):
     return '<a href="'+ check_url(url) +'" class="xml-icon">'+ image +'</a>';
-  }
-}
+
+
 #
 # Return code that emits an feed icon+ *
 # @param url
 #   The url of the feed+ * @param title
 #   A descriptive title of the feed+ */
 def theme_feed_icon(url, title):
-  if (image = theme('image', 'misc/feed.png', t('Syndicate content'), title)):
+  image = theme('image', 'misc/feed.png', t('Syndicate content'), title)
+  if (image):
     return '<a href="'+ check_url(url) +'" class="feed-icon">'+ image +'</a>';
-  }
-}
+
+
 #
 # Returns code that emits the 'more' link used on blocks+ *
 # @param url
@@ -1185,18 +1187,22 @@ def theme_feed_icon(url, title):
 #   A descriptive verb for the link, like 'Read more'
 #
 def theme_more_link(url, title):
-  return '<div class="more-link">'+ t('<a href="@link" title="@title">more</a>', array('@link' : check_url(url), '@title' : title)) +'</div>';
-}
+  return '<div class="more-link">'+ t('<a href="@link" title="@title">more</a>', {'@link' : check_url(url), '@title' : title}) +'</div>';
+
+
+
 #
 # Execute hook_footer() which is run at the end of the page right before the
 # close of the body tag+ *
 # @param main (optional)
 #   Whether the current page is the front page of the site+ * @return
 #   A string containing the results of the hook_footer() calls+ */
-def theme_closure(main = 0):
-  footer = module_invoke_all('footer', main);
+def theme_closure(_main = 0):
+  footer = module_invoke_all('footer', _main);
   return implode("\n", footer) + drupal_get_js('footer');
-}
+
+
+
 #
 # Return a set of blocks available for the current user+ *
 # @param region
@@ -1204,60 +1210,50 @@ def theme_closure(main = 0):
 #   A string containing the themed blocks for this region+ */
 def theme_blocks(region):
   output = '';
-
-  if (list = block_list(region)):
+  list = block_list(region);
+  if (list):
     for key,block in list.items():
       # key == <i>module</i>_<i>delta</i>
       output += theme('block', block);
-    }
-  }
-
   # Add any content assigned to this region through drupal_set_content() calls+ output += drupal_get_content(region);
-
   return output;
-}
+
+
+
 #
 # Format a username+ *
 # @param object
 #   The user object to format, usually returned from user_load()+ * @return
 #   A string containing an HTML link to the user's page if the passed object
 #   suggests that this is a site user+ Otherwise, only the username is returned+ */
-def theme_username(object):
-
-  if (object.uid and object.name):
-    # Shorten the name when it is too long or it will break many tables+ if (drupal_strlen(object.name) > 20):
-      name = drupal_substr(object.name, 0, 15) +'...';
-    }
+def theme_username(_object):
+  nameSet = (isset(_object, 'name') and not empty(_object.name));
+  if (_object.uid > 0 and nameSet):
+    # Shorten the name when it is too long or it will break many tables+
+    if (drupal_strlen(_object.name) > 20):
+      name = drupal_substr(_object.name, 0, 15) +'...';
     else:
-      name = object.name;
-    }
-
+      name = _object.name;
     if (user_access('access user profiles')):
-      output = l(name, 'user/'+ object.uid, array('title' : t('View user profile.')));
-    }
+      output = l(name, 'user/'+ _object.uid, {'title' : t('View user profile.')});
     else:
       output = check_plain(name);
-    }
-  }
-  elif (object.name):
+  elif (nameSet):
     # Sometimes modules display content composed by people who are
     # not registered members of the site (e.g+ mailing list or news
     # aggregator modules)+ This clause enables modules to display
-    # the True author of the content+ if (not empty(object.homepage)):
-      output = l(object.name, object.homepage, array('rel' : 'nofollow'));
-    }
+    # the True author of the content+
+    if (isset(_object, 'homepage') and not empty(_object.homepage)):
+      output = l(_object.name, _object.homepage, {'rel' : 'nofollow'});
     else:
-      output = check_plain(object.name);
-    }
-
+      output = check_plain(_object.name);
     output += ' ('+ t('not verified') +')';
-  }
   else:
     output = variable_get('anonymous', t('Anonymous'));
-  }
-
   return output;
-}
+
+
+
 #
 # Return a themed progress bar+ *
 # @param percent
@@ -1270,9 +1266,10 @@ def theme_progress_bar(percent, message):
   output += '<div class="percentage">'+ percent +'%</div>';
   output += '<div class="message">'+ message +'</div>';
   output += '</div>';
-
   return output;
-}
+
+
+
 #
 # Create a standard indentation div+ Used for drag and drop tables+ *
 # @param size
@@ -1280,37 +1277,32 @@ def theme_progress_bar(percent, message):
 #   A string containing indentations+ */
 def theme_indentation(size = 1):
   output = '';
-  for (n = 0; n < size; n++):
+  for n in range(0, size):
     output += '<div class="indentation">&nbsp;</div>';
-  }
   return output;
-}
+
+
 #
 # @} End of "defgroup themeable"+ */
 
 def _theme_table_cell(cell, header = False):
   attributes = '';
-
   if (is_array(cell)):
-    data = isset(cell['data']) ? cell['data'] : '';
-    header |= isset(cell['header']);
-    unset(cell['data']);
-    unset(cell['header']);
+    data = (cell['data'] if isset(cell, 'data') else '');
+    header |= isset(cell, 'header');
+    del(cell['data']);
+    del(cell['header']);
     attributes = drupal_attributes(cell);
-  }
   else:
     data = cell;
-  }
-
   if (header):
-    output = "<thattributes>data</th>";
-  }
+    output = "<thattributes>%s</th>" % data;
   else:
-    output = "<tdattributes>data</td>";
-  }
-
+    output = "<tdattributes>%s</td>" % data;
   return output;
-}
+
+
+
 #
 # Adds a default set of helper variables for preprocess functions and
 # templates+ This comes in before any other preprocess function which makes
