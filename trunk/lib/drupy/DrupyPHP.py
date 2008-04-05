@@ -581,6 +581,18 @@ def drupy_object(dic):
     setattr(out, i, dic[i])
   return out
 
+#
+# Cast to array
+# @param Object obj
+# @return Dict
+#
+def drupy_array(obj):
+  out = {}
+  mag = '__'
+  for i in dir(obj):
+    if i[0:2] != mag and i[-2:] != mag:
+      out[i] = getattr(obj, i)
+  return out;
 
 
 #
