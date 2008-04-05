@@ -20,7 +20,8 @@ static('static_themegetregistry_themeregistry');
 static('static_listthemes_list');
 static('static_theme_hooks');
 static('static_themegetsetting_settings');
-
+static('static_template_preprocess_count');
+static('static_templatepreprocessblock_blockcounter');
 
 
 # @see <a href="http://drupal.org/node/253">Theme system</a>
@@ -996,11 +997,12 @@ def theme_submenu(links):
 #   A localized string to use for the <caption> tag+ * @return
 #   An HTML string representing the table+ */
 def theme_table(header, rows, attributes = [], caption = None):
-
   # Add sticky headers, if applicable+
   if (count(header) > 0):
     drupal_add_js('misc/tableheader.js');
-    # Add 'sticky-enabled' class to the table to identify it for JS+ // This is needed to target tables constructed by this function+ attributes['class'] = empty(attributes['class']) ? 'sticky-enabled' : (attributes['class'] +' sticky-enabled');
+    # Add 'sticky-enabled' class to the table to identify it for JS+
+    # This is needed to target tables constructed by this function+
+    attributes['class'] = ('sticky-enabled' if empty(attributes['class']) else (attributes['class'] +' sticky-enabled'));
   output = '<table'+ drupal_attributes(attributes) +">\n";
   if (caption != None):
     output += '<caption>'+ caption +"</caption>\n";
@@ -1008,7 +1010,9 @@ def theme_table(header, rows, attributes = [], caption = None):
   if (count(header) > 0):
     ts = tablesort_init(header);
     # HTML requires that the thead tag has tr tags in it follwed by tbody
-    # tags+ Using ternary operator to check and see if we have any rows+ output += (count(rows) ? ' <thead><tr>' : ' <tr>');
+    # tags+
+    #Using ternary operator to check and see if we have any rows+
+    output += (' <thead><tr>' if (count(rows) > 1) else ' <tr>');
     for cell in header:
       cell = tablesort_header(cell, header, ts);
       output += _theme_table_cell(cell, True);
@@ -1055,7 +1059,7 @@ def theme_table(header, rows, attributes = [], caption = None):
 
 
 #
-# Returns a header cell for tables that have a select all functionality+ */
+# Returns a header cell for tables that have a select all functionality+
 def theme_table_select_header_cell():
   drupal_add_js('misc/tableselect.js');
   return {'class' : 'select-all'};
@@ -1064,7 +1068,9 @@ def theme_table_select_header_cell():
 #
 # Return a themed sort icon+ *
 # @param style
-#   Set to either asc or desc+ This sets which icon to show+ * @return
+#   Set to either asc or desc+
+# This sets which icon to show+
+#  @return
 #   A themed sort icon+ */
 def theme_tablesort_indicator(style):
   if (style == "asc"):
@@ -1077,9 +1083,12 @@ def theme_tablesort_indicator(style):
 #
 # Return a themed box+ *
 # @param title
-#   The subject of the box+ * @param content
-#   The content of the box+ * @param region
-#   The region in which the box is displayed+ * @return
+#   The subject of the box+
+# @param content
+#   The content of the box+
+# @param region
+#   The region in which the box is displayed+
+# @return
 #   A string containing the box output+ */
 def theme_box(title, content, region = 'main'):
   output = '<h2 class="title">'+ title +'</h2><div>'+ content +'</div>';
@@ -1215,7 +1224,8 @@ def theme_blocks(region):
     for key,block in list.items():
       # key == <i>module</i>_<i>delta</i>
       output += theme('block', block);
-  # Add any content assigned to this region through drupal_set_content() calls+ output += drupal_get_content(region);
+  # Add any content assigned to this region through drupal_set_content() calls+
+  output += drupal_get_content(region);
   return output;
 
 
@@ -1225,7 +1235,8 @@ def theme_blocks(region):
 # @param object
 #   The user object to format, usually returned from user_load()+ * @return
 #   A string containing an HTML link to the user's page if the passed object
-#   suggests that this is a site user+ Otherwise, only the username is returned+ */
+#   suggests that this is a site user+
+# Otherwise, only the username is returned+ */
 def theme_username(_object):
   nameSet = (isset(_object, 'name') and not empty(_object.name));
   if (_object.uid > 0 and nameSet):
@@ -1296,9 +1307,9 @@ def _theme_table_cell(cell, header = False):
   else:
     data = cell;
   if (header):
-    output = "<thattributes>%s</th>" % data;
+    output = "<th %(attributes)s>%(data)s</th>" % { 'data' : data, 'attributes' : attributes };
   else:
-    output = "<tdattributes>%s</td>" % data;
+    output = "<td %(attributes)s>%(data)s</td>" % { 'data' : data, 'attributes' : attributes };
   return output;
 
 
@@ -1308,29 +1319,41 @@ def _theme_table_cell(cell, header = False):
 # templates+ This comes in before any other preprocess function which makes
 # it possible to be used in default theme implementations (non-overriden
 # theme functions)+ */
-def template_preprocess(&variables, hook):
+def template_preprocess(_variables, hook):
   global user;
-  static count = array();
-
-  # Track run count for each hook to provide zebra striping+ // See "template_preprocess_block()" which provides the same feature specific to blocks+ count[hook] = isset(count[hook]) and is_int(count[hook]) ? count[hook] : 1;
-  variables['zebra'] = (count[hook] % 2) ? 'odd' : 'even';
-  variables['id'] = count[hook]++;
-
-  # Tell all templates where they are located+ variables['directory'] = path_to_theme();
-
-  # Set default variables that depend on the database+ variables['is_admin']            = False;
-  variables['is_front']            = False;
-  variables['logged_in']           = False;
-  if (variables['db_is_active'] = db_is_active()  and not defined('MAINTENANCE_MODE')):
-    # Check for administrators+ if (user_access('access administration pages')):
-      variables['is_admin'] = True;
-    }
-    # Flag front page status+ variables['is_front'] = drupal_is_front_page();
-    # Tell all templates by which kind of user they're viewed+ variables['logged_in'] = (user.uid > 0);
+  global static_template_preprocess_count;
+  DrupyHelper.Reference.check(_variables);
+  if (static_template_preprocess_count == None):
+    static_template_preprocess_count = {};
+  # Track run count for each hook to provide zebra striping+
+  # See "template_preprocess_block()" which provides the same feature specific to blocks+
+  static_template_preprocess_count[hook] = \
+    (static_template_preprocess_count[hook] \
+      if (isset(static_template_preprocess_count, hook) and \
+        is_int(static_template_preprocess_count[hook])) else 1);
+  _variables.val['zebra'] = ('odd' if ((static_template_preprocess_count[hook] % 2) > 1) else 'even');
+  static_template_preprocess_count[hook] += 1;
+  _variables.val['id'] = static_template_preprocess_count[hook];
+  # Tell all templates where they are located+
+  variables['directory'] = path_to_theme();
+  # Set default variables that depend on the database+
+  variables['is_admin']            = False;
+  _variables.val['is_front']            = False;
+  _variables.val['logged_in']           = False;
+  _variables.val['db_is_active'] = db_is_active() ;
+  if (_variables.val['db_is_active'] and not defined('MAINTENANCE_MODE')):
+    # Check for administrators+
+    if (user_access('access administration pages')):
+      _variables.val['is_admin'] = True;
+    # Flag front page status+
+    variables['is_front'] = drupal_is_front_page();
+    # Tell all templates by which kind of user they're viewed+
+    variables['logged_in'] = (user.uid > 0);
     # Provide user object to all templates
-    variables['user'] = user;
-  }
-}
+    _variables.val['user'] = user;
+
+
+
 #
 # Process variables for page.tpl.php
 #
@@ -1347,96 +1370,97 @@ def template_preprocess(&variables, hook):
 #
 # @see page.tpl.php
 #
-def template_preprocess_page(&variables):
+def template_preprocess_page(_variables):
+  global _theme;
+  global language;
+  DrupyHelper.Reference.check(_variables);
   # Add favicon
   if (theme_get_setting('toggle_favicon')):
     drupal_set_html_head('<link rel="shortcut icon" href="'+ check_url(theme_get_setting('favicon')) +'" type="image/x-icon" />');
-  }
-
-  global theme;
-  # Populate all block regions+ regions = system_region_list(theme);
-  # Load all region content assigned via blocks+ for region in array_keys(regions):
-    # Prevent left and right regions from rendering blocks when 'show_blocks' == False+ if (not (not variables['show_blocks'] and (region == 'left' or region == 'right'))):
+  # Populate all block regions+
+  regions = system_region_list(theme);
+  # Load all region content assigned via blocks+
+  for region in array_keys(regions):
+    # Prevent left and right regions from rendering blocks when 'show_blocks' == False+
+    if (not (not _variables.val['show_blocks'] and (region == 'left' or region == 'right'))):
       blocks = theme('blocks', region);
-    }
     else:
       blocks = '';
-    }
-    # Assign region to a region variable+ isset(variables[region]) ? variables[region] += blocks : variables[region] = blocks;
-  }
-
-  # Set up layout variable+ variables['layout'] = 'none';
-  if (not empty(variables['left'])):
-    variables['layout'] = 'left';
-  }
-  if (not empty(variables['right'])):
-    variables['layout'] = (variables['layout'] == 'left') ? 'both' : 'right';
-  }
-
-  # Set mission when viewing the frontpage+ if (drupal_is_front_page()):
+    # Assign region to a region variable+
+    if (isset(variables, region)):
+      _variables.val[region] += blocks
+    else:
+      _variables.val[region] = blocks;
+  # Set up layout variable+
+  variables['layout'] = 'none';
+  if (not empty(_variables.val['left'])):
+    _variables.val['layout'] = 'left';
+  if (not empty(_variables.val['right'])):
+    variables['layout'] = ('both' if (variables['layout'] == 'left') else 'right');
+  # Set mission when viewing the frontpage+
+  if (drupal_is_front_page()):
     mission = filter_xss_admin(theme_get_setting('mission'));
-  }
-
+  else:
+    mission = None;
   # Construct page title
   if (drupal_get_title()):
-    head_title = array(strip_tags(drupal_get_title()), variable_get('site_name', 'Drupal'));
-  }
+    head_title = [strip_tags(drupal_get_title()), variable_get('site_name', 'Drupal')];
   else:
-    head_title = array(variable_get('site_name', 'Drupal'));
+    head_title = [variable_get('site_name', 'Drupal')];
     if (variable_get('site_slogan', '')):
-      head_title[] = variable_get('site_slogan', '');
-    }
-  }
-  variables['head_title']        = implode(' | ', head_title);
-  variables['base_path']         = base_path();
-  variables['front_page']        = url();
-  variables['breadcrumb']        = theme('breadcrumb', drupal_get_breadcrumb());
-  variables['feed_icons']        = drupal_get_feeds();
-  variables['footer_message']    = filter_xss_admin(variable_get('site_footer', False));
-  variables['head']              = drupal_get_html_head();
-  variables['help']              = theme('help');
-  variables['language']          = GLOBALS['language'];
-  variables['language'].dir     = GLOBALS['language'].direction ? 'rtl' : 'ltr';
-  variables['logo']              = theme_get_setting('logo');
-  variables['messages']          = variables['show_messages'] ? theme('status_messages') : '';
-  variables['mission']           = isset(mission) ? mission : '';
-  variables['primary_links']     = theme_get_setting('toggle_primary_links') ? menu_primary_links() : array();
-  variables['secondary_links']   = theme_get_setting('toggle_secondary_links') ? menu_secondary_links() : array();
-  variables['search_box']        = (theme_get_setting('toggle_search') ? drupal_get_form('search_theme_form') : '');
-  variables['site_name']         = (theme_get_setting('toggle_name') ? variable_get('site_name', 'Drupal') : '');
-  variables['site_slogan']       = (theme_get_setting('toggle_slogan') ? variable_get('site_slogan', '') : '');
-  variables['css']               = drupal_add_css();
-  variables['styles']            = drupal_get_css();
-  variables['scripts']           = drupal_get_js();
-  variables['tabs']              = theme('menu_local_tasks');
-  variables['title']             = drupal_get_title();
-  # Closure should be filled last+ variables['closure']           = theme('closure');
-
-  if (node = menu_get_object()):
-    variables['node'] = node;
-  }
-
-  # Compile a list of classes that are going to be applied to the body element+ // This allows advanced theming based on context (home page, node of certain type, etc.)+ body_classes = array();
-  # Add a class that tells us whether we're on the front page or not+ body_classes[] = variables['is_front'] ? 'front' : 'not-front';
-  # Add a class that tells us whether the page is viewed by an authenticated user or not+ body_classes[] = variables['logged_in'] ? 'logged-in' : 'not-logged-in';
+      head_title.append( variable_get('site_slogan', '') );
+  _variables.val['head_title']        = implode(' | ', head_title);
+  _variables.val['base_path']         = base_path();
+  _variables.val['front_page']        = url();
+  _variables.val['breadcrumb']        = theme('breadcrumb', drupal_get_breadcrumb());
+  _variables.val['feed_icons']        = drupal_get_feeds();
+  _variables.val['footer_message']    = filter_xss_admin(variable_get('site_footer', False));
+  _variables.val['head']              = drupal_get_html_head();
+  _variables.val['help']              = theme('help');
+  _variables.val['language']          = language;
+  _variables.val['language'].dir      = ('rtl' if (isset(language, 'direction') and not empty(language.direction)) else 'ltr');
+  _variables.val['logo']              = theme_get_setting('logo');
+  _variables.val['messages']          = (theme('status_messages') if variables['show_messages'] else '');
+  _variables.val['mission']           = (mission if (mission != None) else '');
+  _variables.val['primary_links']     = (menu_primary_links() if theme_get_setting('toggle_primary_links') else []);
+  _variables.val['secondary_links']   = (menu_secondary_links() if theme_get_setting('toggle_secondary_links') else []);
+  _variables.val['search_box']        = (drupal_get_form('search_theme_form') if theme_get_setting('toggle_search') else '');
+  _variables.val['site_name']         = (variable_get('site_name', 'Drupal') if theme_get_setting('toggle_name') else '');
+  _variables.val['site_slogan']       = (variable_get('site_slogan', '') if theme_get_setting('toggle_slogan') else '');
+  _variables.val['css']               = drupal_add_css();
+  _variables.val['styles']            = drupal_get_css();
+  _variables.val['scripts']           = drupal_get_js();
+  _variables.val['tabs']              = theme('menu_local_tasks');
+  _variables.val['title']             = drupal_get_title();
+  # Closure should be filled last+
+  _variables.val['closure']           = theme('closure');
+  node = menu_get_object();
+  if (node):
+    _variables.val['node'] = node;
+  # Compile a list of classes that are going to be applied to the body element+
+  # This allows advanced theming based on context (home page, node of certain type, etc.)+
+  body_classes = [];
+  # Add a class that tells us whether we're on the front page or not+
+  body_classes.append( ('front' if _variables.val['is_front'] else 'not-front') );
+  # Add a class that tells us whether the page is viewed by an authenticated user or not+
+  body_classes.append( ('logged-in' if _variables.val['logged_in'] else 'not-logged-in') );
   # Add arg(0) to make it possible to theme the page depending on the current page
   # type (e.g+ node, admin, user, etc.)+ To avoid illegal characters in the class,
   # we're removing everything disallowed+ We are not using 'a-z' as that might leave
-  # in certain international characters (e.g+ German umlauts)+ body_classes[] = preg_replace('not [^abcdefghijklmnopqrstuvwxyz0-9-_]+not s', '', 'page-'+ form_clean_id(drupal_strtolower(arg(0))));
-  # If on an individual node page, add the node type+ if (isset(variables['node']) and variables['node'].type):
-    body_classes[] = 'node-type-'+ form_clean_id(variables['node'].type);
-  }
-  # Add information about the number of sidebars+ if (variables['layout'] == 'both'):
-    body_classes[] = 'two-sidebars';
-  }
-  elif (variables['layout'] == 'none'):
-    body_classes[] = 'no-sidebars';
-  }
+  # in certain international characters (e.g+ German umlauts)+
+  body_classes.append( preg_replace('not [^abcdefghijklmnopqrstuvwxyz0-9-_]+not s', '', 'page-'+ form_clean_id(drupal_strtolower(arg(0)))) );
+  # If on an individual node page, add the node type+
+  if (isset(_variables.val, 'node') and _variables.val['node'].type):
+    body_classes.append( 'node-type-'+ form_clean_id(_variables.val['node'].type) );
+  # Add information about the number of sidebars+
+  if (_variables.val['layout'] == 'both'):
+    body_classes.append( 'two-sidebars' );
+  elif (_variables.val['layout'] == 'none'):
+    body_classes.append( 'no-sidebars' );
   else:
-    body_classes[] = 'one-sidebar sidebar-'+ variables['layout'];
-  }
-  # Implode with spaces+ variables['body_classes'] = implode(' ', body_classes);
-
+    body_classes.append( 'one-sidebar sidebar-'+ _variables.val['layout'] );
+  # Implode with spaces+
+  _variables.val['body_classes'] = implode(' ', body_classes);
   # Build a list of suggested template files in order of specificity+ One
   # suggestion is made for every element of the current path, though
   # numeric elements are not carried to subsequent suggestions+ For example,
@@ -1449,21 +1473,24 @@ def template_preprocess_page(&variables):
   # page.tpl.php
   i = 0;
   suggestion = 'page';
-  suggestions = array();
-  while (arg = arg(i++)):
-    suggestions[] = suggestion +'-'+ arg;
-    if (not is_numeric(arg)):
-      suggestion += '-'+ arg;
-    }
-  }
+  suggestions = [];
+  while True:
+    _arg = arg(i);
+    if (_arg == False or _arg == None):
+      break;
+    else:
+      i += 1;
+    suggestions.append( suggestion +'-'+ _arg );
+    if (not is_numeric(_arg)):
+      suggestion += '-'+ _arg;
   if (drupal_is_front_page()):
-    suggestions[] = 'page-front';
-  }
+    suggestions.append( 'page-front' );
+  if (not empty(suggestions)):
+    _variables.val['template_files'] = suggestions;
 
-  if (suggestions):
-    variables['template_files'] = suggestions;
-  }
-}
+
+
+
 #
 # Process variables for node.tpl.php
 #
@@ -1477,44 +1504,40 @@ def template_preprocess_page(&variables):
 #
 # @see node.tpl.php
 #
-def template_preprocess_node(&variables):
-  node = variables['node'];
+def template_preprocess_node(_variables):
+  DrupyHelper.Reference.check(variables);
+  node = _variables.val['node'];
   if (module_exists('taxonomy')):
-    variables['taxonomy'] = taxonomy_link('taxonomy terms', node);
-  }
+    _variables.val['taxonomy'] = taxonomy_link('taxonomy terms', node);
   else:
-    variables['taxonomy'] = array();
-  }
-
-  if (variables['teaser'] and node.teaser):
-    variables['content'] = node.teaser;
-  }
-  elif (isset(node.body)):
-    variables['content'] = node.body;
-  }
+    _variables.val['taxonomy'] = {};
+  if (_variables.val['teaser'] and node.teaser):
+    _variables.val['content'] = node.teaser;
+  elif (isset(node, 'body')):
+    _variables.val['content'] = node.body;
   else:
-    variables['content'] = '';
-  }
-
-  variables['date']      = format_date(node.created);
-  variables['links']     = not empty(node.links) ? theme('links', node.links, array('class' : 'links inline')) : '';
-  variables['name']      = theme('username', node);
-  variables['node_url']  = url('node/'+ node.nid);
-  variables['terms']     = theme('links', variables['taxonomy'], array('class' : 'links inline'));
-  variables['title']     = check_plain(node.title);
-
-  # Flatten the node object's member fields+ variables = array_merge((array)node, variables);
-
-  # Display info only on certain node types+ if (theme_get_setting('toggle_node_info_'+ node.type)):
-    variables['submitted'] = theme('node_submitted', node);
-    variables['picture'] = theme_get_setting('toggle_node_user_picture') ? theme('user_picture', node) : '';
-  }
+    _variables.val['content'] = '';
+  _variables.val['date']      = format_date(node.created);
+  _variables.val['links']     = (theme('links', node.links, {'class' : 'links inline'}) if (not empty(node.links)) else '');
+  _variables.val['name']      = theme('username', node);
+  _variables.val['node_url']  = url('node/'+ node.nid);
+  _variables.val['terms']     = theme('links', _variables.val['taxonomy'], {'class' : 'links inline'});
+  _variables.val['title']     = check_plain(node.title);
+  # Flatten the node object's member fields+
+  _variables.val = array_merge(drupy_array(node), _variables.val);
+  # Display info only on certain node types+
+  if (theme_get_setting('toggle_node_info_'+ node.type)):
+    _variables.val['submitted'] = theme('node_submitted', node);
+    _variables.val['picture'] = (theme('user_picture', node) if theme_get_setting('toggle_node_user_picture') else '');
   else:
-    variables['submitted'] = '';
-    variables['picture'] = '';
-  }
-  # Clean up name so there are no underscores+ variables['template_files'][] = 'node-'+ node.type;
-}
+    _variables.val['submitted'] = '';
+    _variables.val['picture'] = '';
+  # Clean up name so there are no underscores+
+  _variables.val['template_files'].append( 'node-'+ node.type );
+
+
+
+
 #
 # Process variables for block.tpl.php
 #
@@ -1530,16 +1553,21 @@ def template_preprocess_node(&variables):
 #
 # @see block.tpl.php
 #
-def template_preprocess_block(&variables):
-  static block_counter = array();
-  # All blocks get an independent counter for each region+ if (not isset(block_counter[variables['block'].region])):
-    block_counter[variables['block'].region] = 1;
-  }
-  # Same with zebra striping+ variables['block_zebra'] = (block_counter[variables['block'].region] % 2) ? 'odd' : 'even';
-  variables['block_id'] = block_counter[variables['block'].region]++;
+def template_preprocess_block(_variables):
+  global static_templatepreprocessblock_blockcounter;
+  DrupyHelper.Reference.check(_variables);
+  if (static_templatepreprocessblock_blockcounter == None):
+    static_templatepreprocessblock_blockcounter = {};
+  # All blocks get an independent counter for each region+
+  if (not isset(static_templatepreprocessblock_blockcounter, _variables.val['block'].region)):
+    static_templatepreprocessblock_blockcounter[_variables.val['block'].region] = 1;
+  # Same with zebra striping+
+  _variables.val['block_zebra'] = ('odd' if ((static_templatepreprocessblock_blockcounter[_variables.val['block'].region] % 2) > 0) else 'even');
+  _variables.val['block_id'] = static_templatepreprocessblock_blockcounter[_variables.val['block'].region];
+  static_templatepreprocessblock_blockcounter[_variables.val['block'].region] += 1;
+  _variables.val['template_files'].append( 'block-'+ _variables.val['block'].region );
+  _variables.val['template_files'].append('block-'+ _variables.val['block'].module );
+  _variables.val['template_files'].append( 'block-'+ _variables.val['block'].module +'-'+ _variables.val['block'].delta );
 
-  variables['template_files'][] = 'block-'+ variables['block'].region;
-  variables['template_files'][] = 'block-'+ variables['block'].module;
-  variables['template_files'][] = 'block-'+ variables['block'].module +'-'+ variables['block'].delta;
-}
+
 
