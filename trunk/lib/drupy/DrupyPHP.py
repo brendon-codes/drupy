@@ -26,6 +26,7 @@ import urlparse
 import random
 import copy
 import re
+import base64
 import pickle
 import hashlib
 import zlib
@@ -46,6 +47,20 @@ global drupy_buffer; drupy_buffer = []
 #
 global ENT_QUOTES; ENT_QUOTES = 1
 global E_ALL; E_ALL = 6143
+
+
+#
+# Base 64 encode
+#
+def base64_encode(data):
+  return base64.encodestring(data);
+
+#
+# Base 64 encode
+#
+def base64_decode(data):
+  return base64.decodestring(data);
+
 
 #
 # Get POST fields

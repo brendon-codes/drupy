@@ -1,7 +1,10 @@
 # Id: unicode.inc,v 1.29 2007/12/28 12:02:50 dries Exp $
 
 from xml.dom import minidom
+import htmlentitydefs
+import re
 
+static('static_decodeentities_table');
 
 set_global('multibyte');
 
@@ -184,22 +187,21 @@ def truncate_utf8(_string, _len, wordsafe = False, dots = False):
 # - Using \n as the chunk separator may cause problems on some systems and may
 #   have to be changed to \r\n or \r.
 #
-def mime_header_encode(string):
-  if (preg_match('/[^\x20-\x7E]/', string)):
-    chunk_size = 47; // floor((75 - strlen("=?UTF-8?B??=")) * 0.75);
-    len = strlen(string);
+def mime_header_encode(_string):
+  if (preg_match('/[^\x20-\x7E]/', _string)):
+    chunk_size = 47; # floor((75 - strlen("=?UTF-8?B??=")) * 0.75);
+    _len = strlen(_string);
     output = '';
-    while (len > 0):
-      chunk = drupal_truncate_bytes(string, chunk_size);
+    while (_len > 0):
+      chunk = drupal_truncate_bytes(_string, chunk_size);
       output += ' =?UTF-8?B?'+ base64_encode(chunk) +"?=\n";
       c = strlen(chunk);
-      string = substr(string, c);
-      len -= c;
-    }
+      _string = substr(_string, c);
+      _len -= c;
     return trim(output);
-  }
-  return string;
-}
+  return _string;
+
+
 #
 # Complement to mime_header_encode
 #
@@ -208,7 +210,9 @@ def mime_header_decode(header):
   header = preg_replace_callback('/=\?([^?]+)\?(Q|B)\?([^?]+|\?(?!=))\?=\s+(?==\?)/', '_mime_header_decode', header);
   # Second step: remaining chunks (do not collapse whitespace)
   return preg_replace_callback('/=\?([^?]+)\?(Q|B)\?([^?]+|\?(?!=))\?=/', '_mime_header_decode', header);
-}
+
+
+
 #
 # Helper function to mime_header_decode
 #
@@ -217,12 +221,13 @@ def _mime_header_decode(matches):
   # 1: Character set name
   # 2: Escaping method (Q or B)
   # 3: Encoded data
-  data = (matches[2] == 'B') ? base64_decode(matches[3]) : str_replace('_', ' ', quoted_printable_decode(matches[3]));
+  data = (base64_decode(matches[3]) if (matches[2] == 'B') else str_replace('_', ' ', quoted_printable_decode(matches[3])));
   if (strtolower(matches[1]) != 'utf-8'):
     data = drupal_convert_to_utf8(data, matches[1]);
-  }
   return data;
-}
+
+
+
 #
 # Decode all HTML entities (including numerical ones) to regular UTF-8 bytes.
 # Double-escaped entities will only be decoded once ("&amp;lt;" becomes "&lt;", not "<").
@@ -233,64 +238,49 @@ def _mime_header_decode(matches):
 #   An array of characters which should not be decoded+ For example,
 #   array('<', '&', '"')+ This affects both named and numerical entities.
 #
-def decode_entities(text, exclude = array()):
-  static table;
-  # We store named entities in a table for quick processing.
-  if (not isset(table)):
-    # Get all named HTML entities.
-    table = array_flip(get_html_translation_table(HTML_ENTITIES));
-    # PHP gives us ISO-8859-1 data, we need UTF-8.
-    table = array_map('utf8_encode', table);
-    # Add apostrophe (XML)
-    table['&apos;'] = "'";
-  }
-  newtable = array_diff(table, exclude);
-
+# DRUPY(BC): This function heavily modified
+#
+def decode_entities(text, exclude = []):
+  global static_decodeentities_table;
+  if static_decodeentities_table == None:
+    static_decodeentities_table = {};
+    for k,v in htmlentitydefs.name2codepoint.items():
+      static_decodeentities_table[k.lower()] = v;
+  def _this_decode_entities(m):
+    matches = m.groups();
+    return _decode_entities( matches[1], matches[2], matches[0], static_decodeentities_table, exclude);
   # Use a regexp to select all entities in one pass, to avoid decoding double-escaped entities twice.
-  return preg_replace('/&(#x?)?([A-Za-z0-9]+);/e', '_decode_entities("1", "2", "0", newtable, exclude)', text);
-}
+  pat = re.compile('(&(#x?)?([A-Za-z0-9]+);)', re.I);
+  return pat.sub(_this_decode_entities, text);
+
+
 #
 # Helper function for decode_entities
 #
-def _decode_entities(prefix, codepoint, original, &table, &exclude):
-  # Named entity
-  if (not prefix):
-    if (isset(table[original])):
-      return table[original];
-    }
+# DRUPY(BC): This function heavily modified
+#
+#
+def _decode_entities(prefix, codepoint, original, table, exclude):
+  # Numeric
+  if prefix != None:
+    # Octal
+    if prefix.lower() == '#x':
+      c = unichr(int(codepoint, 16));
+    # Decimal
     else:
-      return original;
-    }
-  }
-  # Hexadecimal numerical entity
-  if (prefix == '#x'):
-    codepoint = base_convert(codepoint, 16, 10);
-  }
-  # Decimal numerical entity (strip leading zeros to avoid PHP octal notation)
+      c = unichr(int(codepoint));
+  # Word
   else:
-    codepoint = preg_replace('/^0+/', '', codepoint);
-  }
-  # Encode codepoint as UTF-8 bytes
-  if (codepoint < 0x80):
-    str = chr(codepoint);
-  }
-  elif (codepoint < 0x800):
-    str = chr(0xC0 | (codepoint >> 6)) + chr(0x80 | (codepoint & 0x3F));
-  }
-  elif (codepoint < 0x10000):
-    str = chr(0xE0 | ( codepoint >> 12)) + chr(0x80 | ((codepoint >> 6) & 0x3F)) + chr(0x80 | ( codepoint       & 0x3F));
-  }
-  elif (codepoint < 0x200000):
-    str = chr(0xF0 | ( codepoint >> 18)) + chr(0x80 | ((codepoint >> 12) & 0x3F)) + chr(0x80 | ((codepoint >> 6)  & 0x3F)) + chr(0x80 | ( codepoint        & 0x3F));
-  }
-  # Check for excluded characters
-  if (in_array(str, exclude)):
+    c = unichr(table[codepoint]);
+  # Exclusion
+  if (c in exclude):
     return original;
-  }
   else:
-    return str;
-  }
-}
+    return c;
+
+
+
+
 #
 # Count the amount of characters in a UTF-8 string+ This is less than or
 # equal to the byte count.
@@ -299,12 +289,11 @@ def drupal_strlen(text):
   global multibyte;
   if (multibyte == UNICODE_MULTIBYTE):
     return mb_strlen(text);
-  }
   else:
     # Do not count UTF-8 continuation bytes.
     return strlen(preg_replace("/[\x80-\xBF]/", '', text));
-  }
-}
+
+
 #
 # Uppercase a UTF-8 string.
 #
@@ -312,15 +301,16 @@ def drupal_strtoupper(text):
   global multibyte;
   if (multibyte == UNICODE_MULTIBYTE):
     return mb_strtoupper(text);
-  }
   else:
     # Use C-locale for ASCII-only uppercase
     text = strtoupper(text);
     # Case flip Latin-1 accented letters
-    text = preg_replace_callback('/\xC3[\xA0-\xB6\xB8-\xBE]/', '_unicode_caseflip', text);
+    text = preg_replace_callback('/\xC3[\xA0-\xB6\xB8-\xBE]/', _unicode_caseflip, text);
     return text;
-  }
-}
+
+
+
+
 #
 # Lowercase a UTF-8 string.
 #
@@ -328,29 +318,33 @@ def drupal_strtolower(text):
   global multibyte;
   if (multibyte == UNICODE_MULTIBYTE):
     return mb_strtolower(text);
-  }
   else:
     # Use C-locale for ASCII-only lowercase
     text = strtolower(text);
     # Case flip Latin-1 accented letters
-    text = preg_replace_callback('/\xC3[\x80-\x96\x98-\x9E]/', '_unicode_caseflip', text);
+    text = preg_replace_callback('/\xC3[\x80-\x96\x98-\x9E]/', _unicode_caseflip, text);
     return text;
-  }
-}
+
+
+
 #
 # Helper function for case conversion of Latin-1.
 # Used for flipping U+C0-U+DE to U+E0-U+FD and back.
 #
 def _unicode_caseflip(matches):
   return matches[0][0] + chr(ord(matches[0][1]) ^ 32);
-}
+
+
+
 #
 # Capitalize the first letter of a UTF-8 string.
 #
 def drupal_ucfirst(text):
   # Note: no mbstring equivalentnot 
   return drupal_strtoupper(drupal_substr(text, 0, 1)) + drupal_substr(text, 1);
-}
+
+
+
 #
 # Cut off a piece of a string based on character indices and counts+ Follows
 # the same behavior as PHP's own substr() function.
@@ -362,73 +356,59 @@ def drupal_ucfirst(text):
 def drupal_substr(text, start, length = None):
   global multibyte;
   if (multibyte == UNICODE_MULTIBYTE):
-    return length === None ? mb_substr(text, start) : mb_substr(text, start, length);
-  }
+    return (mb_substr(text, start) if (length == None) else mb_substr(text, start, length));
   else:
-    strlen = strlen(text);
+    _strlen = strlen(text);
     # Find the starting byte offset
     bytes = 0;
     if (start > 0):
       # Count all the continuation bytes from the start until we have found
       # start characters
       bytes = -1; chars = -1;
-      while (bytes < strlen and chars < start):
-        bytes++;
+      while (bytes < _strlen and chars < start):
+        bytes += 1;
         c = ord(text[bytes]);
         if (c < 0x80 or c >= 0xC0):
-          chars++;
-        }
-      }
-    }
+          chars += 1;
     elif (start < 0):
       # Count all the continuation bytes from the end until we have found
       # abs(start) characters
       start = abs(start);
-      bytes = strlen; chars = 0;
+      bytes = _strlen; chars = 0;
       while (bytes > 0 and chars < start):
-        bytes--;
+        bytes -= 1;
         c = ord(text[bytes]);
         if (c < 0x80 or c >= 0xC0):
-          chars++;
-        }
-      }
-    }
+          chars += 1;
     istart = bytes;
-
     # Find the ending byte offset
-    if (length === None):
-      bytes = strlen - 1;
-    }
+    if (length == None):
+      bytes = _strlen - 1;
     elif (length > 0):
       # Count all the continuation bytes from the starting index until we have
       # found length + 1 characters+ Then backtrack one byte.
-      bytes = istart; chars = 0;
-      while (bytes < strlen and chars < length):
-        bytes++;
+      bytes = istart;
+      chars = 0;
+      while (bytes < _strlen and chars < length):
+        bytes += 1;
         c = ord(text[bytes]);
         if (c < 0x80 or c >= 0xC0):
-          chars++;
-        }
-      }
-      bytes--;
-    }
+          chars += 1;
+      bytes -= 1;
     elif (length < 0):
       # Count all the continuation bytes from the end until we have found
       # abs(length) characters
       length = abs(length);
-      bytes = strlen - 1; chars = 0;
+      bytes = _strlen - 1;
+      chars = 0;
       while (bytes >= 0 and chars < length):
         c = ord(text[bytes]);
         if (c < 0x80 or c >= 0xC0):
-          chars++;
-        }
-        bytes--;
-      }
-    }
+          chars += 1;
+        bytes -= 1;
     iend = bytes;
-
     return substr(text, istart, max(0, iend - istart + 1));
-  }
-}
+
+
 
 
