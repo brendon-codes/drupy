@@ -12,6 +12,11 @@ $rules = array(
     "/!(?!=)/i",
     "not "
   ),
+  //concat equals
+  array(
+    "/\.=/",
+    "+="
+  ),
   // concat pre
   array(
     "/^(\s*)([^#]+?)(\S)\s+\.(?![\f\t\040]*[\r\n])/i",
