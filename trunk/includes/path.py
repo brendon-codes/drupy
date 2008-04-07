@@ -1,4 +1,4 @@
-# Id: path.inc,v 1.20 2008/02/18 16:49:23 dries Exp $
+# $Id: path.inc,v 1.21 2008/04/06 18:50:11 dries Exp $
 #
 # @file
 # Functions to handle paths in Drupal, including path aliasing.
@@ -137,7 +137,7 @@ def drupal_get_normal_path(path, path_language = ''):
 #
 # Return a component of the current Drupal path.
 #
-# When viewing a page at the path "admin/content/types", for example, arg(0)
+# When viewing a page at the path "admin/build/types", for example, arg(0)
 # would return "admin", arg(1) would return "content", and arg(2) would return
 # "types".
 #
