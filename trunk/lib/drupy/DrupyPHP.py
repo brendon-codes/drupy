@@ -205,7 +205,7 @@ def define(name, val = None):
 def getimagesize(filename):
   img = Image.open(filename)
   (w,h) = img.size
-  t = "IMAGETPE_%S" % img.format
+  t = "IMAGETYPE_%S" % img.format
   a = "width=\"%d\" height=\"%d\"" % img.size
   return (w,h,t,a)
 
@@ -350,7 +350,7 @@ def drupy_time():
 # @return Bool
 #
 def in_array(val, obj):
-  return isset(obj, val)
+  return (val in obj)
 
 
 #
@@ -1003,7 +1003,6 @@ class stdClass:
 #
 # Set Aliases
 #
-array_key_exists = in_array
 gzencode = gzdeflate
 gzdecode = gzinflate
 sizeof = count
