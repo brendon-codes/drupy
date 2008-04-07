@@ -263,7 +263,7 @@ def conf_path(require_settings = True, reset = False):
   confdir = 'sites';
   uri = explode('/', (_SERVER['SCRIPT_NAME'] if isset(_SERVER, 'SCRIPT_NAME') else _SERVER['SCRIPT_FILENAME']));
   server = explode('.', implode('.', array_reverse(explode(':', rtrim(_SERVER['HTTP_HOST'], '.')))));
-  for i in range(count(uri)-1, 1, -1):
+  for i in range(count(uri)-1, 0, -1):
     for j in range(count(server), 1, -1):
       _dir = implode('.', array_slice(server, -j)) + implode('.', array_slice(uri, 0, i));
       if (file_exists("%(confdir)s/%(dir)s/settings.py" % {'confdir':confdir, 'dir':_dir}) or \
