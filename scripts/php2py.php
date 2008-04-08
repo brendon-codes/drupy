@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?PHP
 /**
- *
+ * 
  * Various porting helpers.
  *
  */
