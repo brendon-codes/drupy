@@ -1,5 +1,10 @@
 #!/usr/bin/env php
 <?PHP
+/**
+ *
+ * Various porting helpers.
+ *
+ */
 
 $rules = array(
   // brace open
@@ -11,6 +16,11 @@ $rules = array(
   array(
     "/!(?!=)/i",
     "not "
+  ),
+  //triple equals
+  array(
+    "/===/",
+    "=="
   ),
   //concat equals
   array(
