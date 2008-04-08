@@ -1,0 +1,33 @@
+line 239 is commented out due ternary operator that contains the isset()
+line 279 is commented out due static router_items
+line 291 is commented out due mysql query
+line 292-299 mysql query
+line 342 & reference for parameters
+line 351 is commented out due isset function
+line 362 has a === operator set to == (python does not have ===)
+line 367 has a === operator set to == (python does not have ===)
+line 371 is commented out due php referenced variable &map
+line 374 is commented out due to using the isset() function
+line 378 has set return declared as a variable. This is not possible with python
+line 384 has a === operator set to == and
+line 384 has a variable named return. It's renamed to returned
+line 389 has return as variable, and I renamed it to returned
+line 406 has the &reference variable for item. So I removed the &
+line 409 has a ternary that is commented out due to invalid syntax
+line 412 is commented out due to some weird syntax (bool)callback ...??
+line 413 added print "this string needs to be removed"
+line 419 commented out due to invalid syntax for user_access(arguments[0], arguments[1]) in the ternary
+line 420 added print "this string needs to be removed"
+line 449 removed reference sign & for variable item
+line 511 removed reference sign & for variable router
+line 524 for loop got ported
+line 547 removed & sign from  reference variable map
+line 551 ported ternary.. and commented out due to syntax error
+  
+
+
+
+
+
+
+
