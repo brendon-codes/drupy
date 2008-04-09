@@ -1,3 +1,10 @@
+General comments: 
+- I've not commented on all the bracelets that I removed. They are many(!) :)
+- Solving one of this issues will provide a solution to many. As they are the same. 
+- these comments will maybe provide a pattern match for that can be inclueded in the conversion script.
+- The reason for commenting out the all these code, is so we can discuss together how we attack the issues. Not solving them differently. This is to avoid inconsitency.
+- I purpose a "Ugly hacks list" that lists the code that contains ugly hacks. This way we can revisit the issues, by tagging them as outstanding issues. And see if anyone else with more python skills can solve them in a more dear I say graceful manner. Not that I've encountered any, or committed any.
+
 line 239 is commented out due ternary operator that contains the isset()
 line 279 is commented out due static router_items
 line 291 is commented out due mysql query
@@ -23,11 +30,45 @@ line 511 removed reference sign & for variable router
 line 524 for loop got ported
 line 547 removed & sign from  reference variable map
 line 551 ported ternary.. and commented out due to syntax error
-  
+line 644 needs a closer review(!).. I may have done weird things here. I've commented out the entire function.
+line 661 is defining a static variable... And I commented it out, due to invalid syntax. See issue below.
 
+*** START ISSUE ***
+line 682 items[] = data;  How do I port this one? items being a array. Which means we have to use dict? I'm commenting out this one for now. Added a print "this string needs to be removed"
+*** END ISSUE  *** 
 
-
-
-
-
+line 701 return value depends on a ternary. I don't know how to construct this. Is it even possible with python? I commented it out, and I did a 'return output' only..
+line 719 same as line 661. A static variable. Commented out.
+line 722 the ternary construct is not sane. Invalid syntax. Commented out.
+line 744 ported for loop. for var1 in range(var2, <indexstart>, <increment/decrement-interval>)
+line 745 is commented out. Don't know how to port it..replaced with print "this string needs to be removed"
+line 751 is commented out. Don't know how to port it..
+line 764-767 is commmented out due to db query.
+line 801 is commented out, due to static command set to be a array.. Invalid syntax.
+line 803 changed = to == operator. Not sure if this will come out right tho.
+line 805 HAH! I found a concatenate that was not picked up by the conversion script. Due to .':'. which becomes +':'+
+line 805 (int)item['access']  how do i port this one? I get an invalid syntax. I had to comment out this line.
+line 825 is commented out. Due to: args[] = '<front>'
+line 835 is commented out. Due to: parents[] = '0'
+line 844-845 contains a do while with a sql query. It's commented out, due indention error.
+line 847 changed = to == in while loop.
+line 848 commented out due args[] = item[]
+line 852 do..while(num_rows) ends here. Starts at line 844. Commented out. 
+line 865-869 contains this sql query that gives us a syntax error. Commented out.
+line 898 removed the reference sign & for tree and node_links. Added REF_ for naming convention
+line 903 removed the reference sign & for tree and added REF_ for naming reference naming convention
+line 915 removed the reference sign & for tree and added REF_ for naming convention
+line 922 replaced the = operator with =. Added REF_ for naming convention
+line 903 removed the reference sign & for tree and added REF_ for naming reference naming convention
+line 915 removed the reference sign & for tree and added REF_ for naming convention
+line 922 replaced the = operator with ==
+line 924 foreach loop got ported. But not very well. So this needs more investigation. See originale file (menu.inc)
+line 935 removed the reference sign & for tree. Added REF_ for naming convention.
+line 938 removed the reference sign & for tree. Added REF_ for naming convention.
+line 947 WEEE! found a concatenate string that the script did not pick up. The pattern is the same for the one found earlier. Like this: .' '.   So I replaced it with +' '+
+line 968 throws away the first item returned(before the comma, in the arguments). But it does not work in python. So we need a solution to this. It's commented out for now.
+line 981 replaced = operator with == in while loop
+line 991-992 contains the : syntax. The dict seems broken? Commenting it out for now.
+line 1010 contains the : syntax. The dict seems broken... Commenting it out for now.
+line 1058 class variable is assigned this nested ternary construct. Don't know if this can be achieved with python. Commenting it out for now. Added print "this string needs to be removed"
 
