@@ -27,6 +27,21 @@ $rules = array(
     "/===/",
     "=="
   ),
+  // comments 1
+  array(
+    "|^\s*\*/?|im",
+    "#"
+  ),
+  // comments 2
+  array(
+    "|^\s*/\*+|im",
+    "#"
+  ),
+  // comments 3
+  array(
+    "|^(\s*)//|im",
+    "\\1#"
+  ),
   //concat equals
   array(
     "/\.=/",
@@ -71,21 +86,6 @@ $rules = array(
   array(
     "/\|\|/i",
     "or"
-  ),
-  // comments 1
-  array(
-    "|^\s*\*/?|im",
-    "#"
-  ),
-  // comments 2
-  array(
-    "|^\s*/\*+|im",
-    "#"
-  ),
-  // comments 3
-  array(
-    "|^(\s*)//|im",
-    "\\1#"
   ),
   // funcs
   array(
