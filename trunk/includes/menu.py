@@ -802,7 +802,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
   # Load the menu item corresponding to the current page.
   if (item == menu_get_item()):
     # Generate a cache ID (cid) specific for this page.
-    #cid = 'links:' + menu_name + ':page-cid:'. item['href'] +':'+ (int)item['access']
+    #cid = 'links:' + menu_name + ':page-cid:'+ item['href'] +':'+ (int)item['access']
     if (not isset(tree[cid])):
       # If the static variable doesn't have the data, check {cache_menu}.
       cache = cache_get(cid, 'cache_menu')
