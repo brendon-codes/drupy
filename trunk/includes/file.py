@@ -159,17 +159,16 @@ def file_check_location(source, directory = ''):
   check = realpath(source)
   if (check):
     source = check
-  }
   else:
     # This file does not yet exist
     source = realpath(dirname(source)) + '/' + basename(source)
-  }
   directory = realpath(directory)
-  if (directory and strpos(source, directory) !== 0):
+  if (directory and strpos(source, directory) != 0):
     return 0
-  }
   return source
-}
+
+
+
 #
 # Copies a file to a new location + This is a powerful function that in many ways
 # performs like an advanced version of copy().
@@ -189,68 +188,57 @@ def file_check_location(source, directory = ''):
 #   - FILE_EXISTS_ERROR - Do nothing and return False.
 # @return True for success, False for failure.
 #
-def file_copy(&source, dest = 0, replace = FILE_EXISTS_RENAME):
+def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
+  DrupyHelper.Reference.check(source)
   dest = file_create_path(dest)
   directory = dest
   basename = file_check_path(directory)
   # Make sure we at least have a valid directory.
   if (basename == False):
-    source = is_object(source) ? source.filepath : source
-    drupal_set_message(t('The selected file %file could not be uploaded, because the destination %directory is not properly configured.', array('%file' : source, '%directory' : dest)), 'error')
-    watchdog('file system', 'The selected file %file could not be uploaded, because the destination %directory could not be found, or because its permissions do not allow the file to be written.', array('%file' : source, '%directory' : dest), WATCHDOG_ERROR)
+    source.val = (source.val.filepath if is_object(source.val) else source.val)
+    drupal_set_message(t('The selected file %file could not be uploaded, because the destination %directory is not properly configured.', {'%file' : source, '%directory' : dest}), 'error')
+    watchdog('file system', 'The selected file %file could not be uploaded, because the destination %directory could not be found, or because its permissions do not allow the file to be written.', {'%file' : source.val, '%directory' : dest}, WATCHDOG_ERROR)
     return 0
-  }
-
   # Process a file upload object.
-  if (is_object(source)):
-    file = source
-    source = file.filepath
+  if (is_object(source.val)):
+    file = source.val
+    source.val = file.filepath
     if (not basename):
       basename = file.filename
-    }
-  }
-
-  source = realpath(source)
-  if (not file_exists(source)):
-    drupal_set_message(t('The selected file %file could not be copied, because no file by that name exists + Please check that you supplied the correct filename.', array('%file' : source)), 'error')
+  source.val = realpath(source.val)
+  if (not file_exists(source.val)):
+    drupal_set_message(t('The selected file %file could not be copied, because no file by that name exists + Please check that you supplied the correct filename.', {'%file' : source.val}), 'error')
     return 0
-  }
-
   # If the destination file is not specified then use the filename of the source file.
-  basename = basename ? basename : basename(source)
+  basename = (basename if basename else basename(source.val))
   dest = directory + '/' + basename
   # Make sure source and destination filenames are not the same, makes no sense
   # to copy it if they are + In fact copying the file will most likely result in
   # a 0 byte file + Which is bad. Real bad.
-  if (source != realpath(dest)):
-    if (not dest = file_destination(dest, replace)):
-      drupal_set_message(t('The selected file %file could not be copied, because a file by that name already exists in the destination.', array('%file' : source)), 'error')
+  if (source.val != realpath(dest)):
+    dest = file_destination(dest, replace)
+    if (not dest):
+      drupal_set_message(t('The selected file %file could not be copied, because a file by that name already exists in the destination.', {'%file' : source.val}), 'error')
       return False
-    }
-
-    if (not @copy(source, dest)):
-      drupal_set_message(t('The selected file %file could not be copied.', array('%file' : source)), 'error')
+    if (not copy(source.val, dest)):
+      drupal_set_message(t('The selected file %file could not be copied.', {'%file' : source.val}), 'error')
       return 0
-    }
-
     # Give everyone read access so that FTP'd users or
     # non-webserver users can see/read these files,
     # and give group write permissions so group members
     # can alter files uploaded by the webserver.
-    @chmod(dest, 0664)
-  }
-
+    chmod(dest, 0664)
   if (isset(file) and is_object(file)):
     file.filename = basename
     file.filepath = dest
-    source = file
-  }
+    source.val = file
   else:
-    source = dest
-  }
+    source.val = dest
+  return 1; # Everything went ok.
 
-  return 1; // Everything went ok.
-}
+
+
+
 #
 # Determines the destination path for a file depending on how replacement of
 # existing files should be handled.
@@ -266,19 +254,16 @@ def file_copy(&source, dest = 0, replace = FILE_EXISTS_RENAME):
 #
 def file_destination(destination, replace):
   if (file_exists(destination)):
-    switch (replace):
-      case FILE_EXISTS_RENAME:
-        basename = basename(destination)
-        directory = dirname(destination)
-        destination = file_create_filename(basename, directory)
-        break
-      case FILE_EXISTS_ERROR:
-        drupal_set_message(t('The selected file %file could not be copied, because a file by that name already exists in the destination.', array('%file' : destination)), 'error')
-        return False
-    }
-  }
+    if replace == FILE_EXISTS_RENAME:
+      basename = basename(destination)
+      directory = dirname(destination)
+      destination = file_create_filename(basename, directory)
+    elif replace == FILE_EXISTS_ERROR:
+      drupal_set_message(t('The selected file %file could not be copied, because a file by that name already exists in the destination.', {'%file' : destination}), 'error')
+      return False
   return destination
-}
+
+
 #
 # Moves a file to a new location.
 # - Checks if source and dest are valid and readable/writable.
@@ -297,17 +282,18 @@ def file_destination(destination, replace):
 #   - FILE_EXISTS_ERROR - Do nothing and return False.
 # @return True for success, False for failure.
 #
-def file_move(&source, dest = 0, replace = FILE_EXISTS_RENAME):
-  path_original = is_object(source) ? source.filepath : source
-  if (file_copy(source, dest, replace)):
-    path_current = is_object(source) ? source.filepath : source
+def file_move(source, dest = 0, replace = FILE_EXISTS_RENAME):
+  DrupyHelper.reference.check(source)
+  path_original = (source.val.filepath if is_object(source.val) else source.val)
+  if (file_copy(source.val, dest, replace)):
+    path_current = (source.val.filepath if is_object(source.val) else source.val)
     if (path_original == path_current or file_delete(path_original)):
       return 1
-    }
-    drupal_set_message(t('The removal of the original file %file has failed.', array('%file' : path_original)), 'error')
-  }
+    drupal_set_message(t('The removal of the original file %file has failed.', {'%file' : path_original}), 'error')
   return 0
-}
+
+
+
 #
 # Munge the filename as needed for security purposes + For instance the file
 # name "exploit.php.pps" would become "exploit.php_.pps".
@@ -327,9 +313,8 @@ def file_munge_filename(filename, extensions, alerts = True):
     # Split the filename up by periods + The first part becomes the basename
     # the last part the final extension.
     filename_parts = explode('.', filename)
-    new_filename = array_shift(filename_parts); // Remove file basename.
-    final_extension = array_pop(filename_parts); // Remove final extension.
-
+    new_filename = array_shift(filename_parts); # Remove file basename.
+    final_extension = array_pop(filename_parts); # Remove final extension.
     # Loop through the middle parts of the name and add an underscore to the
     # end of each section that could be a file extension but isn't in the list
     # of allowed extensions.
@@ -337,16 +322,13 @@ def file_munge_filename(filename, extensions, alerts = True):
       new_filename += '.' + filename_part
       if (not in_array(filename_part, whitelist) and preg_match("/^[a-zA-Z]{2,5}\d?$/", filename_part)):
         new_filename += '_'
-      }
-    }
     filename = new_filename + '.' + final_extension
     if (alerts and original != filename):
-      drupal_set_message(t('For security reasons, your upload has been renamed to %filename.', array('%filename' : filename)))
-    }
-  }
-
+      drupal_set_message(t('For security reasons, your upload has been renamed to %filename.', {'%filename' : filename}))
   return filename
-}
+
+
+
 #
 # Undo the effect of upload_munge_filename().
 #
@@ -355,7 +337,9 @@ def file_munge_filename(filename, extensions, alerts = True):
 #
 def file_unmunge_filename(filename):
   return str_replace('_.', '.', filename)
-}
+
+
+
 #
 # Create a full file path from a directory and filename + If a file with the
 # specified name already exists, an alternative will be used.
@@ -368,22 +352,22 @@ def file_create_filename(basename, directory):
   dest = directory + '/' + basename
   if (file_exists(dest)):
     # Destination file already exists, generate an alternative.
-    if (pos = strrpos(basename, '.')):
+    pos = strrpos(basename, '.')
+    if (pos):
       name = substr(basename, 0, pos)
       ext = substr(basename, pos)
-    }
     else:
       name = basename
-    }
-
     counter = 0
-    do {
-      dest = directory + '/' + name .'_'. counter++ . ext
-    } while (file_exists(dest))
-  }
-
+    while True:
+      dest = directory + '/' + name + '_' + counter + ext
+      counter += 1
+      if (not file_exists(dest)):
+        break
   return dest
-}
+
+
+
 #
 # Delete a file.
 #

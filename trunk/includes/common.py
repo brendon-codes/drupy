@@ -1,4 +1,4 @@
-# $Id: common.inc,v 1.762 2008/03/31 20:50:05 dries Exp $
+# $Id: common.inc,v 1.763 2008/04/10 10:19:01 dries Exp $
 #
 # @file
 # Common functions that many Drupal modules will need to reference.
@@ -1443,6 +1443,8 @@ def drupal_get_css(css = None):
         # If the theme supplies its own style using the name of the module style, skip its inclusion.
         # This includes any RTL styles associated with its main LTR counterpart.
         if (_type == 'module' and in_array(str_replace('-rtl.css', '.css', basename(file)), theme_styles)):
+          # Unset the file to prevent its inclusion when CSS aggregation is enabled.
+          del(types[_type][file]);
           continue;
         if (not preprocess or not(is_writable and preprocess_css)):
           # If a CSS file is not to be preprocessed and it's a module CSS file, it needs to *always* appear at the *top*,
