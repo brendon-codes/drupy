@@ -1,4 +1,4 @@
-# Id: bootstrap.inc,v 1.206.2.2 2008/02/11 14:36:21 goba Exp $
+#  $Id: bootstrap.inc,v 1.207 2008/04/08 22:50:54 dries Exp $
 
 #
 # @file
@@ -495,19 +495,12 @@ def variable_del(name):
 #   When set to TRUE, retrieve the status of the page cache only
 #   (whether it was started in this request or not).
 #
-def page_get_cache(status_only = False):
-  global static_pagegetcache_status;
-  if (status_only):
-    return static_pagegetcache_status;
+def page_get_cache():
   cache = None;
   if (user == None and _SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_set_message()) == 0):
-    cache = cache_get(base_root . request_uri(), 'cache_page');
+    cache = cache_get(base_root + request_uri(), 'cache_page');
     if (empty(cache)):
-      # This may be needed
-      #
-      # ob_start()
-      #
-      static_pagegetcache_status = True;
+      ob_start()
   return cache;
 
 
@@ -821,34 +814,28 @@ def drupal_get_messages(type = None, clear_queue = True):
 
 
 #
-# Perform an access check for a given mask and rule type. Rules are usually
-# created via admin/user/rules page.
+# Check to see if an IP address has been blocked.
 #
-# If any allow rule matches, access is allowed. Otherwise, if any deny rule
-# matches, access is denied.  If no rule matches, access is allowed.
+# Blocked IP addresses are stored in the database by default. However for
+# performance reasons we allow an override in settings.php. This allows us
+# to avoid querying the database at this critical stage of the bootstrap if
+# an administrative interface for IP address blocking is not required.
 #
-# @param type string
-#   Type of access to check: Allowed values are:
-#     - 'host': host name or IP address
-#     - 'mail': e-mail address
-#     - 'user': username
-# @param mask string
-#   String or mask to test: '_' matches any character, '%' matches any
-#   number of characters.
+# @param $ip string
+#   IP address to check.
 # @return bool
 #   TRUE if access is denied, FALSE if access is allowed.
 #
-def drupal_is_denied(type, mask):
-  # Because this def is called for every page request, both cached
-  # and non-cached pages, we tried to optimize it as much as possible.
-  # We deny access if the only matching records in the {access} table have
-  # status 0 (deny). If any have status 1 (allow), or if there are no
-  # matching records, we allow access.
-  sql = "SELECT 1 FROM {access} WHERE type = '%s' AND LOWER('%s') LIKE LOWER(mask) AND status = %d";
-  return ( \
-    db_result( db_query_range(sql, type, mask, 0, 0, 1) ) != False and \
-    db_result( db_query_range(sql, type, mask, 1, 0, 1) ) == False \
-  );
+def drupal_is_denied(ip):
+  # Because this function is called on every page request, we first check
+  # for an array of IP addresses in settings.php before querying the
+  # database.
+  blocked_ips = variable_get('blocked_ips', None);
+  if (blocked_ips != None and is_array(blocked_ips)):
+    return in_array(ip, blocked_ips);
+  else:
+    sql = "SELECT 1 FROM {blocked_ips} WHERE ip = '%s'";
+    return (db_num_rows(db_result(db_query(sql, ip))) > 0);
 
 
 #
@@ -924,8 +911,8 @@ def _drupal_bootstrap(phase):
     require_once('./includes/database.py', globals());
     db_set_active();
   elif phase == DRUPAL_BOOTSTRAP_ACCESS:
-    # Deny access to hosts which were banned - t() is not yet available.
-    if (drupal_is_denied('host', ip_address())):
+    # Deny access to blocked IP addresses - t() is not yet available
+    if (drupal_is_denied(ip_address())):
       header('HTTP/1.1 403 Forbidden');
       print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
       exit();
