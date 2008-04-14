@@ -1,4 +1,4 @@
-# Id: database.inc,v 1.92 2008/01/08 16:03:31 goba Exp $
+# $Id: database.inc,v 1.93 2008/04/14 17:48:33 dries Exp $
 #
 # @file
 # Wrapper for database interface code.

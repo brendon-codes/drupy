@@ -1,4 +1,4 @@
-# Id: cache.inc,v 1.17 2008/01/29 11:36:06 goba Exp $
+# $Id: cache.inc,v 1.18 2008/04/14 17:48:33 dries Exp $
 
 #
 # Return data from the persistent cache. Data may be stored as either plain text or as serialized data.

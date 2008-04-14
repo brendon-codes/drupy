@@ -1,4 +1,4 @@
-# $Id: common.inc,v 1.763 2008/04/10 10:19:01 dries Exp $
+# $Id: common.inc,v 1.764 2008/04/14 17:48:33 dries Exp $
 #
 # @file
 # Common functions that many Drupal modules will need to reference.
