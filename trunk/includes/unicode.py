@@ -1,4 +1,4 @@
-# Id: unicode.inc,v 1.29 2007/12/28 12:02:50 dries Exp $
+# $Id: unicode.inc,v 1.30 2008/04/14 17:48:33 dries Exp $
 
 from xml.dom import minidom
 import htmlentitydefs

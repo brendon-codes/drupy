@@ -1,4 +1,4 @@
-# Id: theme.maintenance.inc,v 1.11 2008/02/06 19:38:26 dries Exp $
+# $Id: theme.maintenance.inc,v 1.12 2008/04/14 17:48:33 dries Exp $
 #
 # @file
 # Theming for maintenance pages.
