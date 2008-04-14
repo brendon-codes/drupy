@@ -55,7 +55,7 @@ Currently, this is what we have:
 
 (1) A robust and well tested PHP function abstraction module for Python. This allows us to use most Drupal function calls without any modification. (Examples: preg_replace, isset, empty, ob_start)
 
-(2) About 8 of the big Drupal core includes working
+(2) About 11 of the big Drupal core includes working
 
 (3) Bootstrap Stage 3 ALMOST working
 
