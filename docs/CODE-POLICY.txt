@@ -1,5 +1,5 @@
 ********* static ********
-example
+example:
 
 Drupal: static names
 Drupy: global static_menugetnames_names
@@ -8,3 +8,12 @@ skeleton policy: static_FUNCTION-NAME_VARIABLE-NAME
 
 ******  end static *******
 
+******* array ********
+example:
+
+Drupal: names = array()
+Drupy: names = []
+
+Comments: a PHP array becomes a mutable python list
+
+****** end array ******
