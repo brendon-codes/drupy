@@ -1106,7 +1106,7 @@ def menu_get_active_help():
 # Build a list of named menus.
 #
 def menu_get_names(reset = False):
-  #static names
+  global static_menugetnames_names
   if (reset or empty(names)):
     names = array()
     result = db_query("SELECT DISTINCT(menu_name) FROM {menu_links} ORDER BY menu_name")
