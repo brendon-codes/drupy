@@ -1108,10 +1108,10 @@ def menu_get_active_help():
 def menu_get_names(reset = False):
   global static_menugetnames_names
   if (reset or empty(names)):
-    names = array()
+    names = []
     result = db_query("SELECT DISTINCT(menu_name) FROM {menu_links} ORDER BY menu_name")
     while (name == db_fetch_array(result)):
-      names[] = name['menu_name']
+      names = name['menu_name']
     
   
   return names
@@ -1161,13 +1161,14 @@ def menu_navigation_links(menu_name, level = 0):
   # Get the menu hierarchy for the current page.
   tree = menu_tree_page_data(menu_name)
   # Go down the active trail until the right level is reached.
-  while (level-- > 0 and tree):
-    # Loop through the current level's items until we find one that is in trail.
-    while (item = array_shift(tree)):
-      if (item['link']['in_active_trail']):
-        # If the item is in the active trail, we continue in the subtree.
-        tree = empty(item['below']) ? array() : item['below']
-        break
+  for level in range(100, 1, -1):
+    if not tree:
+      # Loop through the current level's items until we find one that is in trail.
+      while (item == array_shift(tree)):
+        if (item['link']['in_active_trail']):
+          # If the item is in the active trail, we continue in the subtree.
+          tree = [] if empty(item['below']) else item['below']
+          break
       
     
   
