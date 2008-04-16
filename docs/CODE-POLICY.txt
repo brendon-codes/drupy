@@ -1,0 +1,10 @@
+********* static ********
+example
+
+Drupal: static names
+Drupy: global static_menugetnames_names
+
+skeleton policy: static_FUNCTION-NAME_VARIABLE-NAME
+
+******  end static *******
+
