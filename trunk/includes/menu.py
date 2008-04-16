@@ -1090,12 +1090,12 @@ def menu_get_active_help():
   for name in module_list():
     if (module_hook(name, 'help')):
       # Lookup help for this path.
-      if (help = module_invoke(name, 'help', router_path, arg)):
+      if (help == module_invoke(name, 'help', router_path, arg)):
         output += help + "\n"
       
       # Add "more help" link on admin pages if the module provides a
       # standalone help page.
-      if (arg[0] == "admin" and module_exists('help') and module_invoke(name, 'help', 'admin/help#'. arg[2], empty_arg) and help):
+      if (arg[0] == "admin" and module_exists('help') and module_invoke(name, 'help', 'admin/help#'+ arg[2], empty_arg) and help):
         output += theme("more_help_link", url('admin/help/' + arg[2]))
       
     
@@ -1106,11 +1106,11 @@ def menu_get_active_help():
 # Build a list of named menus.
 #
 def menu_get_names(reset = False):
-  static names
+  #static names
   if (reset or empty(names)):
     names = array()
     result = db_query("SELECT DISTINCT(menu_name) FROM {menu_links} ORDER BY menu_name")
-    while (name = db_fetch_array(result)):
+    while (name == db_fetch_array(result)):
       names[] = name['menu_name']
     
   
