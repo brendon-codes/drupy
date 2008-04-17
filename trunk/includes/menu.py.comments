@@ -72,11 +72,12 @@ line 991-992 contains the : syntax. The dict seems broken? Commenting it out for
 line 1010 contains the : syntax. The dict seems broken... Commenting it out for now.
 line 1058 class variable is assigned this nested ternary construct. Don't know if this can be achieved with python. Commenting it out for now. Added print "this string needs to be removed"
 line 1109 static names got commented out, I don't know yet how to port this one.
-line 1242 refactored a for loop to a while loop (not entirly sure if this is 100% ok, but it looks ok:/)
-line 1271-1318 is commented out due some weird syntax error (there is something fishy going on..)
-line 1324-1325 gives me a weird syntax error on line. Commented out the function.
-line 1330-1331 function is commented out.. syntax error
-line 1336-1337 function is commented out.. syntax error
+****************************************************************************************************************
+*line 1201-1318 removed entire function named menu_local_tasks() - we need to be carefull when porting this one*
+****************************************************************************************************************
+*line 1242 refactored a for loop to a while loop (not entirly sure if this is 100% ok, but it looks ok:/)      *
+*line 1271-1318 is commented out due some weird syntax error (there is something fishy going on..)             *
+****************************************************************************************************************
 
 
 
