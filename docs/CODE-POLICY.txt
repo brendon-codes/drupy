@@ -76,7 +76,8 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 				#### END CODE BLOCK
 		
 		(d) Initialize variable within function. This is where the variables inital value is set.
-			Here is an example of the entire working function:
+		    Drupy static vars must not be unset/deleted. If needed, you can simply set them to None
+		    instead. Here is an example of the entire working function:
 		
 				### BEGIN CODE BLOCK;
 				def foo_baz():
@@ -91,8 +92,25 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 				print foo_baz(); #prints "4"				
 				#### END CODE BLOCK
 				
-				
 
+
+
+(4) The following words are not allowed to be used as variable names. If these 
+    are encountered as variable names, they must be prepended with an
+    underscore:
+    
+      Drupy Specific:
+        
+        module
+      
+      Python Specific:
+      
+        type, list, array
+        and, del, from, not, while, as, elif, global, or, with
+        assert, else, if, pass, yield, break, except, import, print 
+        class, exec, in, raise, continue, finally, is, return, def
+        for, lambda, try
+ 
 
 (3) Array declarations
 
