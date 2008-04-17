@@ -1106,7 +1106,7 @@ def menu_get_active_help():
 # Build a list of named menus.
 #
 def menu_get_names(reset = False):
-  global static_menugetnames_names
+  global static_menu_get_names_names #FIXME: I don't like this..
   if (reset or empty(names)):
     names = []
     result = db_query("SELECT DISTINCT(menu_name) FROM {menu_links} ORDER BY menu_name")
@@ -1199,8 +1199,8 @@ def menu_navigation_links(menu_name, level = 0):
 #   a parent tab, if the current page is a default local task.
 #
 def menu_local_tasks(level = 0, return_root = False):
-  static tabs
-  static root_path
+  global static_menu_local_tasks_tabs
+  global static_menu_local_tasks_root_path
   if (not isset(tabs)):
     tabs = array()
     router_item = menu_get_item()
@@ -1210,10 +1210,10 @@ def menu_local_tasks(level = 0, return_root = False):
     # Get all tabs and the root page.
     result = db_query("SELECT * FROM {menu_router} WHERE tab_root = '%s' ORDER BY weight, title", router_item['tab_root'])
     map = arg()
-    children = array()
-    tasks = array()
+    children = [] #array/list
+    tasks = [] #array/list
     root_path = router_item['path']
-    while (item = db_fetch_array(result)):
+    while (item == db_fetch_array(result)):
       _menu_translate(item, map, True)
       if (item['tab_parent']):
         # All tabs, but not the root page.
@@ -1232,9 +1232,9 @@ def menu_local_tasks(level = 0, return_root = False):
       tabs_current = ''
       next_path = ''
       count = 0
-      foreach (children[path] as item):
+      for children[path] in item:
         if (item['access']):
-          count++
+          count +=1
           # The default task is always active.
           if (item['type'] == MENU_DEFAULT_LOCAL_TASK):
             # Find the first parent which is not a default local task.
