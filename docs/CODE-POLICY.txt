@@ -12,9 +12,9 @@ skeleton policy: static_FUNCTION-NAME_VARIABLE-NAME
 example:
 
 Drupal: names = array()
-Drupy: names = []
+Drupy: names = {}
 
-Comments: a PHP array becomes a mutable python list
+Comments: a PHP array becomes a mutable python dict
 
 ****** end array ******
 
