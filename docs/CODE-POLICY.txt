@@ -17,3 +17,19 @@ Drupy: names = []
 Comments: a PHP array becomes a mutable python list
 
 ****** end array ******
+
+****** while loop w/arimetric operation [EXPERIMENTAL] ********
+
+Drupal: while ($level-- > 0 && $tree){
+
+Drupy: for level in range(100, 1, -1): 
+         if not tree: 
+         break
+
+Wrong Drupy: while (level -= 1 > 0 and tree):
+
+Comments: as you can see, one can not perform a expression within the condition area with python.
+So in this case we turn it into a for loop that performs the decrementation and give the tree 
+variable a if not clause.
+
+****** END while loop w/arimetric operation ********
