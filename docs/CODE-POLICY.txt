@@ -110,9 +110,18 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
         assert, else, if, pass, yield, break, except, import, print 
         class, exec, in, raise, continue, finally, is, return, def
         for, lambda, try
+
+
+
+(3) Function input arguments and return values must always retain Drupal API compatibility.
+    In addition to this, no Drupal function can be removed. If the function is obseletized
+    from Drupy, have the function accept the arguments as normal and raise an exception
+    to notify developers that the function is still being called.
+
+
  
 
-(3) Array declarations
+(4) Array declarations
 
 	example:
 	
@@ -124,7 +133,7 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 
 
 
-(4) while loop w/arimetric operation [EXPERIMENTAL]
+(5) while loop w/arimetric operation [EXPERIMENTAL]
 	
 	Drupal: while ($level-- > 0 && $tree){
 	
