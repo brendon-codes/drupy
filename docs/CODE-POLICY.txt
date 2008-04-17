@@ -1,35 +1,122 @@
-********* static ********
-example:
+THESE ARE THE DRUPY CONVERSION AND CODING STANDARDS. 
+TO RETAIN SVN COMMIT ACCESS, THESE STANDARDS MUST BE FOLLOWED.
+THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 
-Drupal: static names
-Drupy: global static_menugetnames_names
 
-skeleton policy: static_FUNCTION-NAME_VARIABLE-NAME
 
-******  end static *******
+(1) Newline and carriage return whitespace can only exist between function and class definitions.
+	The following is valid:
 
-******* array ********
-example:
+		#### BEGIN CODE BLOCK
+		def foo():
+		   print "hello world"
+		   return True
+		
+		def bar():
+		   print "Baz"
+		   return False
+		#### END CODE BLOCK
 
-Drupal: names = array()
-Drupy: names = {}
+	The following is not valid:
+	
+		#### BEGIN CODE BLOCK
+		def foo():
 
-Comments: a PHP array becomes a mutable python dict
+		   print "hello world"
 
-****** end array ******
+		   return True
 
-****** while loop w/arimetric operation [EXPERIMENTAL] ********
+		
+		def bar():
 
-Drupal: while ($level-- > 0 && $tree){
+		   print "Baz"
 
-Drupy: for level in range(100, 1, -1): 
-         if not tree: 
-         break
+		   return False
+		#### END CODE BLOCK
 
-Wrong Drupy: while (level -= 1 > 0 and tree):
 
-Comments: as you can see, one can not perform a expression within the condition area with python.
-So in this case we turn it into a for loop that performs the decrementation and give the tree 
-variable a if not clause.
 
-****** END while loop w/arimetric operation ********
+(2) PHP makes use of "static variables". A static variable is essentially a global variable that can
+	only be accessed from it's parent function. Here is an example of a static variable in PHP.
+	
+		//// BEGIN CODE BLOCK
+		function foo_baz() {
+			static $do_bar = 1;
+			$do_bar += 1;
+			return $do_bar;
+		}
+		
+		print foo_baz(); //prints "2"
+		print foo_baz(); //prints "3"
+		print foo_baz(); //prints "4"
+		//// END CODE BLOCK
+		
+	This is the mechanism for dealing with this same scenario within Drupy:
+	
+		(a) Convert variable name to Drupy static format. The format is as follows:
+		
+				"static" UNDERSCORE FUNCTION-NAME UNDERSCORE VARIABLE-NAME
+			
+			FUNCTION-NAME and VARIABLE-NAME can only contain letters and numbers. Underscores must
+			be removed. The above PHP example would provide a Drupy variable like this:
+			
+				"static_foobaz_dobar"
+			
+		(b) Place a static declaration at the top of the file.
+			
+				#### BEGIN CODE BLOCK
+				static('static_foobaz_dobar')
+				#### END CODE BLOCK
+
+		(c) Declare variable access within function using the "global" keyword.
+		
+				### BEGIN CODE BLOCK;
+				def foo_baz():
+					global static_foobaz_dobar
+				#### END CODE BLOCK
+		
+		(d) Initialize variable within function. This is where the variables inital value is set.
+			Here is an example of the entire working function:
+		
+				### BEGIN CODE BLOCK;
+				def foo_baz():
+					global static_foobaz_dobar
+					if static_foobaz_dobar == None:
+						static_foobaz_dobar = 1
+					static_foobaz_dobar += 1
+					return static_foobaz_dobar
+				
+				print foo_baz(); #prints "2"
+				print foo_baz(); #prints "3"
+				print foo_baz(); #prints "4"				
+				#### END CODE BLOCK
+				
+				
+
+
+(3) Array declarations
+
+	example:
+	
+	Drupal: names = array()
+	Drupy: names = {}
+	
+	Comments: a PHP array becomes a mutable python dict
+
+
+
+
+(4) while loop w/arimetric operation [EXPERIMENTAL]
+	
+	Drupal: while ($level-- > 0 && $tree){
+	
+	Drupy: for level in range(100, 1, -1): 
+			 if not tree: 
+			 break
+	
+	Wrong Drupy: while (level -= 1 > 0 and tree):
+	
+	Comments: as you can see, one can not perform a expression within the condition area with python.
+	So in this case we turn it into a for loop that performs the decrementation and give the tree 
+	variable a if not clause.
+
