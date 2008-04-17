@@ -1,25 +1,30 @@
-<?php
 # Id: module.inc,v 1.117 2008/04/16 11:35:51 dries Exp $
 #
 # @file
 # API for loading and interacting with Drupal modules.
 #
+
+static('static_modulelist_list')
+static('static_modulelist_sortedlist')
+static('static_moduleimplements_implementations')
+
+
 #
 # Load all the modules that have been enabled in the system table.
 #
 def module_load_all():
-  foreach (module_list(True, False) as module):
-    drupal_load('module', module)
-  }
-}
+  for _module in module_list(True, False):
+    drupal_load('module', _module)
+
+
 #
 # Call a function repeatedly with each module in turn as an argument.
 #
 def module_iterate(function, argument = ''):
   for name in module_list():
     function(name, argument)
-  }
-}
+
+
 #
 # Collect a list of all loaded modules. During the bootstrap, return only
 # vital modules. See bootstrap.inc
@@ -41,40 +46,35 @@ def module_iterate(function, argument = ''):
 #   modules.
 #
 def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = None):
-  static list, sorted_list
+  global static_modulelist_list, static_modulelist_sortedlist
   if (refresh or fixed_list):
-    unset(sorted_list)
-    list = array()
+    static_modulelist_sortedlist = None
+    static_modulelist_list = []
     if (fixed_list):
       for name,module in fixed_list.items():
         drupal_get_filename('module', name, module['filename'])
-        list[name] = name
-      }
-    }
+        static_modulelist_list[name] = name
     else:
       if (bootstrap):
         result = db_query("SELECT name, filename FROM {system} WHERE type = 'module' AND status = 1 AND bootstrap = 1 ORDER BY weight ASC, filename ASC")
-      }
       else:
         result = db_query("SELECT name, filename FROM {system} WHERE type = 'module' AND status = 1 ORDER BY weight ASC, filename ASC")
-      }
-      while (module = db_fetch_object(result)):
-        if (file_exists(module.filename)):
-          drupal_get_filename('module', module.name, module.filename)
-          list[module.name] = module.name
-        }
-      }
-    }
-  }
+      while True:
+        _module = db_fetch_object(result)
+        if (_module == None or _module == False):
+          break
+        if (file_exists(_module.filename)):
+          drupal_get_filename('module', _module.name, _module.filename)
+          static_modulelist_list[_module.name] = _module.name
   if (sort):
-    if (not isset(sorted_list)):
-      sorted_list = list
-      ksort(sorted_list)
-    }
-    return sorted_list
-  }
-  return list
-}
+    if (sorted_list == None):
+      static_modulelist_sortedlist = static_modulelist_list
+      ksort(static_modulelist_sortedlist)
+    return static_modulelist_sortedlist
+  return static_modulelist_list
+
+
+
 #
 # Rebuild the database cache of module files.
 #
@@ -88,21 +88,20 @@ def module_rebuild_cache():
   system_get_files_database(files, 'module')
   ksort(files)
   # Set defaults for module info
-  defaults = array(
-    'dependencies' : array(),
-    'dependents' : array(),
+  defaults = {
+    'dependencies' : [],
+    'dependents' : [],
     'description' : '',
     'version' : None,
     'php' : DRUPAL_MINIMUM_PHP,
-  )
+  }
   for filename,file in files.items():
     # Look for the info file.
-    file.info = drupal_parse_info_file(dirname(file.filename) +  '/'  + file.name . '.info')
+    file.info = drupal_parse_info_file(dirname(file.filename) +  '/'  + file.name + '.info')
     # Skip modules that don't provide info.
     if (empty(file.info)):
-      unset(files[filename])
+      del(files[filename])
       continue
-    }
     # Merge in defaults and save.
     files[filename].info = file.info + defaults
     # Invoke hook_system_info_alter() to give installed modules a chance to
@@ -114,22 +113,18 @@ def module_rebuild_cache():
       if (module_hook(file.name, hook)):
         bootstrap = 1
         break
-      }
-    }
-
     # Update the contents of the system table:
-    if (isset(file.status) or (isset(file.old_filename) and file.old_filename != file.filename)):
+    if (isset(file, 'status') or (isset(file, 'old_filename') and file.old_filename != file.filename)):
       db_query("UPDATE {system} SET info = '%s', name = '%s', filename = '%s', bootstrap = %d WHERE filename = '%s'", serialize(files[filename].info), file.name, file.filename, bootstrap, file.old_filename)
-    }
     else:
       # This is a new module.
       files[filename].status = 0
       db_query("INSERT INTO {system} (name, info, type, filename, status, bootstrap) VALUES ('%s', '%s', '%s', '%s', %d, %d)", file.name, serialize(files[filename].info), 'module', file.filename, 0, bootstrap)
-    }
-  }
   files = _module_build_dependencies(files)
   return files
-}
+
+
+
 #
 # Find dependencies any level deep and fill in dependents information too.
 #
@@ -149,23 +144,22 @@ def module_rebuild_cache():
 #   The same array with dependencies and dependents added where applicable.
 #
 def _module_build_dependencies(files):
-  do {
+  while True:
     new_dependency = False
     for filename,file in files.items():
       # We will modify this object (module A, see doxygen for module A, B, C).
-      file = &files[filename]
-      if (isset(file.info['dependencies']) and is_array(file.info['dependencies'])):
-        foreach (file.info['dependencies'] as dependency_name):
+      file = files[filename]
+      if (isset(file.info, 'dependencies') and is_array(file.info, 'dependencies')):
+        for dependency_name in file.info['dependencies']:
           # This is a nonexistent module.
           if (dependency_name == '-circular-' or not isset(files[dependency_name])):
             continue
-          }
           # dependency_name is module B (again, see doxygen).
           files[dependency_name].info['dependents'][filename] = filename
           dependency = files[dependency_name]
           if (isset(dependency.info['dependencies']) and is_array(dependency.info['dependencies'])):
             # Let's find possible C modules.
-            foreach (dependency.info['dependencies'] as candidate):
+            for candidate in dependency.info['dependencies']:
               if (array_search(candidate, file.info['dependencies']) == False):
                 # Is this a circular dependency?
                 if (candidate == filename):
@@ -173,29 +167,23 @@ def _module_build_dependencies(files):
                   # impossible to switch on the module.
                   candidate = '-circular-'
                   # Do not display the message or add -circular- more than once.
-                  if (array_search(candidate, file.info['dependencies']) !== False):
+                  if (array_search(candidate, file.info['dependencies']) != False):
                     continue
-                  }
-                  drupal_set_message(t('%module is part of a circular dependency + This is not supported and you will not be able to switch it on.', array('%module' : file.info['name'])), 'error')
-                }
+                  drupal_set_message(t('%module is part of a circular dependency + This is not supported and you will not be able to switch it on.', {'%module' : file.info['name']}), 'error')
                 else:
                   # We added a new dependency to module A. The next loop will
                   # be able to use this as "B module" thus finding even
                   # deeper dependencies.
                   new_dependency = True
-                }
-                file.info['dependencies'][] = candidate
-              }
-            }
-          }
-        }
-      }
+                file.info['dependencies'].append( candidate )
       # Don't forget to break the reference.
-      unset(file)
-    }
-  } while (new_dependency)
+      del(file)
+    if (not new_dependency):
+      break
   return files
-}
+
+
+
 #
 # Determine whether a given module exists.
 #
@@ -204,18 +192,21 @@ def _module_build_dependencies(files):
 # @return
 #   True if the module is both installed and enabled.
 #
-def module_exists(module):
-  list = module_list()
-  return array_key_exists(module, list)
-}
+def module_exists(_module):
+  _list = module_list()
+  return array_key_exists(_module, _list)
+
+
 #
 # Load a module's installation hooks.
 #
-def module_load_install(module):
+def module_load_install(_module):
   # Make sure the installation API is available
-  include_once './includes/install.inc'
-  module_load_include('install', module)
-}
+  include_once( './includes/install.py' )
+  module_load_include('install', _module)
+
+
+
 #
 # Load a module include file.
 #
@@ -226,29 +217,28 @@ def module_load_install(module):
 # @param name
 #   Optionally, specify the file name. If not set, the module's name is used.
 #
-def module_load_include(type, module, name = None):
+def module_load_include(_type, _module, name = None):
   if (empty(name)):
-    name = module
-  }
-
+    name = _module
   file = './' +  drupal_get_path('module', module)  + "/name.type"
   if (is_file(file)):
-    require_once file
-  }
+    require_once( file )
   else:
     return False
-  }
-}
+
+
+
 #
 # Load an include file for each of the modules that have been enabled in
 # the system table.
 #
-def module_load_all_includes(type, name = None):
+def module_load_all_includes(_type, name = None):
   modules = module_list()
-  for module in modules:
-    module_load_include(type, module, name)
-  }
-}
+  for _module in modules:
+    module_load_include(_type, _module, name)
+
+
+
 #
 # Enable a given list of modules.
 #
@@ -256,35 +246,30 @@ def module_load_all_includes(type, name = None):
 #   An array of module names.
 #
 def module_enable(module_list):
-  invoke_modules = array()
-  for module in module_list:
+  invoke_modules = []
+  for _module in module_list:
     existing = db_fetch_object(db_query("SELECT status FROM {system} WHERE type = '%s' AND name = '%s'", 'module', module))
     if (existing.status == 0):
-      module_load_install(module)
-      db_query("UPDATE {system} SET status = %d WHERE type = '%s' AND name = '%s'", 1, 'module', module)
-      drupal_load('module', module)
-      invoke_modules[] = module
-    }
-  }
-
+      module_load_install(_module)
+      db_query("UPDATE {system} SET status = %d WHERE type = '%s' AND name = '%s'", 1, 'module', _module)
+      drupal_load('module', _module)
+      invoke_modules.append( module )
   if (not empty(invoke_modules)):
     # Refresh the module list to include the new enabled module.
     module_list(True, False)
     # Force to regenerate the stored list of hook implementations.
     module_implements('', False, True)
-  }
-
-  for module in invoke_modules:
-    module_invoke(module, 'enable')
+  for _module in invoke_modules:
+    module_invoke(_module, 'enable')
     # Check if node_access table needs rebuilding.
     # We check for the existence of node_access_needs_rebuild() since
     # at install time, module_enable() could be called while node.module
     # is not enabled yet.
-    if (function_exists('node_access_needs_rebuild') and not node_access_needs_rebuild() and module_hook(module, 'node_grants')):
+    if (function_exists('node_access_needs_rebuild') and not node_access_needs_rebuild() and module_hook(_module, 'node_grants')):
       node_access_needs_rebuild(True)
-    }
-  }
-}
+
+
+
 #
 # Disable a given set of modules.
 #
@@ -292,34 +277,28 @@ def module_enable(module_list):
 #   An array of module names.
 #
 def module_disable(module_list):
-  invoke_modules = array()
-  for module in module_list:
-    if (module_exists(module)):
+  invoke_modules = []
+  for _module in module_list:
+    if (module_exists(_module)):
       # Check if node_access table needs rebuilding.
-      if (not node_access_needs_rebuild() and module_hook(module, 'node_grants')):
+      if (not node_access_needs_rebuild() and module_hook(_module, 'node_grants')):
         node_access_needs_rebuild(True)
-      }
-
-      module_load_install(module)
-      module_invoke(module, 'disable')
-      db_query("UPDATE {system} SET status = %d WHERE type = '%s' AND name = '%s'", 0, 'module', module)
-      invoke_modules[] = module
-    }
-  }
-
+      module_load_install(_module)
+      module_invoke(_module, 'disable')
+      db_query("UPDATE {system} SET status = %d WHERE type = '%s' AND name = '%s'", 0, 'module', _module)
+      invoke_modules.append(module)
   if (not empty(invoke_modules)):
     # Refresh the module list to exclude the disabled modules.
     module_list(True, False)
     # Force to regenerate the stored list of hook implementations.
     module_implements('', False, True)
-  }
-
   # If there remains no more node_access module, rebuilding will be
   # straightforward, we can do it right now.
   if (node_access_needs_rebuild() and count(module_implements('node_grants')) == 0):
     node_access_rebuild()
-  }
-}
+
+
+
 #
 # @defgroup hooks Hooks
 # @{
@@ -351,9 +330,11 @@ def module_disable(module_list):
 #   True if the module is both installed and enabled, and the hook is
 #   implemented in that module.
 #
-def module_hook(module, hook):
-  return function_exists(module +  '_'  + hook)
-}
+def module_hook(_module, hook):
+  return function_exists(_module +  '_'  + hook)
+
+
+
 #
 # Determine which modules are implementing a hook.
 #
@@ -370,30 +351,28 @@ def module_hook(module, hook):
 #   An array with the names of the modules which are implementing this hook.
 #
 def module_implements(hook, sort = False, refresh = False):
-  static implementations
+  global static_moduleimplements_implementations
+  if (static_moduleimplements_implementations == None):
+    static_moduleimplements_implementations = []
   if (refresh):
-    implementations = array()
+    static_moduleimplements_implementations = []
     return
-  }
-
-  if (not isset(implementations[hook])):
-    implementations[hook] = array()
-    list = module_list(False, True, sort)
-    for module in list:
-      if (module_hook(module, hook)):
-        implementations[hook][] = module
-      }
-    }
-  }
-
+  if (not isset(implementations, hook)):
+    static_moduleimplements_implementations[hook] = []
+    _list = module_list(False, True, sort)
+    for _module in list:
+      if (module_hook(_module, hook)):
+        implementations[hook].append( module )
   # The explicit cast forces a copy to be made. This is needed because
   # implementations[hook] is only a reference to an element of
   # implementations and if there are nested foreaches (due to nested node
   # API calls, for example), they would both manipulate the same array's
   # references, which causes some modules' hooks not to be called.
   # See also http://www.zend.com/zend/art/ref-count.php.
-  return (array)implementations[hook]
-}
+  return drupy_array(implementations[hook])
+
+
+
 #
 # Invoke a hook in a particular module.
 #
@@ -406,16 +385,16 @@ def module_implements(hook, sort = False, refresh = False):
 # @return
 #   The return value of the hook implementation.
 #
-def module_invoke():
-  args = func_get_args()
-  module = args[0]
+def module_invoke(*args):
+  _module = args[0]
   hook = args[1]
-  unset(args[0], args[1])
-  function = module +  '_'  + hook
-  if (module_hook(module, hook)):
-    return call_user_func_array(function, args)
-  }
-}
+  del(args[0], args[1])
+  function = _module +  '_'  + hook
+  if (module_hook(_module, hook)):
+    return function( *args )
+
+
+
 #
 # Invoke a hook in all enabled modules that implement it.
 #
@@ -427,24 +406,20 @@ def module_invoke():
 #   An array of return values of the hook implementations. If modules return
 #   arrays from their implementations, those are merged into one array.
 #
-def module_invoke_all():
-  args = func_get_args()
+def module_invoke_all(*args):
   hook = args[0]
-  unset(args[0])
-  return = array()
-  for module in module_implements(hook):
-    function = module +  '_'  + hook
-    result = call_user_func_array(function, args)
-    if (isset(result) and is_array(result)):
-      return = array_merge_recursive(return, result)
-    }
-    elif (isset(result)):
-      return[] = result
-    }
-  }
+  del(args[0])
+  _return = []
+  for _module in module_implements(hook):
+    function = _module +  '_'  + hook
+    result = function( *args)
+    if (not empty(result) and is_array(result)):
+      _return = array_merge_recursive(_return, result)
+    elif (not empty(result)):
+      _return.append( result )
+  return _return
 
-  return return
-}
+
 #
 # @} End of "defgroup hooks".
 #
@@ -452,5 +427,8 @@ def module_invoke_all():
 # Array of modules required by core.
 #
 def drupal_required_modules():
-  return array('block', 'filter', 'node', 'system', 'user')
-}
+  return ['block', 'filter', 'node', 'system', 'user']
+
+
+
+
