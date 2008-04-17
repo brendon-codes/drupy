@@ -1321,20 +1321,20 @@ def menu_local_tasks(level = 0, return_root = False):
 #
 # Returns the rendered local tasks at the top level.
 #
-def menu_primary_local_tasks():
-  return menu_local_tasks(0)
+#def menu_primary_local_task():
+#  return menu_local_tasks(0)
 
 #
 # Returns the rendered local tasks at the second level.
 #
-def menu_secondary_local_tasks():
-  return menu_local_tasks(1)
+#def menu_secondary_local_tasks():
+#  return menu_local_tasks(1)
 
 #
 # Returns the router path, or the path of the parent tab of a default local task.
 #
-def menu_tab_root_path():
-  return menu_local_tasks(0, True)
+#def menu_tab_root_path:
+#  return menu_local_tasks(0, True)
 
 #
 # Returns the rendered local tasks. The default implementation renders them as tabs.

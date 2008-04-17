@@ -74,4 +74,9 @@ line 1058 class variable is assigned this nested ternary construct. Don't know i
 line 1109 static names got commented out, I don't know yet how to port this one.
 line 1242 refactored a for loop to a while loop (not entirly sure if this is 100% ok, but it looks ok:/)
 line 1271-1318 is commented out due some weird syntax error (there is something fishy going on..)
+line 1324-1325 gives me a weird syntax error on line. Commented out the function.
+line 1330-1331 function is commented out.. syntax error
+line 1336-1337 function is commented out.. syntax error
+
+
 
