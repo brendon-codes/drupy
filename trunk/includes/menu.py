@@ -1238,8 +1238,11 @@ def menu_local_tasks(level = 0, return_root = False):
           # The default task is always active.
           if (item['type'] == MENU_DEFAULT_LOCAL_TASK):
             # Find the first parent which is not a default local task.
-            for (p = item['tab_parent']; tasks[p]['type'] == MENU_DEFAULT_LOCAL_TASK; p = tasks[p]['tab_parent'])
-            link = theme('menu_item_link', array('href' : tasks[p]['href']) + item)
+            p = item['tab_parent']
+            while tasks[p]['type'] == MENU_DEFAULT_LOCAL_TASK:
+              p = tasks[p]['tab_parent']            
+
+            link = theme('menu_item_link', array['href' : tasks[p]['href']] + item)
             tabs_current += theme('menu_local_task', link, True)
             next_path = item['path']
           
@@ -1252,7 +1255,7 @@ def menu_local_tasks(level = 0, return_root = False):
       path = next_path
       tabs[depth]['count'] = count
       tabs[depth]['output'] = tabs_current
-      depth++
+      depth +=1
     
 
     # Find all tabs at the same level or above the current one.
@@ -1265,51 +1268,54 @@ def menu_local_tasks(level = 0, return_root = False):
       next_path = ''
       next_parent = ''
       count = 0
-      foreach (children[parent] as item):
+      for children[parent] in item:
         if (item['access']):
-          count++
+          count+=1
           if (item['type'] == MENU_DEFAULT_LOCAL_TASK):
             # Find the first parent which is not a default local task.
-            for (p = item['tab_parent']; tasks[p]['type'] == MENU_DEFAULT_LOCAL_TASK; p = tasks[p]['tab_parent'])
-            link = theme('menu_item_link', array('href' : tasks[p]['href']) + item)
-            if (item['path'] == router_item['path']):
-              root_path = tasks[p]['path']
+            p = item['tab_parent']
+            while tasks[p]['type'] == MENU_DEFAULT_LOCAL_TASK:
+              p = tasks[p]['tab_parent']
+              break
+            link = theme('menu_item_link', array['href' : tasks[p]['href'] + item]
+            #if (item['path'] == router_item['path']):
+            #  root_path = tasks[p]['path']
             
           
-          else:
-            link = theme('menu_item_link', item)
+          #else:
+          #  link = theme('menu_item_link', item)
           
           # We check for the active tab.
-          if (item['path'] == path):
-            tabs_current += theme('menu_local_task', link, True)
-            next_path = item['tab_parent']
-            if (isset(tasks[next_path])):
-              next_parent = tasks[next_path]['tab_parent']
+          #if (item['path'] == path):
+          #  tabs_current += theme('menu_local_task', link, True)
+          #  next_path = item['tab_parent']
+          #  if (isset(tasks[next_path])):
+          #    next_parent = tasks[next_path]['tab_parent']
             
           
-          else:
-            tabs_current += theme('menu_local_task', link)
+          #else:
+          #  tabs_current += theme('menu_local_task', link)
           
         
       
-      path = next_path
-      parent = next_parent
-      tabs[depth]['count'] = count
-      tabs[depth]['output'] = tabs_current
-      depth--
+      #path = next_path
+      #parent = next_parent
+      #tabs[depth]['count'] = count
+      #tabs[depth]['output'] = tabs_current
+      #depth -=1
     
-    # Sort by depth.
-    ksort(tabs)
-    # Remove the depth, we are interested only in their relative placement.
-    tabs = array_values(tabs)
+   # Sort by depth.
+    #ksort(tabs)
+   # Remove the depth, we are interested only in their relative placement.
+    #tabs = array_values(tabs)
   
 
-  if (return_root):
-    return root_path
+  #if (return_root):
+  #  return root_path
   
-  else:
+  #else:
     # We do not display single tabs.
-    return (isset(tabs[level]) and tabs[level]['count'] > 1) ? tabs[level]['output'] : ''
+    #return (isset(tabs[level]) and tabs[level]['count'] > 1) ? tabs[level]['output'] : ''
   
 
 #
