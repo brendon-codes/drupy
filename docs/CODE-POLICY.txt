@@ -2,8 +2,6 @@ THESE ARE THE DRUPY CONVERSION AND CODING STANDARDS.
 TO RETAIN SVN COMMIT ACCESS, THESE STANDARDS MUST BE FOLLOWED.
 THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 
-
-
 (1) Newline and carriage return whitespace can only exist between function and class definitions.
 	The following is valid:
 
@@ -138,7 +136,7 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 	Drupal: while ($level-- > 0 && $tree){
 	
 	Drupy: for level in range(100, 1, -1): 
-			 if not tree: 
+			 if not tree:
 			 break
 	
 	Wrong Drupy: while (level -= 1 > 0 and tree):
@@ -147,17 +145,18 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 	So in this case we turn it into a for loop that performs the decrementation and give the tree 
 	variable a if not clause.
 
-(6) Indention
-How is indention? It's the white-space before the actual text.
-  2 spaces <-- do this!
-	2-space tabulator indent <-- do NOT do this!
+(6) Indention/whitespace
+What is indention? It's the white-space before the actual text.
+  2 spaces <-- do NOT do this!
+	2-space tabulator indent <-- do this!
 
 Drupal:  2 spaces
-Drupy:  2 spaces
+Drupy:  2-space tabulator indent
 
 Comments: 
 - Note that a decent text editor should support setting your tab key to 2 spaces. 
-- Also, some text editors support high-lighting indention for
+- Some text editors support high-lighting indention for
 better readbility - some programmers prefer this.
-- But _never ever_ use tabulator indention, this is because some text editors have 1 tabulator set to different values. And we would end up with inconsistent code right away.
 - Also, indented code is case sensetive in python, where in PHP (C-like languages), it's not. So wrong indention can cause logic errors in your python code.
+- Avoid trailing whitespace. Like this: def myfunction:     
+
