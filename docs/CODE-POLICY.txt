@@ -153,7 +153,7 @@ What is indention? It's the white-space before the actual text.
 Drupal:  2 spaces
 Drupy:  2-space tabulator indent
 
-Comments: 
+Comments:
 - Note that a decent text editor should support setting your tab key to 2 spaces. 
 - Some text editors support high-lighting indention for
 better readbility - some programmers prefer this.
