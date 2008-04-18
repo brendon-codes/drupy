@@ -147,3 +147,17 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 	So in this case we turn it into a for loop that performs the decrementation and give the tree 
 	variable a if not clause.
 
+(6) Indention
+How is indention? It's the white-space before the actual text.
+  2 spaces <-- do this!
+	2-space tabulator indent <-- do NOT do this!
+
+Drupal:  2 spaces
+Drupy:  2 spaces
+
+Comments: 
+- Note that a decent text editor should support setting your tab key to 2 spaces. 
+- Also, some text editors support high-lighting indention for
+better readbility - some programmers prefer this.
+- But _never ever_ use tabulator indention, this is because some text editors have 1 tabulator set to different values. And we would end up with inconsistent code right away.
+- Also, indented code is case sensetive in python, where in PHP (C-like languages), it's not. So wrong indention can cause logic errors in your python code.
