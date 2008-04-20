@@ -568,9 +568,6 @@ def drupal_redirect_form(form, redirect = None):
       else:
         drupal_goto(goto)
     drupal_goto(_GET['q'])
-
-
-
 #
 # Performs validation on form elements. First ensures required fields are
 # completed, #maxlength is not exceeded, and selected options were in the
@@ -601,8 +598,7 @@ def _form_validate(elements, form_state, form_id = None):
   for key in element_children(elements):
     if (isset(elements[key]) and elements[key]):
       _form_validate(elements[key], form_state)
-    }
-  }
+  
   # Validate the current input.
   if (not isset(elements['#validated']) or not elements['#validated']):
     if (isset(elements['#needs_validation'])):
@@ -612,35 +608,28 @@ def _form_validate(elements, form_state, form_id = None):
       # length if it's a string, and the item count if it's an array.
       if (elements['#required'] and (not count(elements['#value']) or (is_string(elements['#value']) and strlen(trim(elements['#value'])) == 0))):
         form_error(elements, t('not name field is required.', array('not name' : elements['#title'])))
-      }
 
       # Verify that the value is not longer than #maxlength.
       if (isset(elements['#maxlength']) and drupal_strlen(elements['#value']) > elements['#maxlength']):
         form_error(elements, t('not name cannot be longer than %max characters but is currently %length characters long.', array('not name' : empty(elements['#title']) ? elements['#parents'][0] : elements['#title'], '%max' : elements['#maxlength'], '%length' : drupal_strlen(elements['#value']))))
-      }
 
       if (isset(elements['#options']) and isset(elements['#value'])):
         if (elements['#type'] == 'select'):
           options = form_options_flatten(elements['#options'])
-        }
+
         else:
           options = elements['#options']
-        }
+
         if (is_array(elements['#value'])):
           value = elements['#type'] == 'checkboxes' ? array_keys(array_filter(elements['#value'])) : elements['#value']
           for v in value:
             if (not isset(options[v])):
               form_error(elements, t('An illegal choice has been detected + Please contact the site administrator.'))
               watchdog('form', 'Illegal choice %choice in not name element.', array('%choice' : v, 'not name' : empty(elements['#title']) ? elements['#parents'][0] : elements['#title']), WATCHDOG_ERROR)
-            }
-          }
-        }
+
         elif (not isset(options[elements['#value']])):
           form_error(elements, t('An illegal choice has been detected + Please contact the site administrator.'))
           watchdog('form', 'Illegal choice %choice in %name element.', array('%choice' : elements['#value'], '%name' : empty(elements['#title']) ? elements['#parents'][0] : elements['#title']), WATCHDOG_ERROR)
-        }
-      }
-    }
 
     # Call user-defined form level validators and store a copy of the full
     # form so that element-specific validators can examine the entire structure
@@ -648,19 +637,16 @@ def _form_validate(elements, form_state, form_id = None):
     if (isset(form_id)):
       form_execute_handlers('validate', elements, form_state)
       complete_form = elements
-    }
+
     # Call any element-specific validators. These must act on the element
     # #value data.
     elif (isset(elements['#element_validate'])):
       foreach (elements['#element_validate'] as function):
         if (function_exists(function)):
           function(elements, form_state, complete_form)
-        }
-      }
-    }
+
     elements['#validated'] = True
-  }
-}
+
 #
 # A helper function used to execute custom validation and submission
 # handlers for a given form. Button-specific handlers are checked
@@ -680,13 +666,12 @@ def form_execute_handlers(type, &form, &form_state):
   return = False
   if (isset(form_state[type +  '_handlers'])):
     handlers = form_state[type +  '_handlers']
-  }
+
   elif (isset(form['#' . type])):
     handlers = form['#' . type]
-  }
+
   else:
-    handlers = array()
-  }
+    handlers = dict()
 
   for function in handlers:
     if (function_exists(function)):
@@ -695,15 +680,14 @@ def form_execute_handlers(type, &form, &form_state):
         # in a special 'control' batch set, for execution at the correct
         # time during the batch processing workflow.
         batch['sets'][] = array('form_submit' : function)
-      }
+
       else:
         function(form, form_state)
-      }
+
       return = True
-    }
-  }
+
   return return
-}
+
 #
 # File an error against a form element.
 #
@@ -724,10 +708,8 @@ def form_set_error(name = None, message = ''):
     form[name] = message
     if (message):
       drupal_set_message(message, 'error')
-    }
-  }
+
   return form
-}
 #
 # Return an associative array of all errors.
 #
@@ -735,8 +717,7 @@ def form_get_errors():
   form = form_set_error()
   if (not empty(form)):
     return form
-  }
-}
+
 #
 # Return the error message filed against the form with the specified name.
 #
@@ -745,18 +726,17 @@ def form_get_error(element):
   key = element['#parents'][0]
   if (isset(form[key])):
     return form[key]
-  }
+
   key = implode('][', element['#parents'])
   if (isset(form[key])):
     return form[key]
-  }
-}
+
 #
 # Flag an element as having an error.
 #
 def form_error(&element, message = ''):
   form_set_error(implode('][', element['#parents']), message)
-}
+
 #
 # Walk through the structured form array, adding any required
 # properties to each element and mapping the incoming _POST
@@ -781,35 +761,30 @@ def form_builder(form_id, form, &form_state):
   if ((not empty(form['#type'])) and (info = _element_info(form['#type']))):
     # Overlay info onto form, retaining preexisting keys in form.
     form += info
-  }
 
   if (isset(form['#type']) and form['#type'] == 'form'):
     complete_form = form
     if (not empty(form['#programmed'])):
       form_state['submitted'] = True
-    }
-  }
 
   if (isset(form['#input']) and form['#input']):
     _form_builder_handle_input_element(form_id, form, form_state, complete_form)
-  }
+
   form['#defaults_loaded'] = True
   # We start off assuming all form elements are in the correct order.
   form['#sorted'] = True
   # Recurse through all child elements.
-  count = 0
+  _count = 0
   for key in element_children(form):
     form[key]['#post'] = form['#post']
     form[key]['#programmed'] = form['#programmed']
     # Don't squash an existing tree value.
     if (not isset(form[key]['#tree'])):
       form[key]['#tree'] = form['#tree']
-    }
 
     # Deny access to child elements if parent is denied.
     if (isset(form['#access']) and not form['#access']):
       form[key]['#access'] = False
-    }
 
     # Don't squash existing parents value.
     if (not isset(form[key]['#parents'])):
@@ -819,20 +794,17 @@ def form_builder(form_id, form, &form_state):
       array_parents = isset(form['#array_parents']) ? form['#array_parents'] : array()
       array_parents[] = key
       form[key]['#array_parents'] = array_parents
-    }
 
     # Assign a decimal placeholder weight to preserve original array order.
     if (not isset(form[key]['#weight'])):
       form[key]['#weight'] = count/1000
-    }
     else:
       # If one of the child elements has a weight then we will need to sort
       # later.
       unset(form['#sorted'])
-    }
+
     form[key] = form_builder(form_id, form[key], form_state)
-    count++
-  }
+    _count +=1
 
   # The #after_build flag allows any piece of a form to be altered
   # after normal input parsing has been completed.
@@ -840,8 +812,6 @@ def form_builder(form_id, form, &form_state):
     foreach (form['#after_build'] as function):
       form = function(form, form_state)
       form['#after_build_done'] = True
-    }
-  }
 
   # Now that we've processed everything, we can go back to handle the funky
   # Internet Explorer button-click scenario.
@@ -852,19 +822,17 @@ def form_builder(form_id, form, &form_state):
   # we don't need the array.
   if (not empty(form_state['submitted'])):
     unset(form_state['buttons'])
-  }
 
   # If some callback set #cache, we need to flip a static flag so later it
   # can be found.
   if (isset(form['#cache'])):
     cache = form['#cache']
-  }
+
   # We are on the top form, we can copy back #cache if it's set.
   if (isset(form['#type']) and form['#type'] == 'form' and isset(cache)):
     form['#cache'] = True
-  }
   return form
-}
+
 #
 # Populate the #value and #name properties of input elements so they
 # can be processed and rendered. Also, execute any #process handlers
@@ -879,20 +847,18 @@ def _form_builder_handle_input_element(form_id, &form, &form_state, complete_for
       # file fields in the 'files' array. Also, we do not support
       # nested file names.
       form['#name'] = 'files[' . form['#name'] . ']'
-    }
+
     elif (count(form['#parents'])):
       form['#name'] += '[' . implode('][', form['#parents']) . ']'
-    }
+
     array_unshift(form['#parents'], name)
-  }
+
   if (not isset(form['#id'])):
     form['#id'] = form_clean_id('edit-' . implode('-', form['#parents']))
-  }
 
   unset(edit)
   if (not empty(form['#disabled'])):
     form['#attributes']['disabled'] = 'disabled'
-  }
 
   if (not isset(form['#value']) and not array_key_exists('#value', form)):
     function = not empty(form['#value_callback']) ? form['#value_callback'] : 'form_type_' . form['#type'] . '_value'
@@ -900,35 +866,31 @@ def _form_builder_handle_input_element(form_id, &form, &form_state, complete_for
       edit = form['#post']
       foreach (form['#parents'] as parent):
         edit = isset(edit[parent]) ? edit[parent] : None
-      }
+
       if (not form['#programmed'] or isset(edit)):
         # Call #type_value to set the form value
         if (function_exists(function)):
           form['#value'] = function(form, edit)
-        }
+
         if (not isset(form['#value']) and isset(edit)):
           form['#value'] = edit
-        }
-      }
+
       # Mark all posted values for validation.
       if (isset(form['#value']) or (isset(form['#required']) and form['#required'])):
         form['#needs_validation'] = True
-      }
-    }
+
     # Load defaults.
     if (not isset(form['#value'])):
       # Call #type_value without a second argument to request default_value handling.
       if (function_exists(function)):
         form['#value'] = function(form)
-      }
+
       # Final catch. If we haven't set a value yet, use the explicit default value.
       # Avoid image buttons (which come with garbage value), so we only get value
       # for the button actually clicked.
       if (not isset(form['#value']) and empty(form['#has_garbage_value'])):
         form['#value'] = isset(form['#default_value']) ? form['#default_value'] : ''
-      }
-    }
-  }
+
 
   # Determine which button (if any) was clicked to submit the form.
   # We compare the incoming values with the buttons defined in the form,
@@ -948,24 +910,24 @@ def _form_builder_handle_input_element(form_id, &form, &form_state, complete_for
       form_state['clicked_button'] = form
       if (isset(form['#validate'])):
         form_state['validate_handlers'] = form['#validate']
-      }
+
       if (isset(form['#submit'])):
         form_state['submit_handlers'] = form['#submit']
-      }
-    }
-  }
+
+
+
   # Allow for elements to expand to multiple elements, e.g., radios,
   # checkboxes and files.
   if (isset(form['#process']) and not form['#processed']):
     foreach (form['#process'] as process):
       if (function_exists(process)):
         form = process(form, isset(edit) ? edit : None, form_state, complete_form)
-      }
-    }
+
+
     form['#processed'] = True
-  }
+
   form_set_value(form, form['#value'], form_state)
-}
+
 #
 # Helper function to handle the sometimes-convoluted logic of button
 # click detection.
@@ -983,7 +945,7 @@ def _form_button_was_clicked(form):
   # value at the top level of the tree of _POST data.
   if (isset(form['#post'][form['#name']]) and form['#post'][form['#name']] == form['#value']):
     return True
-  }
+
   # When image buttons are clicked, browsers do NOT pass the form element
   # value in _POST. Instead they pass an integer representing the
   # coordinates of the click on the button image. This means that image
@@ -991,9 +953,9 @@ def _form_button_was_clicked(form):
   # their _POST data should be ignored.
   elif (not empty(form['#has_garbage_value']) and isset(form['#value']) and form['#value'] !== ''):
     return True
-  }
+
   return False
-}
+
 #
 # In IE, if only one submit button is present, AND the enter key is
 # used to submit the form, no form value is sent for it and our normal
@@ -1018,9 +980,7 @@ def _form_builder_ie_cleanup(form, &form_state):
       form_state['validate_handlers'] = empty(button['#validate']) ? None : button['#validate']
       form_state['values'][button['#name']] = button['#value']
       form_state['clicked_button'] = button
-    }
-  }
-}
+
 #
 # Helper function to determine the value for an image button form element.
 #
@@ -1039,7 +999,7 @@ def form_type_image_button_value(form, edit = False):
       # If we're dealing with Mozilla or Opera, we're lucky. It will
       # return a proper value, and we can get on with things.
       return form['#return_value']
-    }
+
     else:
       # Unfortunately, in IE we never get back a proper value for THIS
       # form element. Instead, we get back two split values: one for the
@@ -1051,20 +1011,17 @@ def form_type_image_button_value(form, edit = False):
         # chop off the ] that may exist.
         if (substr(element_name, -1) == ']'):
           element_name = substr(element_name, 0, -1)
-        }
 
         if (not isset(post[element_name])):
           if (isset(post[element_name +  '_x'])):
             return form['#return_value']
-          }
+
           return None
-        }
+
         post = post[element_name]
-      }
+
       return form['#return_value']
-    }
-  }
-}
+
 #
 # Helper function to determine the value for a checkbox form element.
 #
@@ -1080,8 +1037,7 @@ def form_type_image_button_value(form, edit = False):
 def form_type_checkbox_value(form, edit = False):
   if (edit !== False):
     return not empty(edit) ? form['#return_value'] : 0
-  }
-}
+
 #
 # Helper function to determine the value for a checkboxes form element.
 #
@@ -1100,13 +1056,12 @@ def form_type_checkboxes_value(form, edit = False):
     form += array('#default_value' : array())
     foreach (form['#default_value'] as key):
       value[key] = 1
-    }
+
     return value
-  }
+
   elif (not isset(edit)):
     return array()
-  }
-}
+
 #
 # Helper function to determine the value for a password_confirm form
 # element.
@@ -1124,8 +1079,7 @@ def form_type_password_confirm_value(form, edit = False):
   if (edit == False):
     form += array('#default_value' : array())
     return form['#default_value'] + array('pass1' : '', 'pass2' : '')
-  }
-}
+
 #
 # Helper function to determine the value for a select form element.
 #
@@ -1142,12 +1096,10 @@ def form_type_select_value(form, edit = False):
   if (edit !== False):
     if (isset(form['#multiple']) and form['#multiple']):
       return (is_array(edit)) ? drupal_map_assoc(edit) : array()
-    }
+
     else:
       return edit
-    }
-  }
-}
+
 #
 # Helper function to determine the value for a textfield form element.
 #
@@ -1165,8 +1117,7 @@ def form_type_textfield_value(form, edit = False):
     # Equate edit to the form value to ensure it's marked for
     # validation.
     return str_replace(array("\r", "\n"), '', edit)
-  }
-}
+
 #
 # Helper function to determine the value for form's token value.
 #
@@ -1182,8 +1133,7 @@ def form_type_textfield_value(form, edit = False):
 def form_type_token_value(form, edit = False):
   if (edit !== False):
     return (string)edit
-  }
-}
+
 #
 # Change submitted form values during the form processing cycle.
 #
@@ -1209,7 +1159,7 @@ def form_type_token_value(form, edit = False):
 #
 def form_set_value(form_item, value, &form_state):
   _form_set_value(form_state['values'], form_item, form_item['#parents'], value)
-}
+
 #
 # Helper function for form_set_value().
 #
@@ -1221,14 +1171,13 @@ def _form_set_value(&form_values, form_item, parents, value):
   parent = array_shift(parents)
   if (empty(parents)):
     form_values[parent] = value
-  }
+
   else:
     if (not isset(form_values[parent])):
       form_values[parent] = array()
-    }
+
     _form_set_value(form_values[parent], form_item, parents, value)
-  }
-}
+
 #
 # Retrieve the default properties for the defined element type.
 #
@@ -1247,38 +1196,30 @@ def _element_info(type, refresh = None):
       elements = module_invoke(module, 'elements')
       if (isset(elements) and is_array(elements)):
         cache = array_merge_recursive(cache, elements)
-      }
-    }
+
     if (sizeof(cache)):
       for element_type,info in cache.items():
         cache[element_type] = array_merge_recursive(basic_defaults, info)
-      }
-    }
-  }
 
   return cache[type]
-}
 
 def form_options_flatten(array, reset = True):
   static return
   if (reset):
     return = array()
-  }
 
   for key,value in array.items():
     if (is_object(value)):
       form_options_flatten(value.option, False)
-    }
+
     elif (is_array(value)):
       form_options_flatten(value, False)
-    }
+
     else:
       return[key] = 1
-    }
-  }
 
   return return
-}
+
 #
 # Format a dropdown menu or scrolling selection box.
 #
@@ -1300,12 +1241,11 @@ def theme_select(element):
   _form_set_class(element, array('form-select'))
   multiple = element['#multiple']
   return theme('form_element', element, '<select name="' +  element['#name'] . '' . (multiple ? '[]' : '') . '"' . (multiple ? ' multiple="multiple" ' : '') . drupal_attributes(element['#attributes']) . ' id="' . element['#id'] . '" ' . size . '>' . form_select_options(element) . '</select>')
-}
 
 def form_select_options(element, choices = None):
   if (not isset(choices)):
     choices = element['#options']
-  }
+
   # array_key_exists() accommodates the rare event where element['#value'] is None.
   # isset() fails in this situation.
   value_valid = isset(element['#value']) or array_key_exists('#value', element)
@@ -1316,23 +1256,22 @@ def form_select_options(element, choices = None):
       options += '<optgroup label="' +  key  + '">'
       options += form_select_options(element, choice)
       options += '</optgroup>'
-    }
+
     elif (is_object(choice)):
       options += form_select_options(element, choice.option)
-    }
+
     else:
       key = (string)key
       if (value_valid and (not value_is_array and (string)element['#value'] == key or (value_is_array and in_array(key, element['#value'])))):
         selected = ' selected="selected"'
-      }
+
       else:
         selected = ''
-      }
+
       options += '<option value="' +  check_plain(key)  + '"' . selected . '>' . check_plain(choice) . '</option>'
-    }
-  }
+
   return options
-}
+
 #
 # Traverses a select element's #option array looking for any values
 # that hold the given key. Returns an array of indexes that match.
@@ -1370,18 +1309,16 @@ def form_get_options(element, key):
   foreach (element['#options'] as index : choice):
     if (is_array(choice)):
       return False
-    }
+
     elif (is_object(choice)):
       if (isset(choice.option[key])):
         keys[] = index
-      }
-    }
+
     elif (index == key):
       keys[] = index
-    }
-  }
+
   return keys
-}
+
 #
 # Format a group of form items.
 #
@@ -1398,16 +1335,13 @@ def theme_fieldset(element):
     drupal_add_js('misc/collapse.js')
     if (not isset(element['#attributes']['class'])):
       element['#attributes']['class'] = ''
-    }
 
     element['#attributes']['class'] += ' collapsible'
     if (element['#collapsed']):
       element['#attributes']['class'] += ' collapsed'
-    }
-  }
 
   return '<fieldset' +  drupal_attributes(element['#attributes']) . '>' . (element['#title'] ? '<legend>' . element['#title'] . '</legend>' : '') . (isset(element['#description']) and element['#description'] ? '<div class="description">' . element['#description'] . '</div>' : '') . (not empty(element['#children']) ? element['#children'] : '') . element['#value'] . "</fieldset>\n"
-}
+
 #
 # Format a radio button.
 #
@@ -1428,11 +1362,10 @@ def theme_radio(element):
   output += drupal_attributes(element['#attributes']) . ' />'
   if (not is_None(element['#title'])):
     output = '<label class="option">' +  output  + ' ' . element['#title'] . '</label>'
-  }
 
   unset(element['#title'])
   return theme('form_element', element, output)
-}
+
 #
 # Format a set of radio buttons.
 #
@@ -1448,16 +1381,15 @@ def theme_radios(element):
   class = 'form-radios'
   if (isset(element['#attributes']['class'])):
     class += ' ' +  element['#attributes']['class']
-  }
+
   element['#children'] = '<div class="' . class . '">' . (not empty(element['#children']) ? element['#children'] : '') . '</div>'
   if (element['#title'] or element['#description']):
     unset(element['#id'])
     return theme('form_element', element, element['#children'])
-  }
+
   else:
     return element['#children']
-  }
-}
+
 #
 # Format a password_confirm item.
 #
@@ -1471,7 +1403,7 @@ def theme_radios(element):
 #
 def theme_password_confirm(element):
   return theme('form_element', element, element['#children'])
-}
+
 #
 # Expand a password_confirm field into two text boxes.
 #
@@ -1494,10 +1426,9 @@ def expand_password_confirm(element):
   element['#tree'] = True
   if (isset(element['#size'])):
     element['pass1']['#size'] = element['pass2']['#size'] = element['#size']
-  }
 
   return element
-}
+
 #
 # Validate password_confirm element.
 #
@@ -1507,11 +1438,9 @@ def password_confirm_validate(form, &form_state):
     pass2 = trim(form['pass2']['#value'])
     if (pass1 != pass2):
       form_error(form, t('The specified passwords do not match.'))
-    }
-  }
+
   elif (form['#required'] and not empty(form['#post'])):
     form_error(form, t('Password field is required.'))
-  }
 
   # Password field must be converted from a two-element array into a single
   # string regardless of validation results.
@@ -1519,7 +1448,7 @@ def password_confirm_validate(form, &form_state):
   form_set_value(form['pass2'], None, form_state)
   form_set_value(form, pass1, form_state)
   return form
-}
+
 #
 # Format a date selection element.
 #
