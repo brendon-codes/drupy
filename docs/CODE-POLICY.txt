@@ -124,7 +124,7 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 	example:
 	
 	Drupal: names = array()
-	Drupy: names = {}
+	Drupy: names = dict{} # do not just do the literal form names = {}
 	
 	Comments: a PHP array becomes a mutable python dict
 
@@ -147,11 +147,11 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 
 (6) Indention/whitespace
 What is indention? It's the white-space before the actual text.
-  2 spaces <-- do NOT do this!
-	2-space tabulator indent <-- do this!
+  2 spaces <-- do this!
+	2-space tabulator indent <-- do NOT this!
 
-Drupal:  2 spaces
-Drupy:  2-space tabulator indent
+Drupal:  2 space indent
+Drupy:  2 space indent
 
 Comments:
 - Note that a decent text editor should support setting your tab key to 2 spaces. 
@@ -159,4 +159,3 @@ Comments:
 better readbility - some programmers prefer this.
 - Also, indented code is case sensetive in python, where in PHP (C-like languages), it's not. So wrong indention can cause logic errors in your python code.
 - Avoid trailing whitespace. Like this: def myfunction:     
-
