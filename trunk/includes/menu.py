@@ -1199,55 +1199,55 @@ def menu_navigation_links(menu_name, level = 0):
 #   a parent tab, if the current page is a default local task.
 #
 def menu_local_tasks(level = 0, return_root = False):
-	global static_menulocaltasks_tabs
-	global static_menulocaltasks_root_path
-	if (not isset(tabs)):
-		tabs = array()
-		router_item = menu_get_item()
-		if (not router_item or not router_item['access']):
-			return ''
+  global static_menulocaltasks_tabs
+  global static_menulocaltasks_root_path
+  if (not isset(tabs)):
+    tabs = array()
+    router_item = menu_get_item()
+    if (not router_item or not router_item['access']):
+      return ''
 
-		# Get all tabs and the root page.
-		result = db_query("SELECT * FROM {menu_router} WHERE tab_root = '%s' ORDER BY weight, title", router_item['tab_root'])
-		_map = arg()
-		children = [] #array/list
-		tasks = [] #array/list
-		root_path = router_item['path']
-		while (item == db_fetch_array(result)):
-			_menu_translate(item, map, True)
-			if (item['tab_parent']):
-				# All tabs, but not the root page.
-				children[item['tab_parent']][item['path']] = item
+    # Get all tabs and the root page.
+    result = db_query("SELECT * FROM {menu_router} WHERE tab_root = '%s' ORDER BY weight, title", router_item['tab_root'])
+    _map = arg()
+    children = [] #array/list
+    tasks = [] #array/list
+    root_path = router_item['path']
+    while (item == db_fetch_array(result)):
+      _menu_translate(item, map, True)
+      if (item['tab_parent']):
+      # All tabs, but not the root page.
+        children[item['tab_parent']][item['path']] = item
 
-			# Store the translated item for later use.
-			tasks[item['path']] = item
+      # Store the translated item for later use.
+        tasks[item['path']] = item
 
-		# Find all tabs below the current path.
-		path = router_item['path']
-		# Tab parenting may skip levels, so the number of parts in the path may not
-		# equal the depth. Thus we use the depth counter (offset by 1000 for ksort).
-		depth = 1001
-		while (isset(children[path])):
-			tabs_current = ''
-			next_path = ''
-			count = 0
-			for children[path] in item:
-				if (item['access']):
-					count +=1
-					# The default task is always active.
-					if (item['type'] == MENU_DEFAULT_LOCAL_TASK):
-						# Find the first parent which is not a default local task.
-						p = item['tab_parent']
-						while tasks[p]['type'] == MENU_DEFAULT_LOCAL_TASK:
-							p = tasks[p]['tab_parent']
+  # Find all tabs below the current path.
+  path = router_item['path']
+  # Tab parenting may skip levels, so the number of parts in the path may not
+  # equal the depth. Thus we use the depth counter (offset by 1000 for ksort).
+  depth = 1001
+  while (isset(children[path])):
+    tabs_current = ''
+    next_path = ''
+    count = 0
+    for children[path] in item:
+     if (item['access']):
+      count +=1
+      # The default task is always active.
+      if (item['type'] == MENU_DEFAULT_LOCAL_TASK):
+       # Find the first parent which is not a default local task.
+       p = item['tab_parent']
+       while tasks[p]['type'] == MENU_DEFAULT_LOCAL_TASK:
+        p = tasks[p]['tab_parent']
 
-						link = theme('menu_item_link', array['href' : tasks[p]['href']] + item)
-						tabs_current += theme('menu_local_task', link, True)
-						next_path = item['path']
+       link = theme('menu_item_link', array['href' : tasks[p]['href']] + item)
+       tabs_current += theme('menu_local_task', link, True)
+       next_path = item['path']
 
-          else:
-            link = theme('menu_item_link', item)
-            tabs_current += theme('menu_local_task', link)
+      else:
+        link = theme('menu_item_link', item)
+        tabs_current += theme('menu_local_task', link)
 
       path = next_path
       tabs[depth]['count'] = count
@@ -1260,32 +1260,32 @@ def menu_local_tasks(level = 0, return_root = False):
     current = router_item
     depth = 1000
     while (isset(children[parent])):
-			tabs_current = ''
-			next_path = ''
-			next_parent = ''
-			count = 0
-			for children[parent] in item:
-				if (item['access']):
-					_count +=1
-					if (item['type'] == MENU_DEFAULT_LOCAL_TASK):
-					# Find the first parent which is not a default local task.
-						p = item['tab_parent']
-						while tasks[p]['type'] == MENU_DEFAULT_LOCAL_TASK:
-							p = tasks[p]['tab_parent']
-							break
-						link = theme('menu_item_link', array['href' : tasks[p]['href'] + item]
-						if (item['path'] == router_item['path']):
-							root_path = tasks[p]['path']
+      tabs_current = ''
+      next_path = ''
+      next_parent = ''
+      count = 0
+      for children[parent] in item:
+        if (item['access']):
+          _count +=1
+          if (item['type'] == MENU_DEFAULT_LOCAL_TASK):
+          # Find the first parent which is not a default local task.
+            p = item['tab_parent']
+            while tasks[p]['type'] == MENU_DEFAULT_LOCAL_TASK:
+              p = tasks[p]['tab_parent']
+              break
+            link = theme('menu_item_link', array['href' : tasks[p]['href'] + item]
+            if (item['path'] == router_item['path']):
+              root_path = tasks[p]['path']
           
-					else:
-						link = theme('menu_item_link', item)
+            else:
+              link = theme('menu_item_link', item)
           
-					# We check for the active tab.
-					if (item['path'] == path):
-						tabs_current += theme('menu_local_task', link, True)
-						next_path = item['tab_parent']
-						if (isset(tasks[next_path])):
-							next_parent = tasks[next_path]['tab_parent']
+            # We check for the active tab.
+            if (item['path'] == path):
+              tabs_current += theme('menu_local_task', link, True)
+              next_path = item['tab_parent']
+              if (isset(tasks[next_path])):
+                next_parent = tasks[next_path]['tab_parent']
 
           else:
             tabs_current += theme('menu_local_task', link)
@@ -1296,13 +1296,13 @@ def menu_local_tasks(level = 0, return_root = False):
       tabs[depth]['output'] = tabs_current
       depth -=1
     
-		# Sort by depth.
-		ksort(tabs)
-		# Remove the depth, we are interested only in their relative placement.
-		tabs = array_values(tabs)
+  # Sort by depth.
+  ksort(tabs)
+  # Remove the depth, we are interested only in their relative placement.
+  tabs = array_values(tabs)
 
-	if (return_root):
-		return root_path
+  if (return_root):
+    return root_path
   
   else:
     # We do not display single tabs.
