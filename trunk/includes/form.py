@@ -3,6 +3,8 @@
 
 
 static('static_drupalretrieveform_forms')
+static('static_formseterror_form')
+
 
 # @defgroup forms Form builder functions
 # @{
@@ -596,56 +598,47 @@ def _form_validate(elements, form_state, form_id = None):
   t = get_t()
   # Recurse through all children.
   for key in element_children(elements):
-    if (isset(elements[key]) and elements[key]):
-      _form_validate(elements[key], form_state)
-  
+    if (isset(elements, key) and elements[key]):
+      _form_validate(elements[key], form_state.val)
   # Validate the current input.
-  if (not isset(elements['#validated']) or not elements['#validated']):
-    if (isset(elements['#needs_validation'])):
+  if (not isset(elements, '#validated') or not elements['#validated']):
+    if (isset(elements, '#needs_validation')):
       # Make sure a value is passed when the field is required.
       # A simple call to empty() will not cut it here as some fields, like
       # checkboxes, can return a valid value of '0'. Instead, check the
       # length if it's a string, and the item count if it's an array.
       if (elements['#required'] and (not count(elements['#value']) or (is_string(elements['#value']) and strlen(trim(elements['#value'])) == 0))):
-        form_error(elements, t('not name field is required.', array('not name' : elements['#title'])))
-
-      # Verify that the value is not longer than #maxlength.
-      if (isset(elements['#maxlength']) and drupal_strlen(elements['#value']) > elements['#maxlength']):
-        form_error(elements, t('not name cannot be longer than %max characters but is currently %length characters long.', array('not name' : empty(elements['#title']) ? elements['#parents'][0] : elements['#title'], '%max' : elements['#maxlength'], '%length' : drupal_strlen(elements['#value']))))
-
-      if (isset(elements['#options']) and isset(elements['#value'])):
+        form_error(elements, t('not name field is required.', {'not name' : elements['#title']}))
+      if (isset(elements, '#maxlength') and drupal_strlen(elements['#value']) > elements['#maxlength']):
+        form_error(elements, t('not name cannot be longer than %max characters but is currently %length characters long.', {'not name' : (elements['#parents'][0] if empty(elements['#title']) else elements['#title']), '%max' : elements['#maxlength'], '%length' : drupal_strlen(elements['#value'])}))
+      if (isset(elements, '#options') and isset(elements, '#value')):
         if (elements['#type'] == 'select'):
           options = form_options_flatten(elements['#options'])
-
         else:
           options = elements['#options']
-
         if (is_array(elements['#value'])):
-          value = elements['#type'] == 'checkboxes' ? array_keys(array_filter(elements['#value'])) : elements['#value']
+          value = (array_keys(array_filter(elements['#value'])) if elements['#type'] == 'checkboxes' else elements['#value'])
           for v in value:
-            if (not isset(options[v])):
+            if (not isset(options, v)):
               form_error(elements, t('An illegal choice has been detected + Please contact the site administrator.'))
-              watchdog('form', 'Illegal choice %choice in not name element.', array('%choice' : v, 'not name' : empty(elements['#title']) ? elements['#parents'][0] : elements['#title']), WATCHDOG_ERROR)
-
-        elif (not isset(options[elements['#value']])):
+              watchdog('form', 'Illegal choice %choice in not name element.', {'%choice' : v, 'not name' : (elements['#parents'][0] if empty(elements['#title']) else elements['#title'])}, WATCHDOG_ERROR)
+        elif (not isset(options, elements['#value'])):
           form_error(elements, t('An illegal choice has been detected + Please contact the site administrator.'))
-          watchdog('form', 'Illegal choice %choice in %name element.', array('%choice' : elements['#value'], '%name' : empty(elements['#title']) ? elements['#parents'][0] : elements['#title']), WATCHDOG_ERROR)
-
+          watchdog('form', 'Illegal choice %choice in %name element.', {'%choice' : elements['#value'], '%name' : (elements['#parents'][0] if empty(elements['#title']) else elements['#title'])}, WATCHDOG_ERROR)
     # Call user-defined form level validators and store a copy of the full
     # form so that element-specific validators can examine the entire structure
     # if necessary.
-    if (isset(form_id)):
-      form_execute_handlers('validate', elements, form_state)
+    if (form_id != None):
+      form_execute_handlers('validate', elements, form_state.val)
       complete_form = elements
-
     # Call any element-specific validators. These must act on the element
     # #value data.
-    elif (isset(elements['#element_validate'])):
-      foreach (elements['#element_validate'] as function):
+    elif (isset(elements, '#element_validate')):
+      for function in elements['#element_validate']:
         if (function_exists(function)):
           function(elements, form_state, complete_form)
-
     elements['#validated'] = True
+
 
 #
 # A helper function used to execute custom validation and submission
@@ -662,31 +655,29 @@ def _form_validate(elements, form_state, form_id = None):
 #   submitted the form by clicking a button with custom handler functions
 #   defined, those handlers will be stored here.
 #
-def form_execute_handlers(type, &form, &form_state):
-  return = False
-  if (isset(form_state[type +  '_handlers'])):
-    handlers = form_state[type +  '_handlers']
-
-  elif (isset(form['#' . type])):
-    handlers = form['#' . type]
-
+def form_execute_handlers(type, form, form_state):
+  DrupyHelper.Reference.check(form)
+  DrupyHelper.Reference.check(form_state)
+  _return = False
+  if (isset(form_state.val, type +  '_handlers')):
+    handlers = form_state.val[type +  '_handlers']
+  elif (isset(form.val, '#' . type)):
+    handlers = form.val['#' . type]
   else:
-    handlers = dict()
-
+    handlers = []
   for function in handlers:
     if (function_exists(function)):
-      if (type == 'submit' and (batch =& batch_get())):
+      batch = batch_get()
+      if (type == 'submit' and batch):
         # Some previous _submit handler has set a batch. We store the call
         # in a special 'control' batch set, for execution at the correct
         # time during the batch processing workflow.
-        batch['sets'][] = array('form_submit' : function)
-
+        batch['sets'].append( {'form_submit' : function} )
       else:
-        function(form, form_state)
+        function(form.val, form_state.val)
+      _return = True
+  return _return
 
-      return = True
-
-  return return
 
 #
 # File an error against a form element.
@@ -703,13 +694,17 @@ def form_execute_handlers(type, &form, &form_state):
 #   form_get_error instead.
 #
 def form_set_error(name = None, message = ''):
-  static form = array()
-  if (isset(name) and not isset(form[name])):
-    form[name] = message
-    if (message):
+  global static_formseterror_form
+  if (static_formseterror_form == None):
+    static_formseterror_form = {}
+  if (name != None and not isset(static_formseterror_form, name)):
+    static_formseterror_form[name] = message
+    if (not empty(message)):
       drupal_set_message(message, 'error')
+  return static_formseterror_form
 
-  return form
+
+
 #
 # Return an associative array of all errors.
 #
