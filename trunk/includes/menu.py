@@ -1269,7 +1269,7 @@ def menu_local_tasks(level = 0, return_root = False):
             while tasks[p]['type'] == MENU_DEFAULT_LOCAL_TASK:
               p = tasks[p]['tab_parent']
               break
-            link = theme('menu_item_link', array['href' : tasks[p]['href'] + item]
+            link = theme('menu_item_link', dict['href' : tasks[p]['href'] + item])
             if (item['path'] == router_item['path']):
               root_path = tasks[p]['path']
  
@@ -1302,7 +1302,7 @@ def menu_local_tasks(level = 0, return_root = False):
   
   else:
     # We do not display single tabs.
-    return (isset(tabs[level]) and tabs[level]['count'] > 1) ? tabs[level]['output'] : ''
+    return tabs[level]['output'] if (isset(tabs[level]) and tabs[level]['count'] > 1) else ''
 
 #
 # Returns the rendered local tasks at the top level.
@@ -1329,10 +1329,10 @@ def menu_secondary_local_tasks():
 #
 def theme_menu_local_tasks():
   output = ''
-  if (primary = menu_primary_local_tasks()):
+  if (primary == menu_primary_local_tasks()):
     output += "<ul class=\"tabs primary\">\n" + primary + "</ul>\n"
   
-  if (secondary = menu_secondary_local_tasks()):
+  if (secondary == menu_secondary_local_tasks()):
     output += "<ul class=\"tabs secondary\">\n" + secondary + "</ul>\n"
   
 
@@ -1342,7 +1342,7 @@ def theme_menu_local_tasks():
 # Set (or get) the active menu for the current page - determines the active trail.
 #
 def menu_set_active_menu_name(menu_name = None):
-  static active
+  global static_menusetactivemenuname_active
   if (isset(menu_name)):
     active = menu_name
   
@@ -1374,13 +1374,13 @@ def menu_set_active_item(path):
 # Set (or get) the active trail for the current page - the path to root in the menu tree.
 #
 def menu_set_active_trail(new_trail = None):
-  static trail
+  global static_menusetactivetrail_trail
   if (isset(new_trail)):
     trail = new_trail
   
   elif (not isset(trail)):
-    trail = array()
-    trail[] = array('title' : t('Home'), 'href' : '<front>', 'localized_options' : array(), 'type' : 0)
+    trail = {}
+    trail = {'title' : t('Home'), 'href' : '<front>', 'localized_options' : {}, 'type' : 0}
     item = menu_get_item()
     # Check whether the current item is a local task (displayed as a tab).
     if (item['tab_parent']):
@@ -1408,13 +1408,13 @@ def menu_set_active_trail(new_trail = None):
     while (curr):
       # Terminate the loop when we find the current path in the active trail.
       if (curr['link']['href'] == item['href']):
-        trail[] = curr['link']
+        trail = curr['link']
         curr = False
       
       else:
         # Move to the child link if it's in the active trail.
         if (curr['below'] and curr['link']['in_active_trail']):
-          trail[] = curr['link']
+          trail = curr['link']
           tree = curr['below']
         
         list(key, curr) = each(tree)
@@ -1424,7 +1424,7 @@ def menu_set_active_trail(new_trail = None):
     # but exclude tabs and the front page.
     last = count(trail) - 1
     if (trail[last]['href'] != item['href'] and not (bool)(item['type'] & MENU_IS_LOCAL_TASK) and not drupal_is_front_page()):
-      trail[] = item
+      trail = item
     
   
   return trail
@@ -1439,7 +1439,7 @@ def menu_get_active_trail():
 # Get the breadcrumb for the current page, as determined by the active trail.
 #
 def menu_get_active_breadcrumb():
-  breadcrumb = array()
+  breadcrumb = {}
   # No breadcrumb for the front page.
   if (drupal_is_front_page()):
     return breadcrumb
@@ -1449,7 +1449,7 @@ def menu_get_active_breadcrumb():
   if (item and item['access']):
     active_trail = menu_get_active_trail()
     for parent in active_trail:
-      breadcrumb[] = l(parent['title'], parent['href'], parent['localized_options'])
+      breadcrumb = l(parent['title'], parent['href'], parent['localized_options'])
     
     end = end(active_trail)
     # Don't show a link to the current page in the breadcrumb trail.
@@ -1467,9 +1467,6 @@ def menu_get_active_title():
   for item in array_reverse(active_trail):
     if (not (bool)(item['type'] & MENU_IS_LOCAL_TASK)):
       return item['title']
-    
-  
-
 #
 # Get a menu link by its mlid, access checked and link translated for rendering.
 #
@@ -1484,9 +1481,9 @@ def menu_get_active_title():
 #   rendering.
 #
 def menu_link_load(mlid):
-  if (is_numeric(mlid) and item = db_fetch_array(db_query("SELECT m.*, ml.* FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path WHERE ml.mlid = %d", mlid))):
-    _menu_link_translate(item)
-    return item
+  #if (is_numeric(mlid) and item = db_fetch_array(db_query("SELECT m.*, ml.* FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path WHERE ml.mlid = %d", mlid))):
+   # _menu_link_translate(item)
+   # return item
   
   return False
 
@@ -1494,7 +1491,7 @@ def menu_link_load(mlid):
 # Clears the cached cached data for a single named menu.
 #
 def menu_cache_clear(menu_name = 'navigation'):
-  static cache_cleared = array()
+  global static_menucacheclear_cache_cleared
   if (empty(cache_cleared[menu_name])):
     cache_clear_all('links:' + menu_name + ':', 'cache_menu', True)
     cache_cleared[menu_name] = 1
@@ -1536,9 +1533,9 @@ def menu_rebuild():
 # Collect, alter and store the menu definitions.
 #
 def menu_router_build(reset = False):
-  static menu
+  static_menurouterbuild_menu
   if (not isset(menu) or reset):
-    if (not reset and (cache = cache_get('router:', 'cache_menu')) and isset(cache.data)):
+    if (not reset and (cache == cache_get('router:', 'cache_menu')) and isset(cache.data)):
       menu = cache.data
     
     else:
