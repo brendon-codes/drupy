@@ -217,25 +217,25 @@ def menu_get_ancestors(parts):
 # current path. This function unserializes such an array and does the
 # necessary change.
 #
-# Integer values are mapped according to the map parameter. For
-# example, if unserialize(data) is array('view', 1) and map is
+# Integer values are mapped according to the _map parameter. For
+# example, if unserialize(data) is array('view', 1) and _map is
 # array('node', '12345') then 'view' will not be changed because
-# it is not an integer, but 1 will as it is an integer. As map[1]
+# it is not an integer, but 1 will as it is an integer. As _map[1]
 # is '12345', 1 will be replaced with '12345'. So the result will
 # be array('node_load', '12345').
 #
 # @param @data
 #   A serialized array.
-# @param @map
+# @param @_map
 #   An array of potential replacements.
 # @return
 #   The data array unserialized and mapped.
 #
-def menu_unserialize(data, map):
+def menu_unserialize(data, _map):
   if (data == unserialize(data)):
     for k,v in data.items():
       if (is_int(v)):
-        #data[k] = if isset(map[v]) then map[v] else ''
+        #data[k] = if isset(_map[v]) then _map[v] else ''
 	print "ternary are commented out + See line 239 in menu.inc"
       
     
@@ -288,14 +288,14 @@ def menu_get_item(path = None, router_item = None):
     list(ancestors, placeholders) = menu_get_ancestors(parts)
 
     #if (router_item = db_fetch_array(db_query_range('SELECT * FROM {menu_router} WHERE path IN ('. implode (',', placeholders) .') ORDER BY fit DESC', ancestors, 0, 1))):
-      #map = _menu_translate(router_item, original_map)
-      #if (map == False):
+      #_map = _menu_translate(router_item, original_map)
+      #if (_map == False):
       #  router_items[path] = False
       #  return False
       
      # if (router_item['access']):
-     #   router_item['map'] = map
-     #   router_item['page_arguments'] = array_merge(menu_unserialize(router_item['page_arguments'], map), array_slice(map, router_item['number_parts']))      
+     #   router_item['_map'] = _map
+     #   router_item['page_arguments'] = array_merge(menu_unserialize(router_item['page_arguments'], _map), array_slice(_map, router_item['number_parts']))      
     
     router_items[path] = router_item
   
@@ -324,7 +324,7 @@ def menu_execute_active_handler(path = None):
   return MENU_NOT_FOUND
 
 #
-# Loads objects into the map as defined in the item['load_functions'].
+# Loads objects into the _map as defined in the item['load_functions'].
 #
 # @param item
 #   A menu router or menu link item
@@ -337,12 +337,12 @@ def menu_execute_active_handler(path = None):
 #   item['load_functions'] array.
 #   item['access'] is set to False if an object cannot be loaded.
 #
-def _menu_load_objects(item, map):
+def _menu_load_objects(item, _map):
   if (load_functions == item['load_functions']):
     # If someone calls this function twice, then unserialize will fail.
     if (load_functions_unserialized == unserialize(load_functions)):
       load_functions = load_functions_unserialized
-    path_map = map
+    path_map = _map
     for index,function in load_functions.items():
       if (function):
         #value = if isset(path_map[index]) then path_map[index] else ''
@@ -361,11 +361,11 @@ def _menu_load_objects(item, map):
               # occurances of the same placeholder can be identified.
               args[i] = index
             
-            if (arg == '%map'):
+            if (arg == '%_map'):
               # Pass on menu map by reference. The accepting function must
               # also declare this as a reference if it wants to modify
               # the map.
-              args[i] = map
+              args[i] = _map
             
             if (is_int(arg)):
              # args[i] = if isset(path_map[arg]) then path_map[arg] else ''
@@ -380,10 +380,10 @@ def _menu_load_objects(item, map):
         # If callback returned an error or there is no callback, trigger 404.
         if (returned == False):
           item['access'] = False
-          map = False
+          _map = False
           return False
         
-        map[index] = returned
+        _map[index] = returned
       
     
     item['load_functions'] = load_functions
@@ -395,12 +395,12 @@ def _menu_load_objects(item, map):
 #
 # @param item
 #   A menu router or menu link item
-# @param map
+# @param _map
 #   An array of path arguments (ex: array('node', '5'))
 # @return
 #   item['access'] becomes True if the item is accessible, False otherwise.
 #
-def _menu_check_access(item, map):
+def _menu_check_access(item, _map):
   # Determine access callback, which will decide whether or not the current
   # user has access to this path.
   #callback = if empty(item['access_callback']) then 0 else trim(item['access_callback'])
@@ -409,7 +409,7 @@ def _menu_check_access(item, map):
     #item['access'] = (bool)callback
     print "this string needs to be removed"
   else:
-    arguments = menu_unserialize(item['access_arguments'], map)
+    arguments = menu_unserialize(item['access_arguments'], _map)
     # As call_user_func_array is quite slow and user_access is a very common
     # callback, it is worth making a special case for it.
     if (callback == 'user_access'):
@@ -455,13 +455,13 @@ def _menu_item_localize(item, map, link_translate = False):
       if (empty(item['title_arguments'])):
         item['title'] = t(item['title'])
       else:
-        item['title'] = t(item['title'], menu_unserialize(item['title_arguments'], map))
+        item['title'] = t(item['title'], menu_unserialize(item['title_arguments'], _map))
 
     elif (callback):
       if (empty(item['title_arguments'])):
         item['title'] = callback(item['title'])
       else:
-        item['title'] = call_user_func_array(callback, menu_unserialize(item['title_arguments'], map))
+        item['title'] = call_user_func_array(callback, menu_unserialize(item['title_arguments'], _map))
       # Avoid calling check_plain again on l() function.
       if (callback == 'check_plain'):
         item['localized_options']['html'] = True
@@ -505,9 +505,9 @@ def _menu_item_localize(item, map, link_translate = False):
 #   If an error occurs during calling the load_functions (like trying to load
 #   a non existing node) then this function return False.
 #
-def _menu_translate(router_item, map, to_arg = False):
-  path_map = map
-  if (not _menu_load_objects(router_item, map)):
+def _menu_translate(router_item, _map, to_arg = False):
+  path_map = _map
+  if (not _menu_load_objects(router_item, _map)):
     # An error occurred loading an object.
     router_item['access'] = False
     return False
@@ -525,11 +525,11 @@ def _menu_translate(router_item, map, to_arg = False):
   
   router_item['href'] = implode('/', link_map)
   router_item['options'] = array()
-  _menu_check_access(router_item, map)
+  _menu_check_access(router_item, _map)
 
-  _menu_item_localize(router_item, map)
+  _menu_item_localize(router_item, _map)
 
-  return map
+  return _map
 
 #
 # This function translates the path elements in the map using any to_arg
@@ -541,24 +541,20 @@ def _menu_translate(router_item, map, to_arg = False):
 # @param to_arg_functions
 #   An array of helper function (ex: array(2 : 'menu_tail_to_arg'))
 #
-def _menu_link_map_translate(map, to_arg_functions):
+def _menu_link_map_translate(_map, to_arg_functions):
   if (to_arg_functions):
     to_arg_functions = unserialize(to_arg_functions)
     for index,function in to_arg_functions.items():
       # Translate place-holders into real values.
-      #arg = if function(not empty(map[index]) then map[index] else '', map, index)
-      if (not empty(map[index]) or isset(arg)):
-        map[index] = arg
+      #arg = if function(not empty(_map[index]) then _map[index] else '', _map, index)
+      if (not empty(_map[index]) or isset(arg)):
+        _map[index] = arg
       
       else:
-        unset(map[index])
-      
-    
-  
+        unset(_map[index])
 
-
-def menu_tail_to_arg(arg, map, index):
-  return implode('/', array_slice(map, index))
+def menu_tail_to_arg(arg, _map, index):
+  return implode('/', array_slice(_map, index))
 
 #
 # This function is similar to _menu_translate() but does link-specific
@@ -579,15 +575,15 @@ def _menu_link_translate(item):
   item['options'] = unserialize(item['options'])
   if (item['external']):
     item['access'] = 1
-    map = array()
+    _map = array()
     item['href'] = item['link_path']
     item['title'] = item['link_title']
     item['localized_options'] = item['options']
   
   else:
-    map = explode('/', item['link_path'])
-    _menu_link_map_translate(map, item['to_arg_functions'])
-    item['href'] = implode('/', map)
+    _map = explode('/', item['link_path'])
+    _menu_link_map_translate(_map, item['to_arg_functions'])
+    item['href'] = implode('/', _map)
 
     # Note - skip callbacks without real values for their arguments.
     if (strpos(item['href'], '%') != False):
@@ -596,25 +592,25 @@ def _menu_link_translate(item):
     
     # menu_tree_check_access() may set this ahead of time for links to nodes.
     if (not isset(item['access'])):
-      if (not _menu_load_objects(item, map)):
+      if (not _menu_load_objects(item, _map)):
         # An error occurred loading an object.
         item['access'] = False
         return False
       
-      _menu_check_access(item, map)
+      _menu_check_access(item, _map)
     
 
-    _menu_item_localize(item, map, True)
+    _menu_item_localize(item, _map, True)
   
 
   # Allow other customizations - e.g. adding a page-specific query string to the
   # options array. For performance reasons we only invoke this hook if the link
   # has the 'alter' flag set in the options array.
   if (not empty(item['options']['alter'])):
-    drupal_alter('translated_menu_link', item, map)
+    drupal_alter('translated_menu_link', item, _map)
   
 
-  return map
+  return _map
 
 #
 # Get a loaded object from a router item.
@@ -638,8 +634,8 @@ def _menu_link_translate(item):
 #
 #def menu_get_object(type = 'node', position = 1, path = None):
 #  router_item = menu_get_item(path)
-#  if (isset(router_item['load_functions']position) and not empty(router_item['map']position) and router_item['load_functions']position == type +'_load'):
-#    return router_item['map'][position]
+#  if (isset(router_item['load_functions']position) and not empty(router_item['_map']position) and router_item['load_functions']position == type +'_load'):
+#    return router_item['_map'][position]
   
 
 #
@@ -1214,7 +1210,7 @@ def menu_local_tasks(level = 0, return_root = False):
     tasks = [] #array/list
     root_path = router_item['path']
     while (item == db_fetch_array(result)):
-      _menu_translate(item, map, True)
+      _menu_translate(item, _map, True)
       if (item['tab_parent']):
       # All tabs, but not the root page.
         children[item['tab_parent']][item['path']] = item
@@ -1276,10 +1272,10 @@ def menu_local_tasks(level = 0, return_root = False):
             link = theme('menu_item_link', array['href' : tasks[p]['href'] + item]
             if (item['path'] == router_item['path']):
               root_path = tasks[p]['path']
-          
+ 
             else:
               link = theme('menu_item_link', item)
-          
+ 
             # We check for the active tab.
             if (item['path'] == path):
               tabs_current += theme('menu_local_task', link, True)
