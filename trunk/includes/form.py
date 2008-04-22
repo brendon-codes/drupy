@@ -719,18 +719,21 @@ def form_get_errors():
 def form_get_error(element):
   form = form_set_error()
   key = element['#parents'][0]
-  if (isset(form[key])):
+  if (isset(form, key)):
+    return form[key]
+  key = implode('][', element['#parents'])
+  if (isset(form, key)):
     return form[key]
 
-  key = implode('][', element['#parents'])
-  if (isset(form[key])):
-    return form[key]
 
 #
 # Flag an element as having an error.
 #
-def form_error(&element, message = ''):
-  form_set_error(implode('][', element['#parents']), message)
+def form_error(element, message = ''):
+  DrupyHelper.Reference.check(element)
+  form_set_error(implode('][', element.val['#parents']), message)
+
+
 
 #
 # Walk through the structured form array, adding any required
@@ -748,23 +751,23 @@ def form_error(&element, message = ''):
 #   was clicked when the form was submitted, as well as the sanitized
 #   _POST data.
 #
-def form_builder(form_id, form, &form_state):
-  static complete_form, cache
+def form_builder(form_id, form, form_state):
+  DrupyHelper.Reference.check(form_state)
+  global static_formbuilder_completeform, \
+    static_formbuilder_cache
   # Initialize as unprocessed.
   form['#processed'] = False
   # Use element defaults.
-  if ((not empty(form['#type'])) and (info = _element_info(form['#type']))):
+  info = _element_info(form['#type'])
+  if ((not empty(form['#type'])) and info):
     # Overlay info onto form, retaining preexisting keys in form.
     form += info
-
-  if (isset(form['#type']) and form['#type'] == 'form'):
-    complete_form = form
+  if (isset(form, '#type') and form['#type'] == 'form'):
+    static_formbuilder_completeform = form
     if (not empty(form['#programmed'])):
-      form_state['submitted'] = True
-
-  if (isset(form['#input']) and form['#input']):
-    _form_builder_handle_input_element(form_id, form, form_state, complete_form)
-
+      form_state.val['submitted'] = True
+  if (isset(form, '#input') and form['#input']):
+    _form_builder_handle_input_element(form_id, form, form_state.val, static_formbuilder_completeform)
   form['#defaults_loaded'] = True
   # We start off assuming all form elements are in the correct order.
   form['#sorted'] = True
@@ -774,101 +777,90 @@ def form_builder(form_id, form, &form_state):
     form[key]['#post'] = form['#post']
     form[key]['#programmed'] = form['#programmed']
     # Don't squash an existing tree value.
-    if (not isset(form[key]['#tree'])):
+    if (not isset(form[key], '#tree')):
       form[key]['#tree'] = form['#tree']
-
     # Deny access to child elements if parent is denied.
-    if (isset(form['#access']) and not form['#access']):
+    if (isset(form, '#access') and not form['#access']):
       form[key]['#access'] = False
-
     # Don't squash existing parents value.
-    if (not isset(form[key]['#parents'])):
+    if (not isset(form[key], '#parents')):
       # Check to see if a tree of child elements is present. If so,
       # continue down the tree if required.
-      form[key]['#parents'] = form[key]['#tree'] and form['#tree'] ? array_merge(form['#parents'], array(key)) : array(key)
-      array_parents = isset(form['#array_parents']) ? form['#array_parents'] : array()
-      array_parents[] = key
+      form[key]['#parents'] = (array_merge(form['#parents'], array(key)) if (form[key]['#tree'] and form['#tree']) else array(key))
+      array_parents = (form['#array_parents'] if isset(form['#array_parents']) else [])
+      array_parents.append( key )
       form[key]['#array_parents'] = array_parents
-
     # Assign a decimal placeholder weight to preserve original array order.
-    if (not isset(form[key]['#weight'])):
+    if (not isset(form[key], '#weight')):
       form[key]['#weight'] = count/1000
     else:
       # If one of the child elements has a weight then we will need to sort
       # later.
-      unset(form['#sorted'])
-
-    form[key] = form_builder(form_id, form[key], form_state)
-    _count +=1
-
+      del(form['#sorted'])
+    form[key] = form_builder(form_id, form[key], form_state.val)
+    _count += 1
   # The #after_build flag allows any piece of a form to be altered
   # after normal input parsing has been completed.
-  if (isset(form['#after_build']) and not isset(form['#after_build_done'])):
-    foreach (form['#after_build'] as function):
-      form = function(form, form_state)
+  if (isset(form, '#after_build') and not isset(form, '#after_build_done')):
+    for function in form['#after_build']:
+      form = function(form, form_state.val)
       form['#after_build_done'] = True
-
   # Now that we've processed everything, we can go back to handle the funky
   # Internet Explorer button-click scenario.
-  _form_builder_ie_cleanup(form, form_state)
+  _form_builder_ie_cleanup(form, form_state.val)
   # We shoud keep the buttons array until the IE clean up function
   # has recognized the submit button so the form has been marked
   # as submitted. If we already know which button was submitted,
   # we don't need the array.
   if (not empty(form_state['submitted'])):
-    unset(form_state['buttons'])
-
+    del(form_state['buttons'])
   # If some callback set #cache, we need to flip a static flag so later it
   # can be found.
-  if (isset(form['#cache'])):
+  if (isset(form, '#cache')):
     cache = form['#cache']
-
   # We are on the top form, we can copy back #cache if it's set.
-  if (isset(form['#type']) and form['#type'] == 'form' and isset(cache)):
+  if (isset(form, '#type') and form['#type'] == 'form' and static_formbuilder_cache != None):
     form['#cache'] = True
   return form
+
+
 
 #
 # Populate the #value and #name properties of input elements so they
 # can be processed and rendered. Also, execute any #process handlers
 # attached to a specific element.
 #
-def _form_builder_handle_input_element(form_id, &form, &form_state, complete_form):
-  if (not isset(form['#name'])):
-    name = array_shift(form['#parents'])
-    form['#name'] = name
-    if (form['#type'] == 'file'):
+def _form_builder_handle_input_element(form_id, form, form_state, complete_form):
+  DrupyHelper.Reference.check(form)
+  DrupyHelper.Reference.check(form_state)  
+  if (not isset(form.val, '#name')):
+    name = array_shift(form.val['#parents'])
+    form.val['#name'] = name
+    if (form.val['#type'] == 'file'):
       # To make it easier to handle _FILES in file.inc, we place all
       # file fields in the 'files' array. Also, we do not support
       # nested file names.
-      form['#name'] = 'files[' . form['#name'] . ']'
-
-    elif (count(form['#parents'])):
-      form['#name'] += '[' . implode('][', form['#parents']) . ']'
-
-    array_unshift(form['#parents'], name)
-
-  if (not isset(form['#id'])):
-    form['#id'] = form_clean_id('edit-' . implode('-', form['#parents']))
-
-  unset(edit)
-  if (not empty(form['#disabled'])):
-    form['#attributes']['disabled'] = 'disabled'
-
-  if (not isset(form['#value']) and not array_key_exists('#value', form)):
-    function = not empty(form['#value_callback']) ? form['#value_callback'] : 'form_type_' . form['#type'] . '_value'
-    if ((form['#programmed']) or ((not isset(form['#access']) or form['#access']) and isset(form['#post']) and (isset(form['#post']['form_id']) and form['#post']['form_id'] == form_id))):
-      edit = form['#post']
-      foreach (form['#parents'] as parent):
-        edit = isset(edit[parent]) ? edit[parent] : None
-
-      if (not form['#programmed'] or isset(edit)):
+      form.val['#name'] = 'files[' + form.val['#name'] + ']'
+    elif (count(form.val['#parents'])):
+      form.val['#name'] += '[' + implode('][', form.val['#parents']) + ']'
+    array_unshift(form.val['#parents'], name)
+  if (not isset(form.val['#id'])):
+    form.val['#id'] = form_clean_id('edit-' + implode('-', form.val['#parents']))
+  del(edit)
+  if (not empty(form.val['#disabled'])):
+    form.val['#attributes']['disabled'] = 'disabled'
+  if (not isset(form.val['#value']) and not array_key_exists('#value', form.val)):
+    function = (form.val['#value_callback'] if (not empty(form['#value_callback'])) else ('form_type_' + form.val['#type'] + '_value'))
+    if ((form.val['#programmed']) or ((not isset(form.val, '#access') or form.val['#access']) and isset(form.val, '#post') and (isset(form.val['#post'], 'form_id') and form.val['#post']['form_id'] == form_id))):
+      edit = form.val['#post']
+      for parent in form.val['#parents']:
+        edit = (edit[parent] if isset(edit, parent) else None)
+      if (not form.val['#programmed'] or edit != None):
         # Call #type_value to set the form value
         if (function_exists(function)):
-          form['#value'] = function(form, edit)
-
-        if (not isset(form['#value']) and isset(edit)):
-          form['#value'] = edit
+          form.val['#value'] = function(form.val, edit)
+        if (not isset(form.val['#value']) and edit != None):
+          form.val['#value'] = edit
 
       # Mark all posted values for validation.
       if (isset(form['#value']) or (isset(form['#required']) and form['#required'])):
