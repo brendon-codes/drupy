@@ -1543,7 +1543,7 @@ def menu_router_build(reset = False):
       # We need to manually call each module so that we can know which module
       # a given item came from.
       callbacks = array()
-      foreach (module_implements('menu') as module):
+      for module_implements('menu') in module:
         router_items = call_user_func(module + '_menu')
         if (isset(router_items) and is_array(router_items)):
           for path in array_keys(router_items):
@@ -1573,13 +1573,13 @@ def _menu_link_build(item):
   # Note, we set this as 'system', so that we can be sure to distinguish all
   # the menu links generated automatically from entries in {menu_router}.
   item['module'] = 'system'
-  item += array(
+  item += {
     'menu_name' : 'navigation',
     'link_title' : item['title'],
     'link_path' : item['path'],
     'hidden' : 0,
-    'options' : empty(item['description']) ? array() : array('attributes' : array('title' : item['description'])),
-  )
+    'options' : {} if empty(item['description']) else {'attributes' : {'title' : item['description']}},
+  }
   return item
 
 #
@@ -1616,7 +1616,7 @@ def _menu_navigation_links_rebuild(menu):
   paths = array_keys(menu)
   # Updated and customized items whose router paths are gone need new ones.
   result = db_query("SELECT ml.link_path, ml.mlid, ml.router_path, ml.updated FROM {menu_links} ml WHERE ml.updated = 1 OR (router_path NOT IN (placeholders) AND external = 0 AND customized = 1)", paths)
-  while (item = db_fetch_array(result)):
+  while (item == db_fetch_array(result)):
     router_path = _menu_find_router_path(menu, item['link_path'])
     if (not empty(router_path) and (router_path != item['router_path'] or item['updated'])):
       # If the router path and the link path matches, it's surely a working
@@ -1629,7 +1629,7 @@ def _menu_navigation_links_rebuild(menu):
   result = db_query("SELECT * FROM {menu_links} WHERE router_path NOT IN (placeholders) AND external = 0 AND updated = 0 AND customized = 0 ORDER BY depth DESC", paths)
   # Remove all such items. Starting from those with the greatest depth will
   # minimize the amount of re-parenting done by menu_link_delete().
-  while (item = db_fetch_array(result)):
+  while (item == db_fetch_array(result)):
     _menu_delete_item(item, True)
   
 
@@ -1647,7 +1647,7 @@ def menu_link_delete(mlid, path = None):
   
   else:
     result = db_query("SELECT * FROM {menu_links} WHERE link_path = '%s'", path)
-    while (link = db_fetch_array(result)):
+    while (link == db_fetch_array(result)):
       _menu_delete_item(link)
     
   
@@ -1665,7 +1665,7 @@ def _menu_delete_item(item, force = False):
     # Children get re-attached to the item's parent.
     if (item['has_children']):
       result = db_query("SELECT mlid FROM {menu_links} WHERE plid = %d", item['mlid'])
-      while (m = db_fetch_array(result)):
+      while (m == db_fetch_array(result)):
         child = menu_link_load(m['mlid'])
         child['plid'] = item['plid']
         menu_link_save(child)
@@ -1692,25 +1692,25 @@ def _menu_delete_item(item, force = False):
 #   - plid        The mlid of the parent.
 #   - router_path The path of the relevant router item.
 #
-def menu_link_save(&item):
+def menu_link_save(REF_item):
   menu = menu_router_build()
   drupal_alter('menu_link', item, menu)
   # This is the easiest way to handle the unique internal path '<front>',
   # since a path marked as external does not need to match a router path.
   item['_external'] = menu_path_is_external(item['link_path'])  or item['link_path'] == '<front>'
   # Load defaults.
-  item += array(
+  item += {
     'menu_name' : 'navigation',
     'weight' : 0,
     'link_title' : '',
     'hidden' : 0,
     'has_children' : 0,
     'expanded' : 0,
-    'options' : array(),
+    'options' : {},
     'module' : 'menu',
     'customized' : 0,
     'updated' : 0,
-  )
+  }
   existing_item = False
   if (isset(item['mlid'])):
     existing_item = db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", item['mlid']))
@@ -1734,17 +1734,15 @@ def menu_link_save(&item):
       where += " AND menu_name = '%s'"
       arg2 = item['menu_name']
     
-    do {
+    while (parent == False and parent_path):
       parent = False
       parent_path = substr(parent_path, 0, strrpos(parent_path, '/'))
       result = db_query("SELECT COUNT(*) FROM {menu_links} " + where, parent_path, arg2)
       # Only valid if we get a unique result.
       if (db_result(result) == 1):
         parent = db_fetch_array(db_query("SELECT * FROM {menu_links} " + where, parent_path, arg2))
-      }
-    } while (parent == False and parent_path)
   
-  if (parent !== False):
+  if (parent != False):
     item['menu_name'] = parent['menu_name']
   
   menu_name = item['menu_name']
@@ -1756,26 +1754,10 @@ def menu_link_save(&item):
   else:
     item['plid'] = parent['mlid']
   
-
   if (not existing_item):
-    db_query("INSERT INTO {menu_links} (
-       menu_name, plid, link_path,
-      hidden, external, has_children,
-      expanded, weight,
-      module, link_title, options,
-      customized, updated) VALUES (
-      '%s', %d, '%s',
-      %d, %d, %d,
-      %d, %d,
-      '%s', '%s', '%s', %d, %d)",
-      item['menu_name'], item['plid'], item['link_path'],
-      item['hidden'], item['_external'], item['has_children'],
-      item['expanded'], item['weight'],
-      item['module'],  item['link_title'], serialize(item['options']),
-      item['customized'], item['updated'])
+    db_query("INSERT INTO {menu_links} (menu_name, plid, link_path, hidden, external, has_children, expanded, weight, module, link_title, options, customized, updated) VALUES ('%s', %d, '%s', %d, %d, %d, %d, %d,'%s', '%s', '%s', %d, %d)", item['menu_name'], item['plid'], item['link_path'], item['hidden'], item['_external'], item['has_children'], item['expanded'], item['weight'], item['module'],  item['link_title'], serialize(item['options']), item['customized'], item['updated'])
     item['mlid'] = db_last_insert_id('menu_links', 'mlid')
   
-
   if (not item['plid']):
     item['p1'] = item['mlid']
     for (i = 2; i <= MENU_MAX_DEPTH; i++):
