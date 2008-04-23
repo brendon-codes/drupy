@@ -4,6 +4,12 @@ General comments:
 - these comments will maybe provide a pattern match for that can be inclueded in the conversion script.
 - The reason for commenting out the all these code, is so we can discuss together how we attack the issues. Not solving them differently. This is to avoid inconsitency.
 - I purpose a "Ugly hacks list" that lists the code that contains ugly hacks. This way we can revisit the issues, by tagging them as outstanding issues. And see if anyone else with more python skills can solve them in a more dear I say graceful manner. Not that I've encountered any, or committed any.
+*********************************************
+GENERAL ISSUES:
+1. Make sure all REF_ variables are converted 
+to use REF_ inside the functions as well. 
+*********************************************
+
 
 line 239 is commented out due ternary operator that contains the isset()
 line 279 is commented out due static router_items
