@@ -1543,7 +1543,8 @@ def menu_router_build(reset = False):
       # We need to manually call each module so that we can know which module
       # a given item came from.
       callbacks = {}
-      for module_implements('menu') in module:
+      var1 = module_implements('menu')
+      for var1 in module:
         router_items = call_user_func(module + '_menu')
         if (isset(router_items) and is_array(router_items)):
           for path in array_keys(router_items):
@@ -1837,7 +1838,7 @@ def _menu_find_router_path(menu, link_path):
   parts = explode('/', link_path, MENU_MAX_PARTS)
   router_path = link_path
   if (not isset(menu[router_path])):
-    list(ancestors) = menu_get_ancestors(parts)
+    ancestors = menu_get_ancestors(parts)
     ancestors = ''
     for key,router_path in ancestors.items():
       if (isset(menu[router_path])):
@@ -1868,15 +1869,11 @@ def menu_link_maintain(module, op, link_path, link_title):
         'module' : module,
       }
       return menu_link_save(menu_link)
-      break
     if (update):
       db_query("UPDATE {menu_links} SET link_title = '%s' WHERE link_path = '%s' AND customized = 0 AND module = '%s'", link_title, link_path, module)
       menu_cache_clear()
-      break
     if (delete):
       menu_link_delete(None, link_path)
-      break
-  
 
 #
 # Find the depth of an item's children relative to its depth.
