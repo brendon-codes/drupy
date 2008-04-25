@@ -7,22 +7,13 @@ General comments:
 *********************************************
 GENERAL ISSUES:
 1. Make sure all REF_ variables are converted 
-to use REF_ inside the functions as well. 
+to use REF_ inside the functions as well.
+2. There is a function in php named array_pop, that maybe does the same
+as dict.pop in python. 
 *********************************************
-
-
-line 239 is commented out due ternary operator that contains the isset()
-line 279 is commented out due static router_items
 line 291 is commented out due mysql query
 line 292-299 mysql query
-line 342 & reference for parameters
-line 351 is commented out due isset function
-line 362 has a === operator set to == (python does not have ===)
-line 367 has a === operator set to == (python does not have ===)
-line 371 is commented out due php referenced variable &map
-line 374 is commented out due to using the isset() function
-line 378 has set return declared as a variable. This is not possible with python
-line 384 has a === operator set to == and
+line 297 has set return declared as a variable. This is not possible with python
 line 384 has a variable named return. It's renamed to returned
 line 389 has return as variable, and I renamed it to returned
 line 406 has the &reference variable for item. So I removed the &. [A: REF_variable is used to illustrate the reference sign]
