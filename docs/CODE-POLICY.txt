@@ -159,3 +159,5 @@ Comments:
 better readbility - some programmers prefer this.
 - Also, indented code is case sensetive in python, where in PHP (C-like languages), it's not. So wrong indention can cause logic errors in your python code.
 - Avoid trailing whitespace. Like this: def myfunction:     
+
+(7) list()
