@@ -16,7 +16,6 @@ line 292-299 mysql query
 line 297 has set return declared as a variable. This is not possible with python
 line 384 has a variable named return. It's renamed to returned
 line 389 has return as variable, and I renamed it to returned
-line 406 has the &reference variable for item. So I removed the &. [A: REF_variable is used to illustrate the reference sign]
 line 409 has a ternary that is commented out due to invalid syntax
 line 412 is commented out due to some weird syntax (bool)callback ...??
 line 413 added print "this string needs to be removed"
@@ -52,16 +51,8 @@ line 847 changed = to == in while loop.
 line 848 commented out due args[] = item[]
 line 852 do..while(num_rows) ends here. Starts at line 844. Commented out. 
 line 865-869 contains this sql query that gives us a syntax error. Commented out.
-line 898 removed the reference sign & for tree and node_links. Added REF_ for naming convention
-line 903 removed the reference sign & for tree and added REF_ for naming reference naming convention
-line 915 removed the reference sign & for tree and added REF_ for naming convention
-line 922 replaced the = operator with =. Added REF_ for naming convention
-line 903 removed the reference sign & for tree and added REF_ for naming reference naming convention
-line 915 removed the reference sign & for tree and added REF_ for naming convention
 line 922 replaced the = operator with ==
 line 924 foreach loop got ported. But not very well. So this needs more investigation. See originale file (menu.inc)
-line 935 removed the reference sign & for tree. Added REF_ for naming convention.
-line 938 removed the reference sign & for tree. Added REF_ for naming convention.
 line 947 WEEE! found a concatenate string that the script did not pick up. The pattern is the same for the one found earlier. Like this: .' '.   So I replaced it with +' '+
 line 968 throws away the first item returned(before the comma, in the arguments). But it does not work in python. So we need a solution to this. It's commented out for now.
 line 981 replaced = operator with == in while loop
@@ -70,6 +61,4 @@ line 1010 contains the : syntax. The dict seems broken... Commenting it out for 
 line 1058 class variable is assigned this nested ternary construct. Don't know if this can be achieved with python. Commenting it out for now. Added print "this string needs to be removed"
 line 1109 static names got commented out, I don't know yet how to port this one.
 line 1201-1318 removed entire function named menu_local_tasks() - we need to be carefull when porting this one
-line 1242 refactored a for loop to a while loop (not entirly sure if this is 100% ok, but it looks ok:/)
-line 1484-1486 commented out sql query.
-line 2184 is commented out due to syntax error..
+line 2267 commented out --> require_once drupal_get_path('module', 'user') + '/user.pages.inc' 
