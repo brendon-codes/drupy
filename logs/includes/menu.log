@@ -1,29 +1,12 @@
 General comments: 
-- I've not commented on all the bracelets that I removed. They are many(!) :)
-- Solving one of this issues will provide a solution to many. As they are the same. 
-- these comments will maybe provide a pattern match for that can be inclueded in the conversion script.
-- The reason for commenting out the all these code, is so we can discuss together how we attack the issues. Not solving them differently. This is to avoid inconsitency.
-- I purpose a "Ugly hacks list" that lists the code that contains ugly hacks. This way we can revisit the issues, by tagging them as outstanding issues. And see if anyone else with more python skills can solve them in a more dear I say graceful manner. Not that I've encountered any, or committed any.
 *********************************************
-
 GENERAL ISSUES:
 1. There is a function in php named array_pop, that maybe does the same
 as dict.pop in python.
-
 *********************************************
-
-line 291 is commented out due mysql query
 line 292-299 mysql query
-line 297 has set return declared as a variable. This is not possible with python
-line 384 has a variable named return. It's renamed to returned
-line 389 has return as variable, and I renamed it to returned
-
-*********************************************
 
 line 744 ported for loop. for var1 in range(var2, <indexstart>, <increment/decrement-interval>)
-
-line 801 is commented out, due to static command set to be a array.. Invalid syntax. We need to work more on this one.
-Because what with drupal is a static $tree variable declared as a array, is with drupy declared as a global static_menutreepagedata_tree. The function uses the tree variable, and not the ugly static_menutreepagedata_tree. I don't have a nice solution to this as I write this. What I've done is removed the array/dict declaration and made it a normal global variable declaration.
 
 line 857 do..while(num_rows) ends here. Starts at line 852. This one needs a closer review. Compare it with menu.inc and make sure we get the same result as in the drupal version.
 
@@ -31,12 +14,10 @@ line 927 foreach loop got ported. But not very well? So this needs more investig
 
 line 2267 commented out --> require_once drupal_get_path('module', 'user') + '/user.pages.inc' 
 
-line 647 this line _needs_ a closer review,
-																		 Drupal:	isset(router_item['load_functions']position) 
-																		 Drupy:   isset(router_item['load_functions'],position)
+isset( object|list|dict, property|index|key )
 
-line 975 this line also needs a closer review,
+line 975:
 																		 Drupal:	list(, tree) = _menu_tree_data(result, parents, depth)
-																		 Drupy:   became list = _menu_tree_data(result, parents, depth)
+																		 Drupy:   tree = _menu_tree_data(result, parents, depth)[1]
 																			
-													Comments: list(, tree) throws away the first item returned(before the comma, in the arguments). But it does not work in python. So we need a solution to this.
+													Comments: list(, tree) throws away the first item returned(before the comma, in the arguments)
