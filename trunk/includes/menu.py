@@ -289,15 +289,15 @@ def menu_get_item(path = None, router_item = None):
     parts = array_slice(original_map, 0, MENU_MAX_PARTS)
     ancestors, placeholders = menu_get_ancestors(parts)
 
-    #if (router_item == db_fetch_array(db_query_range('SELECT * FROM {menu_router} WHERE path IN ('. implode (',', placeholders) .') ORDER BY fit DESC', ancestors, 0, 1))):
-      #_map = _menu_translate(router_item, original_map)
-      #if (_map == False):
-        #router_items[path] = False
-        #return False
+    if (router_item == db_fetch_array(db_query_range('SELECT * FROM {menu_router} WHERE path IN ('. implode (',', placeholders) .') ORDER BY fit DESC', ancestors, 0, 1))):
+      _map = _menu_translate(router_item, original_map)
+      if (_map == False):
+        router_items[path] = False
+        return False
 
-      #if (router_item['access']):
-      #  router_item['_map'] = _map
-      #  router_item['page_arguments'] = array_merge(menu_unserialize(router_item['page_arguments'], _map), array_slice(_map, router_item['number_parts']))      
+      if (router_item['access']):
+        router_item['_map'] = _map
+        router_item['page_arguments'] = array_merge(menu_unserialize(router_item['page_arguments'], _map), array_slice(_map, router_item['number_parts']))      
 
     router_items[path] = router_item
 
@@ -805,6 +805,8 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
 #
 def menu_tree_page_data(menu_name = 'navigation'):
   global static_menutreepagedata_tree
+  if (static_menutreepagedata_tree == None):
+    static_menutreepagedata_tree = dict()
   # Load the menu item corresponding to the current page.
   if (item == menu_get_item()):
     # Generate a cache ID (cid) specific for this page.
