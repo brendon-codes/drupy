@@ -72,19 +72,9 @@ $rules = array(
     "/false/i",
     "False"
   ),
-  // FALSE
-  array(
-    "/FALSE/i",
-    "False"
-  ),
   // true
   array(
     "/true/i",
-    "True"
-  ),
-  // FALSE
-  array(
-    "/TRUE/i",
     "True"
   ),
   // and

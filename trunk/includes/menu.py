@@ -969,7 +969,7 @@ def _menu_tree_check_access(REF_tree):
 #   See menu_tree_page_data for a description of the data structure.
 #
 def menu_tree_data(result = None, parents = dict(), depth = 1):
-  tree = _menu_tree_data(result, parents, depth)
+  tree = _menu_tree_data(result, parents, depth)[1]
   return tree
 
 
