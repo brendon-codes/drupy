@@ -119,31 +119,50 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 
  
 
-(4) Array declarations
+(4) Array 
+  	
+			(4.1)Declarations
+				
+				example:
 
-	example:
+				Drupal: names = array()
+				Drupy: names = dict{} # do not just do the literal form names = {}
 	
-	Drupal: names = array()
-	Drupy: names = dict{} # do not just do the literal form names = {}
-	
-	Comments: a PHP array becomes a mutable python dict
+				Comments: a PHP array becomes a mutable python dict
+			
+			(4.2)Initalization
+
+				example:
+
+				Drupal: $form = array('#' => '');
+        Drupy: form = {'#' : ''} 
+(4)
 
 
+(5) Loops 
+	
+	(5.1) while
+		while loop w/arimetric operation [EXPERIMENTAL]
+	
+		Drupal: while ($level-- > 0 && $tree){
+	
+		Drupy: for level in range(100, 1, -1): 
+           if not tree:
+           break
+	
+		Wrong Drupy: while (level -= 1 > 0 and tree):
+	
+		Comments: as you can see, one can not perform a expression within the condition area with python.
+		So in this case we turn it into a for loop that performs the decrementation and give the tree 
+		variable a if not clause.
 
+	(5.2) for
 
-(5) while loop w/arimetric operation [EXPERIMENTAL]
-	
-	Drupal: while ($level-- > 0 && $tree){
-	
-	Drupy: for level in range(100, 1, -1): 
-			 if not tree:
-			 break
-	
-	Wrong Drupy: while (level -= 1 > 0 and tree):
-	
-	Comments: as you can see, one can not perform a expression within the condition area with python.
-	So in this case we turn it into a for loop that performs the decrementation and give the tree 
-	variable a if not clause.
+		example:
+
+		Drupal: for ($i = 0; $i < $router_item['number_parts']; $i++) {
+		Drupy: for i in range(router_item['number_parts'], -1, +1):
+
 
 (6) Indention/whitespace
 What is indention? It's the white-space before the actual text.
@@ -160,4 +179,7 @@ better readbility - some programmers prefer this.
 - Also, indented code is case sensetive in python, where in PHP (C-like languages), it's not. So wrong indention can cause logic errors in your python code.
 - Avoid trailing whitespace. Like this: def myfunction:     
 
-(7) list()
+(7) list
+	example:
+	Drupal: list(var1, var2) = myfunction(arg1, arg2)
+	Drupy: var1, var2 = myfunction(arg1, arg2)
