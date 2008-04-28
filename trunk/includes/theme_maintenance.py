@@ -1,4 +1,4 @@
-# $Id: theme.maintenance.inc,v 1.12 2008/04/14 17:48:33 dries Exp $
+# $Id: theme.maintenance.inc,v 1.13 2008/04/28 09:25:26 dries Exp $
 #
 # @file
 # Theming for maintenance pages.
@@ -18,6 +18,8 @@
 #
 set_global('theme_path')
 set_global('_theme')
+
+
 def _drupal_maintenance_theme():
   global _theme, theme_key
   # If theme is already set, assume the others are set too, and do nothing.
@@ -65,6 +67,9 @@ def _drupal_maintenance_theme():
 def _theme_load_offline_registry(this_theme, base_theme = None, theme_engine = None):
   registry = _theme_build_registry(this_theme, base_theme, theme_engine)
   _theme_set_registry(registry)
+
+
+
 #
 # Return a themed list of maintenance tasks to perform.
 #
@@ -82,6 +87,9 @@ def theme_task_list(_items, active = None):
     output += '<li class="' + _class + '">' + item + '</li>'
   output += '</ol>'
   return output
+
+
+
 #
 # Generate a themed installation page.
 #
@@ -121,6 +129,9 @@ def theme_install_page(content):
   # theme rather than system module as owner of the hook.
   theme_path = 'themes/garland'
   return theme_render_template('themes/garland/maintenance-page.tpl.py', variables)
+
+
+
 #
 # Generate a themed update page.
 #
@@ -152,6 +163,9 @@ def theme_update_page(content, show_messages = True):
   # theme rather than system module as owner of the hook.
   theme_path = 'themes/garland'
   return theme_render_template('themes/garland/maintenance-page.tpl.php', variables)
+
+
+
 #
 # The variables generated here is a mirror of template_preprocess_page().
 # This preprocessor will run it's course when theme_maintenance_page() is
@@ -169,10 +183,75 @@ def theme_update_page(content, show_messages = True):
 # @see maintenance-page.tpl.php
 #
 def template_preprocess_maintenance_page(variables):
+  DrupyHelper.Reference.check(variables)
   global _theme
   # Add favicon
   if (theme_get_setting('toggle_favicon')):
-    drupal_set_html_head('<link rel="shortcut icon" href="' + check_url(theme_get_setting('favicon')) + '" type="image/x-icon" />')
+    drupal_set_html_head('<link rel="shortcut icon" href="' + check_url(theme_get_setting('favicon')) + '" type="image/x-icon" />');
   # Retrieve the theme data to list all available regions.
   theme_data = _system_theme_data()
-  regions = theme_data[_theme].i 
+  regions = theme_data[_theme].info['regions']
+  # Get all region content set with drupal_set_content().
+  for region in array_keys(regions):
+    # Assign region to a region variable.
+    region_content = drupal_get_content(region)
+    if isset(variables.val, region):
+      variables.val[region] += region_content
+    else:
+      variables[region] = region_content
+  # Setup layout variable.
+  variables.val['layout'] = 'none'
+  if (not empty(variables.val['left'])):
+    variables['layout'] = 'left'
+  if (not empty(variables['right'])):
+    variables.val['layout'] = ('both' if (variables.val['layout'] == 'left') else 'right')
+  # Construct page title
+  if (drupal_get_title()):
+    head_title = [strip_tags(drupal_get_title()), variable_get('site_name', 'Drupal')];
+  else:
+    head_title = [variable_get('site_name', 'Drupal')]
+    if (variable_get('site_slogan', '')):
+      head_title.append( variable_get('site_slogan', '') )
+  variables.val['head_title']        = implode(' | ', head_title)
+  variables.val['base_path']         = base_path()
+  variables.val['front_page']        = url()
+  variables.val['breadcrumb']        = ''
+  variables.val['feed_icons']        = ''
+  variables.val['footer_message']    = filter_xss_admin(variable_get('site_footer', FALSE))
+  variables.val['head']              = drupal_get_html_head()
+  variables.val['help']              = ''
+  variables.val['language']          = language
+  variables.val['language'].dir     = ('rtl' if language.direction else 'ltr')
+  variables.val['logo']              = theme_get_setting('logo');
+  variables.val['messages']          = (theme('status_messages') if variables.val['show_messages'] else '')
+  variables.val['mission']           = '';
+  variables.val['primary_links']     = [];
+  variables.val['secondary_links']   = [];
+  variables.val['search_box']        = '';
+  variables.val['site_name']         = (variable_get('site_name', 'Drupal') if theme_get_setting('toggle_name')  else '')
+  variables.val['site_slogan']       = (variable_get('site_slogan', '') if theme_get_setting('toggle_slogan') else '')
+  variables.val['css']               = drupal_add_css()
+  variables.val['styles']            = drupal_get_css()
+  variables.val['scripts']           = drupal_get_js()
+  variables.val['tabs']              = ''
+  variables.val['title']             = drupal_get_title();
+  variables.val['closure']           = ''
+  # Compile a list of classes that are going to be applied to the body element.
+  body_classes = []
+  body_classes.append( 'in-maintenance' )
+  if (isset(variables.val, 'db_is_active') and not variables.val['db_is_active']):
+    body_classes.append( 'db-offline' )
+  if (variables.val['layout'] == 'both'):
+    body_classes.append( 'two-sidebars' )
+  elif (variables.val['layout'] == 'none'):
+    body_classes.append( 'no-sidebars' )
+  else:
+    body_classes.append( 'one-sidebar sidebar-'  + variables.val['layout'] )
+  variables.val['body_classes'] = implode(' ', body_classes)
+  # Dead databases will show error messages so supplying this template will
+  # allow themers to override the page and the content completely.
+  if (isset(variables.val, 'db_is_active') and not variables.val['db_is_active']):
+    variables.val['template_file'] = 'maintenance-page-offline';
+
+
+

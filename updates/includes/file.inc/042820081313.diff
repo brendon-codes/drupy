@@ -1,0 +1,18 @@
+--- drupy/ported/includes/file.inc	2008-04-14 12:56:53.000000000 -0700
++++ drupal/includes/file.inc	2008-04-28 13:12:33.000000000 -0700
+@@ -1,5 +1,5 @@
+ <?php
+-// $Id: file.inc,v 1.123 2008/04/14 17:48:33 dries Exp $
++// $Id: file.inc,v 1.124 2008/04/23 18:17:41 dries Exp $
+ 
+ /**
+  * @file
+@@ -884,7 +884,7 @@ function file_scan_directory($dir, $mask
+   $files = array();
+ 
+   if (is_dir($dir) && $handle = opendir($dir)) {
+-    while ($file = readdir($handle)) {
++    while (false !== ($file = readdir($handle))) {
+       if (!in_array($file, $nomask) && $file[0] != '.') {
+         if (is_dir("$dir/$file") && $recurse) {
+           // Give priority to files in this folder by merging them in after any subdirectory files.
