@@ -23,7 +23,7 @@ line 389 has return as variable, and I renamed it to returned
 line 744 ported for loop. for var1 in range(var2, <indexstart>, <increment/decrement-interval>)
 
 line 801 is commented out, due to static command set to be a array.. Invalid syntax. We need to work more on this one.
-Because what with drupal is a static $tree variable declared as a array, is with drupy declared as a global static_menutreepagedata_tree. The function uses the tree variable, and not the ugly static_menutreepagedata_tree. I don't have a nice solution to this as I write this.
+Because what with drupal is a static $tree variable declared as a array, is with drupy declared as a global static_menutreepagedata_tree. The function uses the tree variable, and not the ugly static_menutreepagedata_tree. I don't have a nice solution to this as I write this. What I've done is removed the array/dict declaration and made it a normal global variable declaration.
 
 line 857 do..while(num_rows) ends here. Starts at line 852. This one needs a closer review. Compare it with menu.inc and make sure we get the same result as in the drupal version.
 
@@ -36,7 +36,7 @@ line 647 this line _needs_ a closer review,
 																		 Drupy:   isset(router_item['load_functions'],position)
 
 line 975 this line also needs a closer review,
-																		 Drupal:	list(, tree) = _menu_tree_data(result, parents, depth) 
+																		 Drupal:	list(, tree) = _menu_tree_data(result, parents, depth)
 																		 Drupy:   became list = _menu_tree_data(result, parents, depth)
 																			
 													Comments: list(, tree) throws away the first item returned(before the comma, in the arguments). But it does not work in python. So we need a solution to this.
