@@ -25,7 +25,6 @@ line 449 removed reference sign & for variable item
 line 511 removed reference sign & for variable router
 line 524 for loop got ported
 line 547 removed & sign from  reference variable map
-line 551 ported ternary.. and commented out due to syntax error
 line 644 needs a closer review(!).. I may have done weird things here. I've commented out the entire function.
 line 661 is defining a static variable... And I commented it out, due to invalid syntax. See issue below.
 
@@ -41,19 +40,12 @@ line 745 is commented out. Don't know how to port it..replaced with print "this 
 line 751 is commented out. Don't know how to port it..
 line 764-767 is commmented out due to db query.
 line 801 is commented out, due to static command set to be a array.. Invalid syntax.
-line 803 changed = to == operator. Not sure if this will come out right tho.
-line 805 HAH! I found a concatenate that was not picked up by the conversion script. Due to .':'. which becomes +':'+
 line 805 (int)item['access']  how do i port this one? I get an invalid syntax. I had to comment out this line.
-line 825 is commented out. Due to: args[] = '<front>'
-line 835 is commented out. Due to: parents[] = '0'
-line 844-845 contains a do while with a sql query. It's commented out, due indention error.
 line 847 changed = to == in while loop.
-line 848 commented out due args[] = item[]
 line 852 do..while(num_rows) ends here. Starts at line 844. Commented out. 
 line 865-869 contains this sql query that gives us a syntax error. Commented out.
 line 922 replaced the = operator with ==
 line 924 foreach loop got ported. But not very well. So this needs more investigation. See originale file (menu.inc)
-line 947 WEEE! found a concatenate string that the script did not pick up. The pattern is the same for the one found earlier. Like this: .' '.   So I replaced it with +' '+
 line 968 throws away the first item returned(before the comma, in the arguments). But it does not work in python. So we need a solution to this. It's commented out for now.
 line 981 replaced = operator with == in while loop
 line 991-992 contains the : syntax. The dict seems broken? Commenting it out for now.
@@ -62,3 +54,9 @@ line 1058 class variable is assigned this nested ternary construct. Don't know i
 line 1109 static names got commented out, I don't know yet how to port this one.
 line 1201-1318 removed entire function named menu_local_tasks() - we need to be carefull when porting this one
 line 2267 commented out --> require_once drupal_get_path('module', 'user') + '/user.pages.inc' 
+line 647 this line _needs_ a closer review,
+																		 Drupal:	isset(router_item['load_functions']position) 
+																		 Drupy:   isset(router_item['load_functions'],position)
+line 975 this line also needs a closer review,
+																		 Drupal:	list(, tree) = _menu_tree_data(result, parents, depth) 
+																		 Drupy:   became list = _menu_tree_data(result, parents, depth)

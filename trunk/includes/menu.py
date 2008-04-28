@@ -548,12 +548,12 @@ def _menu_translate(router_item, _map, to_arg = False):
 # @param to_arg_functions
 #   An array of helper function (ex: array(2 : 'menu_tail_to_arg'))
 #
-def _menu_link_map_translate(_map, to_arg_functions):
+def _menu_link_map_translate(REF__map, to_arg_functions):
   if (to_arg_functions):
     to_arg_functions = unserialize(to_arg_functions)
     for index,function in to_arg_functions.items():
       # Translate place-holders into real values.
-      arg = function(map[index] if not empty(map[index]) else '', map, index)
+      arg = function(_map[index] if not empty(map[index]) else '', _map, index)
       if (not empty(_map[index]) or isset(arg)):
         _map[index] = arg
 
@@ -582,7 +582,7 @@ def menu_tail_to_arg(arg, _map, index):
 #   item['options'] is unserialized; it is also changed within the call here
 #   to item['localized_options'] by _menu_item_localize().
 #
-def _menu_link_translate(item):
+def _menu_link_translate(REF_item):
   item['options'] = unserialize(item['options'])
   if (item['external']):
     item['access'] = 1
@@ -644,7 +644,7 @@ def _menu_link_translate(item):
 #
 def menu_get_object(type = 'node', position = 1, path = None):
   router_item = menu_get_item(path)
-  if (isset(router_item['load_functions']position) and not empty(router_item['_map']position) and router_item['load_functions']position == type +'_load'):
+  if (isset(router_item['load_functions'],position) and not empty(router_item['_map'],position) and router_item['load_functions'],position == type +'_load'):
     return router_item['_map'][position]
 
 
@@ -730,7 +730,7 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
   global static_menutreealldata_tree
 
   # Use mlid as a flag for whether the data being loaded is for the whole tree.
-  mlid = if isset(item['mlid']) then item['mlid'] else 0
+  mlid = item['mlid'] if isset(item['mlid']) else 0
   # Generate a cache ID (cid) specific for this menu_name and item.
   cid = 'links:' + menu_name + ':all-cid:'. mlid
 
@@ -770,11 +770,7 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
       # Select the links from the table, and recursively build the tree.  We
       # LEFT JOIN since there is no match in {menu_router} for an external
       # link.
-      data['tree'] = menu_tree_data(db_query("
-        #SELECT m.load_functions, m.to_arg_functions, m.access_callback, m.access_arguments, m.page_callback, m.page_arguments, m.title, m.title_callback, m.title_arguments, m.type, m.description, ml.*
-        #FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path
-        #WHERE ml.menu_name = '%s'" + where + "
-        #ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC", args), parents)
+      data['tree'] = menu_tree_data(db_query("#SELECT m.load_functions, m.to_arg_functions, m.access_callback, m.access_arguments, m.page_callback, m.page_arguments, m.title, m.title_callback, m.title_arguments, m.type, m.description, ml.* #FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path #WHERE ml.menu_name = '%s'" + where + " #ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC", args), parents)
       data['node_links'] = dict()
       menu_tree_collect_node_links(data['tree'], data['node_links'])
       # Cache the data, if it is not already in the cache.
@@ -814,7 +810,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
   # Load the menu item corresponding to the current page.
   if (item == menu_get_item()):
     # Generate a cache ID (cid) specific for this page.
-    cid = 'links:' + menu_name + ':page-cid:'+ item['href'] +':'+ (int)item['access']
+    cid = 'links:' + menu_name + ':page-cid:'+ item['href'] +':'+ int(item['access'])
     if (not isset(tree[cid])):
       # If the static variable doesn't have the data, check {cache_menu}.
       cache = cache_get(cid, 'cache_menu')
@@ -874,11 +870,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
         # Select the links from the table, and recursively build the tree. We
         # LEFT JOIN since there is no match in {menu_router} for an external
         # link.
-        data['tree'] = menu_tree_data(db_query("
-          #SELECT m.load_functions, m.to_arg_functions, m.access_callback, m.access_arguments, m.page_callback, m.page_arguments, m.title, m.title_callback, m.title_arguments, m.type, m.description, ml.*
-         # FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path
-         # WHERE ml.menu_name = '%s' AND ml.plid IN (" + placeholders + ")
-          #ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC", args), parents)
+        data['tree'] = menu_tree_data(db_query("#SELECT m.load_functions, m.to_arg_functions, m.access_callback, m.access_arguments, m.page_callback, m.page_arguments, m.title, m.title_callback, m.title_arguments, m.type, m.description, ml.* # FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path # WHERE ml.menu_name = '%s' AND ml.plid IN (" + placeholders + ") #ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC", args), parents)
         data['node_links'] = dict()
         menu_tree_collect_node_links(data['tree'], data['node_links'])
         # Cache the data, if it is not already in the cache.
@@ -980,7 +972,7 @@ def _menu_tree_check_access(REF_tree):
 #   See menu_tree_page_data for a description of the data structure.
 #
 def menu_tree_data(result = None, parents = dict(), depth = 1):
-  list(, tree) = _menu_tree_data(result, parents, depth)
+  tree = _menu_tree_data(result, parents, depth)
   return tree
 
 
@@ -1004,10 +996,10 @@ def _menu_tree_data(result, parents, depth, previous_element = ''):
       # _menu_tree returns an item and the menu tree structure.
       item, below = _menu_tree_data(result, parents, item['depth'], item)
       if (previous_element):
-        tree[previous_element['mlid']] = dict(
+        tree[previous_element['mlid']] = {
           'link' : previous_element,
           'below' : below,
-        )
+        }
 
       else:
         tree = below
@@ -1023,10 +1015,10 @@ def _menu_tree_data(result, parents, depth, previous_element = ''):
     elif (item['depth'] == depth):
       if (previous_element):
         # Only the first time.
-        tree[previous_element['mlid']] = dict(
+        tree[previous_element['mlid']] = {
           'link' : previous_element,
           'below' : False,
-        )
+        }
 
       # This will be the link to be output in the next iteration.
       previous_element = item
@@ -1038,10 +1030,10 @@ def _menu_tree_data(result, parents, depth, previous_element = ''):
 
   if (previous_element):
     # We have one more link dangling.
-    tree[previous_element['mlid']] = dict(
+    tree[previous_element['mlid']] = {
       'link' : previous_element,
       'below' : False,
-    )
+    }
 
   return dict(remnant, tree)
 
