@@ -1,4 +1,4 @@
-# $Id: database.inc,v 1.93 2008/04/14 17:48:33 dries Exp $
+# $Id: database.inc,v 1.94 2008/04/20 18:23:21 dries Exp $
 #
 # @file
 # Wrapper for database interface code.
@@ -119,7 +119,7 @@ def db_prefix_tables(sql):
 # @return the name of the previously active database or FALSE if non was found.
 #
 def db_set_active(name = 'default'):
-  global db_url, db_type, active_db;
+  global db_url, db_type, active_db, db_prefix;
   global static_dbsetactive_dbconns, static_dbsetactive_activename;
   if (static_dbsetactive_activename == None):
     static_dbsetactive_activename = False;
@@ -141,6 +141,10 @@ def db_set_active(name = 'default'):
     else:
       _db_error_page("The database type '" + db_type + "' is unsupported. Please use either 'mysql' or 'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
     static_dbsetactive_dbconns[name] = db_connect(connect_url);
+    # We need to pass around the simpletest database prefix in the request
+    # and we put that in the user_agent header.
+    if (preg_match("/^simpletest\d+$/", _SERVER['HTTP_USER_AGENT'])):
+      db_prefix = _SERVER['HTTP_USER_AGENT'];
   previous_name = static_dbsetactive_activename;
   # Set the active connection.
   static_dbsetactive_activename = name;
