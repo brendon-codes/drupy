@@ -5,16 +5,21 @@ General comments:
 - The reason for commenting out the all these code, is so we can discuss together how we attack the issues. Not solving them differently. This is to avoid inconsitency.
 - I purpose a "Ugly hacks list" that lists the code that contains ugly hacks. This way we can revisit the issues, by tagging them as outstanding issues. And see if anyone else with more python skills can solve them in a more dear I say graceful manner. Not that I've encountered any, or committed any.
 *********************************************
+
 GENERAL ISSUES:
 1. There is a function in php named array_pop, that maybe does the same
 as dict.pop in python.
+
 *********************************************
+
 line 291 is commented out due mysql query
 line 292-299 mysql query
 line 297 has set return declared as a variable. This is not possible with python
 line 384 has a variable named return. It's renamed to returned
 line 389 has return as variable, and I renamed it to returned
+
 *********************************************
+
 line 744 ported for loop. for var1 in range(var2, <indexstart>, <increment/decrement-interval>)
 
 line 801 is commented out, due to static command set to be a array.. Invalid syntax. We need to work more on this one.
