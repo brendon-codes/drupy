@@ -4,6 +4,8 @@
 
 static('static_drupalretrieveform_forms')
 static('static_formseterror_form')
+static('static_elementinfo_cache')
+static('static_formoptionsflatten_return')
 
 
 # @defgroup forms Form builder functions
@@ -861,59 +863,50 @@ def _form_builder_handle_input_element(form_id, form, form_state, complete_form)
           form.val['#value'] = function(form.val, edit)
         if (not isset(form.val['#value']) and edit != None):
           form.val['#value'] = edit
-
       # Mark all posted values for validation.
-      if (isset(form['#value']) or (isset(form['#required']) and form['#required'])):
-        form['#needs_validation'] = True
-
+      if (isset(form.val, '#value') or (isset(form.val, '#required') and form.val['#required'])):
+        form.val['#needs_validation'] = True
     # Load defaults.
-    if (not isset(form['#value'])):
+    if (not isset(form.val, '#value')):
       # Call #type_value without a second argument to request default_value handling.
       if (function_exists(function)):
-        form['#value'] = function(form)
-
+        form.val['#value'] = function(form.val)
       # Final catch. If we haven't set a value yet, use the explicit default value.
       # Avoid image buttons (which come with garbage value), so we only get value
       # for the button actually clicked.
-      if (not isset(form['#value']) and empty(form['#has_garbage_value'])):
-        form['#value'] = isset(form['#default_value']) ? form['#default_value'] : ''
-
-
+      if (not isset(form.val, '#value') and empty(form.val['#has_garbage_value'])):
+        form.val['#value'] = (form['#default_value'] if isset(form.val, '#default_value') else '')
   # Determine which button (if any) was clicked to submit the form.
   # We compare the incoming values with the buttons defined in the form,
   # and flag the one that matches. We have to do some funky tricks to
   # deal with Internet Explorer's handling of single-button forms, though.
-  if (not empty(form['#post']) and isset(form['#executes_submit_callback'])):
+  if (not empty(form.val['#post']) and isset(form.val, '#executes_submit_callback')):
     # First, accumulate a collection of buttons, divided into two bins:
     # those that execute full submit callbacks and those that only validate.
-    button_type = form['#executes_submit_callback'] ? 'submit' : 'button'
-    form_state['buttons'][button_type][] = form
-    if (_form_button_was_clicked(form)):
-      form_state['submitted'] = form_state['submitted'] or form['#executes_submit_callback']
+    button_type = ('submit' if form.val['#executes_submit_callback'] else 'button')
+    form_state.val['buttons'][button_type].append( form.val )
+    if (_form_button_was_clicked(form.val)):
+      form_state.val['submitted'] = (form_state.val['submitted'] or form.val['#executes_submit_callback'])
       # In most cases, we want to use form_set_value() to manipulate
       # the global variables. In this special case, we want to make sure that
       # the value of this element is listed in form_variables under 'op'.
-      form_state['values'][form['#name']] = form['#value']
-      form_state['clicked_button'] = form
-      if (isset(form['#validate'])):
-        form_state['validate_handlers'] = form['#validate']
-
-      if (isset(form['#submit'])):
-        form_state['submit_handlers'] = form['#submit']
-
-
-
+      form_state.val['values'][form.val['#name']] = form.val['#value']
+      form_state.val['clicked_button'] = form.val
+      if (isset(form.val, '#validate')):
+        form_state.val['validate_handlers'] = form.val['#validate']
+      if (isset(form.val, '#submit')):
+        form_state.val['submit_handlers'] = form.val['#submit']
   # Allow for elements to expand to multiple elements, e.g., radios,
   # checkboxes and files.
-  if (isset(form['#process']) and not form['#processed']):
-    foreach (form['#process'] as process):
+  if (isset(form.val, '#process') and not form.val['#processed']):
+    for process in form.val['#process']:
       if (function_exists(process)):
-        form = process(form, isset(edit) ? edit : None, form_state, complete_form)
+        form.val = process(form.val, (edit if (edit != None) else None), form_state.val, complete_form)
+    form.val['#processed'] = True
+  form_set_value(form.val, form.val['#value'], form_state.val)
 
 
-    form['#processed'] = True
 
-  form_set_value(form, form['#value'], form_state)
 
 #
 # Helper function to handle the sometimes-convoluted logic of button
@@ -930,18 +923,17 @@ def _form_button_was_clicked(form):
   # and the specific return value is used to determine which was
   # clicked. This ONLY works as long as form['#name'] puts the
   # value at the top level of the tree of _POST data.
-  if (isset(form['#post'][form['#name']]) and form['#post'][form['#name']] == form['#value']):
+  if (isset(form['#post'], form['#name']) and form['#post'][form['#name']] == form['#value']):
     return True
-
   # When image buttons are clicked, browsers do NOT pass the form element
   # value in _POST. Instead they pass an integer representing the
   # coordinates of the click on the button image. This means that image
   # buttons MUST have unique form['#name'] values, but the details of
   # their _POST data should be ignored.
-  elif (not empty(form['#has_garbage_value']) and isset(form['#value']) and form['#value'] !== ''):
+  elif (not empty(form['#has_garbage_value']) and isset(form, '#value') and form['#value'] != ''):
     return True
-
   return False
+
 
 #
 # In IE, if only one submit button is present, AND the enter key is
@@ -951,22 +943,26 @@ def _form_button_was_clicked(form):
 # for the proper conditions, and treat the single button on the form
 # as 'clicked' if they are met.
 #
-def _form_builder_ie_cleanup(form, &form_state):
+def _form_builder_ie_cleanup(form, form_state):
+  DrupyHelper.Reference.check(form_state)
   # Quick check to make sure we're always looking at the full form
   # and not a sub-element.
   if (not empty(form['#type']) and form['#type'] == 'form'):
     # If we haven't recognized a submission yet, and there's a single
     # submit button, we know that we've hit the right conditions. Grab
     # the first one and treat it as the clicked button.
-    if (empty(form_state['submitted']) and not empty(form_state['buttons']['submit']) and empty(form_state['buttons']['button'])):
-      button = form_state['buttons']['submit'][0]
+    if (empty(form_state.val['submitted']) and not empty(form_state.val['buttons']['submit']) and empty(form_state.val['buttons']['button'])):
+      button = form_state.val['buttons']['submit'][0]
       # Set up all the form_state information that would have been
       # populated had the button been recognized earlier.
-      form_state['submitted'] = True
-      form_state['submit_handlers'] = empty(button['#submit']) ? None : button['#submit']
-      form_state['validate_handlers'] = empty(button['#validate']) ? None : button['#validate']
-      form_state['values'][button['#name']] = button['#value']
-      form_state['clicked_button'] = button
+      form_state.val['submitted'] = True
+      form_state.val['submit_handlers'] = (None if empty(button['#submit']) else button['#submit'])
+      form_state.val['validate_handlers'] = (None if empty(button['#validate']) else button['#validate'])
+      form_state.val['values'][button['#name']] = button['#value']
+      form_state.val['clicked_button'] = button
+
+
+
 
 #
 # Helper function to determine the value for an image button form element.
@@ -981,12 +977,11 @@ def _form_builder_ie_cleanup(form, &form_state):
 #   for this element. Return nothing to use the default.
 #
 def form_type_image_button_value(form, edit = False):
-  if (edit !== False):
+  if (edit != False):
     if (not empty(edit)):
       # If we're dealing with Mozilla or Opera, we're lucky. It will
       # return a proper value, and we can get on with things.
       return form['#return_value']
-
     else:
       # Unfortunately, in IE we never get back a proper value for THIS
       # form element. Instead, we get back two split values: one for the
@@ -994,20 +989,18 @@ def form_type_image_button_value(form, edit = False):
       # button. We'll find this element in the #post data, and search
       # in the same spot for its name, with '_x'.
       post = form['#post']
-      foreach (split('\[', form['#name']) as element_name):
+      for element_name in split('\[', form['#name']):
         # chop off the ] that may exist.
         if (substr(element_name, -1) == ']'):
           element_name = substr(element_name, 0, -1)
-
         if (not isset(post[element_name])):
           if (isset(post[element_name +  '_x'])):
             return form['#return_value']
-
           return None
-
         post = post[element_name]
-
       return form['#return_value']
+
+
 
 #
 # Helper function to determine the value for a checkbox form element.
@@ -1022,8 +1015,10 @@ def form_type_image_button_value(form, edit = False):
 #   for this element. Return nothing to use the default.
 #
 def form_type_checkbox_value(form, edit = False):
-  if (edit !== False):
-    return not empty(edit) ? form['#return_value'] : 0
+  if (edit != False):
+    return (form['#return_value'] if not empty(edit) else 0)
+
+
 
 #
 # Helper function to determine the value for a checkboxes form element.
@@ -1039,15 +1034,13 @@ def form_type_checkbox_value(form, edit = False):
 #
 def form_type_checkboxes_value(form, edit = False):
   if (edit == False):
-    value = array()
-    form += array('#default_value' : array())
-    foreach (form['#default_value'] as key):
+    value = {}
+    form += {'#default_value' : {}}
+    for key in form['#default_value']:
       value[key] = 1
-
     return value
-
-  elif (not isset(edit)):
-    return array()
+  elif (edit == None):
+    return {}
 
 #
 # Helper function to determine the value for a password_confirm form
@@ -1064,8 +1057,10 @@ def form_type_checkboxes_value(form, edit = False):
 #
 def form_type_password_confirm_value(form, edit = False):
   if (edit == False):
-    form += array('#default_value' : array())
-    return form['#default_value'] + array('pass1' : '', 'pass2' : '')
+    form += {'#default_value' : {}}
+    return (form['#default_value'] + {'pass1' : '', 'pass2' : ''})
+
+
 
 #
 # Helper function to determine the value for a select form element.
@@ -1080,12 +1075,13 @@ def form_type_password_confirm_value(form, edit = False):
 #   for this element. Return nothing to use the default.
 #
 def form_type_select_value(form, edit = False):
-  if (edit !== False):
-    if (isset(form['#multiple']) and form['#multiple']):
-      return (is_array(edit)) ? drupal_map_assoc(edit) : array()
-
+  if (edit != False):
+    if (isset(form, '#multiple') and form['#multiple']):
+      return  (drupal_map_assoc(edit) if is_array(edit) else {})
     else:
       return edit
+
+
 
 #
 # Helper function to determine the value for a textfield form element.
@@ -1100,10 +1096,12 @@ def form_type_select_value(form, edit = False):
 #   for this element. Return nothing to use the default.
 #
 def form_type_textfield_value(form, edit = False):
-  if (edit !== False):
+  if (edit != False):
     # Equate edit to the form value to ensure it's marked for
     # validation.
-    return str_replace(array("\r", "\n"), '', edit)
+    return str_replace(["\r", "\n"], '', edit)
+
+
 
 #
 # Helper function to determine the value for form's token value.
@@ -1118,8 +1116,11 @@ def form_type_textfield_value(form, edit = False):
 #   for this element. Return nothing to use the default.
 #
 def form_type_token_value(form, edit = False):
-  if (edit !== False):
-    return (string)edit
+  if (edit != False):
+    return str(edit)
+
+
+
 
 #
 # Change submitted form values during the form processing cycle.
@@ -1144,8 +1145,12 @@ def form_type_token_value(form, edit = False):
 # @param form_state
 #   The array where the value change should be recorded.
 #
-def form_set_value(form_item, value, &form_state):
-  _form_set_value(form_state['values'], form_item, form_item['#parents'], value)
+def form_set_value(form_item, value, form_state):
+  DrupyHelper.Reference.check(form_state);
+  _form_set_value(form_state.val['values'], form_item, form_item['#parents'], value)
+
+
+
 
 #
 # Helper function for form_set_value().
@@ -1154,58 +1159,59 @@ def form_set_value(form_item, value, &form_state):
 # in form_state['values'] if needed. Then we insert the value into
 # the right array.
 #
-def _form_set_value(&form_values, form_item, parents, value):
+def _form_set_value(form_values, form_item, parents, value):
+  DrupyHelper.Reference.check(form_values)
   parent = array_shift(parents)
   if (empty(parents)):
-    form_values[parent] = value
-
+    form_values.val[parent] = value
   else:
-    if (not isset(form_values[parent])):
-      form_values[parent] = array()
+    if (not isset(form_values.val[parent])):
+      form_values.val[parent] = {}
+    _form_set_value(form_values.val[parent], form_item, parents, value)
 
-    _form_set_value(form_values[parent], form_item, parents, value)
+
+
 
 #
 # Retrieve the default properties for the defined element type.
 #
 def _element_info(type, refresh = None):
-  static cache
-  basic_defaults = array(
+  global static_elementinfo_cache
+  basic_defaults = {
     '#description' : None,
-    '#attributes' : array(),
+    '#attributes' : {},
     '#required' : False,
     '#tree' : False,
-    '#parents' : array()
-  )
-  if (not isset(cache) or refresh):
-    cache = array()
-    foreach (module_implements('elements') as module):
+    '#parents' : {}
+  }
+  if (static_elementinfo_cache == None or refresh):
+    static_elementinfo_cache = {}
+    for module in module_implements('elements'):
       elements = module_invoke(module, 'elements')
-      if (isset(elements) and is_array(elements)):
-        cache = array_merge_recursive(cache, elements)
+      if (elements != None and is_array(elements)):
+        static_elementinfo_cache = array_merge_recursive(static_elementinfo_cache, elements)
+    if (sizeof(static_elementinfo_cache) > 0):
+      for element_type,info in static_elementinfo_cache.items():
+        static_elementinfo_cache[element_type] = array_merge_recursive(basic_defaults, info)
+  return static_elementinfo_cache[type]
 
-    if (sizeof(cache)):
-      for element_type,info in cache.items():
-        cache[element_type] = array_merge_recursive(basic_defaults, info)
 
-  return cache[type]
 
-def form_options_flatten(array, reset = True):
-  static return
-  if (reset):
-    return = array()
 
-  for key,value in array.items():
+def form_options_flatten(_array, reset = True):
+  global static_formoptionsflatten_return
+  if (reset or static_formoptionsflatten_return == None):
+    static_formoptionsflatten_return = {}
+  for key,value in _array.items():
     if (is_object(value)):
       form_options_flatten(value.option, False)
-
     elif (is_array(value)):
       form_options_flatten(value, False)
-
     else:
-      return[key] = 1
+      static_formoptionsflatten_return[key] = 1
+  return static_formoptionsflatten_return
 
-  return return
+
 
 #
 # Format a dropdown menu or scrolling selection box.
