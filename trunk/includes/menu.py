@@ -448,7 +448,7 @@ def _menu_check_access(REF_item, _map):
 #   When doing link translation and the item['options']['attributes']['title']
 #   (link title attribute) matches the description, it is translated as well.
 #
-def _menu_item_localize(item, map, link_translate = False):
+def _menu_item_localize(REF_item, map, link_translate = False):
   callback = item['title_callback']
   item['localized_options'] = item['options']
   # If we are not doing link translation or if the title matches the
@@ -512,7 +512,7 @@ def _menu_item_localize(item, map, link_translate = False):
 #   If an error occurs during calling the load_functions (like trying to load
 #   a non existing node) then this function return False.
 #
-def _menu_translate(router_item, _map, to_arg = False):
+def _menu_translate(REF_router_item, _map, to_arg = False):
   path_map = _map
   if (not _menu_load_objects(router_item, _map)):
     # An error occurred loading an object.
@@ -742,9 +742,8 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
       # This avoids duplication of large amounts of data.
       cache = cache_get(cache.data, 'cache_menu')
       if (cache and isset(cache.data)):
-        data = cache.data
-      
-    
+        data = cache.data 
+
     # If the tree data was not in the cache, data will be None.
     if (not isset(data)):
       # Build and run the query, and build the tree.
@@ -759,13 +758,13 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
         where = ' AND ml.plid IN (' + placeholders + ')'
         parents = args
         parents = item['mlid']
-      
+
       else:
         # Get all links in this menu.
         where = ''
         args = dict()
         parents = dict()
-      
+
       array_unshift(args, menu_name)
       # Select the links from the table, and recursively build the tree.  We
       # LEFT JOIN since there is no match in {menu_router} for an external
@@ -777,14 +776,13 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
       tree_cid = _menu_tree_cid(menu_name, data)
       if (not cache_get(tree_cid, 'cache_menu')):
         cache_set(tree_cid, data, 'cache_menu')
-      
+
       # Cache the cid of the (shared) data using the menu and item-specific cid.
       cache_set(cid, tree_cid, 'cache_menu')
-    
+
     # Check access for the current user to each item in the tree.
     menu_tree_check_access(data['tree'], data['node_links'])
     tree[cid] = data['tree']
-  
 
   return tree[cid]
 
@@ -820,7 +818,6 @@ def menu_tree_page_data(menu_name = 'navigation'):
         cache = cache_get(cache.data, 'cache_menu')
         if (cache and isset(cache.data)):
           data = cache.data
-        
       
       # If the tree data was not in the cache, data will be None.
       if (not isset(data)):
@@ -832,13 +829,13 @@ def menu_tree_page_data(menu_name = 'navigation'):
           if (drupal_is_front_page()):
             args = '<front>'
             placeholders += ", '%s'"
-          
+
           parents = db_fetch_array(db_query("SELECT p1, p2, p3, p4, p5, p6, p7, p8 FROM {menu_links} WHERE menu_name = '%s' AND link_path IN (" + placeholders + ")", args))
           if (empty(parents)):
             # If no link exists, we may be on a local task that's not in the links.
             # TODO: Handle the case like a local task on a specific node in the menu.
             parents = db_fetch_array(db_query("SELECT p1, p2, p3, p4, p5, p6, p7, p8 FROM {menu_links} WHERE menu_name = '%s' AND link_path = '%s'", menu_name, item['tab_root']))
-          
+
           # We always want all the top-level links with plid == 0.
           parents = '0'
           # Use array_values() so that the indices are numeric for array_merge().
@@ -855,18 +852,18 @@ def menu_tree_page_data(menu_name = 'navigation'):
               while (item == db_fetch_array(result)):
                 args = item['mlid']
                 num_rows = True
-              
+
               placeholders = implode(', ', array_fill(0, count(args), '%d'))
              #while (num_rows)
-          
+
           array_unshift(args, menu_name)
-        
+
         else:
           # Show only the top-level menu items when access is denied.
           args = array(menu_name, '0')
           placeholders = '%d'
           parents = dict()
-        
+
         # Select the links from the table, and recursively build the tree. We
         # LEFT JOIN since there is no match in {menu_router} for an external
         # link.
@@ -2280,9 +2277,9 @@ def menu_valid_path(form_item):
   elif (preg_match('/\/\%/', path)):
     # Path is dynamic (ie 'user/%'), so check directly against menu_router table.
     if (item == db_fetch_array(db_query("SELECT * FROM {menu_router} where path = '%s' ", path))):
-      item['link_path']  = form_item['link_path']
+      item['link_path'] = form_item['link_path']
       item['link_title'] = form_item['link_title']
-      item['external']   = False
+      item['external'] = False
       item['options'] = ''
       _menu_link_translate(item)
 
