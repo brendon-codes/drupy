@@ -181,8 +181,8 @@
 #
 def menu_get_ancestors(parts):
   number_parts = count(parts)
-  placeholders = {}
-  ancestors = {}
+  placeholders = dict()
+  ancestors = dict()
   length =  number_parts - 1
   end = (1 << number_parts) - 1
   masks = variable_get('menu_masks', dict())
@@ -297,7 +297,7 @@ def menu_get_item(path = None, router_item = None):
 
       if (router_item['access']):
         router_item['_map'] = _map
-        router_item['page_arguments'] = array_merge(menu_unserialize(router_item['page_arguments'], _map), array_slice(_map, router_item['number_parts']))      
+        router_item['page_arguments'] = array_merge(menu_unserialize(router_item['page_arguments'], _map), array_slice(_map, router_item['number_parts']))
 
     router_items[path] = router_item
 
@@ -482,7 +482,7 @@ def _menu_item_localize(REF_item, map, link_translate = False):
       item['localized_options']['attributes']['title'] = item['description']
 
 
- 
+
 #
 # Handles dynamic path translation and menu access control.
 #
@@ -742,7 +742,7 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
       # This avoids duplication of large amounts of data.
       cache = cache_get(cache.data, 'cache_menu')
       if (cache and isset(cache.data)):
-        data = cache.data 
+        data = cache.data
 
     # If the tree data was not in the cache, data will be None.
     if (not isset(data)):
@@ -1415,10 +1415,10 @@ def menu_set_active_trail(new_trail = None):
   global static_menusetactivetrail_trail
   if (isset(new_trail)):
     trail = new_trail
-  
+
   elif (not isset(trail)):
-    trail = {}
-    trail = {'title' : t('Home'), 'href' : '<front>', 'localized_options' : {}, 'type' : 0}
+    trail = dict()
+    trail = {'title' : t('Home'), 'href' : '<front>', 'localized_options' : dict(), 'type' : 0}
     item = menu_get_item()
     # Check whether the current item is a local task (displayed as a tab).
     if (item['tab_parent']):
@@ -1432,8 +1432,7 @@ def menu_set_active_trail(new_trail = None):
       for index,part in parts.items():
         if (part == '%'):
           parts[index] = args[index]
-        
-      
+
       # Retrieve the menu item using the root path after wildcard replacement.
       root_item = menu_get_item(implode('/', parts))
       if (root_item and root_item['access']):
@@ -1446,13 +1445,13 @@ def menu_set_active_trail(new_trail = None):
       if (curr['link']['href'] == item['href']):
         trail = curr['link']
         curr = False
-      
+
       else:
         # Move to the child link if it's in the active trail.
         if (curr['below'] and curr['link']['in_active_trail']):
           trail = curr['link']
           tree = curr['below']
-        
+
         key, curr = each(tree)
 
     # Make sure the current page is in the trail (needed for the page title),
@@ -1460,7 +1459,7 @@ def menu_set_active_trail(new_trail = None):
     last = count(trail) - 1
     if (trail[last]['href'] != item['href'] and not (bool)(item['type'] & MENU_IS_LOCAL_TASK) and not drupal_is_front_page()):
       trail = item
-  
+
   return trail
 
 
@@ -1477,7 +1476,7 @@ def menu_get_active_trail():
 # Get the breadcrumb for the current page, as determined by the active trail.
 #
 def menu_get_active_breadcrumb():
-  breadcrumb = {}
+  breadcrumb = dict()
   # No breadcrumb for the front page.
   if (drupal_is_front_page()):
     return breadcrumb
@@ -1525,7 +1524,7 @@ def menu_link_load(mlid):
   if (is_numeric(mlid) and item == db_fetch_array(db_query("SELECT m.*, ml.* FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path WHERE ml.mlid = %d", mlid))):
     _menu_link_translate(item)
     return item
-  
+
   return False
 
 
@@ -1589,7 +1588,7 @@ def menu_router_build(reset = False):
       db_query('DELETE FROM {menu_router}')
       # We need to manually call each module so that we can know which module
       # a given item came from.
-      callbacks = {}
+      callbacks = dict()
       var1 = module_implements('menu')
       for var1 in module:
         router_items = call_user_func(module + '_menu')
@@ -1625,7 +1624,7 @@ def _menu_link_build(item):
     'link_title' : item['title'],
     'link_path' : item['path'],
     'hidden' : 0,
-    'options' : {} if empty(item['description']) else {'attributes' : {'title' : item['description']}},
+    'options' : dict() if empty(item['description']) else {'attributes' : {'title' : item['description']}},
   }
 
   return item
@@ -1655,7 +1654,7 @@ def _menu_navigation_links_rebuild(menu):
         item['plid'] = existing_item['plid']
         item['has_children'] = existing_item['has_children']
         item['updated'] = existing_item['updated']
- 
+
       if (not existing_item or not existing_item['customized']):
         menu_link_save(item)
 
@@ -1750,7 +1749,7 @@ def menu_link_save(REF_item):
     'hidden' : 0,
     'has_children' : 0,
     'expanded' : 0,
-    'options' : {},
+    'options' : dict(),
     'module' : 'menu',
     'customized' : 0,
     'updated' : 0,
@@ -1867,7 +1866,7 @@ def _menu_clear_page_cache():
     # Keep track of which menus have expanded items.
     _menu_set_expanded_menus()
     cache_cleared = 1
-  
+
   elif (cache_cleared == 1):
     register_shutdown_function('cache_clear_all')
     # Keep track of which menus have expanded items.
@@ -1880,11 +1879,11 @@ def _menu_clear_page_cache():
 # Helper function to update a list of menus with expanded items
 #
 def _menu_set_expanded_menus():
-  names = {}
+  names = dict()
   result = db_query("SELECT menu_name FROM {menu_links} WHERE expanded != 0 GROUP BY menu_name")
   while (n == db_fetch_array(result)):
     names = n['menu_name']
-  
+
   variable_set('menu_expanded', names)
 
 
@@ -2015,7 +2014,7 @@ def _menu_link_move_children(item, existing_item):
   where = "menu_name = '%s'"
   args = existing_item['menu_name']
   p = 'p1'
-  for i in range(MENU_MAX_DEPTH and existing_item[p], 0, 'p' + 1):  
+  for i in range(MENU_MAX_DEPTH and existing_item[p], 0, 'p' + 1):
     where = "p = %d"
     args = existing_item[p]
 
@@ -2063,10 +2062,10 @@ def _menu_link_parents_set(REF_item, parent):
 def _menu_router_build(callbacks):
   # First pass: separate callbacks from paths, making paths ready for
   # matching. Calculate fitness, and fill some default values.
-  menu = array()
+  menu = dict()
   for path,item in callbacks.items():
-    load_functions = {}
-    to_arg_functions = {}
+    load_functions = dict()
+    to_arg_functions = dict()
     fit = 0
     move = False
     parts = explode('/', path, MENU_MAX_PARTS)
@@ -2081,13 +2080,13 @@ def _menu_router_build(callbacks):
         if (empty(matches[1])):
           match = True
           load_functions[k] = None
-        
+
         else:
           if (function_exists(matches[1] + '_to_arg')):
             to_arg_functions[k] = matches[1] + '_to_arg'
             load_functions[k] = None
             match = True
-          
+
           if (function_exists(matches[1] + '_load')):
             function = matches[1] + '_load'
             # Create an array of arguments that will be passed to the _load
@@ -2095,7 +2094,7 @@ def _menu_router_build(callbacks):
             # exists.
             load_functions[k] = {function : item['load arguments']} if isset(item['load arguments']) else function
             match = True
- 
+
       if (match):
         parts[k] = '%'
 
@@ -2132,7 +2131,7 @@ def _menu_router_build(callbacks):
     else:
       menu[path] = item
       sort[path] = number_parts
-  
+
   array_multisort(sort, SORT_NUMERIC, menu)
   # Apply inheritance rules.
   for path,v in menu.items():
@@ -2184,12 +2183,12 @@ def _menu_router_build(callbacks):
       item['access callback'] = intval(item['access callback'])
 
     item += {
-      'access arguments' : {},
+      'access arguments' : dict(),
       'access callback' : '',
-      'page arguments' : {},
+      'page arguments' : dict(),
       'page callback' : '',
       'block callback' : '',
-      'title arguments' : {},
+      'title arguments' : dict(),
       'title callback' : 't',
       'description' : '',
       'position' : '',
@@ -2269,7 +2268,7 @@ def _menu_site_is_offline():
 #
 def menu_valid_path(form_item):
   global menu_admin
-  item = {}
+  item = dict()
   path = form_item['link_path']
   # We indicate that a menu administrator is running the menu access check.
   menu_admin = True
