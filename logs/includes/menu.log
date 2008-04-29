@@ -4,20 +4,6 @@ GENERAL ISSUES:
 1. There is a function in php named array_pop, that maybe does the same
 as dict.pop in python.
 *********************************************
-line 292-299 mysql query
-
-line 744 ported for loop. for var1 in range(var2, <indexstart>, <increment/decrement-interval>)
-
-line 857 do..while(num_rows) ends here. Starts at line 852. This one needs a closer review. Compare it with menu.inc and make sure we get the same result as in the drupal version.
-
 line 927 foreach loop got ported. But not very well? So this needs more investigation. See originale file (menu.inc)
 
-line 2267 commented out --> require_once drupal_get_path('module', 'user') + '/user.pages.inc' 
-
-isset( object|list|dict, property|index|key )
-
-line 975:
-																		 Drupal:	list(, tree) = _menu_tree_data(result, parents, depth)
-																		 Drupy:   tree = _menu_tree_data(result, parents, depth)[1]
-																			
-													Comments: list(, tree) throws away the first item returned(before the comma, in the arguments)
+line 2267 commented out --> require_once drupal_get_path('module', 'user') + '/user.pages.inc'

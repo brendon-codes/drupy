@@ -289,7 +289,7 @@ def menu_get_item(path = None, router_item = None):
     parts = array_slice(original_map, 0, MENU_MAX_PARTS)
     ancestors, placeholders = menu_get_ancestors(parts)
 
-    if (router_item == db_fetch_array(db_query_range('SELECT * FROM {menu_router} WHERE path IN ('. implode (',', placeholders) .') ORDER BY fit DESC', ancestors, 0, 1))):
+    if (router_item == db_fetch_array(db_query_range('SELECT * FROM {menu_router} WHERE path IN (' + implode (',', placeholders) + ') ORDER BY fit DESC', ancestors, 0, 1))):
       _map = _menu_translate(router_item, original_map)
       if (_map == False):
         router_items[path] = False
@@ -520,7 +520,7 @@ def _menu_translate(REF_router_item, _map, to_arg = False):
     return False
 
   if (to_arg):
-    _menu_link_map_translate(path_map, router_item['to_arg_functions']) 
+    _menu_link_map_translate(path_map, router_item['to_arg_functions'])
 
   # Generate the link path for the page request or local tasks.
   link_map = explode('/', router_item['path'])
@@ -820,7 +820,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
         cache = cache_get(cache.data, 'cache_menu')
         if (cache and isset(cache.data)):
           data = cache.data
-      
+
       # If the tree data was not in the cache, data will be None.
       if (not isset(data)):
         # Build and run the query, and build the tree.
@@ -848,15 +848,14 @@ def menu_tree_page_data(menu_name = 'navigation'):
           if (in_array(menu_name, expanded)):
             # Collect all the links set to be expanded, and then add all of
             # their children to the list as well.
-            #do 
-              #result = db_query("SELECT mlid FROM {menu_links} WHERE menu_name = '%s' AND expanded = 1 AND has_children = 1 AND plid IN (" + placeholders + ') AND mlid NOT IN ('. placeholders .')', array_merge(array(menu_name), args, args))
+            while(num_rows):
+              result = db_query("SELECT mlid FROM {menu_links} WHERE menu_name = '%s' AND expanded = 1 AND has_children = 1 AND plid IN (" + placeholders + ') AND mlid NOT IN (' + placeholders + ')', array_merge(array(menu_name), args, args))
               num_rows = False
               while (item == db_fetch_array(result)):
                 args = item['mlid']
                 num_rows = True
 
               placeholders = implode(', ', array_fill(0, count(args), '%d'))
-             #while (num_rows)
 
           array_unshift(args, menu_name)
 
