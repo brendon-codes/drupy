@@ -205,7 +205,7 @@ def menu_get_ancestors(parts):
 
       if (j):
         current += '/'
- 
+
     placeholders = ["'%s'"]
     ancestors = [current]
 
@@ -706,7 +706,7 @@ def menu_tree_output(tree):
       output += theme('menu_item', link, data['link']['has_children'], '', data['link']['in_active_trail'], extra_class)
 
   return theme('menu_tree', output) if output else ''
- 
+
   return output
 
 
@@ -752,7 +752,7 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
         # p columns and 0 (the top level) with the plid values of other links.
         args = dict(0)
         for i in range(MENU_MAX_DEPTH, 0, +1):
-          args = item["pi"]
+          args = item['pi']
         args = array_unique(args)
         placeholders = implode(', ', array_fill(0, count(args), '%d'))
         where = ' AND ml.plid IN (' + placeholders + ')'
@@ -1804,7 +1804,7 @@ def menu_link_save(REF_item):
   if (not item['plid']):
     item['p1'] = item['mlid']
     for i in range(MENU_MAX_DEPTH,1 ,1):
-      item["pi"] = 0
+      item['pi'] = 0
 
     item['depth'] = 1
 
