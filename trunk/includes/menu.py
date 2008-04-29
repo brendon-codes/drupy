@@ -1534,6 +1534,8 @@ def menu_link_load(mlid):
 #
 def menu_cache_clear(menu_name = 'navigation'):
   global static_menucacheclear_cache_cleared
+  if (static_menucacheclear_cache_cleared == None):
+    static_menucacheclear_cache_cleared = dict()
   if (empty(cache_cleared[menu_name])):
     cache_clear_all('links:' + menu_name + ':', 'cache_menu', True)
     cache_cleared[menu_name] = 1
@@ -1579,7 +1581,7 @@ def menu_rebuild():
 # Collect, alter and store the menu definitions.
 #
 def menu_router_build(reset = False):
-  static_menurouterbuild_menu
+  global static_menurouterbuild_menu
   if (not isset(menu) or reset):
     if (not reset and (cache == cache_get('router:', 'cache_menu')) and isset(cache.data)):
       menu = cache.data
@@ -1859,6 +1861,8 @@ def menu_link_save(REF_item):
 #
 def _menu_clear_page_cache():
   global static_menuclearpagecache_cache_cleared
+  if (static_menuclearpagecache_cache_cleared != 0):
+    static_menuclearpagecache_cache_cleared = 0
   # Clear the page and block caches, but at most twice, including at
   #  the end of the page load when there are multple links saved or deleted.
   if (empty(cache_cleared)):
