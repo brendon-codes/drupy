@@ -1179,13 +1179,13 @@ def _element_info(type, refresh = None):
   global static_elementinfo_cache
   basic_defaults = {
     '#description' : None,
-    '#attributes' : dict(),
+    '#attributes' : {},
     '#required' : False,
     '#tree' : False,
-    '#parents' : dict()
+    '#parents' : {}
   }
   if (static_elementinfo_cache == None or refresh):
-    static_elementinfo_cache = dict()
+    static_elementinfo_cache = {}
     for module in module_implements('elements'):
       elements = module_invoke(module, 'elements')
       if (elements != None and is_array(elements)):
@@ -1230,18 +1230,24 @@ def form_options_flatten(_array, reset = True):
 #
 def theme_select(element):
   select = ''
-  size = ' size="' + element['#size'] + '"' if  element['#size'] else ''
-  _form_set_class(element, array('form-select'))
+  size = ((' size="' + element['#size'] + '"') if element['#size'] else '')
+  _form_set_class(element, ['form-select'])
   multiple = element['#multiple']
-  return theme('form_element', element, '<select name="' +  element['#name'] + '' + ('[]' if multiple else '') + '"' + ('multiple="multiple"' if multiple else '') + drupal_attributes(element['#attributes']) + ' id="' + element['#id'] + '" ' + size + '>' + form_select_options(element) + '</select>')
+  return theme('form_element', element, '<select name="' +  element['#name'] + \
+    '' + ('[]' if multiple else '') + '"' + \
+    (' multiple="multiple" ' if multiple else '') + \
+    drupal_attributes(element['#attributes']) + ' id="' + element['#id'] + \
+    '" ' + size + '>' + form_select_options(element) + '</select>')
+
+
+
 
 def form_select_options(element, choices = None):
-  if (not isset(choices)):
+  if (choices == None):
     choices = element['#options']
-
   # array_key_exists() accommodates the rare event where element['#value'] is None.
   # isset() fails in this situation.
-  value_valid = isset(element['#value']) or array_key_exists('#value', element)
+  value_valid = isset(element, '#value') or array_key_exists('#value', element)
   value_is_array = is_array(element['#value'])
   options = ''
   for key,choice in choices.items():
@@ -1249,21 +1255,19 @@ def form_select_options(element, choices = None):
       options += '<optgroup label="' +  key  + '">'
       options += form_select_options(element, choice)
       options += '</optgroup>'
-
     elif (is_object(choice)):
       options += form_select_options(element, choice.option)
-
     else:
       key = str(key)
       if (value_valid and (not value_is_array and str(element['#value']) == key or (value_is_array and in_array(key, element['#value'])))):
         selected = ' selected="selected"'
-
       else:
         selected = ''
-
-      options += '<option value="' +  check_plain(key)  + '"' + selected + '>' + check_plain(choice) + '</option>'
-
+      options += '<option value="' +  check_plain(key)  + '"' + selected + '>' . check_plain(choice) + '</option>'
   return options
+
+
+
 
 #
 # Traverses a select element's #option array looking for any values
@@ -1298,19 +1302,19 @@ def form_select_options(element, choices = None):
 #   empty if no elements were found. False if optgroups were found.
 #
 def form_get_options(element, key):
-  keys = dict()
-  for element['#options'] in {index : choice}:
+  keys = array()
+  for index,choice in element['#options'].item():
     if (is_array(choice)):
       return False
-
     elif (is_object(choice)):
-      if (isset(choice.option[key])):
-        keys = index
-
+      if (isset(choice.option, key)):
+        keys.append( index )
     elif (index == key):
-      keys = index
-
+      keys.append( index )
   return keys
+
+
+
 
 #
 # Format a group of form items.
@@ -1328,12 +1332,14 @@ def theme_fieldset(element):
     drupal_add_js('misc/collapse.js')
     if (not isset(element['#attributes']['class'])):
       element['#attributes']['class'] = ''
-
     element['#attributes']['class'] += ' collapsible'
     if (element['#collapsed']):
       element['#attributes']['class'] += ' collapsed'
-
-  return '<fieldset' +  drupal_attributes(element['#attributes']) + '>' + ('<legend>' + element['#title'] + '</legend>' if element['#title'] else '') + (isset(element['#description']) and '<div class="description">' + element['#description'] + '</div>' if element['#description']  else '') + (element['#children'] if not empty(element['#children']) else '') + element['#value'] + "</fieldset>\n"
+  return '<fieldset' +  drupal_attributes(element['#attributes']) + '>' + \
+    (('<legend>' + element['#title'] + '</legend>') if element['#title'] else '') \
+    + (('<div class="description">' + element['#description'] + '</div>') \
+      if (isset(element, '#description') and element['#description']) else '') + \
+    (element['#children'] if not empty(element['#children']) else '') + element['#value'] + "</fieldset>\n"
 
 
 
@@ -1349,17 +1355,17 @@ def theme_fieldset(element):
 # @ingroup themeable
 #
 def theme_radio(element):
-  _form_set_class(element, array('form-radio'))
+  _form_set_class(element, ['form-radio'])
   output = '<input type="radio" '
   output += 'name="' +  element['#name'] + '" '
   output += 'value="' +  element['#return_value'] + '" '
-  output += (' checked="checked" ' if check_plain(element['#value']) == element['#return_value'] else ' ')
+  output += (' checked="checked" ' if (check_plain(element['#value']) == element['#return_value']) else ' ')
   output += drupal_attributes(element['#attributes']) + ' />'
   if (not is_None(element['#title'])):
     output = '<label class="option">' +  output  + ' ' + element['#title'] + '</label>'
-
-  unset(element['#title'])
+  del(element['#title'])
   return theme('form_element', element, output)
+
 
 
 
@@ -1376,16 +1382,16 @@ def theme_radio(element):
 #
 def theme_radios(element):
   _class = 'form-radios'
-  if (isset(element['#attributes']['class'])):
+  if (isset(element['#attributes'], 'class')):
     _class += ' ' +  element['#attributes']['class']
-
-  element['#children'] = '<div class="' + _class + '">' + (element['#children'] if not empty(element['#children']) else '') + '</div>'
+  element['#children'] = '<div class="' + _class + '">' + (element['#children'] if (not empty(element['#children'])) else '') + '</div>'
   if (element['#title'] or element['#description']):
-    unset(element['#id'])
+    del(element['#id'])
     return theme('form_element', element, element['#children'])
-
   else:
     return element['#children']
+
+
 
 
 
@@ -1403,6 +1409,10 @@ def theme_radios(element):
 def theme_password_confirm(element):
   return theme('form_element', element, element['#children'])
 
+
+
+
+
 #
 # Expand a password_confirm field into two text boxes.
 #
@@ -1410,46 +1420,44 @@ def expand_password_confirm(element):
   element['pass1'] =  {
     '#type' : 'password',
     '#title' : t('Password'),
-    '#value' : None if empty(element['#value']) else element['#value']['pass1'],
+    '#value' : (None if empty(element['#value']) else element['#value']['pass1']),
     '#required' : element['#required'],
-    '#attributes' : {'class' : 'password-field'},
+    '#attributes' : {'class' : 'password-field'}
   }
   element['pass2'] =  {
     '#type' : 'password',
     '#title' : t('Confirm password'),
-    '#value' : None if empty(element['#value']) else element['#value']['pass2'],
+    '#value' : (None if empty(element['#value']) else element['#value']['pass2']),
     '#required' : element['#required'],
-    '#attributes' : {'class' : 'password-confirm'},
+    '#attributes' : {'class' : 'password-confirm'}
   }
-  element['#element_validate'] = dict('password_confirm_validate')
+  element['#element_validate'] = ['password_confirm_validate']
   element['#tree'] = True
-  if (isset(element['#size'])):
+  if (isset(element, '#size')):
     element['pass1']['#size'] = element['pass2']['#size'] = element['#size']
-
   return element
+
+
+
+
 
 #
 # Validate password_confirm element.
 #
-def password_confirm_validate(form, REF_form_state):
+def password_confirm_validate(form, &form_state):
   pass1 = trim(form['pass1']['#value'])
   if (not empty(pass1)):
     pass2 = trim(form['pass2']['#value'])
     if (pass1 != pass2):
       form_error(form, t('The specified passwords do not match.'))
-
   elif (form['#required'] and not empty(form['#post'])):
     form_error(form, t('Password field is required.'))
-
   # Password field must be converted from a two-element array into a single
   # string regardless of validation results.
   form_set_value(form['pass1'], None, form_state)
   form_set_value(form['pass2'], None, form_state)
   form_set_value(form, pass1, form_state)
-
   return form
-
-
 
 #
 # Format a date selection element.
@@ -1463,25 +1471,23 @@ def password_confirm_validate(form, REF_form_state):
 # @ingroup themeable
 #
 def theme_date(element):
-  return theme('form_element', element, '<div class="container-inline">' +  element['#children'] + '</div>')
-
-
-
+  return theme('form_element', element, '<div class="container-inline">' +  element['#children'] . '</div>')
+}
 #
 # Roll out a single date element.
 #
 def expand_date(element):
   # Default to current date
   if (empty(element['#value'])):
-    element['#value'] = {'day' : format_date(time(), 'custom', 'j'),
-                         'month' : format_date(time(), 'custom', 'n'),
-                         'year' : format_date(time(), 'custom', 'Y')
-                         }
+    element['#value'] = array('day' : format_date(time(), 'custom', 'j'),
+                            'month' : format_date(time(), 'custom', 'n'),
+                            'year' : format_date(time(), 'custom', 'Y'))
+  }
 
   element['#tree'] = True
   # Determine the order of day, month, year in the site's chosen date format.
   format = variable_get('date_format_short', 'm/d/Y - H:i')
-  sort = dict()
+  sort = array()
   sort['day'] = max(strpos(format, 'd'), strpos(format, 'j'))
   sort['month'] = max(strpos(format, 'm'), strpos(format, 'M'))
   sort['year'] = strpos(format, 'Y')
@@ -1489,82 +1495,79 @@ def expand_date(element):
   order = array_keys(sort)
   # Output multi-selector for date.
   for type in order:
-    if (type):
-      if 'day':
+    switch (type):
+      case 'day':
         options = drupal_map_assoc(range(1, 31))
         break
-      if 'month':
+      case 'month':
         options = drupal_map_assoc(range(1, 12), 'map_month')
         break
-      if 'year':
+      case 'year':
         options = drupal_map_assoc(range(1900, 2050))
         break
+    }
     parents = element['#parents']
-    parents = type
-    element[type] = {
+    parents[] = type
+    element[type] = array(
       '#type' : 'select',
       '#value' : element['#value'][type],
       '#attributes' : element['#attributes'],
       '#options' : options,
-    }
+    )
+  }
 
   return element
-
-
-
+}
 #
 # Validates the date type to stop dates like February 30, 2006.
 #
 def date_validate(form):
   if (not checkdate(form['#value']['month'], form['#value']['day'], form['#value']['year'])):
     form_error(form, t('The specified date is invalid.'))
-
-
-
+  }
+}
 #
 # Helper function for usage with drupal_map_assoc to display month names.
 #
 def map_month(month):
   return format_date(gmmktime(0, 0, 0, month, 2, 1970), 'custom', 'M', 0)
-
-
-
+}
 #
 # If no default value is set for weight select boxes, use 0.
 #
-def weight_value(REF_form):
+def weight_value(&form):
   if (isset(form['#default_value'])):
     form['#value'] = form['#default_value']
+  }
   else:
     form['#value'] = 0
-
-
-
+  }
+}
 #
 # Roll out a single radios element to a list of radios,
 # using the options array as index.
 #
 def expand_radios(element):
   if (count(element['#options']) > 0):
-    for element['#options'] in {key : choice}:
+    foreach (element['#options'] as key : choice):
       if (not isset(element[key])):
         # Generate the parents as the autogenerator does, so we will have a
         # unique id for each radio button.
-        parents_for_id = array_merge(element['#parents'], [key])
-        element[key] = {
+        parents_for_id = array_merge(element['#parents'], array(key))
+        element[key] = array(
           '#type' : 'radio',
           '#title' : choice,
           '#return_value' : check_plain(key),
-          '#default_value' : element['#default_value'] if isset(element['#default_value']) else None,
+          '#default_value' : isset(element['#default_value']) ? element['#default_value'] : None,
           '#attributes' : element['#attributes'],
           '#parents' : element['#parents'],
-          '#id' : form_clean_id('edit-' + implode('-', parents_for_id)),
-          }
-
+          '#id' : form_clean_id('edit-' . implode('-', parents_for_id)),
+        )
+      }
+    }
+  }
   return element
-
-
-
+}
 #
 # Add AHAH information about a form element to the page to communicate with
 # javascript. If #ahah[path] is set on an element, this additional javascript is
@@ -1580,13 +1583,13 @@ def expand_radios(element):
 #   drupal_add_js.
 #
 def form_expand_ahah(element):
-  global static_formexpandahah_js_added
-  if (static_formexpandahah_js_added == None):
-    static_formexpandahah_js_added = dict()
+  static js_added = array()
   # Add a reasonable default event handler if none specified.
   if (isset(element['#ahah']['path']) and not isset(element['#ahah']['event'])):
-    if (element['#type']):
-      if 'submit' or 'button' or 'image_button':
+    switch (element['#type']):
+      case 'submit':
+      case 'button':
+      case 'image_button':
         # Use the mousedown instead of the click event because form
         # submission via pressing the enter key triggers a click event on
         # submit inputs, inappropriately triggering AHAH behaviors.
@@ -1595,48 +1598,55 @@ def form_expand_ahah(element):
         # can be triggered still via keyboard input.
         element['#ahah']['keypress'] = True
         break
-      if 'password' or 'textfield' or 'textarea':
+      case 'password':
+      case 'textfield':
+      case 'textarea':
         element['#ahah']['event'] = 'blur'
         break
-      if 'radio' or 'checkbox' or 'select':
+      case 'radio':
+      case 'checkbox':
+      case 'select':
         element['#ahah']['event'] = 'change'
         break
+    }
+  }
 
   # Adding the same javascript settings twice will cause a recursion error,
   # we avoid the problem by checking if the javascript has already been added.
   if (isset(element['#ahah']['path']) and isset(element['#ahah']['event']) and not isset(js_added[element['#id']])):
     drupal_add_js('misc/jquery.form.js')
     drupal_add_js('misc/ahah.js')
-    ahah_binding = {
+    ahah_binding = array(
       'url'      : url(element['#ahah']['path']),
       'event'    : element['#ahah']['event'],
-      'keypress' : None if empty(element['#ahah']['keypress']) else element['#ahah']['keypress'],
-      'wrapper'  : None if empty(element['#ahah']['wrapper']) else element['#ahah']['wrapper'],
-      'selector' : '#' + element['#id'] if empty(element['#ahah']['selector']) else element['#ahah']['selector'],
-      'effect'   : 'none' if empty(element['#ahah']['effect']) else element['#ahah']['effect'],
-      'method'   : 'replace' if empty(element['#ahah']['method']) else element['#ahah']['method'],
-      'progress' : {'type' : 'throbber'} if empty(element['#ahah']['progress']) else element['#ahah']['progress'],
-      'button'   : {element['#name'] : element['#value']} if isset(element['#executes_submit_callback']) else False,
-    }
+      'keypress' : empty(element['#ahah']['keypress']) ? None : element['#ahah']['keypress'],
+      'wrapper'  : empty(element['#ahah']['wrapper']) ? None : element['#ahah']['wrapper'],
+      'selector' : empty(element['#ahah']['selector']) ? '#' . element['#id'] : element['#ahah']['selector'],
+      'effect'   : empty(element['#ahah']['effect']) ? 'none' : element['#ahah']['effect'],
+      'method'   : empty(element['#ahah']['method']) ? 'replace' : element['#ahah']['method'],
+      'progress' : empty(element['#ahah']['progress']) ? array('type' : 'throbber') : element['#ahah']['progress'],
+      'button'   : isset(element['#executes_submit_callback']) ? array(element['#name'] : element['#value']) : False,
+    )
     # Convert a simple #ahah[progress] type string into an array.
     if (is_string(ahah_binding['progress'])):
-      ahah_binding['progress'] = {'type' : ahah_binding['progress']}
+      ahah_binding['progress'] = array('type' : ahah_binding['progress'])
+    }
     # Change progress path to a full url.
     if (isset(ahah_binding['progress']['path'])):
       ahah_binding['progress']['url'] = url(ahah_binding['progress']['path'])
+    }
 
     # Add progress.js if we're doing a bar display.
     if (ahah_binding['progress']['type'] == 'bar'):
       drupal_add_js('misc/progress.js')
+    }
 
-    drupal_add_js({'ahah' : {element['#id'] : ahah_binding}}, 'setting')
+    drupal_add_js(array('ahah' : array(element['#id'] : ahah_binding)), 'setting')
     js_added[element['#id']] = True
     element['#cache'] = True
-
+  }
   return element
-
-
-
+}
 #
 # Format a form item.
 #
@@ -1649,10 +1659,8 @@ def form_expand_ahah(element):
 # @ingroup themeable
 #
 def theme_item(element):
-  return theme('form_element', element, element['#value'] + (element['#children'] if not empty(element['#children']) else ''))
-
-
-
+  return theme('form_element', element, element['#value'] . (not empty(element['#children']) ? element['#children'] : ''))
+}
 #
 # Format a checkbox.
 #
@@ -1665,23 +1673,21 @@ def theme_item(element):
 # @ingroup themeable
 #
 def theme_checkbox(element):
-  _form_set_class(element, ['form-checkbox'])
+  _form_set_class(element, array('form-checkbox'))
   checkbox = '<input '
   checkbox += 'type="checkbox" '
-  checkbox += 'name="' +  element['#name'] + '" '
-  checkbox += 'id="' +  element['#id'] + '" '
-  checkbox += 'value="' +  element['#return_value'] + '" '
-  checkbox += ' checked="checked" ' if element['#value'] else ' '
-  checkbox += drupal_attributes(element['#attributes']) + ' />'
+  checkbox += 'name="' +  element['#name'] . '" '
+  checkbox += 'id="' +  element['#id'] . '" ' 
+  checkbox += 'value="' +  element['#return_value'] . '" '
+  checkbox += element['#value'] ? ' checked="checked" ' : ' '
+  checkbox += drupal_attributes(element['#attributes']) . ' />'
   if (not is_None(element['#title'])):
-    checkbox = '<label class="option">' +  checkbox  + ' ' + element['#title'] + '</label>'
+    checkbox = '<label class="option">' +  checkbox  + ' ' . element['#title'] . '</label>'
+  }
 
   unset(element['#title'])
-
   return theme('form_element', element, checkbox)
-
-
-
+}
 #
 # Format a set of checkboxes.
 #
@@ -1693,32 +1699,35 @@ def theme_checkbox(element):
 # @ingroup themeable
 #
 def theme_checkboxes(element):
-  _class = 'form-checkboxes'
+  class = 'form-checkboxes'
   if (isset(element['#attributes']['class'])):
-    _class += ' ' +  element['#attributes']['class']
-  element['#children'] = '<div class="' + _class + '">' + (element['#children'] if not empty(element['#children']) else '') + '</div>'
+    class += ' ' +  element['#attributes']['class']
+  }
+  element['#children'] = '<div class="' . class . '">' . (not empty(element['#children']) ? element['#children'] : '') . '</div>'
   if (element['#title'] or element['#description']):
     unset(element['#id'])
     return theme('form_element', element, element['#children'])
+  }
   else:
     return element['#children']
-
-
+  }
+}
 
 def expand_checkboxes(element):
-  value = element['#value'] if is_array(element['#value']) else dict()
+  value = is_array(element['#value']) ? element['#value'] : array()
   element['#tree'] = True
   if (count(element['#options']) > 0):
     if (not isset(element['#default_value']) or element['#default_value'] == 0):
-      element['#default_value'] = dict()
-    for element['#options'] in {key : choice}:
+      element['#default_value'] = array()
+    }
+    foreach (element['#options'] as key : choice):
       if (not isset(element[key])):
-        element[key] = {'#type' : 'checkbox', '#processed' : True, '#title' : choice, '#return_value' : key, '#default_value' : isset(value[key]), '#attributes' : element['#attributes']}
-
+        element[key] = array('#type' : 'checkbox', '#processed' : True, '#title' : choice, '#return_value' : key, '#default_value' : isset(value[key]), '#attributes' : element['#attributes'])
+      }
+    }
+  }
   return element
-
-
-
+}
 #
 # Theme a form submit button.
 #
@@ -1726,9 +1735,7 @@ def expand_checkboxes(element):
 #
 def theme_submit(element):
   return theme('button', element)
-
-
-
+}
 #
 # Theme a form button.
 #
@@ -1737,13 +1744,14 @@ def theme_submit(element):
 def theme_button(element):
   # Make sure not to overwrite classes.
   if (isset(element['#attributes']['class'])):
-    element['#attributes']['class'] = 'form-' + element['#button_type'] + ' ' + element['#attributes']['class']
+    element['#attributes']['class'] = 'form-' . element['#button_type'] . ' ' . element['#attributes']['class']
+  }
   else:
-    element['#attributes']['class'] = 'form-' + element['#button_type']
+    element['#attributes']['class'] = 'form-' . element['#button_type']
+  }
 
-  return '<input type="submit" ' + ('' if empty(element['#name']) else 'name="' + element['#name'] + '" ') + 'id="' + element['#id'] + '" value="' + check_plain(element['#value']) + '" ' + drupal_attributes(element['#attributes']) + " />\n"
-
-
+  return '<input type="submit" ' +  (empty(element['#name']) ? '' : 'name="' . element['#name'] . '" ') . 'id="' . element['#id'] . '" value="' . check_plain(element['#value']) . '" ' . drupal_attributes(element['#attributes']) . " />\n"
+}
 #
 # Theme a form image button.
 #
@@ -1752,14 +1760,20 @@ def theme_button(element):
 def theme_image_button(element):
   # Make sure not to overwrite classes.
   if (isset(element['#attributes']['class'])):
-    element['#attributes']['class'] = 'form-' + element['#button_type'] + ' ' + element['#attributes']['class']
+    element['#attributes']['class'] = 'form-' . element['#button_type'] . ' ' . element['#attributes']['class']
+  }
   else:
-    element['#attributes']['class'] = 'form-' + element['#button_type']
+    element['#attributes']['class'] = 'form-' . element['#button_type']
+  }
 
-  return '<input type="image" name="' +  element['#name'] + '" ' + ('value="' + check_plain(element['#value']) + '" ') if (not empty(element['#value']) else : '') + 'id="' +  element['#id'] + '" ' + drupal_attributes(element['#attributes']) + ' src="' +  base_path()  + element['#src'] + '" ' + (not empty(element['#title']) ? 'alt="' + check_plain(element['#title']) + '" title="' + check_plain(element['#title']) + '" ' : '' ) + "/>\n"
-
-
-
+  return '<input type="image" name="' +  element['#name'] . '" ' .
+    (not empty(element['#value']) ? ('value="' . check_plain(element['#value']) . '" ') : '') .
+    'id="' +  element['#id'] . '" ' .
+    drupal_attributes(element['#attributes']) .
+    ' src="' +  base_path()  + element['#src'] . '" ' .
+    (not empty(element['#title']) ? 'alt="' . check_plain(element['#title']) . '" title="' . check_plain(element['#title']) . '" ' : '' ) .
+    "/>\n"
+}
 #
 # Format a hidden form field.
 #
@@ -1773,9 +1787,7 @@ def theme_image_button(element):
 #
 def theme_hidden(element):
   return '<input type="hidden" name="' +  element['#name'] . '" id="' . element['#id'] . '" value="' . check_plain(element['#value']) . "\" " . drupal_attributes(element['#attributes']) . " />\n"
-
-
-
+}
 #
 # Format a form token.
 #
@@ -1783,9 +1795,7 @@ def theme_hidden(element):
 #
 def theme_token(element):
   return theme('hidden', element)
-
-
-
+}
 #
 # Format a textfield.
 #
