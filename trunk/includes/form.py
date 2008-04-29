@@ -1613,14 +1613,14 @@ def form_expand_ahah(element):
       'keypress' : None if empty(element['#ahah']['keypress']) else element['#ahah']['keypress'],
       'wrapper'  : None if empty(element['#ahah']['wrapper']) else element['#ahah']['wrapper'],
       'selector' : '#' + element['#id'] if empty(element['#ahah']['selector']) else element['#ahah']['selector'],
-      'effect'   : empty(element['#ahah']['effect']) ? 'none' : element['#ahah']['effect'],
-      'method'   : empty(element['#ahah']['method']) ? 'replace' : element['#ahah']['method'],
-      'progress' : empty(element['#ahah']['progress']) ? array('type' : 'throbber') : element['#ahah']['progress'],
-      'button'   : isset(element['#executes_submit_callback']) ? array(element['#name'] : element['#value']) : False,
+      'effect'   : 'none' if empty(element['#ahah']['effect']) else element['#ahah']['effect'],
+      'method'   : 'replace' if empty(element['#ahah']['method']) else element['#ahah']['method'],
+      'progress' : {'type' : 'throbber'} if empty(element['#ahah']['progress']) else element['#ahah']['progress'],
+      'button'   : {element['#name'] : element['#value']} if isset(element['#executes_submit_callback']) else False,
     }
     # Convert a simple #ahah[progress] type string into an array.
     if (is_string(ahah_binding['progress'])):
-      ahah_binding['progress'] = array('type' : ahah_binding['progress'])
+      ahah_binding['progress'] = {'type' : ahah_binding['progress']}
     # Change progress path to a full url.
     if (isset(ahah_binding['progress']['path'])):
       ahah_binding['progress']['url'] = url(ahah_binding['progress']['path'])
@@ -1629,7 +1629,7 @@ def form_expand_ahah(element):
     if (ahah_binding['progress']['type'] == 'bar'):
       drupal_add_js('misc/progress.js')
 
-    drupal_add_js(array('ahah' : array(element['#id'] : ahah_binding)), 'setting')
+    drupal_add_js({'ahah' : {element['#id'] : ahah_binding}}, 'setting')
     js_added[element['#id']] = True
     element['#cache'] = True
 
@@ -1649,8 +1649,10 @@ def form_expand_ahah(element):
 # @ingroup themeable
 #
 def theme_item(element):
-  return theme('form_element', element, element['#value'] . (not empty(element['#children']) ? element['#children'] : ''))
-}
+  return theme('form_element', element, element['#value'] + (element['#children'] if not empty(element['#children']) else ''))
+
+
+
 #
 # Format a checkbox.
 #
@@ -1663,21 +1665,23 @@ def theme_item(element):
 # @ingroup themeable
 #
 def theme_checkbox(element):
-  _form_set_class(element, array('form-checkbox'))
+  _form_set_class(element, ['form-checkbox'])
   checkbox = '<input '
   checkbox += 'type="checkbox" '
-  checkbox += 'name="' +  element['#name'] . '" '
-  checkbox += 'id="' +  element['#id'] . '" ' 
-  checkbox += 'value="' +  element['#return_value'] . '" '
-  checkbox += element['#value'] ? ' checked="checked" ' : ' '
-  checkbox += drupal_attributes(element['#attributes']) . ' />'
+  checkbox += 'name="' +  element['#name'] + '" '
+  checkbox += 'id="' +  element['#id'] + '" '
+  checkbox += 'value="' +  element['#return_value'] + '" '
+  checkbox += ' checked="checked" ' if element['#value'] else ' '
+  checkbox += drupal_attributes(element['#attributes']) + ' />'
   if (not is_None(element['#title'])):
-    checkbox = '<label class="option">' +  checkbox  + ' ' . element['#title'] . '</label>'
-  }
+    checkbox = '<label class="option">' +  checkbox  + ' ' + element['#title'] + '</label>'
 
   unset(element['#title'])
+
   return theme('form_element', element, checkbox)
-}
+
+
+
 #
 # Format a set of checkboxes.
 #
@@ -1689,35 +1693,32 @@ def theme_checkbox(element):
 # @ingroup themeable
 #
 def theme_checkboxes(element):
-  class = 'form-checkboxes'
+  _class = 'form-checkboxes'
   if (isset(element['#attributes']['class'])):
-    class += ' ' +  element['#attributes']['class']
-  }
-  element['#children'] = '<div class="' . class . '">' . (not empty(element['#children']) ? element['#children'] : '') . '</div>'
+    _class += ' ' +  element['#attributes']['class']
+  element['#children'] = '<div class="' + _class + '">' + (element['#children'] if not empty(element['#children']) else '') + '</div>'
   if (element['#title'] or element['#description']):
     unset(element['#id'])
     return theme('form_element', element, element['#children'])
-  }
   else:
     return element['#children']
-  }
-}
+
+
 
 def expand_checkboxes(element):
-  value = is_array(element['#value']) ? element['#value'] : array()
+  value = element['#value'] if is_array(element['#value']) else dict()
   element['#tree'] = True
   if (count(element['#options']) > 0):
     if (not isset(element['#default_value']) or element['#default_value'] == 0):
-      element['#default_value'] = array()
-    }
-    foreach (element['#options'] as key : choice):
+      element['#default_value'] = dict()
+    for element['#options'] in {key : choice}:
       if (not isset(element[key])):
-        element[key] = array('#type' : 'checkbox', '#processed' : True, '#title' : choice, '#return_value' : key, '#default_value' : isset(value[key]), '#attributes' : element['#attributes'])
-      }
-    }
-  }
+        element[key] = {'#type' : 'checkbox', '#processed' : True, '#title' : choice, '#return_value' : key, '#default_value' : isset(value[key]), '#attributes' : element['#attributes']}
+
   return element
-}
+
+
+
 #
 # Theme a form submit button.
 #
@@ -1725,7 +1726,9 @@ def expand_checkboxes(element):
 #
 def theme_submit(element):
   return theme('button', element)
-}
+
+
+
 #
 # Theme a form button.
 #
@@ -1734,14 +1737,13 @@ def theme_submit(element):
 def theme_button(element):
   # Make sure not to overwrite classes.
   if (isset(element['#attributes']['class'])):
-    element['#attributes']['class'] = 'form-' . element['#button_type'] . ' ' . element['#attributes']['class']
-  }
+    element['#attributes']['class'] = 'form-' + element['#button_type'] + ' ' + element['#attributes']['class']
   else:
-    element['#attributes']['class'] = 'form-' . element['#button_type']
-  }
+    element['#attributes']['class'] = 'form-' + element['#button_type']
 
-  return '<input type="submit" ' +  (empty(element['#name']) ? '' : 'name="' . element['#name'] . '" ') . 'id="' . element['#id'] . '" value="' . check_plain(element['#value']) . '" ' . drupal_attributes(element['#attributes']) . " />\n"
-}
+  return '<input type="submit" ' + ('' if empty(element['#name']) else 'name="' + element['#name'] + '" ') + 'id="' + element['#id'] + '" value="' + check_plain(element['#value']) + '" ' + drupal_attributes(element['#attributes']) + " />\n"
+
+
 #
 # Theme a form image button.
 #
@@ -1750,20 +1752,14 @@ def theme_button(element):
 def theme_image_button(element):
   # Make sure not to overwrite classes.
   if (isset(element['#attributes']['class'])):
-    element['#attributes']['class'] = 'form-' . element['#button_type'] . ' ' . element['#attributes']['class']
-  }
+    element['#attributes']['class'] = 'form-' + element['#button_type'] + ' ' + element['#attributes']['class']
   else:
-    element['#attributes']['class'] = 'form-' . element['#button_type']
-  }
+    element['#attributes']['class'] = 'form-' + element['#button_type']
 
-  return '<input type="image" name="' +  element['#name'] . '" ' .
-    (not empty(element['#value']) ? ('value="' . check_plain(element['#value']) . '" ') : '') .
-    'id="' +  element['#id'] . '" ' .
-    drupal_attributes(element['#attributes']) .
-    ' src="' +  base_path()  + element['#src'] . '" ' .
-    (not empty(element['#title']) ? 'alt="' . check_plain(element['#title']) . '" title="' . check_plain(element['#title']) . '" ' : '' ) .
-    "/>\n"
-}
+  return '<input type="image" name="' +  element['#name'] + '" ' + ('value="' + check_plain(element['#value']) + '" ') if (not empty(element['#value']) else : '') + 'id="' +  element['#id'] + '" ' + drupal_attributes(element['#attributes']) + ' src="' +  base_path()  + element['#src'] + '" ' + (not empty(element['#title']) ? 'alt="' + check_plain(element['#title']) + '" title="' + check_plain(element['#title']) + '" ' : '' ) + "/>\n"
+
+
+
 #
 # Format a hidden form field.
 #
@@ -1777,7 +1773,9 @@ def theme_image_button(element):
 #
 def theme_hidden(element):
   return '<input type="hidden" name="' +  element['#name'] . '" id="' . element['#id'] . '" value="' . check_plain(element['#value']) . "\" " . drupal_attributes(element['#attributes']) . " />\n"
-}
+
+
+
 #
 # Format a form token.
 #
@@ -1785,7 +1783,9 @@ def theme_hidden(element):
 #
 def theme_token(element):
   return theme('hidden', element)
-}
+
+
+
 #
 # Format a textfield.
 #
