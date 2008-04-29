@@ -134,9 +134,8 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 
 				example:
 
-				Drupal: $form = array('#' => '');
-        Drupy: form = {'#' : ''} 
-(4)
+				Drupal: $form = array('#id' => 'foo');
+        Drupy: form = {'#id' : 'foo'} 
 
 
 (5) Loops 
@@ -183,3 +182,15 @@ better readbility - some programmers prefer this.
 	example:
 	Drupal: list(var1, var2) = myfunction(arg1, arg2)
 	Drupy: var1, var2 = myfunction(arg1, arg2)
+  
+  or
+
+  Drupal: list(,var2) = myfunction(arg1, arg2)
+  Drupy: var2 = myfunction(arg1, arg2)[1]
+
+  Comments: list(, tree) throws away the first item returned(before the comma, in the arguments)
+
+(8) isset
+
+  isset( object|list|dict, property|index|key )
+
