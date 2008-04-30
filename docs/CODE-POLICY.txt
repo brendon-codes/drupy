@@ -165,6 +165,11 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
     Drupal:  foreach element['#options'] as array(index : choice)
     Drupy:   for index,choice in element['#options'].items()
 
+    list:
+    for foo in bar:
+    dict:
+    for foo,baz in bar.items():
+
   (5.4) do..while
 
 (6) Indention/whitespace
@@ -182,7 +187,7 @@ better readbility - some programmers prefer this.
 - Also, indented code is case sensetive in python, where in PHP (C-like languages), it's not. So wrong indention can cause logic errors in your python code.
 - Avoid trailing whitespace. Like this: def myfunction:
 
-(7) list
+(7) PHP list() function
 	example:
 	Drupal: list(var1, var2) = myfunction(arg1, arg2)
 	Drupy: var1, var2 = myfunction(arg1, arg2)
