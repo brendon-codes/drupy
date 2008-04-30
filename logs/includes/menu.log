@@ -1,14 +1,12 @@
-General comments: 
+General comments:
 *********************************************
 GENERAL ISSUES:
 1. There is a function in php named array_pop, that maybe does the same
 as dict.pop in python.
 2. Review all foreach loops.
 3. There are several custom functions like isset() and empty(), but also is_array() - are they all consistent
-   with how index key are set?
+   with how index key are set? What about t(item['title'])? will it become t(item, 'title')?
 *********************************************
 line 927 foreach loop got ported. But not very well? So this needs more investigation. See originale file (menu.inc)
 
 line 2267 commented out --> require_once drupal_get_path('module', 'user') + '/user.pages.inc'
-
-
