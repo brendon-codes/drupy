@@ -834,7 +834,7 @@ def form_builder(form_id, form, form_state):
 #
 def _form_builder_handle_input_element(form_id, form, form_state, complete_form):
   DrupyHelper.Reference.check(form)
-  DrupyHelper.Reference.check(form_state)  
+  DrupyHelper.Reference.check(form_state)
   if (not isset(form.val, '#name')):
     name = array_shift(form.val['#parents'])
     form.val['#name'] = name
@@ -1358,7 +1358,7 @@ def theme_radio(element):
   if (not is_None(element['#title'])):
     output = '<label class="option">' +  output  + ' ' + element['#title'] + '</label>'
 
-  unset(element['#title'])
+  del(element['#title'])
   return theme('form_element', element, output)
 
 
@@ -1381,7 +1381,7 @@ def theme_radios(element):
 
   element['#children'] = '<div class="' + _class + '">' + (element['#children'] if not empty(element['#children']) else '') + '</div>'
   if (element['#title'] or element['#description']):
-    unset(element['#id'])
+    del(element['#id'])
     return theme('form_element', element, element['#children'])
 
   else:
@@ -1671,12 +1671,12 @@ def theme_checkbox(element):
   checkbox += 'name="' +  element['#name'] + '" '
   checkbox += 'id="' +  element['#id'] + '" '
   checkbox += 'value="' +  element['#return_value'] + '" '
-  checkbox += ' checked="checked" ' if element['#value'] else ' '
+  checkbox += (' checked="checked" ' if element['#value'] else ' ')
   checkbox += drupal_attributes(element['#attributes']) + ' />'
   if (not is_None(element['#title'])):
     checkbox = '<label class="option">' +  checkbox  + ' ' + element['#title'] + '</label>'
 
-  unset(element['#title'])
+  del(element['#title'])
 
   return theme('form_element', element, checkbox)
 
@@ -1698,7 +1698,7 @@ def theme_checkboxes(element):
     _class += ' ' +  element['#attributes']['class']
   element['#children'] = '<div class="' + _class + '">' + (element['#children'] if not empty(element['#children']) else '') + '</div>'
   if (element['#title'] or element['#description']):
-    unset(element['#id'])
+    del(element['#id'])
     return theme('form_element', element, element['#children'])
   else:
     return element['#children']
@@ -2254,11 +2254,11 @@ def batch_process(redirect = None, url = None):
       # drupal_goto looks for it.
       if (isset(_REQUEST['destination'])):
         batch['destination'] = _REQUEST['destination']
-        unset(_REQUEST['destination'])
+        del(_REQUEST['destination'])
       }
       elif (isset(_REQUEST['edit']['destination'])):
         batch['destination'] = _REQUEST['edit']['destination']
-        unset(_REQUEST['edit']['destination'])
+        del(_REQUEST['edit']['destination'])
       }
 
       # Initiate db storage in order to get a batch id. We have to provide
