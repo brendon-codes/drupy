@@ -257,6 +257,7 @@ def menu_unserialize(data, _map):
 #   call.
 #
 def menu_set_item(path, router_item):
+
   menu_get_item(path, router_item)
 
 
@@ -531,7 +532,6 @@ def _menu_translate(REF_router_item, _map, to_arg = False):
   router_item['href'] = implode('/', link_map)
   router_item['options'] = dict()
   _menu_check_access(router_item, _map)
-
   _menu_item_localize(router_item, _map)
 
   return _map
@@ -556,13 +556,13 @@ def _menu_link_map_translate(REF__map, to_arg_functions):
       arg = function(_map[index] if not empty(map, index) else '', _map, index)
       if (not empty(_map, index) or isset(arg)):
         _map[index] = arg
-
       else:
-        unset(_map[index])
+        del(_map[index])
 
 
 
 def menu_tail_to_arg(arg, _map, index):
+
   return implode('/', array_slice(_map, index))
 
 
@@ -607,7 +607,6 @@ def _menu_link_translate(REF_item):
         # An error occurred loading an object.
         item['access'] = False
         return False
-
       _menu_check_access(item, _map)
 
     _menu_item_localize(item, _map, True)
@@ -695,10 +694,8 @@ def menu_tree_output(tree):
     extra_class = None
     if (i == 0):
       extra_class = 'first'
-
     if (i == num_items - 1):
       extra_class = 'last'
-
     link = theme('menu_item_link', data['link'])
     if (data['below']):
       output += theme('menu_item', link, data['link']['has_children'], menu_tree_output(data['below']), data['link']['in_active_trail'], extra_class)
@@ -893,6 +890,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
 # Helper function - compute the real cache ID for menu tree data.
 #
 def _menu_tree_cid(menu_name, data):
+
   return 'links:' + menu_name + ':tree-data:'. md5(serialize(data))
 
 
@@ -917,7 +915,6 @@ def menu_tree_collect_node_links(REF_tree, REF_node_links):
 # Check access and perform other dynamic operations for each link in the tree.
 #
 def menu_tree_check_access(REF_tree, node_links = dict()):
-
   if (node_links):
     # Use db_rewrite_sql to evaluate view access without loading each full node.
     nids = array_keys(node_links)
@@ -925,7 +922,7 @@ def menu_tree_check_access(REF_tree, node_links = dict()):
     result = db_query(db_rewrite_sql("SELECT n.nid FROM {node} n WHERE n.status = 1 AND n.nid IN (" + placeholders + ")"), nids)
     while (node == db_fetch_array(result)):
       nid = node['nid']
-      for node_links[nid] in (mlid,link):
+      for (mlid,link) in node_links[nid]:
         node_links[nid][mlid]['access'] = True
 
   _menu_tree_check_access(tree)
@@ -970,7 +967,9 @@ def _menu_tree_check_access(REF_tree):
 #   See menu_tree_page_data for a description of the data structure.
 #
 def menu_tree_data(result = None, parents = dict(), depth = 1):
+
   tree = _menu_tree_data(result, parents, depth)[1]
+
   return tree
 
 
@@ -1138,7 +1137,8 @@ def menu_get_names(reset = False):
 # Return an array containing the names of system-defined (default) menus.
 #
 def menu_list_system_menus():
-  return array('navigation', 'primary-links', 'secondary-links')
+
+  return ['navigation', 'primary-links', 'secondary-links']
 
 
 
@@ -1146,6 +1146,7 @@ def menu_list_system_menus():
 # Return an array of links to be rendered as the Primary links.
 #
 def menu_primary_links():
+
   return menu_navigation_links(variable_get('menu_primary_links_source', 'primary-links'))
 
 
@@ -1193,7 +1194,7 @@ def menu_navigation_links(menu_name, level = 0):
           break
 
   # Create a single level of links.
-  links = array()
+  links = dict()
   for item in tree:
     if (not item['link']['hidden']):
       l = item['link']['localized_options']
@@ -1222,7 +1223,7 @@ def menu_local_tasks(level = 0, return_root = False):
   global static_menulocaltasks_tabs
   global static_menulocaltasks_root_path
   if (not isset(tabs)):
-    tabs = array()
+    tabs = dict()
     router_item = menu_get_item()
     if (not router_item or not router_item['access']):
       return ''
@@ -1230,8 +1231,8 @@ def menu_local_tasks(level = 0, return_root = False):
     # Get all tabs and the root page.
     result = db_query("SELECT * FROM {menu_router} WHERE tab_root = '%s' ORDER BY weight, title", router_item['tab_root'])
     _map = arg()
-    children = [] #array/list
-    tasks = [] #array/list
+    children = []
+    tasks = []
     root_path = router_item['path']
     while (item == db_fetch_array(result)):
       _menu_translate(item, _map, True)
@@ -1251,7 +1252,7 @@ def menu_local_tasks(level = 0, return_root = False):
     tabs_current = ''
     next_path = ''
     count = 0
-    for children[path] in item:
+    for item in children[path]:
      if (item['access']):
       count +=1
       # The default task is always active.
@@ -1334,6 +1335,7 @@ def menu_local_tasks(level = 0, return_root = False):
 # Returns the rendered local tasks at the top level.
 #
 def menu_primary_local_task():
+
   return menu_local_tasks(0)
 
 
@@ -1342,6 +1344,7 @@ def menu_primary_local_task():
 # Returns the rendered local tasks at the second level.
 #
 def menu_secondary_local_tasks():
+
   return menu_local_tasks(1)
 
 
@@ -1361,7 +1364,7 @@ def theme_menu_local_tasks():
   output = ''
   if (primary == menu_primary_local_tasks()):
     output += "<ul class=\"tabs primary\">\n" + primary + "</ul>\n"
-  
+
   if (secondary == menu_secondary_local_tasks()):
     output += "<ul class=\"tabs secondary\">\n" + secondary + "</ul>\n"
 
@@ -1388,6 +1391,7 @@ def menu_set_active_menu_name(menu_name = None):
 # Get the active menu for the current page - determines the active trail.
 #
 def menu_get_active_menu_name():
+
   return menu_set_active_menu_name()
 
 
@@ -1677,6 +1681,9 @@ def _menu_navigation_links_rebuild(menu):
   # minimize the amount of re-parenting done by menu_link_delete().
   while (item == db_fetch_array(result)):
     _menu_delete_item(item, True)
+
+
+
 #
 # Delete one or several menu links.
 #
@@ -1688,7 +1695,6 @@ def _menu_navigation_links_rebuild(menu):
 def menu_link_delete(mlid, path = None):
   if (isset(mlid)):
     _menu_delete_item(db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", mlid)))
-
   else:
     result = db_query("SELECT * FROM {menu_links} WHERE link_path = '%s'", path)
     while (link == db_fetch_array(result)):
@@ -2214,6 +2220,7 @@ def _menu_router_build(callbacks):
   masks = array_keys(masks)
   rsort(masks)
   variable_set('menu_masks', masks)
+  
   return menu
 
 
@@ -2223,6 +2230,7 @@ def _menu_router_build(callbacks):
 #
 def menu_path_is_external(path):
   colonpos = strpos(path, ':')
+  
   return colonpos != False and not preg_match('not [/?#]not ', substr(path, 0, colonpos)) and filter_xss_bad_protocol(path, False) == check_plain(path)
 
 
