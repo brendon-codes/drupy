@@ -409,7 +409,7 @@ def _menu_load_objects(item, _map):
 def _menu_check_access(REF_item, _map):
   # Determine access callback, which will decide whether or not the current
   # user has access to this path.
-  callback = 0 if empty(item, 'access_callback') else trim(item, 'access_callback')
+  callback = 0 if empty(item['access_callback']) else trim(item, 'access_callback')
   # Check for a True or False value.
   if (is_numeric(callback)):
     item['access'] = bool(callback)
@@ -454,17 +454,17 @@ def _menu_item_localize(REF_item, map, link_translate = False):
   item['localized_options'] = item['options']
   # If we are not doing link translation or if the title matches the
   # link title of its router item, localize it.
-  if (not link_translate or (not empty(item, 'title') and (item['title'] == item['link_title']))):
+  if (not link_translate or (not empty(item['title']) and (item['title'] == item['link_title']))):
     # t() is a special case. Since it is used very close to all the time,
     # we handle it directly instead of using indirect, slower methods.
     if (callback == 't'):
-      if (empty(item, 'title_arguments')):
+      if (empty(item['title_arguments'])):
         item['title'] = t(item['title'])
       else:
         item['title'] = t(item['title'], menu_unserialize(item['title_arguments'], _map))
 
     elif (callback):
-      if (empty(item, 'title_arguments')):
+      if (empty(item['title_arguments'])):
         item['title'] = callback(item['title'])
       else:
         item['title'] = call_user_func_array(callback, menu_unserialize(item['title_arguments'], _map))
@@ -476,7 +476,7 @@ def _menu_item_localize(REF_item, map, link_translate = False):
     item['title'] = item['link_title']
 
   # Translate description, see the motivation above.
-  if (not empty(item, 'description')):
+  if (not empty(item['description'])):
     original_description = item['description']
     item['description'] = t(item['description'])
     if (link_translate and item['options']['attributes']['title'] == original_description):
@@ -553,8 +553,8 @@ def _menu_link_map_translate(REF__map, to_arg_functions):
     to_arg_functions = unserialize(to_arg_functions)
     for index,function in to_arg_functions.items():
       # Translate place-holders into real values.
-      arg = function(_map[index] if not empty(map, index) else '', _map, index)
-      if (not empty(_map, index) or isset(arg)):
+      arg = function(_map[index] if not empty(_map[index]) else '', _map, index)
+      if (not empty(_map[index]) or isset(arg)):
         _map[index] = arg
       else:
         del(_map[index])
@@ -614,7 +614,7 @@ def _menu_link_translate(REF_item):
   # Allow other customizations - e.g. adding a page-specific query string to the
   # options array. For performance reasons we only invoke this hook if the link
   # has the 'alter' flag set in the options array.
-  if (not empty(item, 'options', 'alter')):
+  if (not empty(item['options']['alter'])):
     drupal_alter('translated_menu_link', item, _map)
 
   return _map
@@ -643,7 +643,7 @@ def _menu_link_translate(REF_item):
 #
 def menu_get_object(type = 'node', position = 1, path = None):
   router_item = menu_get_item(path)
-  if (isset(router_item, 'load_functions', position) and not empty(router_item, '_map', position) and router_item['load_functions'],position == type +'_load'):
+  if (isset(router_item, 'load_functions', position) and not empty(router_item['_map'][position]) and router_item['load_functions'],position == type +'_load'):
     return router_item['_map'][position]
 
 
@@ -1042,7 +1042,7 @@ def _menu_tree_data(result, parents, depth, previous_element = ''):
 # @ingroup themeable
 #
 def theme_menu_item_link(link):
-  if (empty(link, 'localized_options')):
+  if (empty(link['localized_options'])):
     link['localized_options'] = dict()
 
   return l(link['title'], link['href'], link['localized_options'])
@@ -1190,7 +1190,7 @@ def menu_navigation_links(menu_name, level = 0):
       while (item == array_shift(tree)):
         if (item['link']['in_active_trail']):
           # If the item is in the active trail, we continue in the subtree.
-          tree = [] if empty(item, 'below') else item['below']
+          tree = [] if empty(item['below']) else item['below']
           break
 
   # Create a single level of links.
@@ -1539,7 +1539,7 @@ def menu_cache_clear(menu_name = 'navigation'):
   global static_menucacheclear_cache_cleared
   if (static_menucacheclear_cache_cleared == None):
     static_menucacheclear_cache_cleared = dict()
-  if (empty(cache_cleared, menu_name)):
+  if (empty(cache_cleared[menu_name])):
     cache_clear_all('links:' + menu_name + ':', 'cache_menu', True)
     cache_cleared[menu_name] = 1
 
@@ -1629,7 +1629,7 @@ def _menu_link_build(item):
     'link_title' : item['title'],
     'link_path' : item['path'],
     'hidden' : 0,
-    'options' : dict() if empty(item, 'description') else {'attributes' : {'title' : item['description']}},
+    'options' : dict() if empty(item['description']) else {'attributes' : {'title' : item['description']}},
   }
 
   return item
@@ -1797,7 +1797,7 @@ def menu_link_save(REF_item):
   menu_name = item['menu_name']
   # Menu callbacks need to be in the links table for breadcrumbs, but can't
   # be parents if they are generated directly from a router item.
-  if (empty(parent, 'mlid') or parent['hidden'] < 0):
+  if (empty(parent['mlid']) or parent['hidden'] < 0):
     item['plid'] =  0
 
   else:
@@ -1834,7 +1834,7 @@ def menu_link_save(REF_item):
 
   # Find the callback. During the menu update we store empty paths to be
   # fixed later, so we skip this.
-  if (not isset(_SESSION, 'system_update_6021') and (empty(item, 'router_path')  or not existing_item or (existing_item['link_path'] != item['link_path']))):
+  if (not isset(_SESSION, 'system_update_6021') and (empty(item['router_path'])  or not existing_item or (existing_item['link_path'] != item['link_path']))):
     if (item['_external']):
       item['router_path'] = ''
 
@@ -2086,7 +2086,7 @@ def _menu_router_build(callbacks):
     for k,part in parts.items():
       match = False
       if (preg_match('/^%([a-z_]*)$/', part, matches)):
-        if (empty(matches, 1)):
+        if (empty(matches[1])):
           match = True
           load_functions[k] = None
 
@@ -2185,7 +2185,7 @@ def _menu_router_build(callbacks):
       # Default callback.
       item['access callback'] = 'user_access'
 
-    if (not isset(item, 'access callback') or empty(item, 'page callback')):
+    if (not isset(item, 'access callback') or empty(item['page callback'])):
       item['access callback'] = 0
 
     if (is_bool(item['access callback'])):
