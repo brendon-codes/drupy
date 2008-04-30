@@ -7,24 +7,23 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 
 		#### BEGIN CODE BLOCK
 		def foo():
-		   print "hello world"
-		   return True
-		
+       print "hello world"
+       return True
+
 		def bar():
-		   print "Baz"
-		   return False
+      print "Baz"
+      return False
 		#### END CODE BLOCK
 
 	The following is not valid:
-	
+
 		#### BEGIN CODE BLOCK
 		def foo():
 
-		   print "hello world"
+      print "hello world"
 
 		   return True
 
-		
 		def bar():
 
 		   print "Baz"
@@ -36,47 +35,47 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 
 (2) PHP makes use of "static variables". A static variable is essentially a global variable that can
 	only be accessed from it's parent function. Here is an example of a static variable in PHP.
-	
+
 		//// BEGIN CODE BLOCK
 		function foo_baz() {
 			static $do_bar = 1;
 			$do_bar += 1;
 			return $do_bar;
 		}
-		
+
 		print foo_baz(); //prints "2"
 		print foo_baz(); //prints "3"
 		print foo_baz(); //prints "4"
 		//// END CODE BLOCK
-		
+
 	This is the mechanism for dealing with this same scenario within Drupy:
-	
+
 		(a) Convert variable name to Drupy static format. The format is as follows:
-		
+
 				"static" UNDERSCORE FUNCTION-NAME UNDERSCORE VARIABLE-NAME
-			
+
 			FUNCTION-NAME and VARIABLE-NAME can only contain letters and numbers. Underscores must
 			be removed. The above PHP example would provide a Drupy variable like this:
-			
+
 				"static_foobaz_dobar"
-			
+
 		(b) Place a static declaration at the top of the file.
-			
+
 				#### BEGIN CODE BLOCK
 				static('static_foobaz_dobar')
 				#### END CODE BLOCK
 
 		(c) Declare variable access within function using the "global" keyword.
-		
+
 				### BEGIN CODE BLOCK;
 				def foo_baz():
 					global static_foobaz_dobar
 				#### END CODE BLOCK
-		
+
 		(d) Initialize variable within function. This is where the variables inital value is set.
-		    Drupy static vars must not be unset/deleted. If needed, you can simply set them to None
+        Drupy static vars must not be unset/deleted. If needed, you can simply set them to None
 		    instead. Here is an example of the entire working function:
-		
+
 				### BEGIN CODE BLOCK;
 				def foo_baz():
 					global static_foobaz_dobar
@@ -84,28 +83,28 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 						static_foobaz_dobar = 1
 					static_foobaz_dobar += 1
 					return static_foobaz_dobar
-				
+
 				print foo_baz(); #prints "2"
 				print foo_baz(); #prints "3"
-				print foo_baz(); #prints "4"				
+				print foo_baz(); #prints "4"
 				#### END CODE BLOCK
-				
 
 
 
-(4) The following words are not allowed to be used as variable names. If these 
+
+(4) The following words are not allowed to be used as variable names. If these
     are encountered as variable names, they must be prepended with an
     underscore:
-    
+
       Drupy Specific:
-        
+
         module
-      
+
       Python Specific:
-      
+
         type, list, array
         and, del, from, not, while, as, elif, global, or, with
-        assert, else, if, pass, yield, break, except, import, print 
+        assert, else, if, pass, yield, break, except, import, print
         class, exec, in, raise, continue, finally, is, return, def
         for, lambda, try
 
@@ -117,42 +116,40 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
     to notify developers that the function is still being called.
 
 
- 
+(4) Array
 
-(4) Array 
-  	
 			(4.1)Declarations
-				
+
 				example:
 
 				Drupal: names = array()
 				Drupy: names = dict{} # do not just do the literal form names = {}
-	
+
 				Comments: a PHP array becomes a mutable python dict
-			
+
 			(4.2)Initalization
 
 				example:
 
 				Drupal: $form = array('#id' => 'foo');
-        Drupy: form = {'#id' : 'foo'} 
+        Drupy: form = {'#id' : 'foo'}
 
 
-(5) Loops 
-	
+(5) Loops
+
 	(5.1) while
 		while loop w/arimetric operation [EXPERIMENTAL]
-	
+
 		Drupal: while ($level-- > 0 && $tree){
-	
-		Drupy: for level in range(100, 1, -1): 
+
+		Drupy: for level in range(100, 1, -1):
            if not tree:
            break
-	
+
 		Wrong Drupy: while (level -= 1 > 0 and tree):
-	
+
 		Comments: as you can see, one can not perform a expression within the condition area with python.
-		So in this case we turn it into a for loop that performs the decrementation and give the tree 
+		So in this case we turn it into a for loop that performs the decrementation and give the tree
 		variable a if not clause.
 
 	(5.2) for
@@ -172,17 +169,17 @@ Drupal:  2 space indent
 Drupy:  2 space indent
 
 Comments:
-- Note that a decent text editor should support setting your tab key to 2 spaces. 
+- Note that a decent text editor should support setting your tab key to 2 spaces.
 - Some text editors support high-lighting indention for
 better readbility - some programmers prefer this.
 - Also, indented code is case sensetive in python, where in PHP (C-like languages), it's not. So wrong indention can cause logic errors in your python code.
-- Avoid trailing whitespace. Like this: def myfunction:     
+- Avoid trailing whitespace. Like this: def myfunction:
 
 (7) list
 	example:
 	Drupal: list(var1, var2) = myfunction(arg1, arg2)
 	Drupy: var1, var2 = myfunction(arg1, arg2)
-  
+
   or
 
   Drupal: list(,var2) = myfunction(arg1, arg2)
@@ -194,3 +191,12 @@ better readbility - some programmers prefer this.
 
   isset( object|list|dict, property|index|key )
 
+(9) unset
+  Drupal: unset(element['#title'])
+  Drupy:    del(element['#title'])
+
+(10) Conditional ternary
+  Drupal: $checkbox = element['#value'] ? ' checked="checked" ' : ' '
+  Drupy: checkbox = ' checked="checked" ' if element['#value'] else ' '
+
+Comments: Don't forget that a ternary *sometimes* needs to have paraneteses wrapped around it.
