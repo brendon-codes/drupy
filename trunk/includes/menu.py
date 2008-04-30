@@ -237,7 +237,7 @@ def menu_unserialize(data, _map):
   if (data == unserialize(data)):
     for k,v in data.items():
       if (is_int(v)):
-        data[k] = map[v] if isset(map[v]) else ''
+        data[k] = map[v] if isset(map, v) else ''
     return data
 
   else:
@@ -284,7 +284,7 @@ def menu_get_item(path = None, router_item = None):
   if (isset(router_item)):
     router_items[path] = router_item
 
-  if (not isset(router_items[path])):
+  if (not isset(router_items, path)):
     original_map = arg(None, path)
     parts = array_slice(original_map, 0, MENU_MAX_PARTS)
     ancestors, placeholders = menu_get_ancestors(parts)
@@ -350,7 +350,7 @@ def _menu_load_objects(item, _map):
     path_map = _map
     for index,function in load_functions.items():
       if (function):
-        value = path_map[index] if isset(path_map[index]) else ''
+        value = path_map[index] if isset(path_map, index) else ''
         if (is_array(function)):
           # Set up arguments for the load function. These were pulled from
           # 'load arguments' in the hook_menu() entry, but they need
@@ -373,7 +373,7 @@ def _menu_load_objects(item, _map):
               args[i] = _map
 
             if (is_int(arg)):
-              args[i] = path_map[arg] if isset(path_map[arg]) else ''
+              args[i] = path_map[arg] if isset(path_map, arg) else ''
 
           array_unshift(args, value)
           return  call_user_func_array(function, args)
@@ -602,7 +602,7 @@ def _menu_link_translate(REF_item):
       return False
 
     # menu_tree_check_access() may set this ahead of time for links to nodes.
-    if (not isset(item['access'])):
+    if (not isset(item, 'access')):
       if (not _menu_load_objects(item, _map)):
         # An error occurred loading an object.
         item['access'] = False
@@ -644,7 +644,7 @@ def _menu_link_translate(REF_item):
 #
 def menu_get_object(type = 'node', position = 1, path = None):
   router_item = menu_get_item(path)
-  if (isset(router_item['load_functions'],position) and not empty(router_item['_map'],position) and router_item['load_functions'],position == type +'_load'):
+  if (isset(router_item, 'load_functions', position) and not empty(router_item, '_map', position) and router_item['load_functions'],position == type +'_load'):
     return router_item['_map'][position]
 
 
@@ -664,7 +664,7 @@ def menu_get_object(type = 'node', position = 1, path = None):
 def menu_tree(menu_name = 'navigation'):
   global static_menutree_menu_output
 
-  if (not isset(menu_output[menu_name])):
+  if (not isset(menu_output, menu_name)):
     tree = menu_tree_page_data(menu_name)
     menu_output[menu_name] = menu_tree_output(tree)
 
@@ -730,11 +730,11 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
   global static_menutreealldata_tree
 
   # Use mlid as a flag for whether the data being loaded is for the whole tree.
-  mlid = item['mlid'] if isset(item['mlid']) else 0
+  mlid = item['mlid'] if isset(item, 'mlid') else 0
   # Generate a cache ID (cid) specific for this menu_name and item.
   cid = 'links:' + menu_name + ':all-cid:'. mlid
 
-  if (not isset(tree[cid])):
+  if (not isset(tree, cid)):
     # If the static variable doesn't have the data, check {cache_menu}.
     cache = cache_get(cid, 'cache_menu')
     if (cache and isset(cache.data)):
@@ -811,7 +811,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
   if (item == menu_get_item()):
     # Generate a cache ID (cid) specific for this page.
     cid = 'links:' + menu_name + ':page-cid:'+ item['href'] +':'+ int(item['access'])
-    if (not isset(tree[cid])):
+    if (not isset(tree, cid)):
       # If the static variable doesn't have the data, check {cache_menu}.
       cache = cache_get(cid, 'cache_menu')
       if (cache and isset(cache.data)):
@@ -1247,7 +1247,7 @@ def menu_local_tasks(level = 0, return_root = False):
   # Tab parenting may skip levels, so the number of parts in the path may not
   # equal the depth. Thus we use the depth counter (offset by 1000 for ksort).
   depth = 1001
-  while (isset(children[path])):
+  while (isset(children, path)):
     tabs_current = ''
     next_path = ''
     count = 0
@@ -1279,7 +1279,7 @@ def menu_local_tasks(level = 0, return_root = False):
     path = router_item['path']
     current = router_item
     depth = 1000
-    while (isset(children[parent])):
+    while (isset(children, parent)):
       tabs_current = ''
       next_path = ''
       next_parent = ''
@@ -1304,7 +1304,7 @@ def menu_local_tasks(level = 0, return_root = False):
             if (item['path'] == path):
               tabs_current += theme('menu_local_task', link, True)
               next_path = item['tab_parent']
-              if (isset(tasks[next_path])):
+              if (isset(tasks, next_path)):
                 next_parent = tasks[next_path]['tab_parent']
 
           else:
@@ -1326,7 +1326,7 @@ def menu_local_tasks(level = 0, return_root = False):
   
   else:
     # We do not display single tabs.
-    return tabs[level]['output'] if (isset(tabs[level]) and tabs[level]['count'] > 1) else ''
+    return tabs[level]['output'] if (isset(tabs, level) and tabs[level]['count'] > 1) else ''
 
 
 
@@ -1756,10 +1756,10 @@ def menu_link_save(REF_item):
     'updated' : 0,
   }
   existing_item = False
-  if (isset(item['mlid'])):
+  if (isset(item, 'mlid')):
     existing_item = db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", item['mlid']))
 
-  if (isset(item['plid'])):
+  if (isset(item, 'plid')):
     parent = db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", item['plid']))
 
   else:
@@ -1828,7 +1828,7 @@ def menu_link_save(REF_item):
 
   # Find the callback. During the menu update we store empty paths to be
   # fixed later, so we skip this.
-  if (not isset(_SESSION['system_update_6021']) and (empty(item['router_path'])  or not existing_item or (existing_item['link_path'] != item['link_path']))):
+  if (not isset(_SESSION, 'system_update_6021') and (empty(item['router_path'])  or not existing_item or (existing_item['link_path'] != item['link_path']))):
     if (item['_external']):
       item['router_path'] = ''
 
@@ -1905,11 +1905,11 @@ def _menu_set_expanded_menus():
 def _menu_find_router_path(menu, link_path):
   parts = explode('/', link_path, MENU_MAX_PARTS)
   router_path = link_path
-  if (not isset(menu[router_path])):
+  if (not isset(menu, router_path)):
     ancestors = menu_get_ancestors(parts)
     ancestors = ''
     for key,router_path in ancestors.items():
-      if (isset(menu[router_path])):
+      if (isset(menu, router_path)):
         break
 
   return router_path
@@ -2095,7 +2095,7 @@ def _menu_router_build(callbacks):
             # Create an array of arguments that will be passed to the _load
             # function when this menu path is checked, if 'load arguments'
             # exists.
-            load_functions[k] = {function : item['load arguments']} if isset(item['load arguments']) else function
+            load_functions[k] = {function : item['load arguments']} if isset(item, 'load arguments') else function
             match = True
 
       if (match):
@@ -2146,40 +2146,40 @@ def _menu_router_build(callbacks):
 
     for i in range(item['_number_parts'] - 1, i, -1):
       parent_path = implode('/', array_slice(item['_parts'], 0, i))
-      if (isset(menu[parent_path])):
+      if (isset(menu, parent_path)):
 
         parent = menu[parent_path]
-        if (not isset(item['tab_parent'])):
+        if (not isset(item, 'tab_parent')):
           # Parent stores the parent of the path.
           item['tab_parent'] = parent_path
 
-        if (not isset(item['tab_root']) and not parent['_tab']):
+        if (not isset(item, 'tab_root') and not parent['_tab']):
           item['tab_root'] = parent_path
 
         # If a callback is not found, we try to find the first parent that
         # has a callback.
-        if (not isset(item['access callback']) and isset(parent['access callback'])):
+        if (not isset(item, 'access callback') and isset(parent, 'access callback')):
           item['access callback'] = parent['access callback']
-          if (not isset(item['access arguments']) and isset(parent['access arguments'])):
+          if (not isset(item, 'access arguments') and isset(parent, 'access arguments')):
             item['access arguments'] = parent['access arguments']
 
         # Same for page callbacks.
-        if (not isset(item['page callback']) and isset(parent['page callback'])):
+        if (not isset(item, 'page callback') and isset(parent, 'page callback')):
           item['page callback'] = parent['page callback']
-          if (not isset(item['page arguments']) and isset(parent['page arguments'])):
+          if (not isset(item, 'page arguments') and isset(parent, 'page arguments')):
             item['page arguments'] = parent['page arguments']
 
-          if (not isset(item['file']) and isset(parent['file'])):
+          if (not isset(item, 'file') and isset(parent, 'file')):
             item['file'] = parent['file']
 
-          if (not isset(item['file path']) and isset(parent['file path'])):
+          if (not isset(item, 'file path') and isset(parent, 'file path')):
             item['file path'] = parent['file path']
 
-    if (not isset(item['access callback']) and isset(item['access arguments'])):
+    if (not isset(item, 'access callback') and isset(item, 'access arguments')):
       # Default callback.
       item['access callback'] = 'user_access'
 
-    if (not isset(item['access callback']) or empty(item['page callback'])):
+    if (not isset(item, 'access callback') or empty(item, 'page callback')):
       item['access callback'] = 0
 
     if (is_bool(item['access callback'])):
