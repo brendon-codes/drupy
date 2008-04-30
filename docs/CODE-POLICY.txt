@@ -159,6 +159,13 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 		Drupal: for ($i = 0; $i < $router_item['number_parts']; $i++) {
 		Drupy: for i in range(router_item['number_parts'], -1, +1):
 
+	(5.3) foreach
+    
+    example:
+    Drupal:  foreach element['#options'] as array(index : choice)
+    Drupy:   for index,choice in element['#options'].items()
+
+  (5.4) do..while
 
 (6) Indention/whitespace
 What is indention? It's the white-space before the actual text.
