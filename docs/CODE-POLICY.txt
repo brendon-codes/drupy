@@ -108,14 +108,26 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
         class, exec, in, raise, continue, finally, is, return, def
         for, lambda, try
 
-
-
+     example: 
+     Drupal: class = 1; would become 
+     Drupy: _class = 1
+     
+     Drupal: return = class + 10;
+     Drupy:  _return = _class + 10
+ 
 (3) Function input arguments and return values must always retain Drupal API compatibility.
     In addition to this, no Drupal function can be removed. If the function is obseletized
     from Drupy, have the function accept the arguments as normal and raise an exception
     to notify developers that the function is still being called.
 
+    (3.1) Referenced variables
+    Drupal: 
+    function drupal_process_form($form_id, &$form, &$form_state) {
 
+    Drupy:
+    def drupal_process_form(form_id, form, form_state):
+      DrupyHelper.Reference.check(form)
+      DrupyHelper.Reference.check(form_state)
 (4) Array
 
 			(4.1)Declarations
@@ -123,7 +135,7 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 				example:
 
 				Drupal: names = array()
-				Drupy: names = dict{} # do not just do the literal form names = {}
+				Drupy: names = dict() # do not just do the literal form names = {}
 
 				Comments: a PHP array becomes a mutable python dict
 
@@ -200,6 +212,12 @@ better readbility - some programmers prefer this.
   Comments: list(, tree) throws away the first item returned(before the comma, in the arguments)
 
 (8) isset
+  Drupal: isset($var["index"])
+  Drupy: isset(var, index)
+  
+  Comments:
+  Remember that currently there is only the isset() function that have this
+  behaviour for the index key.
 
   isset( object|list|dict, property|index|key )
 
@@ -211,4 +229,5 @@ better readbility - some programmers prefer this.
   Drupal: $checkbox = element['#value'] ? ' checked="checked" ' : ' '
   Drupy: checkbox = ' checked="checked" ' if element['#value'] else ' '
 
-Comments: Don't forget that a ternary *sometimes* needs to have paraneteses wrapped around it.
+  Comments: Don't forget that a ternary *sometimes* may need to have a paraneteses wrapped around it - if it's part of 
+  a larger string construct or something.
