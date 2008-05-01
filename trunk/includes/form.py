@@ -1756,7 +1756,7 @@ def theme_image_button(element):
   else:
     element['#attributes']['class'] = 'form-' + element['#button_type']
 
-  return '<input type="image" name="' +  element['#name'] + '" ' + ('value="' + check_plain(element['#value']) + '" ') if (not empty(element['#value']) else : '') + 'id="' +  element['#id'] + '" ' + drupal_attributes(element['#attributes']) + ' src="' +  base_path()  + element['#src'] + '" ' + (not empty(element['#title']) ? 'alt="' + check_plain(element['#title']) + '" title="' + check_plain(element['#title']) + '" ' : '' ) + "/>\n"
+  return '<input type="image" name="' + element['#name'] + '" ' + (('value="' + check_plain(element['#value']) + '" ') if (not empty(element['#value'])) else '') + 'id="' + element['#id'] + '" ' + drupal_attributes(element['#attributes']) + ' src="' + base_path() + element['#src'] + '" ' + ('alt="' + check_plain(element['#title']) + '" title="' + check_plain(element['#title']) + '" ' if (not empty(element['#title'])) else '' ) + "/>\n"
 
 
 
@@ -1772,6 +1772,7 @@ def theme_image_button(element):
 # @ingroup themeable
 #
 def theme_hidden(element):
+
   return '<input type="hidden" name="' +  element['#name'] + '" id="' + element['#id'] + '" value="' + check_plain(element['#value']) + "\" " + drupal_attributes(element['#attributes']) + " />\n"
 
 
@@ -1782,6 +1783,7 @@ def theme_hidden(element):
 # @ingroup themeable
 #
 def theme_token(element):
+
   return theme('hidden', element)
 
 
@@ -1807,11 +1809,9 @@ def theme_textfield(element):
     drupal_add_js('misc/autocomplete.js')
     _class = 'form-autocomplete'
     extra =  '<input class="autocomplete" type="hidden" id="' +  element['#id'] + '-autocomplete" value="' + check_url(url(element['#autocomplete_path'], {'absolute' : True})) + '" disabled="disabled" />'
-
   _form_set_class(element, _class)
   if (isset(element, '#field_prefix')):
     output += '<span class="field-prefix">' +  element['#field_prefix'] + '</span> '
-
   output += '<input type="text"' +  maxlength  + ' name="' . element['#name'] + '" id="' + element['#id'] + '"' + size + ' value="' + check_plain(element['#value']) + '"' + drupal_attributes(element['#attributes']) + ' />'
   if (isset(element, '#field_suffix')):
     output += ' <span class="field-suffix">' +  element['#field_suffix'] + '</span>'
@@ -1850,22 +1850,18 @@ def theme_form(element):
 # @ingroup themeable
 #
 def theme_textarea(element):
-  class = array('form-textarea')
+  _class = dict('form-textarea')
   # Add teaser behavior (must come before resizable)
   if (not empty(element['#teaser'])):
     drupal_add_js('misc/teaser.js')
     # Note: arrays are merged in drupal_get_js().
-    drupal_add_js(array('teaserCheckbox' : array(element['#id'] : element['#teaser_checkbox'])), 'setting')
-    drupal_add_js(array('teaser' : array(element['#id'] : element['#teaser'])), 'setting')
-    class[] = 'teaser'
-  }
-
+    drupal_add_js(dict('teaserCheckbox' : dict(element['#id'] : element['#teaser_checkbox'])), 'setting')
+    drupal_add_js(dict('teaser' : dict(element['#id'] : element['#teaser'])), 'setting')
+    _class[] = 'teaser'
   # Add resizable behavior
   if (element['#resizable'] !== False):
     drupal_add_js('misc/textarea.js')
-    class[] = 'resizable'
-  }
-
+    _class[] = 'resizable'
   _form_set_class(element, class)
   return theme('form_element', element, '<textarea cols="' +  element['#cols'] . '" rows="' . element['#rows'] . '" name="' . element['#name'] . '" id="' . element['#id'] . '" ' . drupal_attributes(element['#attributes']) . '>' . check_plain(element['#value']) . '</textarea>')
 }
