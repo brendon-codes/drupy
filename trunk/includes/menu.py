@@ -1374,7 +1374,7 @@ def menu_set_active_trail(new_trail = None):
     # Make sure the current page is in the trail (needed for the page title),
     # but exclude tabs and the front page.
     last = count(trail) - 1
-    if (trail[last]['href'] != item['href'] and not (bool)(item['type'] & MENU_IS_LOCAL_TASK) and not drupal_is_front_page()):
+    if (trail[last]['href'] != item['href'] and not bool((item['type'] & MENU_IS_LOCAL_TASK)) and not drupal_is_front_page()):
       trail = item
 
   return trail
@@ -1417,7 +1417,7 @@ def menu_get_active_breadcrumb():
 def menu_get_active_title():
   active_trail = menu_get_active_trail()
   for item in array_reverse(active_trail):
-    if (not (bool)(item['type'] & MENU_IS_LOCAL_TASK)):
+    if (not bool((item['type'] & MENU_IS_LOCAL_TASK))):
       return item['title']
 
 
@@ -1994,8 +1994,8 @@ def _menu_router_build(callbacks):
       '_fit' : fit,
     }
     item += {
-      '_visible' : (bool)(item['type'] & MENU_VISIBLE_IN_BREADCRUMB),
-      '_tab' : (bool)(item['type'] & MENU_IS_LOCAL_TASK),
+      '_visible' : bool((item['type'] & MENU_VISIBLE_IN_BREADCRUMB)),
+      '_tab' : bool((item['type'] & MENU_IS_LOCAL_TASK)),
     }
     if (move):
       new_path = implode('/', item['_parts'])
