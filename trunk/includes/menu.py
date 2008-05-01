@@ -383,9 +383,10 @@ def _menu_load_objects(item, _map):
 # @return
 #   item['access'] becomes True if the item is accessible, False otherwise.
 #
-def _menu_check_access(REF_item, _map):
+def _menu_check_access(item, _map):
   # Determine access callback, which will decide whether or not the current
   # user has access to this path.
+  DrupyHelper.Reference.check(item)
   callback = 0 if empty(item['access_callback']) else trim(item, 'access_callback')
   # Check for a True or False value.
   if (is_numeric(callback)):
@@ -426,7 +427,8 @@ def _menu_check_access(REF_item, _map):
 #   When doing link translation and the item['options']['attributes']['title']
 #   (link title attribute) matches the description, it is translated as well.
 #
-def _menu_item_localize(REF_item, map, link_translate = False):
+def _menu_item_localize(item, map, link_translate = False):
+  DrupyHelper.Reference.check(item)
   callback = item['title_callback']
   item['localized_options'] = item['options']
   # If we are not doing link translation or if the title matches the
@@ -487,7 +489,8 @@ def _menu_item_localize(REF_item, map, link_translate = False):
 #   If an error occurs during calling the load_functions (like trying to load
 #   a non existing node) then this function return False.
 #
-def _menu_translate(REF_router_item, _map, to_arg = False):
+def _menu_translate(router_item, _map, to_arg = False):
+  DrupyHelper.Reference.check(router_item)
   path_map = _map
   if (not _menu_load_objects(router_item, _map)):
     # An error occurred loading an object.
@@ -519,7 +522,8 @@ def _menu_translate(REF_router_item, _map, to_arg = False):
 # @param to_arg_functions
 #   An array of helper function (ex: array(2 : 'menu_tail_to_arg'))
 #
-def _menu_link_map_translate(REF__map, to_arg_functions):
+def _menu_link_map_translate(_map, to_arg_functions):
+  DrupyHelper.Reference.check(_map)
   if (to_arg_functions):
     to_arg_functions = unserialize(to_arg_functions)
     for index,function in to_arg_functions.items():
@@ -553,7 +557,8 @@ def menu_tail_to_arg(arg, _map, index):
 #   item['options'] is unserialized; it is also changed within the call here
 #   to item['localized_options'] by _menu_item_localize().
 #
-def _menu_link_translate(REF_item):
+def _menu_link_translate(item):
+  DrupyHelper.Reference.check(item)
   item['options'] = unserialize(item['options'])
   if (item['external']):
     item['access'] = 1
@@ -849,12 +854,14 @@ def _menu_tree_cid(menu_name, data):
 #
 # Recursive helper function - collect node links.
 #
-def menu_tree_collect_node_links(REF_tree, REF_node_links):
+def menu_tree_collect_node_links(tree, node_links):
+  DrupyHelper.Reference.check(tree)
+  DrupyHelper.Reference.check(node_links)
   for key,v in tree.items():
     if (tree[key]['link']['router_path'] == 'node/%'):
       nid = substr(tree[key]['link']['link_path'], 5)
       if (is_numeric(nid)):
-        node_links[nid][tree[key]['link']['mlid']] = REF_tree[key]['link']
+        node_links[nid][tree[key]['link']['mlid']] = DrupyHelper.Reference(tree[key]['link'])
         tree[key]['link']['access'] = False
     if (tree[key]['below']):
       menu_tree_collect_node_links(tree[key]['below'], node_links)
@@ -864,7 +871,8 @@ def menu_tree_collect_node_links(REF_tree, REF_node_links):
 #
 # Check access and perform other dynamic operations for each link in the tree.
 #
-def menu_tree_check_access(REF_tree, node_links = dict()):
+def menu_tree_check_access(tree, node_links = dict()):
+  DrupyHelper.Reference.check(tree)
   if (node_links):
     # Use db_rewrite_sql to evaluate view access without loading each full node.
     nids = array_keys(node_links)
@@ -883,10 +891,11 @@ def menu_tree_check_access(REF_tree, node_links = dict()):
 #
 # Recursive helper function for menu_tree_check_access()
 #
-def _menu_tree_check_access(REF_tree):
+def _menu_tree_check_access(tree):
+  DrupyHelper.Reference.check(tree)
   new_tree = dict()
   for key,v in tree.items():
-    item = REF_tree[key]['link']
+    item = DrupyHelper.Reference(tree[key]['link'])
     _menu_link_translate(item)
     if (item['access']):
       if (tree[key]['below']):
@@ -1644,7 +1653,8 @@ def _menu_delete_item(item, force = False):
 #   - plid        The mlid of the parent.
 #   - router_path The path of the relevant router item.
 #
-def menu_link_save(REF_item):
+def menu_link_save(item):
+  DrupyHelper.Reference.check(item)
   menu = menu_router_build()
   drupal_alter('menu_link', item, menu)
   # This is the easiest way to handle the unique internal path '<front>',
@@ -1923,7 +1933,8 @@ def _menu_update_parental_status(item, exclude = False):
 #
 # Helper function that sets the p1..p9 values for a menu link being saved.
 #
-def _menu_link_parents_set(REF_item, parent):
+def _menu_link_parents_set(item, parent):
+  DrupyHelper.Reference.check(item)
   i = 1
   while (i < item['depth']):
     p = 'p' + i + 1
@@ -2007,7 +2018,7 @@ def _menu_router_build(callbacks):
   array_multisort(sort, SORT_NUMERIC, menu)
   # Apply inheritance rules.
   for path,v in menu.items():
-    item = REF_menu[path]
+    item = DrupyHelper.Reference(menu[path])
     if (not item['_tab']):
       # Non-tab items.
       item['tab_parent'] = ''
