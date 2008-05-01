@@ -1899,7 +1899,7 @@ def theme_password(element):
 # Expand weight elements into selects.
 #
 def process_weight(element):
-  for (n = (-1 * element['#delta']); n <= element['#delta']; n++):
+  for n in xrange(-element['#delta'],element['#delta']+1):
     weights[n] = n
   element['#options'] = weights
   element['#type'] = 'select'
