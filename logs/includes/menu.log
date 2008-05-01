@@ -17,10 +17,8 @@ Are these correct?:
 *********************************************
 line 469 item['title'] = call_user_func_array(callback, menu_unserialize(item['title_arguments'], _map))
 line 600 if (strpos(item['href'], '%') != False):
-line 1264 link = theme('menu_item_link', array['href' : tasks[p]['href']] + item)
-line 1760 existing_item = db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", item['mlid']))
-line 2130 new_path = implode('/', item['_parts'])
-line 2148 parent_path = implode('/', array_slice(item['_parts'], 0, i))
+line 1234 link = theme('menu_item_link', {'href' : tasks[p]['href']] + item}
+
 
 line 887
  def _menu_tree_cid(menu_name, data):
