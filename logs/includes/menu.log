@@ -3,9 +3,7 @@ General comments:
 GENERAL ISSUES:
 1. There is a function in php named array_pop, that maybe does the same
 as dict.pop in python.
-2. Review all foreach loops.
-3. There are several custom functions like isset() and empty(), but also is_array() - are they all consistent
-   with how index key are set? What about t(item['title'])? will it become t(item, 'title')?
+
 4. We need python docstring for functions, like this:
 def myfunction:
 '''myfunction servers one purpose, and that is to help you understand the docstring construct''' 
