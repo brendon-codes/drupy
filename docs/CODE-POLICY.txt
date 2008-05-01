@@ -128,6 +128,9 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
     def drupal_process_form(form_id, form, form_state):
       DrupyHelper.Reference.check(form)
       DrupyHelper.Reference.check(form_state)
+
+    Drupal: $item = &$menu[$path];
+    Drupy: item = DrupyHelper.Reference(menu[path]) is the correct way to do it 
 (4) Array
 
 			(4.1)Declarations
