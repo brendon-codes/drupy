@@ -334,7 +334,7 @@ def drupal_retrieve_form(form_id, form_state):
     if (isset(form_definition, 'callback')):
       callback = form_definition['callback']
   array_unshift(args, None)
-  args[0] = form_state
+  args[0] = DrupyHelper.Reference(form_state)
   # If callback was returned by a hook_forms() implementation, call it.
   # Otherwise, call the function named after the form id.
   if (callback == None):
@@ -482,13 +482,14 @@ def drupal_prepare_form(form_id, form, form_state):
   # that need to be altered, and they'll be split out into additional params
   # for the hook_form_alter() implementations.
   # @todo: Remove this in Drupal 7.
-  data = form
-  data.val['__drupal_alter_by_ref'] = [form_state]
+  data = DrupyHelper.Reference(form)
+  data.val['__drupal_alter_by_ref'] = DrupyHelper.Reference([form_state])
   drupal_alter('form_' +  form_id, data.val)
   # __drupal_alter_by_ref is unset in the drupal_alter() function, we need
   # to repopulate it to ensure both calls get the data.
-  data.val['__drupal_alter_by_ref'] = [form_state]
+  data.val['__drupal_alter_by_ref'] = DrupyHelper.Reference([form_state])
   drupal_alter('form', data.val, form_id)
+
 
 
 #
@@ -1477,7 +1478,6 @@ def expand_date(element):
                          'month' : format_date(time(), 'custom', 'n'),
                          'year' : format_date(time(), 'custom', 'Y')
                          }
-
   element['#tree'] = True
   # Determine the order of day, month, year in the site's chosen date format.
   format = variable_get('date_format_short', 'm/d/Y - H:i')

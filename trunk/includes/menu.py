@@ -1004,6 +1004,7 @@ def theme_menu_item_link(link):
 # @ingroup themeable
 #
 def theme_menu_tree(tree):
+
   return '<ul class="menu">' + tree + '</ul>'
 
 
