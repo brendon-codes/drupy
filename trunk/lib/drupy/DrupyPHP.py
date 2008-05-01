@@ -287,7 +287,7 @@ def array_key_exists(name, item):
 # Check variable existance
 # @param Dict,List,Object obj
 # @param Str,Int val
-# @param Bool searchGlobal  
+# @param Bool searchGlobal
 #
 def isset(obj, val, searchGlobal = False, data = {}):
   sVal = None
@@ -306,7 +306,7 @@ def isset(obj, val, searchGlobal = False, data = {}):
       return True
     else:
       data['val'] = None
-      data['msg'] = "Is Dict, Has Not Key, Globals: %s" % str(sVal)     
+      data['msg'] = "Is Dict, Has Not Key, Globals: %s" % str(sVal)
       return False
   # List
   elif isinstance(obj, list):
@@ -338,7 +338,7 @@ def isset(obj, val, searchGlobal = False, data = {}):
 #
 # Get time
 # @return Int
-# 
+#
 def drupy_time():
   return time.time()
 
@@ -407,7 +407,7 @@ def function_exists(val, loc = None):
 #
 # html special chars
 # @param Str val
-# @return Str 
+# @return Str
 #
 def htmlspecialchars(val, flags = None):
   out = ""
@@ -427,7 +427,7 @@ def htmlspecialchars(val, flags = None):
 # @param Str val
 # @param Bool searchGlobal
 # @return Bool
-# 
+#
 def empty(val):
   # Boolean
   if \
@@ -437,7 +437,7 @@ def empty(val):
   # None
   elif \
       val == None:
-    return True  
+    return True
   # Lists
   elif \
       isinstance(val, list) or \
