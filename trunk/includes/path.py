@@ -9,11 +9,11 @@
 #
 #
 
-static('static_drupallookuppath_map');
+static('static_drupallookuppath_map')
 static('static_drupallookuppath_nosrc')
-static('static_arg_arguments');
-static('static_drupalsettitle_storedtitle');
-static('static_drupalmatchpath_regexps');
+static('static_arg_arguments')
+static('static_drupalsettitle_storedtitle')
+static('static_drupalmatchpath_regexps')
 
 
 
@@ -21,9 +21,9 @@ static('static_drupalmatchpath_regexps');
 #
 def drupal_init_path():
   if (not empty(_GET['q'])):
-    _GET['q'] = drupal_get_normal_path(trim(_GET['q'], '/'));
+    _GET['q'] = drupal_get_normal_path(trim(_GET['q'], '/'))
   else:
-    _GET['q'] = drupal_get_normal_path(variable_get('site_frontpage', 'node'));
+    _GET['q'] = drupal_get_normal_path(variable_get('site_frontpage', 'node'))
 
 
 #
@@ -48,44 +48,43 @@ def drupal_init_path():
 #   found.
 #
 def drupal_lookup_path(action, path = '', path_language = ''):
-  global language;
-  global static_drupallookuppath_map, static_drupallookuppath_nosrc;
+  global language
+  global static_drupallookuppath_map, static_drupallookuppath_nosrc
   # map is an array with language keys, holding arrays of Drupal paths to alias relations
-  path_language =  (path_language if (path_language != '') else language.language);
+  path_language =  (path_language if (path_language != '') else language.language)
   if (static_drupallookuppath_map == None):
-    static_drupallookuppath_map = {};
+    static_drupallookuppath_map = {}
   if (static_drupallookuppath_nosrc == None):
-    static_drupallookuppath_nosrc = {};  
+    static_drupallookuppath_nosrc = {}
   if (action == 'wipe' ):
-    static_drupallookuppath_map = {};
-    static_drupallookuppath_nosrc = {};
+    static_drupallookuppath_map = {}
+    static_drupallookuppath_nosrc = {}
   elif (module_exists('path') and path != ''):
     if (action == 'alias'):
       if (isset(static_drupallookuppath_map[path_language], path)):
-        return static_drupallookuppath_map[path_language][path];
+        return static_drupallookuppath_map[path_language][path]
       # Get the most fitting result falling back with alias without language
       alias = db_result(db_query("SELECT dst FROM {url_alias} WHERE src = '%s' AND language IN('%s', '') ORDER BY language DESC", path, path_language));
-      static_drupallookuppath_map[path_language][path] = alias;
-      return alias;
+      static_drupallookuppath_map[path_language][path] = alias
+      return alias
     # Check no_src for this path in case we've already determined that there
     # isn't a path that has this alias
     elif (action == 'source' and not isset(static_drupallookuppath_nosrc[path_language], path)):
       # Look for the value path within the cached map
-      src = '';
-      src = array_search(path, static_drupallookuppath_map[path_language]);
+      src = ''
+      src = array_search(path, static_drupallookuppath_map[path_language])
       if (not isset(static_drupallookuppath_map, path_language) or not src):
         # Get the most fitting result falling back with alias without language
-        src = db_result(db_query("SELECT src FROM {url_alias} WHERE dst = '%s' AND language IN('%s', '') ORDER BY language DESC", path, path_language));
+        src = db_result(db_query("SELECT src FROM {url_alias} WHERE dst = '%s' AND language IN('%s', '') ORDER BY language DESC", path, path_language))
         if (src):
-          static_drupallookuppath_map[path_language][src] = path;
+          static_drupallookuppath_map[path_language][src] = path
         else:
           # We can't record anything into map because we do not have a valid
           # index and there is no need because we have not learned anything
           # about any Drupal path. Thus cache to no_src.
-          static_drupallookuppath_nosrc[path_language][path] = True;
-      return src;
-  return False;
-
+          static_drupallookuppath_nosrc[path_language][path] = True
+      return src
+  return False
 
 
 
@@ -102,11 +101,11 @@ def drupal_lookup_path(action, path = '', path_language = ''):
 #   found.
 #
 def drupal_get_path_alias(path, path_language = ''):
-  result = path;
-  alias = drupal_lookup_path('alias', path, path_language);
+  result = path
+  alias = drupal_lookup_path('alias', path, path_language)
   if (alias):
-    result = alias;
-  return result;
+    result = alias
+  return result
 
 
 

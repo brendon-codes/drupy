@@ -616,7 +616,7 @@ def _menu_link_translate(item):
 #
 def menu_get_object(type = 'node', position = 1, path = None):
   router_item = menu_get_item(path)
-  if (isset(router_item, 'load_functions', position) and not empty(router_item['_map'][position]) and router_item['load_functions'],position == type +'_load'):
+  if (isset(router_item['load_functions'], position) and not empty(router_item['_map'][position]) and router_item['load_functions'],position == type +'_load'):
     return router_item['_map'][position]
 
 

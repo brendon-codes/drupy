@@ -215,14 +215,27 @@ better readbility - some programmers prefer this.
   Comments: list(, tree) throws away the first item returned(before the comma, in the arguments)
 
 (8) isset
-  Drupal: isset($var["index"])
-  Drupy: isset(var, index)
-  
-  Comments:
-  Remember that currently there is only the isset() function that have this
-  behaviour for the index key.
 
   isset( object|list|dict, property|index|key )
+
+  examples:
+
+  Drupal: isset($var["index"])
+  Drupy:  isset(var, index)
+
+  Drupal: isset($var["index1"]["index2"])
+  Drupy:  isset(var["index1"], "index2")
+
+  Drupal: isset($var["index1"]["index2"]["index3"])
+  Drupy:  isset(var["index1"]["index2"], "index3")
+
+  Drupal: isset($options[$elements['#value']])
+  Drupal: isset(options, elements['#value'])
+
+  Comments:
+  Remember that currently there is only the isset() function that have this
+  behaviour for the index key. See DrupyPHP.py for how it's constructed.
+
 
 (9) unset
   Drupal: unset(element['#title'])
