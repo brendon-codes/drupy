@@ -1147,7 +1147,7 @@ def form_type_token_value(form, edit = False):
 #   The array where the value change should be recorded.
 #
 def form_set_value(form_item, value, form_state):
-  DrupyHelper.Reference.check(form_state);
+  DrupyHelper.Reference.check(form_state)
   _form_set_value(form_state.val['values'], form_item, form_item['#parents'], value)
 
 
@@ -1224,7 +1224,7 @@ def form_options_flatten(_array, reset = True):
 #
 # @ingroup themeable
 #
-# It is possible to group options together; to do this, change the format of
+# It is possible to group options together to do this, change the format of
 # options to an associative array in which the keys are group labels, and the
 # values are associative arrays in the normal options format.
 #
@@ -1267,7 +1267,7 @@ def form_select_options(element, choices = None):
 # that hold the given key. Returns an array of indexes that match.
 #
 # This function is useful if you need to modify the options that are
-# already in a form element; for example, to remove choices which are
+# already in a form element for example, to remove choices which are
 # not valid because of additional filters imposed by another module.
 # One example might be altering the choices in a taxonomy selector.
 # To correctly handle the case of a multiple hierarchy taxonomy,
@@ -1824,6 +1824,7 @@ def theme_textfield(element):
 def theme_form(element):
   # Anonymous div to satisfy XHTML compliance.
   action = 'action="' + check_url(element['#action']) + '" ' if element['#action'] else ''
+
   return '<form ' +  action  + ' accept-charset="UTF-8" method="' + element['#method'] + '" id="' + element['#id'] + '"' + drupal_attributes(element['#attributes']) + ">\n<div>" + element['#children'] + "\n</div></form>\n"
 
 
@@ -1853,6 +1854,7 @@ def theme_textarea(element):
     drupal_add_js('misc/textarea.js')
     _class = 'resizable'
   _form_set_class(element, _class)
+
   return theme('form_element', element, '<textarea cols="' +  element['#cols'] + '" rows="' + element['#rows'] + '" name="' + element['#name'] + '" id="' + element['#id'] + '" ' + drupal_attributes(element['#attributes']) + '>' + check_plain(element['#value']) + '</textarea>')
 
 
@@ -1871,6 +1873,7 @@ def theme_textarea(element):
 # @ingroup themeable
 #
 def theme_markup(element):
+
   return (element['#value'] if isset(element, '#value') else '') + (element['#children'] if isset(element, '#children') else '')
 
 
@@ -1891,6 +1894,7 @@ def theme_password(element):
   maxlength = ' maxlength="' + element['#maxlength'] + '" ' if element['maxlength'] else ''
   _form_set_class(element, array('form-text'))
   output = '<input type="password" name="' +  element['#name'] + '" id="' + element['#id'] + '" ' + maxlength + size + drupal_attributes(element['#attributes']) + ' />'
+
   return theme('form_element', element, output)
 
 
@@ -1905,6 +1909,7 @@ def process_weight(element):
   element['#type'] = 'select'
   element['#is_weight'] = True
   element += _element_info('select')
+
   return element
 
 
@@ -1932,7 +1937,7 @@ def process_weight(element):
 #
 def theme_file(element):
   _form_set_class(element, array('form-file'))
-  return theme('form_element', element, '<input type="file" name="' +  element['#name'] . '"' . (element['#attributes'] ? ' ' . drupal_attributes(element['#attributes']) : '') . ' id="' . element['#id'] . '" size="' . element['#size'] . "\" />\n")
+  return theme('form_element', element, '<input type="file" name="' +  element['#name'] + '"' + (drupal_attributes(element['#attributes']) if element['#attributes'] else '') + ' id="' + element['#id'] + '" size="' + element['#size'] + "\" />\n")
 
 
 
@@ -1954,18 +1959,18 @@ def theme_form_element(element, value):
   t = get_t()
   output = '<div class="form-item"'
   if (not empty(element['#id'])):
-    output += ' id="' +  element['#id'] . '-wrapper"'
+    output += ' id="' +  element['#id'] + '-wrapper"'
   output += ">\n"
-  required = not empty(element['#required']) ? '<span class="form-required" title="' . t('This field is required.') . '">*</span>' : ''
+  required = '<span class="form-required" title="' + t('This field is required.') + '">*</span>' if not empty(element['#required']) else ''
   if (not empty(element['#title'])):
     title = element['#title']
     if (not empty(element['#id'])):
-      output += ' <label for="' +  element['#id'] . '">' . t('not title: not required', array('not title' : filter_xss_admin(title), 'not required' : required)) . "</label>\n"
+      output += ' <label for="' +  element['#id'] + '">' + t('not title: not required', {'not title' : filter_xss_admin(title), 'not required' : required}) + "</label>\n"
     else:
-      output += ' <label>' +  t('not title: not required', array('not title' : filter_xss_admin(title), 'not required' : required))  + "</label>\n"
+      output += ' <label>' +  t('not title: not required', {'not title' : filter_xss_admin(title), 'not required' : required})  + "</label>\n"
   output += " value\n"
   if (not empty(element['#description'])):
-    output += ' <div class="description">' +  element['#description'] . "</div>\n"
+    output += ' <div class="description">' +  element['#description'] + "</div>\n"
   output += "</div>\n"
   return output
 
@@ -1981,7 +1986,8 @@ def theme_form_element(element, value):
 # @param name
 #   Array of new class names to be added.
 #
-def _form_set_class(&element, _class = array()):
+def _form_set_class(element, _class = []):
+  DrupyHelper.Reference.check(element)
   if (element['#required']):
     _class = 'required'
   if (form_get_error(element)):
@@ -2009,11 +2015,13 @@ def _form_set_class(&element, _class = array()):
 #   The cleaned ID.
 #
 def form_clean_id(id = None, flush = False):
-  static seen_ids = array()
+  global static_formcleanid_seen_ids . #TODO!is there a method in function that checks wheather a variable is a list or a dict?
+  if (static_formcleanid_seen_ids != {}):
+    static_formcleanid_seen_ids = {}
   if (flush):
-    seen_ids = array()
+    static_formcleanid_seen_ids = {}
     return
-  id = str_replace(array('][', '_', ' '), '-', id)
+  id = str_replace(['][', '_', ' '], '-', id)
   # Ensure IDs are unique. The first occurrence is held but left alone.
   # Subsequent occurrences get a number appended to them. This incrementing
   # will almost certainly break code that relies on explicit HTML IDs in

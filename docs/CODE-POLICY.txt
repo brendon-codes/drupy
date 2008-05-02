@@ -137,10 +137,15 @@ THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 
 				example:
 
-				Drupal: names = array()
+				Drupal: $names = array()
 				Drupy: names = dict() # do not just do the literal form names = {}
 
-				Comments: a PHP array becomes a mutable python dict
+        Drupal: $foo[] = $bar;
+        Drupy: foo.append( bar )
+
+        Comments: a PHP array becomes a mutable python dict or a mutable list.
+        Eg. $foo[] = $bar --> becomes a list
+            $foo['some_key'] = $bar --> becomes a dict
 
 			(4.2)Initalization
 
