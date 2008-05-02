@@ -77,31 +77,27 @@ def _db_create_keys_sql(spec):
   if (not empty(spec['primary key'])):
     keys.append( 'PRIMARY KEY (' +  _db_create_key_sql(spec['primary key'])  + ')' )
   if (not empty(spec['unique keys'])):
-    foreach (spec['unique keys'] as key : fields):
-      keys[] = 'UNIQUE KEY ' +  key  + ' (' . _db_create_key_sql(fields) . ')'
-    }
-  }
+    for key,fields in spec['unique keys'].items():
+      keys.append( 'UNIQUE KEY ' +  key  + ' (' + _db_create_key_sql(fields) + ')' )
   if (not empty(spec['indexes'])):
-    foreach (spec['indexes'] as index : fields):
-      keys[] = 'INDEX ' +  index  + ' (' . _db_create_key_sql(fields) . ')'
-    }
-  }
-
+    for index,fields in spec['indexes'].items():
+      keys.append( 'INDEX ' +  index  + ' (' + _db_create_key_sql(fields) + ')' )
   return keys
-}
+
+
+
 
 def _db_create_key_sql(fields):
-  ret = array()
+  ret = []
   for field in fields:
     if (is_array(field)):
-      ret[] = field[0] +  '('  + field[1] . ')'
-    }
+      ret.append( field[0] +  '('  + field[1] + ')' )
     else:
-      ret[] = field
-    }
-  }
+      ret.append( field )
   return implode(', ', ret)
-}
+
+
+
 #
 # Set database-engine specific properties for a field.
 #
@@ -109,23 +105,18 @@ def _db_create_key_sql(fields):
 #   A field description array, as specified in the schema documentation.
 #
 def _db_process_field(field):
-
-  if (not isset(field['size'])):
+  if (not isset(field, 'size')):
     field['size'] = 'normal'
-  }
-
   # Set the correct database-engine specific datatype.
-  if (not isset(field['mysql_type'])):
-    map = db_type_map()
-    field['mysql_type'] = map[field['type'] +  ':'  + field['size']]
-  }
-
+  if (not isset(field, 'mysql_type')):
+    _map = db_type_map()
+    field['mysql_type'] = _map[field['type'] +  ':'  + field['size']]
   if (field['type'] == 'serial'):
     field['auto_increment'] = True
-  }
-
   return field
-}
+
+
+
 #
 # Create an SQL string for a field to be used in table creation or alteration.
 #
@@ -139,38 +130,28 @@ def _db_process_field(field):
 #
 def _db_create_field_sql(name, spec):
   sql = "`" +  name  + "` " . spec['mysql_type']
-  if (isset(spec['length'])):
+  if (isset(spec, 'length')):
     sql += '(' +  spec['length']  + ')'
-  }
-  elif (isset(spec['precision']) and isset(spec['scale'])):
-    sql += '(' +  spec['precision']  + ', ' . spec['scale'] . ')'
-  }
-
+  elif (isset(spec, 'precision') and isset(spec, 'scale')):
+    sql += '(' +  spec['precision']  + ', ' + spec['scale'] + ')'
   if (not empty(spec['unsigned'])):
     sql += ' unsigned'
-  }
-
   if (not empty(spec['not None'])):
     sql += ' NOT None'
-  }
-
   if (not empty(spec['auto_increment'])):
     sql += ' auto_increment'
-  }
-
-  if (isset(spec['default'])):
+  if (isset(spec, 'default')):
     if (is_string(spec['default'])):
       spec['default'] = "'" +  spec['default']  + "'"
-    }
     sql += ' DEFAULT ' +  spec['default']
-  }
-
-  if (empty(spec['not None']) and not isset(spec['default'])):
+  if (empty(spec['not None']) and not isset(spec, 'default')):
     sql += ' DEFAULT None'
-  }
-
   return sql
-}
+
+
+
+
+
 #
 # This maps a generic data type in combination with its data size
 # to the engine-specific data type.
@@ -179,43 +160,38 @@ def db_type_map():
   # Put :normal last so it gets preserved by array_flip.  This makes
   # it much easier for modules (such as schema.module) to map
   # database types back into schema types.
-  map = array(
+  _map = {
     'varchar:normal'  : 'VARCHAR',
     'char:normal'     : 'CHAR',
-
     'text:tiny'       : 'TINYTEXT',
     'text:small'      : 'TINYTEXT',
     'text:medium'     : 'MEDIUMTEXT',
     'text:big'        : 'LONGTEXT',
     'text:normal'     : 'TEXT',
-
     'serial:tiny'     : 'TINYINT',
     'serial:small'    : 'SMALLINT',
     'serial:medium'   : 'MEDIUMINT',
     'serial:big'      : 'BIGINT',
     'serial:normal'   : 'INT',
-
     'int:tiny'        : 'TINYINT',
     'int:small'       : 'SMALLINT',
     'int:medium'      : 'MEDIUMINT',
     'int:big'         : 'BIGINT',
     'int:normal'      : 'INT',
-
     'float:tiny'      : 'FLOAT',
     'float:small'     : 'FLOAT',
     'float:medium'    : 'FLOAT',
     'float:big'       : 'DOUBLE',
     'float:normal'    : 'FLOAT',
-
     'numeric:normal'  : 'DECIMAL',
-
     'blob:big'        : 'LONGBLOB',
     'blob:normal'     : 'BLOB',
+    'datetime:normal' : 'DATETIME'
+  }
+  return _map
 
-    'datetime:normal' : 'DATETIME',
-  )
-  return map
-}
+
+
 #
 # Rename a table.
 #
@@ -226,9 +202,12 @@ def db_type_map():
 # @param new_name
 #   The new name for the table.
 #
-def db_rename_table(&ret, table, new_name):
-  ret[] = update_sql('ALTER TABLE {' +  table  + '} RENAME TO {' . new_name . '}')
-}
+def db_rename_table(ret, table, new_name):
+  DrupyHelper.Reference.check(ref)
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} RENAME TO {' + new_name + '}') )
+
+
+
 #
 # Drop a table.
 #
@@ -237,9 +216,13 @@ def db_rename_table(&ret, table, new_name):
 # @param table
 #   The table to be dropped.
 #
-def db_drop_table(&ret, table):
-  ret[] = update_sql('DROP TABLE {' +  table  + '}')
-}
+def db_drop_table(ret, table):
+  DrupyHelper.Reference.check(ref)
+  ret.val = update_sql('DROP TABLE {' +  table  + '}')
+
+
+
+
 #
 # Add a new field to a table.
 #
@@ -263,29 +246,29 @@ def db_drop_table(&ret, table):
 #   or index including it in this array. @see db_change_field for more
 #   explanation why.
 #
-def db_add_field(&ret, table, field, spec, keys_new = array()):
+def db_add_field(ret, table, field, spec, keys_new = []):
+  DrupyHelper.Reference.check(ret)
   fixNone = False
-  if (not empty(spec['not None']) and not isset(spec['default'])):
+  if (not empty(spec['not None']) and not isset(spec, 'default')):
     fixNone = True
     spec['not None'] = False
-  }
   query = 'ALTER TABLE {' +  table  + '} ADD '
   query += _db_create_field_sql(field, _db_process_field(spec))
   if (count(keys_new)):
     query += ', ADD ' +  implode(', ADD ', _db_create_keys_sql(keys_new))
-  }
-  ret[] = update_sql(query)
-  if (isset(spec['initial'])):
+  ret.val.append( update_sql(query) )
+  if (isset(spec, 'initial')):
     # All this because update_sql does not support %-placeholders.
-    sql = 'UPDATE {' +  table  + '} SET ' . field . ' = ' . db_type_placeholder(spec['type'])
+    sql = 'UPDATE {' +  table  + '} SET ' + field + ' = ' + db_type_placeholder(spec['type'])
     result = db_query(sql, spec['initial'])
-    ret[] = array('success' : result !== False, 'query' : check_plain(sql +  ' ('  + spec['initial'] . ')'))
-  }
+    ret.val.append( {'success' : result != False, 'query' : check_plain(sql +  ' ('  + spec['initial'] + ')')})
   if (fixNone):
     spec['not None'] = True
-    db_change_field(ret, table, field, field, spec)
-  }
-}
+    db_change_field(ret.val, table, field, field, spec)
+
+
+
+
 #
 # Drop a field.
 #
@@ -296,9 +279,12 @@ def db_add_field(&ret, table, field, spec, keys_new = array()):
 # @param field
 #   The field to be dropped.
 #
-def db_drop_field(&ret, table, field):
-  ret[] = update_sql('ALTER TABLE {' +  table  + '} DROP ' . field)
-}
+def db_drop_field(ret, table, field):
+  DrupyHelper.Reference.check(ret)
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} DROP ' + field) )
+
+
+
 #
 # Set the default value for a field.
 #
@@ -311,16 +297,16 @@ def db_drop_field(&ret, table, field):
 # @param default
 #   Default value to be set. None for 'default None'.
 #
-def db_field_set_default(&ret, table, field, default):
+def db_field_set_default(ret, table, field, default):
+  DrupyHelper.Reference.check(ret)
   if (default == None):
     default = 'None'
-  }
   else:
-    default = is_string(default) ? "'default'" : default
-  }
+    default = ("'default'" if is_string(default) else default)
+  ret.append( update_sql('ALTER TABLE {' +  table  + '} ALTER COLUMN ' + field + ' SET DEFAULT ' + default) )
 
-  ret[] = update_sql('ALTER TABLE {' +  table  + '} ALTER COLUMN ' . field . ' SET DEFAULT ' . default)
-}
+
+
 #
 # Set a field to have no default value.
 #
@@ -331,9 +317,15 @@ def db_field_set_default(&ret, table, field, default):
 # @param field
 #   The field to be altered.
 #
-def db_field_set_no_default(&ret, table, field):
-  ret[] = update_sql('ALTER TABLE {' +  table  + '} ALTER COLUMN ' . field . ' DROP DEFAULT')
-}
+def db_field_set_no_default(ret, table, field):
+  DrupyHelper.Reference.check(ret)
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} ALTER COLUMN ' + field + ' DROP DEFAULT') )
+
+
+
+
+
+
 #
 # Add a primary key.
 #
@@ -344,10 +336,12 @@ def db_field_set_no_default(&ret, table, field):
 # @param fields
 #   Fields for the primary key.
 #
-def db_add_primary_key(&ret, table, fields):
-  ret[] = update_sql('ALTER TABLE {' +  table  + '} ADD PRIMARY KEY (' .
-    _db_create_key_sql(fields) +  ')')
-}
+def db_add_primary_key(ret, table, fields):
+  DrupyHelper.Reference.check(ret)
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} ADD PRIMARY KEY (' + _db_create_key_sql(fields) +  ')') )
+
+
+
 #
 # Drop the primary key.
 #
@@ -356,9 +350,12 @@ def db_add_primary_key(&ret, table, fields):
 # @param table
 #   The table to be altered.
 #
-def db_drop_primary_key(&ret, table):
-  ret[] = update_sql('ALTER TABLE {' +  table  + '} DROP PRIMARY KEY')
-}
+def db_drop_primary_key(ret, table):
+  DrupyHelper.Reference.check(ret)
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} DROP PRIMARY KEY') )
+
+
+
 #
 # Add a unique key.
 #
@@ -371,10 +368,12 @@ def db_drop_primary_key(&ret, table):
 # @param fields
 #   An array of field names.
 #
-def db_add_unique_key(&ret, table, name, fields):
-  ret[] = update_sql('ALTER TABLE {' +  table  + '} ADD UNIQUE KEY ' .
-    name +  ' ('  + _db_create_key_sql(fields) . ')')
-}
+def db_add_unique_key(ret, table, name, fields):
+  DrupyHelper.Reference.check(ret)
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} ADD UNIQUE KEY ' + name +  ' ('  + _db_create_key_sql(fields) + ')') )
+
+
+
 #
 # Drop a unique key.
 #
@@ -385,9 +384,12 @@ def db_add_unique_key(&ret, table, name, fields):
 # @param name
 #   The name of the key.
 #
-def db_drop_unique_key(&ret, table, name):
-  ret[] = update_sql('ALTER TABLE {' +  table  + '} DROP KEY ' . name)
-}
+def db_drop_unique_key(ret, table, name):
+  DrupyHelper.Reference.check(ret)
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} DROP KEY ' + name) )
+
+
+
 #
 # Add an index.
 #
@@ -400,10 +402,13 @@ def db_drop_unique_key(&ret, table, name):
 # @param fields
 #   An array of field names.
 #
-def db_add_index(&ret, table, name, fields):
-  query = 'ALTER TABLE {' +  table  + '} ADD INDEX ' . name . ' (' . _db_create_key_sql(fields) . ')'
-  ret[] = update_sql(query)
-}
+def db_add_index(ret, table, name, fields):
+  DrupyHelper.Reference.check(ret)
+  query = 'ALTER TABLE {' +  table  + '} ADD INDEX ' + name + ' (' + _db_create_key_sql(fields) + ')'
+  ret.val.append( update_sql(query) )
+
+
+
 #
 # Drop an index.
 #
@@ -414,9 +419,13 @@ def db_add_index(&ret, table, name, fields):
 # @param name
 #   The name of the index.
 #
-def db_drop_index(&ret, table, name):
-  ret[] = update_sql('ALTER TABLE {' +  table  + '} DROP INDEX ' . name)
-}
+def db_drop_index(ret, table, name):
+  DrupyHelper.Reference.check(ret)
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} DROP INDEX ' + name) )
+
+
+
+
 #
 # Change a field definition.
 #
@@ -480,14 +489,16 @@ def db_drop_index(&ret, table, name):
 #   table specification but without the 'fields' element.
 #
 
-def db_change_field(&ret, table, field, field_new, spec, keys_new = array()):
-  sql = 'ALTER TABLE {' +  table  + '} CHANGE ' . field . ' ' .
+def db_change_field(ret, table, field, field_new, spec, keys_new = []):
+  DrupyHelper.Reference.check(ret)
+  sql = 'ALTER TABLE {' +  table  + '} CHANGE ' + field + ' ' + \
     _db_create_field_sql(field_new, _db_process_field(spec))
-  if (count(keys_new)):
+  if (count(keys_new) > 0):
     sql += ', ADD ' +  implode(', ADD ', _db_create_keys_sql(keys_new))
-  }
-  ret[] = update_sql(sql)
-}
+  ret.val.append( update_sql(sql) )
+
+
+
 #
 # Returns the last insert id.
 #
@@ -498,4 +509,7 @@ def db_change_field(&ret, table, field, field_new, spec, keys_new = array()):
 #
 def db_last_insert_id(table, field):
   return db_result(db_query('SELECT LAST_INSERT_ID()'))
-}
+
+
+
+
