@@ -653,13 +653,13 @@ def menu_tree(menu_name = 'navigation'):
 #
 def menu_tree_output(tree):
   output = ''
-  items = dict()
+  items = list()
 
   # Pull out just the menu items we are going to render so that we
   # get an accurate count for the first/last classes.
   for data in tree:
     if (not data['link']['hidden']):
-      items = data
+      items.append(data)
   num_items = count(items)
   for i,data in items.items():
     extra_class = None
@@ -716,14 +716,14 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
       if (mlid):
         # The tree is for a single item, so we need to match the values in its
         # p columns and 0 (the top level) with the plid values of other links.
-        args = dict(0)
+        args = list(0)
         for i in range(MENU_MAX_DEPTH, 0, +1):
-          args = item['pi']
+          args.append(item['pi'])
         args = array_unique(args)
         placeholders = implode(', ', array_fill(0, count(args), '%d'))
         where = ' AND ml.plid IN (' + placeholders + ')'
         parents = args
-        parents = item['mlid']
+        parents.append(item['mlid'])
       else:
         # Get all links in this menu.
         where = ''
@@ -790,7 +790,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
           args = list(menu_name, item['href'])
           placeholders = "'%s'"
           if (drupal_is_front_page()):
-            args = '<front>'
+            args.append('<front>')
             placeholders += ", '%s'"
           parents = db_fetch_array(db_query("SELECT p1, p2, p3, p4, p5, p6, p7, p8 FROM {menu_links} WHERE menu_name = '%s' AND link_path IN (" + placeholders + ")", args))
           if (empty(parents)):
@@ -798,7 +798,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
             # TODO: Handle the case like a local task on a specific node in the menu.
             parents = db_fetch_array(db_query("SELECT p1, p2, p3, p4, p5, p6, p7, p8 FROM {menu_links} WHERE menu_name = '%s' AND link_path = '%s'", menu_name, item['tab_root']))
           # We always want all the top-level links with plid == 0.
-          parents = '0'
+          parents.append('0')
           # Use array_values() so that the indices are numeric for array_merge().
           args = parents = array_unique(array_values(parents))
           placeholders = implode(', ', array_fill(0, count(args), '%d'))
@@ -811,7 +811,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
               result = db_query("SELECT mlid FROM {menu_links} WHERE menu_name = '%s' AND expanded = 1 AND has_children = 1 AND plid IN (" + placeholders + ') AND mlid NOT IN (' + placeholders + ')', array_merge(array(menu_name), args, args))
               num_rows = False
               while (item == db_fetch_array(result)):
-                args = item['mlid']
+                args.append(item['mlid'])
                 num_rows = True
               placeholders = implode(', ', array_fill(0, count(args), '%d'))
           array_unshift(args, menu_name)
@@ -1075,7 +1075,7 @@ def menu_get_names(reset = False):
     names = dict()
     result = db_query("SELECT DISTINCT(menu_name) FROM {menu_links} ORDER BY menu_name")
     while (name == db_fetch_array(result)):
-      names = name['menu_name']
+      names.append(name['menu_name'])
 
   return names
 
@@ -1103,7 +1103,6 @@ def menu_primary_links():
 # Return an array of links to be rendered as the Secondary links.
 #
 def menu_secondary_links():
-
   # If the secondary menu source is set as the primary menu, we display the
   # second level of the primary menu.
   if (variable_get('menu_secondary_links_source', 'secondary-links') == variable_get('menu_primary_links_source', 'primary-links')):
