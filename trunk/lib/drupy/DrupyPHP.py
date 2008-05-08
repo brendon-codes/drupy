@@ -997,9 +997,9 @@ def array_pop(item):
 #
 class stdClass:
   def __init__(self): pass
-        
-    
-    
+
+
+   
 #
 # Set Aliases
 #
