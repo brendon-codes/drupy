@@ -1,28 +1,42 @@
+
 #
-# DrupyMySQL.py
-# A PHP/MySQL abstraction layer for Python
-# 
 # @package Drupy
-# @file DrupyMySQL.py
-# @module drupy.php
+# @see http://drupy.net
+# @note Drupy is a port of the Drupal project.
+#  The Drupal project can be found at http://drupal.org
+# @file DrupyHelper.py
+#  A PHP/MySQL abstraction layer for Python
 # @author Brendon Crawford
-# @see http://drupy.sourceforge.net
-# @created 2008-05-08
-# @version 0.1.1
-# @modified 2008-08-20
+# @copyright 2008 Brendon Crawford
+# @contact message144 at users dot sourceforge dot net
+# @created 2008-05-10
+# @version 0.1
+# @depends MySQLdb
+# @license: 
 #
-# Required modules that might not be installed by default or included with Drupy:
-#    Image (http://www.pythonware.com/products/pil/)
-#    Hashlib (http://code.krypto.org/python/hashlib/)
-#    Zlib (http://linux.maruhn.com/sec/python-zlib.html)
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-import MySQLdb
+from lib import MySQLdb
+
+MYSQLI_ASSOC = 0
 
 #
 # Stores error information
 #
-class drupymysql_meta:
+class DrupyMySQL_meta:
   def __init__(self):
     self.error = []
     self.error_connect = []
@@ -39,6 +53,13 @@ class drupymysql_meta:
   def setErrorConnect(self):
     return self.error_connect
 
+
+#
+# Stores row information
+#
+class DrupyMySQL_row:
+  def __init__(self):
+    pass
 
 
 #
@@ -85,20 +106,70 @@ def mysqli_connect_errno():
 # @return ???
 #
 def mysqli_query(connection, query, resultmode = None):
-  cursor = connecion.cursor()
-  cursor.execute(query)
+  cursor = MySQLdb.cursors.DictCursor(connection)
+  try:
+    cursor.execute(query)
+  except MySQLdb.Error, e:
+    DB_META.setError(e.args[0], e.args[1])
   return cursor
 
 
 #
 # Fetches one row
 #
-# @param MySQLdb.cursor cursor
+# @param MySQLdb.cursors.DictCursor cursor
 # @return Tuple
 #
 def mysqli_fetch_row(cursor):
+  return tuple(cursor.fetchone().values())
+
+
+
+#
+# Fetches row as dict
+#
+# @param MySQLdb.cursors.DictCursor cursor
+# @return Dict
+#
+def mysqli_fetch_assoc(cursor):
   return cursor.fetchone()
 
+
+
+
+#
+# Fetches row as object
+#
+# @param MySQLdb.cursors.DictCursor cursor
+# @return Object[DrupyMySQL_row]
+#
+def mysqli_fetch_object(cursor):
+  row = cursor.fetchone()
+  out = DrupyMySQL_row()
+  for k,v in row.items():
+    setattr(out, k, v)
+  return out
+
+
+#
+# Alias for other fetch functions
+# @param MySQLdb.cursors.DictCursor cursor
+# @return Object[DrupyMySQL_row] | Dict 
+#
+def mysqli_fetch_array(cursor, w = None):
+  if w == MYSQLI_ASSOC:
+    return mysqli_fetch_assoc(cursor)
+  else:
+    return mysqli_fetch_row(cursor)
+
+
+#
+# Gets affexted rows
+# @param MySQLdb.cursors.DictCursor cursor
+# @return Int
+#
+def mysql_affected_rows(cursor):
+  return cursor.rowcount
 
 
 #
@@ -110,7 +181,7 @@ def mysqli_init():
 
 
 
-DB_META = drupymysql_meta()
+DB_META = DrupyMySQL_meta()
 DB = None
 
 
