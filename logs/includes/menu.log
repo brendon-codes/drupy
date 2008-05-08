@@ -25,4 +25,5 @@ line 887
  """Helper function - compute the real cache ID for menu tree data."""
 
     return 'links:' + menu_name + ':tree-data:'. md5(serialize(data))
+line 797 on menu.inc contains $args[] = $item["p$i"]; how should this be ported?
 
