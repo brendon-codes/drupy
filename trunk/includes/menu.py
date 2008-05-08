@@ -202,8 +202,8 @@ def menu_get_ancestors(parts):
         current += '%'
       if (j):
         current += '/'
-    placeholders = ["'%s'"]
-    ancestors = [current]
+    placeholders.append(["'%s'"])
+    ancestors.append([current])
 
   return ancestors, placeholders
 
@@ -1372,19 +1372,19 @@ def menu_set_active_trail(new_trail = None):
     while (curr):
       # Terminate the loop when we find the current path in the active trail.
       if (curr['link']['href'] == item['href']):
-        trail = curr['link']
+        trail.append(curr['link'])
         curr = False
       else:
         # Move to the child link if it's in the active trail.
         if (curr['below'] and curr['link']['in_active_trail']):
-          trail = curr['link']
+          trail.append(curr['link'])
           tree = curr['below']
         key, curr = each(tree)
     # Make sure the current page is in the trail (needed for the page title),
     # but exclude tabs and the front page.
     last = count(trail) - 1
     if (trail[last]['href'] != item['href'] and not bool((item['type'] & MENU_IS_LOCAL_TASK)) and not drupal_is_front_page()):
-      trail = item
+      trail.append(item)
 
   return trail
 
@@ -1410,7 +1410,7 @@ def menu_get_active_breadcrumb():
   if (item and item['access']):
     active_trail = menu_get_active_trail()
     for parent in active_trail:
-      breadcrumb = l(parent['title'], parent['href'], parent['localized_options'])
+      breadcrumb.append(l(parent['title'], parent['href'], parent['localized_options']))
     end = end(active_trail)
     # Don't show a link to the current page in the breadcrumb trail.
     if (item['href'] == end['href'] or (item['type'] == MENU_DEFAULT_LOCAL_TASK and end['href'] != '<front>')):
@@ -1804,7 +1804,7 @@ def _menu_find_router_path(menu, link_path):
   router_path = link_path
   if (not isset(menu, router_path)):
     ancestors = menu_get_ancestors(parts)
-    ancestors = ''
+    ancestors.append('')
     for key,router_path in ancestors.items():
       if (isset(menu, router_path)):
         break
@@ -1860,11 +1860,11 @@ def menu_link_maintain(module, op, link_path, link_title):
 def menu_link_children_relative_depth(item):
   i = 1
   match = ''
-  args = item['menu_name']
+  args.append(item['menu_name'])
   p = 'p1'
   while (i <= MENU_MAX_DEPTH and item[p]):
     match += " AND p = %d"
-    args = item[p]
+    args.append(item[p])
     p = 'p' + i + 1
   max_depth = db_result(db_query_range("SELECT depth FROM {menu_links} WHERE menu_name = '%s'" + match + " ORDER BY depth DESC", args, 0, 1))
 
@@ -1879,22 +1879,22 @@ def menu_link_children_relative_depth(item):
 # the link, and the has_children status of the previous parent is updated.
 #
 def _menu_link_move_children(item, existing_item):
-  args = item['menu_name']
-  set = "menu_name = '%s'"
+  args.append(item['menu_name'])
+  set.append("menu_name = '%s'")
   i = 1
   while (i <= item['depth']):
     p = 'p' + i + 1
-    set = "p = %d"
-    args = item[p]
+    set.append("p = %d")
+    args.append(item[p])
   j = existing_item['depth'] + 1
   while (i <= MENU_MAX_DEPTH and j <= MENU_MAX_DEPTH):
-    set = 'p' + i + 1 + ' = p'. j + 1
+    set.append('p' + i + 1 + ' = p'+ j + 1)
   while (i <= MENU_MAX_DEPTH):
-    set = 'p' + i + 1 + ' = 0'
+    set.append('p' + i + 1 + ' = 0')
   shift = item['depth'] - existing_item['depth']
   if (shift < 0):
-    args = -shift
-    set = 'depth = depth - %d'
+    args.append(-shift)
+    set.append('depth = depth - %d')
   elif (shift > 0):
     # The order of set must be reversed so the new values don't overwrite the
     # old ones before they can be used because "Single-table UPDATE
@@ -1902,14 +1902,14 @@ def _menu_link_move_children(item, existing_item):
     # see: http://dev.mysql.com/doc/refman/5.0/en/update.html
     set = array_reverse(set)
     args = array_reverse(args)
-    args = shift
-    set = 'depth = depth + %d'
-  where = "menu_name = '%s'"
-  args = existing_item['menu_name']
+    args.append(shift)
+    set.append('depth = depth + %d')
+  where.append("menu_name = '%s'")
+  args.append(existing_item['menu_name'])
   p = 'p1'
   for i in range(MENU_MAX_DEPTH and existing_item[p], 0, 'p' + 1):
-    where = "p = %d"
-    args = existing_item[p]
+    where.append("p = %d")
+    args.append(existing_item[p])
   db_query("UPDATE {menu_links} SET " + implode(', ', set) + " WHERE ". implode(' AND ', where), args)
   # Check the has_children status of the parent, while excluding this item.
   _menu_update_parental_status(existing_item, True)
