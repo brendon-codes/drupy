@@ -1,6 +1,16 @@
-THESE ARE THE DRUPY CONVERSION AND CODING STANDARDS. 
-TO RETAIN SVN COMMIT ACCESS, THESE STANDARDS MUST BE FOLLOWED.
-THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
+##
+## About This Document
+##
+
+  author Brendon Crawford, Morphir
+  copyright 2008 Brendon Crawford, Morhir
+  contact message144 at users dot sourceforge dot net,
+    morphir at users dot sourceforge dot net
+  created 2008-01-10
+  version 0.1
+  THESE ARE THE DRUPY CONVERSION AND CODING STANDARDS. 
+  TO RETAIN SVN COMMIT ACCESS, THESE STANDARDS MUST BE FOLLOWED.
+  THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 
 (1) Newline and carriage return whitespace can only exist between function and class definitions.
 	The following is valid:

@@ -2,6 +2,39 @@
 #
 
 
+#
+# @package Drupy
+# @see http://drupy.net
+# @note Drupy is a port of the Drupal project.
+#  The Drupal project can be found at http://drupal.org
+# @file form.py (ported from Drupal's form.inc)
+#  API for handling file uploads and server file management.
+# @author Brendon Crawford, Morphir
+# @copyright 2008 Brendon Crawford, Morphir
+# @contact message144 at users dot sourceforge dot net,
+#  morphir at users dot sourceforge dot net
+# @created 2008-01-10
+# @version 0.1
+# @license: 
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
+
+
+
 static('static_drupalretrieveform_forms')
 static('static_formseterror_form')
 static('static_elementinfo_cache')

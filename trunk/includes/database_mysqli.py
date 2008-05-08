@@ -1,8 +1,37 @@
 # Id: database.mysqli.inc,v 1.57 2008/04/14 17:48:33 dries Exp $
+
+
 #
-# @file
-# Database interface code for MySQL database servers using the mysqli client libraries. mysqli is included in PHP 5 by default and allows developers to use the advanced features of MySQL 4.1.x, 5.0.x and beyond.
+# @package Drupy
+# @see http://drupy.net
+# @note Drupy is a port of the Drupal project.
+#  The drupal project can be found at http://drupal.org
+# @file database_mysqli.py (ported from Drupal's database.mysqli.inc)
+#  Database interface code for MySQL database servers using the mysqli client
+#  libraries. mysqli is included in PHP 5 by default and allows developers to
+#  use the advanced features of MySQL 4.1.x, 5.0.x and beyond.
+# @author Brendon Crawford
+# @copyright 2008 Brendon Crawford
+# @contact message144 at users dot sourceforge dot net
+# @created 2008-01-10
+# @version 0.1
+# @license: 
 #
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
 
  # Maintainers of this file should consult:
  # http://www.php.net/manual/en/ref.mysqli.php
@@ -122,7 +151,7 @@ def _db_query(query, debug = 0):
 def db_fetch_object(result):
   if (result):
     _object = mysqli_fetch_object(result)
-    return (_object if isset(_object) else False)
+    return (_object if (_object != None) else False)
 
 
 
@@ -140,7 +169,7 @@ def db_fetch_object(result):
 def db_fetch_array(result):
   if (result):
     _array = mysqli_fetch_array(result, MYSQLI_ASSOC)
-    return (_array if isset(_array) else False)
+    return (_array if (_array != None) else False)
 
 
 

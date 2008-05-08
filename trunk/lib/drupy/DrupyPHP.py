@@ -1,21 +1,36 @@
+
 #
-# Drupy/PHP.py
-# A PHP abstraction layer for Python
-# 
 # @package Drupy
-# @file php.py
-# @module drupy.php
+# @see http://drupy.net
+# @note Drupy is a port of the Drupal project.
+#  The Drupal project can be found at http://drupal.org
+# @file DrupyHelper.py
+#  A PHP abstraction layer for Python
 # @author Brendon Crawford
-# @see http://drupy.sourceforge.net
+# @copyright 2008 Brendon Crawford
+# @contact message144 at users dot sourceforge dot net
 # @created 2008-02-05
-# @version 0.1.1
-# @modified 2008-08-20
+# @version 0.1
+# @depends Image (http://www.pythonware.com/products/pil/)
+# @depends Hashlib (http://code.krypto.org/python/hashlib/)
+# @depends Zlib (http://linux.maruhn.com/sec/python-zlib.html)
+# @license: 
 #
-# Required modules that might not be installed by default or included with Drupy:
-#    Image (http://www.pythonware.com/products/pil/)
-#    Hashlib (http://code.krypto.org/python/hashlib/)
-#    Zlib (http://linux.maruhn.com/sec/python-zlib.html)
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
 #
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
 
 import sys
 import StringIO

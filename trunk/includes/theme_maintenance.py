@@ -1,16 +1,40 @@
 # $Id: theme.maintenance.inc,v 1.13 2008/04/28 09:25:26 dries Exp $
+
+
 #
-# @file
-# Theming for maintenance pages.
+# @package Drupy
+# @see http://drupy.net
+# @note Drupy is a port of the Drupal project.
+#  The Drupal project can be found at http://drupal.org
+# @file theme_maintenance.py (ported from Drupal's theme.maintenance.inc)
+#  Theming for maintenance pages.
+#  Sets up the theming system for site installs, updates and when the site is
+#  in off-line mode. It also applies when the database is unavailable.
+#  Minnelli is always used for the initial install and update operations. In
+#  other cases, "settings.php" must have a "maintenance_theme" key set for the
+#  conf variable in order to change the maintenance theme.
+# @author Brendon Crawford
+# @copyright 2008 Brendon Crawford
+# @contact message144 at users dot sourceforge dot net
+# @created 2008-01-10
+# @version 0.1
+# @license: 
 #
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
 #
-# Sets up the theming system for site installs, updates and when the site is
-# in off-line mode. It also applies when the database is unavailable.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
 #
-# Minnelli is always used for the initial install and update operations. In
-# other cases, "settings.php" must have a "maintenance_theme" key set for the
-# conf variable in order to change the maintenance theme.
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+
 
 
 #

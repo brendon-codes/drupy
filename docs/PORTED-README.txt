@@ -1,3 +1,13 @@
+##
+## About This Document
+##
+
+  author Brendon Crawford
+  copyright 2008 Brendon Crawford
+  contact message144 at users dot sourceforge dot net
+  created 2008-01-10
+  version 0.1
+
 Anytime a file is ported from Drupal CVS HEAD to Drupy, a copy of file should
 be stored in this directory "drupal-ported". This provides an easy way to track changes
 with newer CVS revisions.
