@@ -3,6 +3,10 @@
 # @file
 # Functions shared between mysql and mysqli database engines.
 #
+
+require_once( './lib/drupy/DrupyMySQL.py' )
+
+
 #
 # Runs a basic query in the active database.
 #
