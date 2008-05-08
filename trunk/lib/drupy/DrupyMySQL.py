@@ -90,6 +90,16 @@ def mysqli_query(connection, query, resultmode = None):
   return cursor
 
 
+#
+# Fetches one row
+#
+# @param MySQLdb.cursor cursor
+# @return Tuple
+#
+def mysqli_fetch_row(cursor):
+  return cursor.fetchone()
+
+
 
 #
 # Dummy function
