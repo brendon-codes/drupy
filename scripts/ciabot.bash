@@ -32,7 +32,7 @@ from="you@yourthing.com"
 to="cia@cia.navi.cx"
 
 # SMTP client to use
-sendmail="/usr/sbin/sendmail -f ${from}"
+sendmail="/usr/sbin/sendmail -f ${from} -t ${to}"
 
 # Changeset URL
 url="http://www.example.com/gitweb/?p=${project}.git;a=commit;h=@@sha1@@"
