@@ -49,13 +49,10 @@ rev=$(git describe ${merged} 2>/dev/null)
 
 rawcommit=$(git cat-file commit ${merged})
 
-author=$(grep author <<EOF
-< "$rawcommit" | sed -e 's:author \(.*\) <.*:\1:')
+author=$(grep author <<< "$rawcommit" | sed -e 's:author \(.*\) <.*:\1:')
 
-logmessage=$(sed -e '1,/^$/d' <<EOF
-< "${rawcommit}")
-${noisy} || logmessage=$(head -n 1 <<EOF
-< "${logmessage}")
+logmessage=$(sed -e '1,/^$/d' <<< "${rawcommit}")
+${noisy} || logmessage=$(head -n 1 <<< "${logmessage}")
 logmessage=${logmessage//&/&amp;}
 logmessage=${logmessage//</&lt;}
 logmessage=${logmessage//>/&gt;}
@@ -64,8 +61,7 @@ repository=$(echo "${gitweb_project}" | sed -e 's:.*/::g' -e 's:\.git::')
 logmessage=":${repository}: ${logmessage}"
 
 ts=$(sed -n -e '/^author .*> \([0-9]\+\).*$/s--\1-p' \
-    <<EOF
-< "${rawcommit}")
+	<<< "${rawcommit}")
 
 out="
 <message>
@@ -95,8 +91,7 @@ ${logmessage}
   </body>
 </message>"
 
-${sendmail} <<EOF
- EOM
+${sendmail} << EOM
 Message-ID: <${merged:0:12}.${author}@${project}>
 From: ${from}
 To: ${to}
