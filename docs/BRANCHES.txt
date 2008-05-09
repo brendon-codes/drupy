@@ -1,5 +1,7 @@
 author: morphir
 
+NOTE: Drupy is now in GIT
+
 Solving porting issues with branches.
 
 Today I got this excellent idea, or I should say a solution to this problem I've been pondering.
