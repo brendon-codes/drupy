@@ -271,9 +271,9 @@ def module_load_all_includes(_type, name = None):
 # @param module_list
 #   An array of module names.
 #
-def module_enable(module_list):
+def module_enable(_module_list):
   invoke_modules = []
-  for _module in module_list:
+  for _module in _module_list:
     existing = db_fetch_object(db_query("SELECT status FROM {system} WHERE type = '%s' AND name = '%s'", 'module', module))
     if (existing.status == 0):
       module_load_install(_module)
@@ -302,9 +302,9 @@ def module_enable(module_list):
 # @param module_list
 #   An array of module names.
 #
-def module_disable(module_list):
+def module_disable(_module_list):
   invoke_modules = []
-  for _module in module_list:
+  for _module in _module_list:
     if (module_exists(_module)):
       # Check if node_access table needs rebuilding.
       if (not node_access_needs_rebuild() and module_hook(_module, 'node_grants')):

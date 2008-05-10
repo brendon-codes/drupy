@@ -398,7 +398,7 @@ def conf_init():
 #
 def drupal_get_filename(type, name, filename = None):
   global static_drupalgetfilename_files;
-  file = db_result(db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, type))
+  file = db_result(db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, _type))
   if (static_drupalgetfilename_files == None):
     static_drupalgetfilename_files = {}
     static_drupalgetfilename_files[type] = {}

@@ -963,7 +963,7 @@ def theme_image(path, alt = '', title = '', attributes = None, getsize = True):
 #   An array containing the breadcrumb links+ * @return a string containing the breadcrumb output+ */
 def theme_breadcrumb(breadcrumb):
   if (not empty(breadcrumb)):
-    return '<div class="breadcrumb">'+ implode(' » ', breadcrumb) +'</div>';
+    return '<div class="breadcrumb">'+ implode(' &raquo; ', breadcrumb) +'</div>';
 
 
 

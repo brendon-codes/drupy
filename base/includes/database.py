@@ -160,7 +160,7 @@ def db_set_active(name = 'default'):
     else:
       connect_url = db_url;
     db_type = substr(connect_url, 0, strpos(connect_url, '://'));
-    handler = "./includes/database_db_type.py";
+    handler = "./includes/database_%(db_type)s.py" % {'db_type' : db_type};
     if (is_file(handler)):
       include_once(handler);
     else:

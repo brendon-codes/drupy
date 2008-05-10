@@ -32,8 +32,10 @@
 import cgi
 import cgitb; cgitb.enable()
 import os
+import sys
 
 print "Content-Type: text/plain\r\n\r\n"
 print "<div>"
-print "Page Loaded. Python CGI is working correctly."
+print "Page Loaded. Python CGI is working correctly.<br />"
+print sys.path
 print "</div>"

@@ -55,7 +55,7 @@ define('UNICODE_MULTIBYTE', 1);
 #
 def unicode_check():
   global multibyte;
-  multibyte ,= _unicode_check();
+  multibyte = _unicode_check()[0];
 
 
 
@@ -200,12 +200,11 @@ def truncate_utf8(_string, _len, wordsafe = False, dots = False):
   return _string;
 
 
-
 #
 # Encodes MIME/HTTP header values that contain non-ASCII, UTF-8 encoded
 # characters.
 #
-# For example, mime_header_encode('tést.txt') returns "=?UTF-8?B?dMOpc3QudHh0?=".
+# For example, mime_header_encode('test.txt') returns "=?UTF-8?B?dMOpc3QudHh0?=". (where the 'e' is acute)
 #
 # See http://www.rfc-editor.org/rfc/rfc2047.txt for more information.
 #
