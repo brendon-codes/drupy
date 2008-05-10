@@ -62,9 +62,10 @@ def _drupal_maintenance_theme():
     _theme = 'minnelli'
   else:
     # Load module basics (needed for hook invokes).
-    module_list['system']['filename'] = 'modules/system/system.py'
-    module_list['filter']['filename'] = 'modules/filter/filter.py'
-    module_list(True, False, False, module_list)
+    _module_list = { 'system' : {}, 'filter' : {} }
+    _module_list['system']['filename'] = 'modules/system/system.py'
+    _module_list['filter']['filename'] = 'modules/filter/filter.py'
+    module_list(True, False, False, _module_list)
     drupal_load('module', 'system')
     drupal_load('module', 'filter')
     _theme = variable_get('maintenance_theme', 'minnelli')

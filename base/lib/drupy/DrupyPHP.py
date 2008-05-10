@@ -411,12 +411,12 @@ def array_shift(item):
 # @param Str val
 # @return Bool
 #
-def function_exists(val, loc = None):
+def function_exists(val, _loc = None):
   if _loc == None:
     exists = isset(globals(), val)
   else:
-    exists = isset(loc, val, True)
-  return (exists and isinstance(obj[val], function))
+    exists = isset(_loc, val, True)
+  return (exists and isinstance(_loc[val], function))
 
 
 #
@@ -571,7 +571,7 @@ def include(filename, scope = None):
   if (scope != None):
     execfile(filename, scope)
   else:
-    execfile(filename)
+    execfile(filename, globals())
   return True
 
 
@@ -1027,7 +1027,6 @@ require_once = include
 require = include
 include_once = include
 substr = array_slice
-defined = isset
 preg_replace_callback = preg_replace
 is_writeable = is_writable
 
