@@ -2,11 +2,11 @@
 #
 
 
-static('static_drupalretrieveform_forms')
-static('static_formseterror_form')
-static('static_elementinfo_cache')
-static('static_formoptionsflatten_return')
-
+#static('static_drupalretrieveform_forms')
+#static('static_formseterror_form')
+#static('static_elementinfo_cache')
+#static('static_formoptionsflatten_return')
+#static('DrupyHelper.Reference.check(static_batchget_batch)')
 
 # @defgroup forms Form builder functions
 # @{
@@ -1586,13 +1586,10 @@ def form_expand_ahah(element):
         # Attach an additional event handler so that AHAH behaviours
         # can be triggered still via keyboard input.
         element['#ahah']['keypress'] = True
-        break
       if 'password' or 'textfield' or 'textarea':
         element['#ahah']['event'] = 'blur'
-        break
       if 'radio' or 'checkbox' or 'select':
         element['#ahah']['event'] = 'change'
-        break
   # Adding the same javascript settings twice will cause a recursion error,
   # we avoid the problem by checking if the javascript has already been added.
   if (isset(element['#ahah'], 'path') and isset(element['#ahah'], 'event') and not isset(js_added[element], '#id')):
@@ -2015,11 +2012,11 @@ def _form_set_class(element, _class = []):
 #   The cleaned ID.
 #
 def form_clean_id(id = None, flush = False):
-  global static_formcleanid_seen_ids . #TODO!is there a method in function that checks wheather a variable is a list or a dict?
-  if (static_formcleanid_seen_ids != {}):
-    static_formcleanid_seen_ids = {}
+  global static_formcleanid_seen_ids #TODO!is there a method in function that checks wheather a variable is a list or a dict?
+  if not isinstance(static_formcleanid_seen_ids, dict):
+    static_formcleanid_seen_ids = dict()
   if (flush):
-    static_formcleanid_seen_ids = {}
+    static_formcleanid_seen_ids = dict()
     return
   id = str_replace(['][', '_', ' '], '-', id)
   # Ensure IDs are unique. The first occurrence is held but left alone.
@@ -2029,7 +2026,7 @@ def form_clean_id(id = None, flush = False):
   # outputting duplicate IDs, which would break JS code and XHTML
   # validity anyways. For now, it's an acceptable stopgap solution.
   if (isset(seen_ids[id])):
-    id = id +  '-'  + seen_ids[id]++
+    id = id +  '-'  + seen_ids[id] + 1
   else:
     seen_ids[id] = 1
 
@@ -2177,12 +2174,12 @@ def form_clean_id(id = None, flush = False):
 #
 def batch_set(batch_definition):
   if (batch_definition):
-    batch =& batch_get()
+    batch = batch_get()
     # Initialize the batch
     if (empty(batch)):
-      batch = array(
-        'sets' : array(),
-      )
+      batch = {
+        'sets' : dict(),
+      }
     init = {
       'sandbox' : dict(),
       'results' : dict(),
@@ -2190,12 +2187,12 @@ def batch_set(batch_definition):
     }
     # Use get_t() to allow batches at install time.
     t = get_t()
-    defaults = array(
+    defaults = {
       'title' : t('Processing'),
       'init_message' : t('Initializing.'),
       'progress_message' : t('Remaining @remaining of @total.'),
       'error_message' : t('An error has occurred.'),
-    )
+    }
     batch_set = init + batch_definition + defaults
     # Tweak init_message to avoid the bottom of the page flickering down after init phase.
     batch_set['init_message'] += '<br/>&nbsp;'
@@ -2208,7 +2205,7 @@ def batch_set(batch_definition):
       slice2 = array_slice(batch['sets'], batch['current_set'] + 1)
       batch['sets'] = array_merge(slice1, array(batch_set), slice2)
     else:
-      batch['sets'][] = batch_set
+      batch['sets'].append(batch_set)
 
 
 
@@ -2228,17 +2225,17 @@ def batch_set(batch_definition):
 #   URL of the batch processing page.
 #
 def batch_process(redirect = None, url = None):
-  batch =& batch_get()
+  batch = batch_get()
   if (isset(batch)):
     # Add process information
-    url = isset(url) ? url : 'batch'
-    process_info = array(
+    url = url if isset(url) else 'batch'
+    process_info = {
       'current_set' : 0,
       'progressive' : True,
-      'url' : isset(url) ? url : 'batch',
+      'url' : url if isset(url) else 'batch',
       'source_page' : _GET['q'],
       'redirect' : redirect,
-    )
+    }
     batch += process_info
     if (batch['progressive']):
       # Clear the way for the drupal_goto redirection to the batch processing
@@ -2257,15 +2254,14 @@ def batch_process(redirect = None, url = None):
       # Now that we have a batch id, we can generate the redirection link in
       # the generic error message.
       t = get_t()
-      batch['error_message'] = t('Please continue to <a href="@error_url">the error page</a>', array('@error_url' : url(url, array('query' : array('id' : batch['id'], 'op' : 'finished')))))
+      batch['error_message'] = t('Please continue to <a href="@error_url">the error page</a>', {'@error_url': url(url, {'query': {'id': batch['id'], 'op': 'finished'}})})
       # Actually store the batch data and the token generated form the batch id.
       db_query("UPDATE {batch} SET token = '%s', batch = '%s' WHERE bid = %d", drupal_get_token(batch['id']), serialize(batch), batch['id'])
       drupal_goto(batch['url'], 'op=start&id=' +  batch['id'])
-    }
     else:
       # Non-progressive execution: bypass the whole progressbar workflow
       # and execute the batch in one pass.
-      require_once './includes/batch.inc'
+      #require_once './includes/batch.inc'
       _batch_process()
 
 
@@ -2273,8 +2269,11 @@ def batch_process(redirect = None, url = None):
 #
 # Retrieve the current batch.
 #
-function &batch_get():
-  static batch = array()
+def batch_get():
+  global static_batchget_batch
+  DrupyHelper.Reference.check(static_batchget_batch)
+  if not isinstance(static_batchget_batch, dict):
+    static_batchget_batch = dict()
   return batch
 
 
