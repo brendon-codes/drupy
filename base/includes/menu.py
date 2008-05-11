@@ -1,36 +1,9 @@
+#execfile('../lib/drupy/DrupyPHP.py')
+#
 # Id: menu.inc,v 1.267 2008/03/21 08:32:24 dries Exp $
-
 #
-# @package Drupy
-# @see http://drupy.net
-# @note Drupy is a port of the Drupal project.
-#  The Drupal project can be found at http://drupal.org
-# @file menu.py (ported from Drupal's menu.inc)
-#  API for the Drupal menu system.
-# @author Morphir
-# @copyright 2008 Morphir
-# @contact morphir at users dot sourceforge dot net
-# @created 2008-01-10
-# @version 0.1
-# @license: 
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
-
-
-
+# @file
+# API for the Drupal menu system.
 #
 #
 # @defgroup menu Menu system
@@ -208,8 +181,8 @@
 #
 def menu_get_ancestors(parts):
   number_parts = count(parts)
-  placeholders = dict()
-  ancestors = dict()
+  placeholders = list()
+  ancestors = list()
   length =  number_parts - 1
   end = (1 << number_parts) - 1
   masks = variable_get('menu_masks', dict())
@@ -754,8 +727,8 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
       else:
         # Get all links in this menu.
         where = ''
-        args = dict()
-        parents = dict()
+        args = list()
+        parents = list()
       array_unshift(args, menu_name)
       # Select the links from the table, and recursively build the tree.  We
       # LEFT JOIN since there is no match in {menu_router} for an external
@@ -1099,7 +1072,7 @@ def menu_get_active_help():
 def menu_get_names(reset = False):
   global static_menugetnames_names
   if (reset or empty(names)):
-    names = dict()
+    names = list()
     result = db_query("SELECT DISTINCT(menu_name) FROM {menu_links} ORDER BY menu_name")
     while (name == db_fetch_array(result)):
       names.append(name['menu_name'])
