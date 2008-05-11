@@ -131,7 +131,6 @@ def drupal_get_form(form_id):
   # workflow is NOT complete. We need to construct a fresh copy of
   # the form, passing in the latest form_state in addition to any
   # other variables passed into drupal_get_form().
-
   if (not empty(form_state['rebuild']) or not empty(form_state['storage'])):
     form = drupal_rebuild_form(form_id, form_state, args)
   # If we haven't redirected to a new location by now, we want to
@@ -280,6 +279,7 @@ def drupal_execute(form_id, form_state):
   drupal_process_form(form_id, form, form_state)
 
 
+
 #
 # Retrieves the structured array that defines a given form.
 #
@@ -416,7 +416,6 @@ def drupal_process_form(form_id, form, form_state):
 
 
 
-
 #
 # Prepares a structured form array by adding required elements,
 # executing any hook_form_alter functions, and optionally inserting
@@ -529,6 +528,7 @@ def drupal_validate_form(form_id, form, form_state):
   validated_forms[form_id] = True
 
 
+
 #
 # Renders a structured form array into themed HTML.
 #
@@ -551,6 +551,9 @@ def drupal_render_form(form_id, form):
       form.val['#theme'] = form_id
   output = drupal_render(form)
   return output
+
+
+
 #
 # Redirect the user to a URL after a form has been processed.
 #
@@ -573,6 +576,9 @@ def drupal_redirect_form(form, redirect = None):
       else:
         drupal_goto(goto)
     drupal_goto(_GET['q'])
+
+
+
 #
 # Performs validation on form elements. First ensures required fields are
 # completed, #maxlength is not exceeded, and selected options were in the
@@ -643,6 +649,7 @@ def _form_validate(elements, form_state, form_id = None):
     elements['#validated'] = True
 
 
+
 #
 # A helper function used to execute custom validation and submission
 # handlers for a given form. Button-specific handlers are checked
@@ -682,6 +689,7 @@ def form_execute_handlers(type, form, form_state):
   return _return
 
 
+
 #
 # File an error against a form element.
 #
@@ -716,6 +724,8 @@ def form_get_errors():
   if (not empty(form)):
     return form
 
+
+
 #
 # Return the error message filed against the form with the specified name.
 #
@@ -727,6 +737,7 @@ def form_get_error(element):
   key = implode('][', element['#parents'])
   if (isset(form, key)):
     return form[key]
+
 
 
 #
@@ -908,7 +919,6 @@ def _form_builder_handle_input_element(form_id, form, form_state, complete_form)
 
 
 
-
 #
 # Helper function to handle the sometimes-convoluted logic of button
 # click detection.
@@ -936,6 +946,7 @@ def _form_button_was_clicked(form):
   return False
 
 
+
 #
 # In IE, if only one submit button is present, AND the enter key is
 # used to submit the form, no form value is sent for it and our normal
@@ -961,7 +972,6 @@ def _form_builder_ie_cleanup(form, form_state):
       form_state.val['validate_handlers'] = (None if empty(button['#validate']) else button['#validate'])
       form_state.val['values'][button['#name']] = button['#value']
       form_state.val['clicked_button'] = button
-
 
 
 
@@ -1043,6 +1053,8 @@ def form_type_checkboxes_value(form, edit = False):
   elif (edit == None):
     return {}
 
+
+
 #
 # Helper function to determine the value for a password_confirm form
 # element.
@@ -1122,7 +1134,6 @@ def form_type_token_value(form, edit = False):
 
 
 
-
 #
 # Change submitted form values during the form processing cycle.
 #
@@ -1152,7 +1163,6 @@ def form_set_value(form_item, value, form_state):
 
 
 
-
 #
 # Helper function for form_set_value().
 #
@@ -1169,7 +1179,6 @@ def _form_set_value(form_values, form_item, parents, value):
     if (not isset(form_values.val, parent)):
       form_values.val[parent] = {}
     _form_set_value(form_values.val[parent], form_item, parents, value)
-
 
 
 
@@ -1259,8 +1268,9 @@ def form_select_options(element, choices = None):
       else:
         selected = ''
       options += '<option value="' +  check_plain(key)  + '"' + selected + '>' + check_plain(choice) + '</option>'
-
   return options
+
+
 
 #
 # Traverses a select element's #option array looking for any values
@@ -1304,8 +1314,9 @@ def form_get_options(element, key):
         keys = index
     elif (index == key):
       keys = index
-
   return keys
+
+
 
 #
 # Format a group of form items.
@@ -1351,7 +1362,6 @@ def theme_radio(element):
   if (not is_None(element['#title'])):
     output = '<label class="option">' +  output  + ' ' + element['#title'] + '</label>'
   del(element['#title'])
-
   return theme('form_element', element, output)
 
 
@@ -1418,7 +1428,6 @@ def expand_password_confirm(element):
   element['#tree'] = True
   if (isset(element, '#size')):
     element['pass1']['#size'] = element['pass2']['#size'] = element['#size']
-
   return element
 
 
@@ -1439,7 +1448,6 @@ def password_confirm_validate(form, REF_form_state):
   form_set_value(form['pass1'], None, form_state)
   form_set_value(form['pass2'], None, form_state)
   form_set_value(form, pass1, form_state)
-
   return form
 
 
@@ -1499,7 +1507,6 @@ def expand_date(element):
       '#attributes' : element['#attributes'],
       '#options' : options,
     }
-
   return element
 
 
@@ -1552,7 +1559,6 @@ def expand_radios(element):
           '#parents' : element['#parents'],
           '#id' : form_clean_id('edit-' + implode('-', parents_for_id)),
           }
-
   return element
 
 
@@ -1618,7 +1624,6 @@ def form_expand_ahah(element):
     drupal_add_js({'ahah' : {element['#id'] : ahah_binding}}, 'setting')
     js_added[element['#id']] = True
     element['#cache'] = True
-
   return element
 
 
@@ -1661,9 +1666,7 @@ def theme_checkbox(element):
   checkbox += drupal_attributes(element['#attributes']) + ' />'
   if (not is_None(element['#title'])):
     checkbox = '<label class="option">' +  checkbox  + ' ' + element['#title'] + '</label>'
-
   del(element['#title'])
-
   return theme('form_element', element, checkbox)
 
 
@@ -1700,7 +1703,6 @@ def expand_checkboxes(element):
     for element['#options'] in {key : choice}:
       if (not isset(element, key)):
         element[key] = {'#type' : 'checkbox', '#processed' : True, '#title' : choice, '#return_value' : key, '#default_value' : isset(value, key), '#attributes' : element['#attributes']}
-
   return element
 
 
@@ -1726,7 +1728,6 @@ def theme_button(element):
     element['#attributes']['class'] = 'form-' + element['#button_type'] + ' ' + element['#attributes']['class']
   else:
     element['#attributes']['class'] = 'form-' + element['#button_type']
-
   return '<input type="submit" ' + ('' if empty(element['#name']) else 'name="' + element['#name'] + '" ') + 'id="' + element['#id'] + '" value="' + check_plain(element['#value']) + '" ' + drupal_attributes(element['#attributes']) + " />\n"
 
 
@@ -1742,7 +1743,6 @@ def theme_image_button(element):
     element['#attributes']['class'] = 'form-' + element['#button_type'] + ' ' + element['#attributes']['class']
   else:
     element['#attributes']['class'] = 'form-' + element['#button_type']
-
   return '<input type="image" name="' + element['#name'] + '" ' + (('value="' + check_plain(element['#value']) + '" ') if (not empty(element['#value'])) else '') + 'id="' + element['#id'] + '" ' + drupal_attributes(element['#attributes']) + ' src="' + base_path() + element['#src'] + '" ' + ('alt="' + check_plain(element['#title']) + '" title="' + check_plain(element['#title']) + '" ' if (not empty(element['#title'])) else '' ) + "/>\n"
 
 
@@ -1770,7 +1770,6 @@ def theme_hidden(element):
 # @ingroup themeable
 #
 def theme_token(element):
-
   return theme('hidden', element)
 
 
@@ -1802,7 +1801,6 @@ def theme_textfield(element):
   output += '<input type="text"' +  maxlength  + ' name="' . element['#name'] + '" id="' + element['#id'] + '"' + size + ' value="' + check_plain(element['#value']) + '"' + drupal_attributes(element['#attributes']) + ' />'
   if (isset(element, '#field_suffix')):
     output += ' <span class="field-suffix">' +  element['#field_suffix'] + '</span>'
-
   return theme('form_element', element, output) +  extra
 
 
@@ -1821,7 +1819,6 @@ def theme_textfield(element):
 def theme_form(element):
   # Anonymous div to satisfy XHTML compliance.
   action = 'action="' + check_url(element['#action']) + '" ' if element['#action'] else ''
-
   return '<form ' +  action  + ' accept-charset="UTF-8" method="' + element['#method'] + '" id="' + element['#id'] + '"' + drupal_attributes(element['#attributes']) + ">\n<div>" + element['#children'] + "\n</div></form>\n"
 
 
@@ -1851,7 +1848,6 @@ def theme_textarea(element):
     drupal_add_js('misc/textarea.js')
     _class = 'resizable'
   _form_set_class(element, _class)
-
   return theme('form_element', element, '<textarea cols="' +  element['#cols'] + '" rows="' + element['#rows'] + '" name="' + element['#name'] + '" id="' + element['#id'] + '" ' + drupal_attributes(element['#attributes']) + '>' + check_plain(element['#value']) + '</textarea>')
 
 
@@ -1870,7 +1866,6 @@ def theme_textarea(element):
 # @ingroup themeable
 #
 def theme_markup(element):
-
   return (element['#value'] if isset(element, '#value') else '') + (element['#children'] if isset(element, '#children') else '')
 
 
@@ -1891,7 +1886,6 @@ def theme_password(element):
   maxlength = ' maxlength="' + element['#maxlength'] + '" ' if element['maxlength'] else ''
   _form_set_class(element, array('form-text'))
   output = '<input type="password" name="' +  element['#name'] + '" id="' + element['#id'] + '" ' + maxlength + size + drupal_attributes(element['#attributes']) + ' />'
-
   return theme('form_element', element, output)
 
 
@@ -1906,7 +1900,6 @@ def process_weight(element):
   element['#type'] = 'select'
   element['#is_weight'] = True
   element += _element_info('select')
-
   return element
 
 
@@ -2012,8 +2005,8 @@ def _form_set_class(element, _class = []):
 #   The cleaned ID.
 #
 def form_clean_id(id = None, flush = False):
-  global static_formcleanid_seen_ids #TODO!is there a method in function that checks wheather a variable is a list or a dict?
-  if not isinstance(static_formcleanid_seen_ids, dict):
+  global static_formcleanid_seen_ids
+  if not isinstance(static_formcleanid_seen_ids, None):
     static_formcleanid_seen_ids = dict()
   if (flush):
     static_formcleanid_seen_ids = dict()
@@ -2029,7 +2022,6 @@ def form_clean_id(id = None, flush = False):
     id = id +  '-'  + seen_ids[id] + 1
   else:
     seen_ids[id] = 1
-
   return id
 
 
@@ -2100,7 +2092,7 @@ def form_clean_id(id = None, flush = False):
 #   result = db_query_range("SELECT nid FROM {node} WHERE nid > %d ORDER BY nid ASC", context['sandbox']['current_node'], 0, limit)
 #   while (row = db_fetch_array(result)):
 #     node = node_load(row['nid'], None, True)
-#     context['results'][] = node.nid . ' : ' . node.title
+#     context['results'].append(node.nid + ' : ' + node.title)
 #     context['sandbox']['progress']++
 #     context['sandbox']['current_node'] = node.nid
 #     context['message'] = node.title
@@ -2272,9 +2264,9 @@ def batch_process(redirect = None, url = None):
 def batch_get():
   global static_batchget_batch
   DrupyHelper.Reference.check(static_batchget_batch)
-  if not isinstance(static_batchget_batch, dict):
+  if not isinstance(static_batchget_batch, None):
     static_batchget_batch = dict()
-  return batch
+  return static_batchget_batch
 
 
 
