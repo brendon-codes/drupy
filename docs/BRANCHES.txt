@@ -1,6 +1,8 @@
 author: morphir
 
 NOTE: Drupy is now in GIT
+      THIS IDEA IS NOW IMPLEMENTED.
+
 
 Solving porting issues with branches.
 
