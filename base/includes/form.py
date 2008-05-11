@@ -71,7 +71,7 @@
 #   The rendered form.
 #
 def drupal_get_form(form_id):
-  form_state = {'storage' : None, 'submitted' : False}
+  form_state = {'storage': None, 'submitted': False}
   args = func_get_args()
   cacheable = False
   if (isset(_SESSION, 'batch_form_state')):
@@ -438,10 +438,10 @@ def drupal_prepare_form(form_id, form, form_state):
   form.val['#programmed'] = isset(form, '#post')
   if (isset(form.val, '#build_id')):
     form.val['form_build_id'] = {
-      '#type' : 'hidden',
-      '#value' : form.val['#build_id'],
-      '#id' : form.val['#build_id'],
-      '#name' : 'form_build_id',
+      '#type': 'hidden',
+      '#value': form.val['#build_id'],
+      '#id': form.val['#build_id'],
+      '#name': 'form_build_id',
     }
   # Add a token, based on either #token or form_id, to any form displayed to
   # authenticated users. This ensures that any submitted form was actually
@@ -451,19 +451,19 @@ def drupal_prepare_form(form_id, form, form_state):
     if (form.val['#token'] == False or user.uid == 0 or form.val['#programmed']):
       del(form.val['#token'])
     else:
-      form.val['form_token'] = {'#type' : 'token', '#default_value' : drupal_get_token(form['#token'])}
+      form.val['form_token'] = {'#type': 'token', '#default_value': drupal_get_token(form['#token'])}
   elif (isset(user, 'uid') and user.uid and not form.val['#programmed']):
     form.val['#token'] = form_id
     form.val['form_token'] = {
-      '#id' : form_clean_id('edit-' + form_id + '-form-token'),
-      '#type' : 'token',
-      '#default_value' : drupal_get_token(form.val['#token']),
+      '#id': form_clean_id('edit-' + form_id + '-form-token'),
+      '#type': 'token',
+      '#default_value': drupal_get_token(form.val['#token']),
     }
   if (not empty(form_id)):
     form.val['form_id'] = {
-      '#type' : 'hidden',
-      '#value' : form_id,
-      '#id' : form_clean_id("edit-form_id"),
+      '#type': 'hidden',
+      '#value': form_id,
+      '#id': form_clean_id("edit-form_id"),
     }
   if (not isset(form.val, '#id')):
     form.val['#id'] = form_clean_id(form_id)
@@ -617,9 +617,9 @@ def _form_validate(elements, form_state, form_id = None):
       # checkboxes, can return a valid value of '0'. Instead, check the
       # length if it's a string, and the item count if it's an array.
       if (elements['#required'] and (not count(elements['#value']) or (is_string(elements['#value']) and strlen(trim(elements['#value'])) == 0))):
-        form_error(elements, t('not name field is required.', {'not name' : elements['#title']}))
+        form_error(elements, t('not name field is required.', {'not name': elements['#title']}))
       if (isset(elements, '#maxlength') and drupal_strlen(elements['#value']) > elements['#maxlength']):
-        form_error(elements, t('not name cannot be longer than %max characters but is currently %length characters long.', {'not name' : (elements['#parents'][0] if empty(elements['#title']) else elements['#title']), '%max' : elements['#maxlength'], '%length' : drupal_strlen(elements['#value'])}))
+        form_error(elements, t('not name cannot be longer than %max characters but is currently %length characters long.', {'not name': (elements['#parents'][0] if empty(elements['#title']) else elements['#title']), '%max': elements['#maxlength'], '%length': drupal_strlen(elements['#value'])}))
       if (isset(elements, '#options') and isset(elements, '#value')):
         if (elements['#type'] == 'select'):
           options = form_options_flatten(elements['#options'])
@@ -630,7 +630,7 @@ def _form_validate(elements, form_state, form_id = None):
           for v in value:
             if (not isset(options, v)):
               form_error(elements, t('An illegal choice has been detected + Please contact the site administrator.'))
-              watchdog('form', 'Illegal choice %choice in not name element.', {'%choice' : v, 'not name' : (elements['#parents'][0] if empty(elements['#title']) else elements['#title'])}, WATCHDOG_ERROR)
+              watchdog('form', 'Illegal choice %choice in not name element.', {'%choice': v, 'not name': (elements['#parents'][0] if empty(elements['#title']) else elements['#title'])}, WATCHDOG_ERROR)
         elif (not isset(options, elements['#value'])):
           form_error(elements, t('An illegal choice has been detected + Please contact the site administrator.'))
           watchdog('form', 'Illegal choice %choice in %name element.', {'%choice' : elements['#value'], '%name' : (elements['#parents'][0] if empty(elements['#title']) else elements['#title'])}, WATCHDOG_ERROR)
@@ -682,7 +682,7 @@ def form_execute_handlers(type, form, form_state):
         # Some previous _submit handler has set a batch. We store the call
         # in a special 'control' batch set, for execution at the correct
         # time during the batch processing workflow.
-        batch['sets'].append( {'form_submit' : function} )
+        batch['sets'].append( {'form_submit': function} )
       else:
         function(form.val, form_state.val)
       _return = True
@@ -1070,8 +1070,8 @@ def form_type_checkboxes_value(form, edit = False):
 #
 def form_type_password_confirm_value(form, edit = False):
   if (edit == False):
-    form += {'#default_value' : {}}
-    return (form['#default_value'] + {'pass1' : '', 'pass2' : ''})
+    form += {'#default_value': {}}
+    return (form['#default_value'] + {'pass1': '', 'pass2': ''})
 
 
 
@@ -1188,11 +1188,11 @@ def _form_set_value(form_values, form_item, parents, value):
 def _element_info(type, refresh = None):
   global static_elementinfo_cache
   basic_defaults = {
-    '#description' : None,
-    '#attributes' : dict(),
-    '#required' : False,
-    '#tree' : False,
-    '#parents' : dict()
+    '#description': None,
+    '#attributes': dict(),
+    '#required': False,
+    '#tree': False,
+    '#parents': dict()
   }
   if (static_elementinfo_cache == None or refresh):
     static_elementinfo_cache = dict()
@@ -1306,7 +1306,7 @@ def form_select_options(element, choices = None):
 #
 def form_get_options(element, key):
   keys = dict()
-  for element['#options'] in {index : choice}:
+  for element['#options'] in {index: choice}:
     if (is_array(choice)):
       return False
     elif (is_object(choice)):
@@ -1411,18 +1411,18 @@ def theme_password_confirm(element):
 #
 def expand_password_confirm(element):
   element['pass1'] =  {
-    '#type' : 'password',
-    '#title' : t('Password'),
-    '#value' : None if empty(element['#value']) else element['#value']['pass1'],
-    '#required' : element['#required'],
-    '#attributes' : {'class' : 'password-field'},
+    '#type': 'password',
+    '#title': t('Password'),
+    '#value': None if empty(element['#value']) else element['#value']['pass1'],
+    '#required': element['#required'],
+    '#attributes': {'class' : 'password-field'},
   }
   element['pass2'] =  {
-    '#type' : 'password',
-    '#title' : t('Confirm password'),
-    '#value' : None if empty(element['#value']) else element['#value']['pass2'],
-    '#required' : element['#required'],
-    '#attributes' : {'class' : 'password-confirm'},
+    '#type': 'password',
+    '#title': t('Confirm password'),
+    '#value': None if empty(element['#value']) else element['#value']['pass2'],
+    '#required': element['#required'],
+    '#attributes': {'class': 'password-confirm'},
   }
   element['#element_validate'] = dict('password_confirm_validate')
   element['#tree'] = True
@@ -1474,9 +1474,9 @@ def theme_date(element):
 def expand_date(element):
   # Default to current date
   if (empty(element['#value'])):
-    element['#value'] = {'day' : format_date(time(), 'custom', 'j'),
-                         'month' : format_date(time(), 'custom', 'n'),
-                         'year' : format_date(time(), 'custom', 'Y')
+    element['#value'] = {'day': format_date(time(), 'custom', 'j'),
+                         'month': format_date(time(), 'custom', 'n'),
+                         'year': format_date(time(), 'custom', 'Y')
                          }
   element['#tree'] = True
   # Determine the order of day, month, year in the site's chosen date format.
@@ -1502,10 +1502,10 @@ def expand_date(element):
     parents = element['#parents']
     parents = type
     element[type] = {
-      '#type' : 'select',
-      '#value' : element['#value'][type],
-      '#attributes' : element['#attributes'],
-      '#options' : options,
+      '#type': 'select',
+      '#value': element['#value'][type],
+      '#attributes': element['#attributes'],
+      '#options': options,
     }
   return element
 
@@ -1545,19 +1545,19 @@ def weight_value(REF_form):
 #
 def expand_radios(element):
   if (count(element['#options']) > 0):
-    for element['#options'] in {key : choice}:
+    for element['#options'] in {key: choice}:
       if (not isset(element, key)):
         # Generate the parents as the autogenerator does, so we will have a
         # unique id for each radio button.
         parents_for_id = array_merge(element['#parents'], [key])
         element[key] = {
-          '#type' : 'radio',
-          '#title' : choice,
-          '#return_value' : check_plain(key),
-          '#default_value' : element['#default_value'] if isset(element, '#default_value') else None,
-          '#attributes' : element['#attributes'],
-          '#parents' : element['#parents'],
-          '#id' : form_clean_id('edit-' + implode('-', parents_for_id)),
+          '#type': 'radio',
+          '#title': choice,
+          '#return_value': check_plain(key),
+          '#default_value': element['#default_value'] if isset(element, '#default_value') else None,
+          '#attributes': element['#attributes'],
+          '#parents': element['#parents'],
+          '#id': form_clean_id('edit-' + implode('-', parents_for_id)),
           }
   return element
 
@@ -1602,26 +1602,26 @@ def form_expand_ahah(element):
     drupal_add_js('misc/jquery.form.js')
     drupal_add_js('misc/ahah.js')
     ahah_binding = {
-      'url'      : url(element['#ahah']['path']),
-      'event'    : element['#ahah']['event'],
-      'keypress' : None if empty(element['#ahah']['keypress']) else element['#ahah']['keypress'],
-      'wrapper'  : None if empty(element['#ahah']['wrapper']) else element['#ahah']['wrapper'],
-      'selector' : '#' + element['#id'] if empty(element['#ahah']['selector']) else element['#ahah']['selector'],
-      'effect'   : 'none' if empty(element['#ahah']['effect']) else element['#ahah']['effect'],
-      'method'   : 'replace' if empty(element['#ahah']['method']) else element['#ahah']['method'],
-      'progress' : {'type' : 'throbber'} if empty(element['#ahah']['progress']) else element['#ahah']['progress'],
-      'button'   : {element['#name'] : element['#value']} if isset(element, '#executes_submit_callback') else False,
+      'url': url(element['#ahah']['path']),
+      'event': element['#ahah']['event'],
+      'keypress': None if empty(element['#ahah']['keypress']) else element['#ahah']['keypress'],
+      'wrapper': None if empty(element['#ahah']['wrapper']) else element['#ahah']['wrapper'],
+      'selector': '#' + element['#id'] if empty(element['#ahah']['selector']) else element['#ahah']['selector'],
+      'effect': 'none' if empty(element['#ahah']['effect']) else element['#ahah']['effect'],
+      'method': 'replace' if empty(element['#ahah']['method']) else element['#ahah']['method'],
+      'progress': {'type' : 'throbber'} if empty(element['#ahah']['progress']) else element['#ahah']['progress'],
+      'button': {element['#name'] : element['#value']} if isset(element, '#executes_submit_callback') else False,
     }
     # Convert a simple #ahah[progress] type string into an array.
     if (is_string(ahah_binding['progress'])):
-      ahah_binding['progress'] = {'type' : ahah_binding['progress']}
+      ahah_binding['progress'] = {'type': ahah_binding['progress']}
     # Change progress path to a full url.
     if (isset(ahah_binding['progress'], 'path')):
       ahah_binding['progress']['url'] = url(ahah_binding['progress']['path'])
     # Add progress.js if we're doing a bar display.
     if (ahah_binding['progress']['type'] == 'bar'):
       drupal_add_js('misc/progress.js')
-    drupal_add_js({'ahah' : {element['#id'] : ahah_binding}}, 'setting')
+    drupal_add_js({'ahah': {element['#id'] : ahah_binding}}, 'setting')
     js_added[element['#id']] = True
     element['#cache'] = True
   return element
@@ -1700,9 +1700,9 @@ def expand_checkboxes(element):
   if (count(element['#options']) > 0):
     if (not isset(element, '#default_value') or element['#default_value'] == 0):
       element['#default_value'] = dict()
-    for element['#options'] in {key : choice}:
+    for element['#options'] in {key: choice}:
       if (not isset(element, key)):
-        element[key] = {'#type' : 'checkbox', '#processed' : True, '#title' : choice, '#return_value' : key, '#default_value' : isset(value, key), '#attributes' : element['#attributes']}
+        element[key] = {'#type': 'checkbox', '#processed': True, '#title': choice, '#return_value': key, '#default_value': isset(value, key), '#attributes': element['#attributes']}
   return element
 
 
@@ -1840,8 +1840,8 @@ def theme_textarea(element):
   if (not empty(element['#teaser'])):
     drupal_add_js('misc/teaser.js')
     # Note: arrays are merged in drupal_get_js().
-    drupal_add_js({'teaserCheckbox' : {element['#id'] : element['#teaser_checkbox']}}, 'setting')
-    drupal_add_js({'teaser' : {element['#id'] : element['#teaser']}}, 'setting')
+    drupal_add_js({'teaserCheckbox': {element['#id']: element['#teaser_checkbox']}}, 'setting')
+    drupal_add_js({'teaser': {element['#id']: element['#teaser']}}, 'setting')
     _class = 'teaser'
   # Add resizable behavior
   if (element['#resizable'] != False):
@@ -1926,7 +1926,7 @@ def process_weight(element):
 # provided by file.inc.
 #
 def theme_file(element):
-  _form_set_class(element, array('form-file'))
+  _form_set_class(element, ['form-file'])
   return theme('form_element', element, '<input type="file" name="' +  element['#name'] + '"' + (drupal_attributes(element['#attributes']) if element['#attributes'] else '') + ' id="' + element['#id'] + '" size="' + element['#size'] + "\" />\n")
 
 
@@ -1955,9 +1955,9 @@ def theme_form_element(element, value):
   if (not empty(element['#title'])):
     title = element['#title']
     if (not empty(element['#id'])):
-      output += ' <label for="' +  element['#id'] + '">' + t('not title: not required', {'not title' : filter_xss_admin(title), 'not required' : required}) + "</label>\n"
+      output += ' <label for="' +  element['#id'] + '">' + t('not title: not required', {'not title': filter_xss_admin(title), 'not required': required}) + "</label>\n"
     else:
-      output += ' <label>' +  t('not title: not required', {'not title' : filter_xss_admin(title), 'not required' : required})  + "</label>\n"
+      output += ' <label>' +  t('not title: not required', {'not title': filter_xss_admin(title), 'not required': required}) + "</label>\n"
   output += " value\n"
   if (not empty(element['#description'])):
     output += ' <div class="description">' +  element['#description'] + "</div>\n"
@@ -2170,20 +2170,20 @@ def batch_set(batch_definition):
     # Initialize the batch
     if (empty(batch)):
       batch = {
-        'sets' : dict(),
+        'sets': dict(),
       }
     init = {
-      'sandbox' : dict(),
-      'results' : dict(),
-      'success' : False,
+      'sandbox': dict(),
+      'results': dict(),
+      'success': False,
     }
     # Use get_t() to allow batches at install time.
     t = get_t()
     defaults = {
-      'title' : t('Processing'),
-      'init_message' : t('Initializing.'),
-      'progress_message' : t('Remaining @remaining of @total.'),
-      'error_message' : t('An error has occurred.'),
+      'title': t('Processing'),
+      'init_message': t('Initializing.'),
+      'progress_message': t('Remaining @remaining of @total.'),
+      'error_message': t('An error has occurred.'),
     }
     batch_set = init + batch_definition + defaults
     # Tweak init_message to avoid the bottom of the page flickering down after init phase.
@@ -2222,11 +2222,11 @@ def batch_process(redirect = None, url = None):
     # Add process information
     url = url if isset(url) else 'batch'
     process_info = {
-      'current_set' : 0,
-      'progressive' : True,
-      'url' : url if isset(url) else 'batch',
-      'source_page' : _GET['q'],
-      'redirect' : redirect,
+      'current_set': 0,
+      'progressive': True,
+      'url': url if isset(url) else 'batch',
+      'source_page': _GET['q'],
+      'redirect': redirect,
     }
     batch += process_info
     if (batch['progressive']):
