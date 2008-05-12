@@ -32,6 +32,7 @@
 import MySQLdb
 
 MYSQLI_ASSOC = 0
+MYSQLI_CLIENT_FOUND_ROWS = 0
 
 #
 # Stores error information
@@ -50,7 +51,7 @@ class DrupyMySQL_meta:
   def getError(self):
     return self.error
   
-  def setErrorConnect(self):
+  def getErrorConnect(self):
     return self.error_connect
 
 
@@ -76,25 +77,35 @@ class DrupyMySQL_row:
 # @return Instance[MySQLdb.connect]
 #
 def mysqli_real_connect(link = None, host = None, username = None, passwd = None,
-    dbname = None, port = None, socket = None, flags = None):
-  global DB
+    dbname = None, port = None, socket = '', flags = None):
   global DB_META
+  DB = None
   try:
     DB = MySQLdb.connect(host, username, passwd, dbname, port, socket)
   except MySQLdb.Error, e:
     DB_META.setError(e.args[0], e.args[1])
     DB_META.setErrorConnect(e.args[0], e.args[1])
-  return connection;
+  return DB;
 
 
 #
-# Gets last connect error
+# Gets last connect errno
 #
 # @return Int
 # 
 def mysqli_connect_errno():
   global DB_META
-  return DB_META.getErrorConnect[0]
+  return DB_META.getErrorConnect()[0]
+
+
+#
+# Gets last connect error
+#
+# @return Str
+#
+def mysqli_connect_error():
+  global DB_META
+  return DB_META.getErrorConnect()[1]
 
 
 #
@@ -182,6 +193,5 @@ def mysqli_init():
 
 
 DB_META = DrupyMySQL_meta()
-DB = None
 
 
