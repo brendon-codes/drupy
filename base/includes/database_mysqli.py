@@ -82,7 +82,7 @@ def db_connect(url):
   # Check if MySQLi support is present in PHP
   if (not function_exists('mysqli_init') and not extension_loaded('mysqli')):
     _db_error_page('Unable to use the MySQLi database because the MySQLi extension for PHP is not installed + Check your <code>php.ini</code> to see how you can enable it.')
-  url = parse_url(url)
+  url = parse_url(url, 3306)
   # Decode url-encoded information in the db connection string
   url['user'] = urldecode(url['user'])
   # Test if database url has a password.
@@ -91,8 +91,7 @@ def db_connect(url):
   url['path'] = urldecode(url['path'])
   if (not isset(url, 'port')):
     url['port'] = None
-  connection = mysqli_init()
-  mysqli_real_connect(connection, url['host'], url['user'], url['pass'], substr(url['path'], 1), url['port'], '', MYSQLI_CLIENT_FOUND_ROWS)
+  connection  = mysqli_real_connect(url['host'], url['user'], url['pass'], substr(url['path'], 1), url['port'], '', MYSQLI_CLIENT_FOUND_ROWS)
   if (mysqli_connect_errno() > 0):
     _db_error_page(mysqli_connect_error())
   # Force UTF-8.
