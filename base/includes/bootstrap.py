@@ -857,10 +857,10 @@ def drupal_is_denied(ip):
   # database.
   blocked_ips = variable_get('blocked_ips', None);
   if (blocked_ips != None and is_array(blocked_ips)):
-    return in_array(ip, blocked_ips);
+    return in_array(ip, blocked_ips)
   else:
     sql = "SELECT 1 FROM {blocked_ips} WHERE ip = '%s'";
-    return (db_num_rows(db_result(db_query(sql, ip))) > 0);
+    return (db_result(db_query(sql, ip) != None))
 
 
 #
@@ -935,6 +935,9 @@ def _drupal_bootstrap(phase):
     # Initialize the default database.
     require_once('./includes/database.py', globals());
     db_set_active();
+    # Register autoload functions so that we can access classes and interfaces.
+    spl_autoload_register('drupal_autoload_class')
+    spl_autoload_register('drupal_autoload_interface')
   elif phase == DRUPAL_BOOTSTRAP_ACCESS:
     # Deny access to blocked IP addresses - t() is not yet available
     if (drupal_is_denied(ip_address())):
@@ -1101,3 +1104,170 @@ def ip_address():
   return static_ipaddress_ipaddress;
 
 
+#
+# @ingroup registry
+# @{
+#
+#
+# Confirm that a function is available.
+#
+# If the function is already available, this function does nothing.
+# If the function is not available, it tries to load the file where the
+# function lives. If the file is not available, it returns False, so that it
+# can be used as a drop-in replacement for function_exists().
+#
+# @param function
+#   The name of the function to check or load.
+# @return
+#   True if the function is now available, False otherwise.
+#
+def drupal_function_exists(function):
+  global static_drupalfunctionexists_checked
+  if (static_drupalfunctionexists_checked == None):
+    static_drupalfunctionexists_checked = []
+  if (defined('MAINTENANCE_MODE')):
+    return function_exists(function)
+  if (isset(static_drupalfunctionexists_checked, function)):
+    return static_drupalfunctionexists_checked[function]
+  static_drupalfunctionexists_checked[function] = False
+  if (function_exists(function)):
+    registry_mark_code('function', function)
+    static_drupalfunctionexists_checked[function] = True
+    return True
+  file = db_result(db_query("SELECT filename FROM {registry} WHERE name = '%s' AND type = '%s'", function, 'function'))
+  if (file):
+    require_once(file)
+    static_drupalfunctionexists_checked[function] = function_exists(function)
+    if (static_drupalfunctionexists_checked[function]):
+      registry_mark_code('function', function)
+  return static_drupalfunctionexists_checked[function]
+
+
+
+#
+# Confirm that an interface is available.
+#
+# This function parallels drupal_function_exists(), but is rarely
+# called directly. Instead, it is registered as an spl_autoload()
+# handler, and PHP calls it for us when necessary.
+#
+# @param interface
+#   The name of the interface to check or load.
+# @return
+#   True if the interface is currently available, False otherwise.
+#
+def drupal_autoload_interface(interface):
+  return _registry_check_code('interface', interface)
+
+
+
+#
+# Confirm that a class is available.
+#
+# This function parallels drupal_function_exists(), but is rarely
+# called directly. Instead, it is registered as an spl_autoload()
+# handler, and PHP calls it for us when necessary.
+#
+# @param class
+#   The name of the class to check or load.
+# @return
+#   True if the class is currently available, False otherwise.
+#
+def drupal_autoload_class(_class):
+  return _registry_check_code('class', _class)
+
+
+
+#
+# Helper for registry_check_{interface, class}.
+#
+def _registry_check_code(_type, name):
+  file = db_result(db_query("SELECT filename FROM {registry} WHERE name = '%s' AND type = '%s'", name, _type))
+  if (file):
+    require_once(file)
+    registry_mark_code(_type, name)
+    return True
+
+
+#
+# Collect the resources used for this request.
+#
+# @param type
+#   The type of resource.
+# @param name
+#   The name of the resource.
+# @param return
+#   Boolean flag to indicate whether to return the resources.
+#
+def registry_mark_code(_type, name, _return = False):
+  global static_registrymarkcode_resources
+  if (static_registrymarkcode_resources == None):
+    static_registrymarkcode_resource = []
+  if (_type and name):
+    if (not isset(static_registrymarkcode_resources, _type, )):
+      static_registrymarkcode_resources[_type] = []
+    if (not in_array(name, static_registrymarkcode_resources[_type])):
+      static_registrymarkcode_resources[type].append( name )
+  if (_return):
+    return static_registrymarkcode_resources
+
+
+
+
+#
+# Rescan all enabled modules and rebuild the registry.
+#
+# Rescans all code in modules or includes directory, storing a mapping of
+# each function, file, and hook implementation in the database.
+#
+def drupal_rebuild_code_registry():
+  require_once( './includes/registry.inc' )
+  _drupal_rebuild_code_registry()
+
+
+
+#
+# Save hook implementations cache.
+#
+# @param hook
+#   Array with the hook name and list of modules that implement it.
+# @param write_to_persistent_cache
+#   Whether to write to the persistent cache.
+#
+def registry_cache_hook_implementations(hook, write_to_persistent_cache = False):
+  global static_registrycachehookimplementations_implementations
+  if (hook):
+    # Newer is always better, so overwrite anything that's come before.
+    static_registrycachehookimplementations_implementations[hook['hook']] = hook['modules']
+  if (write_to_persistent_cache == True):
+    cache_set('hooks', static_registrycachehookimplementations_implementations, 'cache_registry')
+
+
+
+#
+# Save the files required by the registry for this path.
+#
+def registry_cache_path_files():
+  used_code = registry_mark_code(None, None, True)
+  if (used_code):
+    files = []
+    type_sql = []
+    params = []
+    for type,names in used_code.items():
+      type_sql.append( "(name IN (" +  db_placeholders(names, 'varchar')  + ") AND type = '%s')" )
+      params = array_merge(params, names)
+      params.append( type )
+    res = db_query("SELECT DISTINCT filename FROM {registry} WHERE " +  implode(' OR ', type_sql), params)
+    while True:
+      row = db_fetch_object(res)
+      if (row == None):
+        break
+      files.append( row.filename )
+    if (files):
+      menu = menu_get_item()
+      cache_set('registry:' +  menu['path'], implode(';', files), 'cache_registry')
+
+
+#
+# @} End of "ingroup registry".
+#
