@@ -34,6 +34,9 @@ static('static_dbsetactive_activename');
 static('static_dbquerycallback_args');
 
 
+set_global('active_db');
+
+
 #
 # A hash value to check when outputting database errors, md5('DB_ERROR').
 #

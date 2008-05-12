@@ -29,6 +29,11 @@
 #
 
 
+#
+# Converts a filename to import path
+# @param filename
+# @return Str
+#
 def get_import(filename):
   name = filename.replace('/', '.')
   mod = __import__(name)
@@ -37,6 +42,18 @@ def get_import(filename):
       mod = getattr(mod, comp)
   return mod
 
+
+#
+# Debug HTTP output message
+# @param Str data
+#
+def output(should_die, *data):
+  print "Content-Type: text/plain; Charset=UTF-8;\r\n\r\n"
+  print data
+  if should_die:
+    exit()
+  else:
+    return True
 
 
 #

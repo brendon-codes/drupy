@@ -581,22 +581,35 @@ def urldecode(val):
 
 #
 # Parse url
+# Urlparse doesnt support 'mysql' or 'mysqli' schemes
+# so, we need to add a fix for this.
 # @param url
 # @return Dict
 #
-def parse_url(url):
+def parse_url(url, port = 80):
+  scheme = url[0:url.find("://")]
+  if scheme not in ( \
+    'file', 'ftp', 'gopher', 'hd1', 'http', 'https', 'imap', 'mailto', 'mms', \
+    'news', 'nntp', 'prospero', 'rsync', 'rtsp', 'rtspu', 'sftp', 'shttp', \
+    'sip', 'sips', 'snews', 'svn', 'svn+ssh', 'telnet', 'wais' \
+  ):
+    no_scheme = True
+    url = url.replace(scheme, 'http', 1)
+  else:
+    no_scheme = False
   u = urlparse.urlparse(url)
   hasuser = u.netloc.find('@')
-  return {
-    'scheme' : u.scheme,
+  d = {
+    'scheme' : (scheme if no_scheme else u.scheme),
     'path' : u.path,
     'query' : u.query,
     'fragment' : u.fragment,
     'user' : (u.username if u.username != None else ''),
     'pass' : (u.password if u.password != None else ''),
-    'port' : (u.port if u.port != None else 80),
-    'host' : u.netloc[(hasuser if (hasuser >= 0) else 0):]
+    'port' : (u.port if u.port != None else port),
+    'host' : u.netloc[((hasuser + 1) if (hasuser >= 0) else 0):]
   }
+  return d
 
 
 
@@ -693,11 +706,17 @@ def preg_match(pat, subject, match = None):
   if match != None:
     DrupyHelper.Reference.check(match)
   reg = __preg_setup(pat)
-  g = list(reg.search(subject).groups())
-  g.insert(0, ''.join(g))
-  if match != None:
-    match.val = g
-  return len(g)
+  searcher = reg.search(subject)
+  if searcher == None:
+    if match != None:
+      match.val = []
+    return 0
+  else:
+    g = list(searcher.groups())
+    g.insert(0, ''.join(g))
+    if match != None:
+      match.val = g
+    return len(g)
 
 
 
