@@ -43,6 +43,10 @@ static('static_gett_t');
 static('static_languagelist_languages');
 static('static_ipaddress_ipaddress');
 
+static('static_drupalfunctionexists_checked');
+static('static_registrymarkcode_resources');
+static('static_registrycachehookimplementations_implementations');
+
 #
 # Global variables
 #
