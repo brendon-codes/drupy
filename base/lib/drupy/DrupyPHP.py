@@ -307,9 +307,7 @@ def array_key_exists(name, item):
 def isset(obj, val, searchGlobal = False, data = {}):
   sVal = None
   # Dict
-  if \
-      isinstance(obj, dict) or \
-      isinstance(obj, tuple):
+  if isinstance(obj, dict):
     # Get globals also
     if searchGlobal:
       sVal = array_merge(obj, globals())
@@ -324,7 +322,7 @@ def isset(obj, val, searchGlobal = False, data = {}):
       data['msg'] = "Is Dict, Has Not Key, Globals: %s" % str(sVal)
       return False
   # List
-  elif isinstance(obj, list):
+  elif isinstance(obj, list) or isinstance(obj, tuple):
     if (val < len(obj)):
       data['val'] = obj[val]
       data['msg'] = "Is Index, Has Key, Globals: %s" % str(sVal)
@@ -411,12 +409,8 @@ def array_shift(item):
 # @param Str val
 # @return Bool
 #
-def function_exists(val, _loc = None):
-  if _loc == None:
-    exists = isset(globals(), val)
-  else:
-    exists = isset(_loc, val, True)
-  return (exists and isinstance(_loc[val], function))
+def function_exists(val, scope = globals()):
+  return (isset(scope, val) and callable(scope[val]))
 
 
 #
@@ -592,13 +586,19 @@ def urldecode(val):
 #
 def parse_url(url):
   u = urlparse.urlparse(url)
+  hasuser = u.netloc.find('@')
   return {
-    'scheme' : u[0],
-    'host' : u[1],
-    'path' : u[2],
-    'query' : u[4],
-    'fragment' : u[5]
+    'scheme' : u.scheme,
+    'path' : u.path,
+    'query' : u.query,
+    'fragment' : u.fragment,
+    'user' : (u.username if u.username != None else ''),
+    'pass' : (u.password if u.password != None else ''),
+    'port' : (u.port if u.port != None else 80),
+    'host' : u.netloc[(hasuser if (hasuser >= 0) else 0):]
   }
+
+
 
 #
 # Cast to object
@@ -870,6 +870,19 @@ def is_numeric(val):
     return True
   else:
     return False
+
+
+#
+# Determines if "array"
+# @param Any
+# @return Bool
+#
+def is_array(val):
+  return (
+    isinstance(val, tuple) or \
+    isinstance(val, dict) or \
+    isinstance(val, list)
+  )
 
 
 

@@ -86,13 +86,13 @@ def db_connect(url):
   # Decode url-encoded information in the db connection string
   url['user'] = urldecode(url['user'])
   # Test if database url has a password.
-  url['pass'] = (urldecode(url['pass']) if isset(url['pass']) else '')
+  url['pass'] = (urldecode(url['pass']) if isset(url, 'pass') else '')
   url['host'] = urldecode(url['host'])
   url['path'] = urldecode(url['path'])
-  if (not isset(url['port'])):
+  if (not isset(url, 'port')):
     url['port'] = None
   connection = mysqli_init()
-  mysqli_real_connect(connection, url['host'], url['user'], url['pass'], substr(url['path'], 1), url['port'], None, MYSQLI_CLIENT_FOUND_ROWS)
+  mysqli_real_connect(connection, url['host'], url['user'], url['pass'], substr(url['path'], 1), url['port'], '', MYSQLI_CLIENT_FOUND_ROWS)
   if (mysqli_connect_errno() > 0):
     _db_error_page(mysqli_connect_error())
   # Force UTF-8.

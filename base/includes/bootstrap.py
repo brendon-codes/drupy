@@ -396,15 +396,15 @@ def conf_init():
 # @return
 #   The filename of the requested item.
 #
-def drupal_get_filename(type, name, filename = None):
+def drupal_get_filename(_type, name, filename = None):
   global static_drupalgetfilename_files;
   file = db_result(db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, _type))
   if (static_drupalgetfilename_files == None):
     static_drupalgetfilename_files = {}
-    static_drupalgetfilename_files[type] = {}
+    static_drupalgetfilename_files[_type] = {}
   if (filename != None and file_exists(filename)):
-    static_drupalgetfilename_files[type][name] = filename;
-  elif (isset(static_drupalgetfilename_files[type], name)):
+    static_drupalgetfilename_files[_type][name] = filename;
+  elif (isset(static_drupalgetfilename_files[_type], name)):
     # nothing
     pass;
   # Verify that we have an active database connection, before querying
@@ -412,13 +412,13 @@ def drupal_get_filename(type, name, filename = None):
   # before we have a database connection (i.e. during installation) and
   # when a database connection fails.
   elif (db_is_active() and (file and file_exists(file))):
-    static_drupalgetfilename_files[type][name] = file;
+    static_drupalgetfilename_files[_type][name] = file;
   else:
     # Fallback to searching the filesystem if the database connection is
     # not established or the requested file is not found.
     config = conf_path();
-    _dir = ('themes/engines' if (type == 'theme_engine') else (type + 's'));
-    file = (("%(name)s.engine" % {'name':name}) if (type == 'theme_engine') else ("%(name)s.type" % {'name':name}));
+    _dir = ('themes/engines' if (_type == 'theme_engine') else (_type + 's'));
+    file = (("%(name)s.engine" % {'name':name}) if (_type == 'theme_engine') else ("%(name)s.type" % {'name':name}));
     fileVals = {'name':name, 'file':file, 'dir':_dir, 'config':config};
     fileChecker = [
       "config/dir/file" % fileVals,
@@ -428,10 +428,10 @@ def drupal_get_filename(type, name, filename = None):
     ];
     for _file in fileChecker:
       if (file_exists(_file)):
-        static_drupalgetfilename_files[type][name] = _file;
+        static_drupalgetfilename_files[_type][name] = _file;
         break;
-  if (isset(static_drupalgetfilename_files[type], name)):
-    return static_drupalgetfilename_files[type][name];
+  if (isset(static_drupalgetfilename_files[_type], name)):
+    return static_drupalgetfilename_files[_type][name];
 
 
 
