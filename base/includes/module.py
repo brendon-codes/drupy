@@ -1,4 +1,4 @@
-# Id: module.inc,v 1.117 2008/04/16 11:35:51 dries Exp $
+# $Id: module.inc,v 1.119 2008/05/07 06:39:57 dries Exp $
 
 #
 # @package Drupy
@@ -220,7 +220,7 @@ def _module_build_dependencies(files):
 #
 def module_exists(_module):
   _list = module_list()
-  return array_key_exists(_module, _list)
+  return isset(_list, _module)
 
 
 #
@@ -249,6 +249,7 @@ def module_load_include(_type, _module, name = None):
   file = './' +  drupal_get_path('module', module)  + "/name.type"
   if (is_file(file)):
     require_once( file )
+    return file
   else:
     return False
 
@@ -284,14 +285,14 @@ def module_enable(_module_list):
     # Refresh the module list to include the new enabled module.
     module_list(True, False)
     # Force to regenerate the stored list of hook implementations.
-    module_implements('', False, True)
+    drupal_rebuild_code_registry()
   for _module in invoke_modules:
     module_invoke(_module, 'enable')
     # Check if node_access table needs rebuilding.
     # We check for the existence of node_access_needs_rebuild() since
     # at install time, module_enable() could be called while node.module
     # is not enabled yet.
-    if (function_exists('node_access_needs_rebuild') and not node_access_needs_rebuild() and module_hook(_module, 'node_grants')):
+    if (drupal_function_exists('node_access_needs_rebuild') and not node_access_needs_rebuild() and module_hook(_module, 'node_grants')):
       node_access_needs_rebuild(True)
 
 
@@ -317,7 +318,7 @@ def module_disable(_module_list):
     # Refresh the module list to exclude the disabled modules.
     module_list(True, False)
     # Force to regenerate the stored list of hook implementations.
-    module_implements('', False, True)
+    drupal_rebuild_code_registry();
   # If there remains no more node_access module, rebuilding will be
   # straightforward, we can do it right now.
   if (node_access_needs_rebuild() and count(module_implements('node_grants')) == 0):
@@ -357,7 +358,11 @@ def module_disable(_module_list):
 #   implemented in that module.
 #
 def module_hook(_module, hook):
-  return function_exists(_module +  '_'  + hook)
+  function = _module + '_' + hook;
+  if (defined('MAINTENANCE_MODE')):
+    return function_exists(function);
+  else:
+     return drupal_function_exists(function);
 
 
 
@@ -382,20 +387,23 @@ def module_implements(hook, sort = False, refresh = False):
     static_moduleimplements_implementations = []
   if (refresh):
     static_moduleimplements_implementations = []
-    return
-  if (not isset(implementations, hook)):
+  elif (not defined('MAINTENANCE_MODE') and empty(static_moduleimplements_implementations)):
+    cache = cache_get('hooks', 'cache_registry')
+    if (cache):
+      static_moduleimplements_implementations = cache.data;
+  if (not isset(static_moduleimplements_implementations, hook)):
     static_moduleimplements_implementations[hook] = []
-    _list = module_list(False, True, sort)
-    for _module in list:
+    for _module in module_list():
       if (module_hook(_module, hook)):
-        implementations[hook].append( module )
+        static_moduleimplements_implementations[hook].append( module )
+  registry_cache_hook_implementations({'hook' : hook, 'modules' : static_moduleimplements_implementations[hook]});
   # The explicit cast forces a copy to be made. This is needed because
   # implementations[hook] is only a reference to an element of
   # implementations and if there are nested foreaches (due to nested node
   # API calls, for example), they would both manipulate the same array's
   # references, which causes some modules' hooks not to be called.
   # See also http://www.zend.com/zend/art/ref-count.php.
-  return drupy_array(implementations[hook])
+  return drupy_array(static_moduleimplements_implementations[hook])
 
 
 
@@ -415,8 +423,8 @@ def module_invoke(*args):
   _module = args[0]
   hook = args[1]
   del(args[0], args[1])
-  function = _module +  '_'  + hook
   if (module_hook(_module, hook)):
+    function = _module + '_' + hook
     return function( *args )
 
 
@@ -443,6 +451,12 @@ def module_invoke_all(*args):
       _return = array_merge_recursive(_return, result)
     elif (not empty(result)):
       _return.append( result )
+    if (drupal_function_exists(function)):
+      result = function(*args);
+      if (result != None and is_array(result)):
+        _return = array_merge_recursive(_return, result);
+      elif (result != None):
+        _return.append( result );
   return _return
 
 
