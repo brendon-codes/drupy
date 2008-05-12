@@ -1,4 +1,4 @@
-# $Id: common.inc,v 1.764 2008/04/14 17:48:33 dries Exp $
+# $Id: common.inc,v 1.765 2008/05/06 12:18:45 dries Exp $
 
 
 #
@@ -1247,6 +1247,8 @@ def drupal_page_footer():
   if (variable_get('cache', CACHE_DISABLED) != CACHE_DISABLED):
     page_set_cache();
   module_invoke_all('exit');
+  registry_cache_hook_implementations(False, True);
+  registry_cache_path_files();
 
 
 
@@ -2370,7 +2372,7 @@ def drupal_render(elements):
   # element is rendered into the final text.
   if (isset(elements.val, '#pre_render')):
     for function in elements.val['#pre_render']:
-      if (function_exists(function)):
+      if (drupal_function_exists(function)):
         elements.val = function(elements.val);
   content = '';
   # Either the elements did not go through form_builder or one of the children
@@ -2413,7 +2415,7 @@ def drupal_render(elements):
     # which allows the output'ed text to be filtered.
     if (isset(elements.val, '#post_render')):
       for function in elements.val['#post_render']:
-        if (function_exists(function)):
+        if (drupal_function_exists(function)):
           content = function(content, elements.val);
     prefix = (elements.val['#prefix'] if isset(elements.val, '#prefix') else '');
     suffix = (elements.val['#suffix'] if isset(elements.val, '#suffix') else '');
@@ -2782,10 +2784,10 @@ def drupal_uninstall_schema(module):
 #   The name of the table. If not given, the module's complete schema
 #   is returned.
 #
-def drupal_get_schema_unprocessed(module, table = None):
+def drupal_get_schema_unprocessed(_module, table = None):
   # Load the .install file to get hook_schema.
-  module_load_include('install', module);
-  schema = module_invoke(module, 'schema');
+  module_load_install(_module);
+  schema = module_invoke(_module, 'schema');
   if (not is_null(table) and isset(schema, table)):
     return schema[table];
   else:
@@ -3069,6 +3071,7 @@ def drupal_implode_tags(tags):
 def drupal_flush_all_caches():
   # Change query-strings on css/js files to enforce reload for all users.
   _drupal_flush_css_js();
+  drupal_rebuild_code_registry();
   drupal_clear_css_cache();
   drupal_clear_js_cache();
   system_theme_data();
@@ -3077,7 +3080,7 @@ def drupal_flush_all_caches():
   node_types_rebuild();
   # Don't clear cache_form - in-progress form submissions may break.
   # Ordered so clearing the page cache will always be the last action.
-  core = ['cache', 'cache_block', 'cache_filter', 'cache_page'];
+  core = ['cache', 'cache_block', 'cache_filter', 'cache_registry', 'cache_page'];
   cache_tables = array_merge(module_invoke_all('flush_caches'), core);
   for table in cache_tables:
     cache_clear_all('*', table, True);
