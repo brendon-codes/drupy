@@ -46,7 +46,7 @@ phases = [
   DRUPAL_BOOTSTRAP_FULL
 ];
 
-which_phase = phases[2];
+which_phase = phases[3];
 drupal_bootstrap(which_phase);
 
 # Bootstrapping tests

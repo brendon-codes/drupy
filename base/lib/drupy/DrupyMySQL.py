@@ -183,6 +183,9 @@ def mysql_affected_rows(cursor):
   return cursor.rowcount
 
 
+
+
+
 #
 # Dummy function
 # @return Non

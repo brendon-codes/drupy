@@ -213,7 +213,6 @@ def db_affected_rows():
 
 
 
-
 #
 # Runs a limited-range query in the active database.
 #
