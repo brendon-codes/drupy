@@ -1,4 +1,4 @@
-# $Id: theme.inc,v 1.420 2008/04/14 17:48:33 dries Exp $
+# $Id: theme.inc,v 1.422 2008/05/06 12:18:45 dries Exp $
 
 
 #
@@ -170,7 +170,8 @@ def _init_theme(_theme, base_theme = [], registry_callback = '_theme_load_regist
     # and our theme gets one too.
     if (not empty(theme.owner)):
       include_once( './' + theme.owner );
-  registry_callback(theme, base_theme, theme_engine);
+    if (drupal_function_exists(registry_callback)):
+      registry_callback(_theme, base_theme, theme_engine)
 
 
 
@@ -560,7 +561,7 @@ def theme():
       _variables = drupy.helper.Reference(variables);
       args = (_variables, hook);
       for preprocess_function in info['preprocess functions']:
-        if (function_exists(preprocess_function)):
+        if (drupal_function_exists(preprocess_function)):
           call_user_func_array(preprocess_function, args);
     # Get suggestions for alternate templates out of the variables
     # that were set. This lets us dynamically choose a template
@@ -1266,7 +1267,7 @@ def theme_username(_object):
     else:
       name = _object.name;
     if (user_access('access user profiles')):
-      output = l(name, 'user/'+ _object.uid, {'title' : t('View user profile.')});
+      output = l(name, 'user/' + _object.uid, {'attributes' : {'title' : t('View user profile.')}})
     else:
       output = check_plain(name);
   elif (nameSet):
@@ -1275,7 +1276,7 @@ def theme_username(_object):
     # aggregator modules)+ This clause enables modules to display
     # the True author of the content+
     if (isset(_object, 'homepage') and not empty(_object.homepage)):
-      output = l(_object.name, _object.homepage, {'rel' : 'nofollow'});
+      output = l(_object.name, _object.homepage, {'attributes' : {'rel' : 'nofollow'}});
     else:
       output = check_plain(_object.name);
     output += ' ('+ t('not verified') +')';

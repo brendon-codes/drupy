@@ -1,0 +1,47 @@
+--- drupy/ported/includes/theme.inc	2008-05-08 17:43:27.000000000 -0700
++++ drupal/includes/theme.inc	2008-05-12 14:59:36.000000000 -0700
+@@ -1,5 +1,5 @@
+ <?php
+-// $Id: theme.inc,v 1.420 2008/04/14 17:48:33 dries Exp $
++// $Id: theme.inc,v 1.422 2008/05/06 12:18:45 dries Exp $
+ 
+ /**
+  * @file
+@@ -177,7 +177,9 @@ function _init_theme($theme, $base_theme
+     }
+   }
+ 
+-  $registry_callback($theme, $base_theme, $theme_engine);
++  if (drupal_function_exists($registry_callback)) {
++    $registry_callback($theme, $base_theme, $theme_engine);
++  }
+ }
+ 
+ /**
+@@ -628,7 +630,7 @@ function theme() {
+       // call_user_func_array.
+       $args = array(&$variables, $hook);
+       foreach ($info['preprocess functions'] as $preprocess_function) {
+-        if (function_exists($preprocess_function)) {
++        if (drupal_function_exists($preprocess_function)) {
+           call_user_func_array($preprocess_function, $args);
+         }
+       }
+@@ -1552,7 +1554,7 @@ function theme_username($object) {
+     }
+ 
+     if (user_access('access user profiles')) {
+-      $output = l($name, 'user/' . $object->uid, array('title' => t('View user profile.')));
++      $output = l($name, 'user/' . $object->uid, array('attributes' => array('title' => t('View user profile.'))));
+     }
+     else {
+       $output = check_plain($name);
+@@ -1564,7 +1566,7 @@ function theme_username($object) {
+     // aggregator modules). This clause enables modules to display
+     // the true author of the content.
+     if (!empty($object->homepage)) {
+-      $output = l($object->name, $object->homepage, array('rel' => 'nofollow'));
++      $output = l($object->name, $object->homepage, array('attributes' => array('rel' => 'nofollow')));
+     }
+     else {
+       $output = check_plain($object->name);
