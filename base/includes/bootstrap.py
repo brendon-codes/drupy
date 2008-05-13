@@ -940,8 +940,8 @@ def _drupal_bootstrap(phase):
     require_once('./includes/database.py', globals());
     db_set_active();
     # Register autoload functions so that we can access classes and interfaces.
-    spl_autoload_register('drupal_autoload_class')
-    spl_autoload_register('drupal_autoload_interface')
+    # spl_autoload_register('drupal_autoload_class')
+    # spl_autoload_register('drupal_autoload_interface')
   elif phase == DRUPAL_BOOTSTRAP_ACCESS:
     # Deny access to blocked IP addresses - t() is not yet available
     if (drupal_is_denied(ip_address())):
