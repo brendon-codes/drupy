@@ -62,7 +62,7 @@ def db_query(query, *args):
   if (isset(args, 0) and is_array(args[0])): # 'All arguments in one array' syntax
     args = args[0]
   _db_query_callback(args, True)
-  query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', query)
+  query = preg_replace_callback(DB_QUERY_REGEXP, _db_query_callback, query)
   return _db_query(query)
 
 

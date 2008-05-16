@@ -220,15 +220,15 @@ def _db_query_callback(match, init = False):
   if (init):
     static_dbquerycallback_args = match;
     return;
-  if case == '%d': # We must use type casting to int to convert FALSE/NULL/(TRUE?)
+  if match[1] == '%d': # We must use type casting to int to convert FALSE/NULL/(TRUE?)
     return int(array_shift(static_dbquerycallback_args)); # We don't need db_escape_string as numbers are db-safe
-  elif case == '%s':
+  elif match[1] == '%s':
     return db_escape_string(array_shift(static_dbquerycallback_args));
-  elif case == '%%':
+  elif match[1] == '%%':
     return '%';
-  elif case == '%f':
+  elif match[1] == '%f':
     return float(array_shift(static_dbquerycallback_args));
-  elif case == '%b': # binary data
+  elif match[1] == '%b': # binary data
     return db_encode_blob(array_shift(static_dbquerycallback_args));
 
 

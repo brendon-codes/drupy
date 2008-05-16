@@ -1,4 +1,3 @@
-<?php
 # Id: menu.inc,v 1.272 2008/05/13 17:38:42 dries Exp $
 #
 # @file
@@ -180,8 +179,8 @@ define('MENU_MAX_DEPTH', 9)
 #
 def menu_get_ancestors(parts):
   number_parts = count(parts)
-  placeholders = array()
-  ancestors = array()
+  placeholders = []
+  ancestors = []
   length =  number_parts - 1
   end = (1 << number_parts) - 1
   masks = variable_get('menu_masks', array())
@@ -190,28 +189,23 @@ def menu_get_ancestors(parts):
     if (i > end):
       # Only look at masks that are not longer than the path of interest.
       continue
-    }
     elif (i < (1 << length)):
       # We have exhausted the masks of a given length, so decrease the length.
-      --length
-    }
+      length -= 1
     current = ''
-    for (j = length; j >= 0; j--):
+    for j in range(length, -1, -1):
       if (i & (1 << j)):
         current += parts[length - j]
-      }
       else:
         current += '%'
-      }
       if (j):
         current += '/'
-      }
-    }
-    placeholders[] = "'%s'"
-    ancestors[] = current
-  }
-  return array(ancestors, placeholders)
-}
+    placeholders.append( "'%s'" )
+    ancestors.append( current )
+  return (ancestors, placeholders)
+
+
+
 #
 # The menu system uses serialized arrays stored in the database for
 # arguments. However, often these need to change according to the
@@ -233,18 +227,18 @@ def menu_get_ancestors(parts):
 #   The data array unserialized and mapped.
 #
 def menu_unserialize(data, map):
-  if (data = unserialize(data)):
+  data = unserialize(data)
+  if (data):
     for k,v in data.items():
       if (is_int(v)):
-        data[k] = isset(map[v]) ? map[v] : ''
-      }
-    }
+        data[k] = (map[v] if isset(map, v) else '')
     return data
-  }
   else:
-    return array()
-  }
-}
+    return []
+
+
+
+
 #
 # Replaces the statically cached item for a given path.
 #
@@ -258,7 +252,8 @@ def menu_unserialize(data, map):
 #
 def menu_set_item(path, router_item):
   menu_get_item(path, router_item)
-}
+
+
 #
 # Get a router item.
 #
@@ -275,55 +270,48 @@ def menu_set_item(path, router_item):
 #   filled in based on the database values and the objects loaded.
 #
 def menu_get_item(path = None, router_item = None):
-  static router_items
+  global static_menugetitem_routeritems
   if (not isset(path)):
     path = _GET['q']
-  }
   if (isset(router_item)):
-    router_items[path] = router_item
-  }
-  if (not isset(router_items[path])):
+    static_menugetitem_routeritems[path] = router_item
+  if (not isset(static_menugetitem_routeritems, path)):
     original_map = arg(None, path)
     parts = array_slice(original_map, 0, MENU_MAX_PARTS)
-    list(ancestors, placeholders) = menu_get_ancestors(parts)
-    if (router_item = db_fetch_array(db_query_range('SELECT * FROM {menu_router} WHERE path IN (' +  implode (',', placeholders)  + ') ORDER BY fit DESC', ancestors, 0, 1))):
-      map = _menu_translate(router_item, original_map)
-      if (map == False):
-        router_items[path] = False
+    (ancestors, placeholders) = menu_get_ancestors(parts)
+    router_item = db_fetch_array(db_query_range('SELECT * FROM {menu_router} WHERE path IN (' +  implode (',', placeholders)  + ') ORDER BY fit DESC', ancestors, 0, 1))
+    if (router_item):
+      _map = _menu_translate(router_item, original_map)
+      if (_map == False):
+        static_menugetitem_routeritems[path] = False
         return False
-      }
       if (router_item['access']):
         router_item['map'] = map
         router_item['page_arguments'] = array_merge(menu_unserialize(router_item['page_arguments'], map), array_slice(map, router_item['number_parts']))
-      }
-    }
-    router_items[path] = router_item
-  }
-  return router_items[path]
-}
+    static_menugetitem_routeritems[path] = router_item
+  return static_menugetitem_routeritems[path]
+
+
 #
 # Execute the page callback associated with the current path
 #
 def menu_execute_active_handler(path = None):
   if (_menu_site_is_offline()):
     return MENU_SITE_OFFLINE
-  }
   if (variable_get('menu_rebuild_needed', False)):
     menu_rebuild()
-  }
-  if (router_item = menu_get_item(path)):
+  router_item = menu_get_item(path)
+  if (router_item):
     registry_load_path_files()
     if (router_item['access']):
       if (drupal_function_exists(router_item['page_callback'])):
-        return call_user_func_array(router_item['page_callback'], router_item['page_arguments'])
-      }
-    }
+        return router_item['page_callback']( *router_item['page_arguments'] )
     else:
       return MENU_ACCESS_DENIED
-    }
-  }
   return MENU_NOT_FOUND
-}
+
+
+
 #
 # Loads objects into the map as defined in the item['load_functions'].
 #
@@ -338,22 +326,25 @@ def menu_execute_active_handler(path = None):
 #   item['load_functions'] array.
 #   item['access'] is set to False if an object cannot be loaded.
 #
-def _menu_load_objects(&item, &map):
-  if (load_functions = item['load_functions']):
+def _menu_load_objects(item, _map):
+  DrupyHelper.Reference.check(item)
+  DrupyHelper.Reference.check(_map)
+  load_functions = item['load_functions']
+  if (load_functions):
     # If someone calls this function twice, then unserialize will fail.
-    if (load_functions_unserialized = unserialize(load_functions)):
+    load_functions_unserialized = unserialize(load_functions)
+    if (load_functions_unserialized):
       load_functions = load_functions_unserialized
-    }
-    path_map = map
+    path_map = _map.val
     for index,function in load_functions.items():
       if (function):
-        value = isset(path_map[index]) ? path_map[index] : ''
+        value = (path_map[index] if isset(path_map, index) else '')
         if (is_array(function)):
           # Set up arguments for the load function. These were pulled from
           # 'load arguments' in the hook_menu() entry, but they need
           # some processing. In this case the function is the key to the
           # load_function array, and the value is the list of arguments.
-          list(function, args) = each(function)
+          function, args = each(function)
           load_functions[index] = function
           # Some arguments are placeholders for dynamic items to process.
           for i,arg in args.items():
@@ -361,36 +352,27 @@ def _menu_load_objects(&item, &map):
               # Pass on argument index to the load function, so multiple
               # occurances of the same placeholder can be identified.
               args[i] = index
-            }
             if (arg == '%map'):
               # Pass on menu map by reference. The accepting function must
               # also declare this as a reference if it wants to modify
               # the map.
-              args[i] = &map
-            }
+              args[i] = _map
             if (is_int(arg)):
-              args[i] = isset(path_map[arg]) ? path_map[arg] : ''
-            }
-          }
+              args[i] = (path_map[arg] if isset(path_map, arg) else '')
           array_unshift(args, value)
-          return = call_user_func_array(function, args)
-        }
+          _return = function(*args)
         else:
-          return = function(value)
-        }
+          _return = function(value)
         # If callback returned an error or there is no callback, trigger 404.
-        if (return == False):
-          item['access'] = False
-          map = False
+        if (_return == False):
+          item.val['access'] = False
+          _map.val = False
           return False
-        }
-        map[index] = return
-      }
-    }
-    item['load_functions'] = load_functions
-  }
+        map.val[index] = _return
+    item.val['load_functions'] = load_functions
   return True
-}
+
+
 #
 # Check access to a menu item using the access callback
 #
@@ -401,26 +383,25 @@ def _menu_load_objects(&item, &map):
 # @return
 #   item['access'] becomes True if the item is accessible, False otherwise.
 #
-def _menu_check_access(&item, map):
+def _menu_check_access(item, _map):
+  DrupyHelper.Reference.check(item)
   # Determine access callback, which will decide whether or not the current
   # user has access to this path.
-  callback = empty(item['access_callback']) ? 0 : trim(item['access_callback'])
+  callback = (0 if empty(item.val['access_callback']) else trim(item.val['access_callback']))
   # Check for a True or False value.
   if (is_numeric(callback)):
-    item['access'] = (bool)callback
-  }
+    item['access'] = drupy_bool(callback)
   else:
-    arguments = menu_unserialize(item['access_arguments'], map)
+    arguments = menu_unserialize(item.val['access_arguments'], _map)
     # As call_user_func_array is quite slow and user_access is a very common
     # callback, it is worth making a special case for it.
     if (callback == 'user_access'):
-      item['access'] = (count(arguments) == 1) ? user_access(arguments[0]) : user_access(arguments[0], arguments[1])
-    }
+      item.val['access'] = (user_access(arguments[0]) if (count(arguments) == 1) else user_access(arguments[0], arguments[1]))
     else:
-      item['access'] = call_user_func_array(callback, arguments)
-    }
-  }
-}
+      item.val['access'] = callback(*arguments)
+
+
+
 #
 # Localize the router item title using t() or another callback.
 #
