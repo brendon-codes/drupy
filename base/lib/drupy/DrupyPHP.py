@@ -304,48 +304,53 @@ def array_key_exists(name, item):
 # @param Str,Int val
 # @param Bool searchGlobal
 #
-def isset(obj, val, searchGlobal = False, data = {}):
+def isset(obj, val = None, searchGlobal = False, data = {}):
   sVal = None
-  # Dict
-  if isinstance(obj, dict):
-    # Get globals also
-    if searchGlobal:
-      sVal = array_merge(obj, globals())
-    else:
-      sVal = obj
-    if sVal.has_key(val):
-      data['val'] = obj[val]
-      data['msg'] = "Is Dict, Has Key, Globals: %s" % str(sVal)
-      return True
-    else:
-      data['val'] = None
-      data['msg'] = "Is Dict, Has Not Key, Globals: %s" % str(sVal)
-      return False
-  # List
-  elif isinstance(obj, list) or isinstance(obj, tuple):
-    if (val < len(obj)):
-      data['val'] = obj[val]
-      data['msg'] = "Is Index, Has Key, Globals: %s" % str(sVal)
-      return True
-    else:
-      data['val'] = None
-      data['msg'] = "Is Index, Has Not Key, Globals: %s" % str(sVal)
-      return False
-  # Object
-  elif isinstance(obj, object):
-    if hasattr(obj, val):
-      data['val'] = getattr(obj, val)
-      data['msg'] = "Is Object, Has Key, Globals: %s" % str(sVal)
-      return True
-    else:
-      data['val'] = None
-      data['msg'] = "Is Object, Has Not Key, Globals: %s" % str(sVal)
-      return False
-  # Others unknown
+  # First check for single None value
+  if val == None:
+    return (obj != None)
+  # Check object|list|dict > property|index|key
   else:
-    data['Val'] = None
-    data['msg'] = "Is Unknown, Has Not Key Globals: %s" % str(sVal)
-    return False
+    # Dict
+    if isinstance(obj, dict):
+      # Get globals also
+      if searchGlobal:
+        sVal = array_merge(obj, globals())
+      else:
+        sVal = obj
+      if sVal.has_key(val):
+        data['val'] = obj[val]
+        data['msg'] = "Is Dict, Has Key, Globals: %s" % str(sVal)
+        return True
+      else:
+        data['val'] = None
+        data['msg'] = "Is Dict, Has Not Key, Globals: %s" % str(sVal)
+        return False
+    # List
+    elif isinstance(obj, list) or isinstance(obj, tuple):
+      if (val < len(obj)):
+        data['val'] = obj[val]
+        data['msg'] = "Is Index, Has Key, Globals: %s" % str(sVal)
+        return True
+      else:
+        data['val'] = None
+        data['msg'] = "Is Index, Has Not Key, Globals: %s" % str(sVal)
+        return False
+    # Object
+    elif isinstance(obj, object):
+      if hasattr(obj, val):
+        data['val'] = getattr(obj, val)
+        data['msg'] = "Is Object, Has Key, Globals: %s" % str(sVal)
+        return True
+      else:
+        data['val'] = None
+        data['msg'] = "Is Object, Has Not Key, Globals: %s" % str(sVal)
+        return False
+    # Others unknown
+    else:
+      data['Val'] = None
+      data['msg'] = "Is Unknown, Has Not Key Globals: %s" % str(sVal)
+      return False
 
 
 #
