@@ -75,13 +75,14 @@
 # Flags for use in the "type" attribute of menu items.
 #
 
-#define('MENU_IS_ROOT', 0x0001)
-#define('MENU_VISIBLE_IN_TREE', 0x0002)
-#define('MENU_VISIBLE_IN_BREADCRUMB', 0x0004)
-#define('MENU_LINKS_TO_PARENT', 0x0008)
-#define('MENU_MODIFIED_BY_ADMIN', 0x0020)
-#define('MENU_CREATED_BY_ADMIN', 0x0040)
-#define('MENU_IS_LOCAL_TASK', 0x0080)
+define('MENU_IS_ROOT', 0x0001)
+define('MENU_VISIBLE_IN_TREE', 0x0002)
+define('MENU_VISIBLE_IN_BREADCRUMB', 0x0004)
+define('MENU_LINKS_TO_PARENT', 0x0008)
+define('MENU_MODIFIED_BY_ADMIN', 0x0020)
+define('MENU_CREATED_BY_ADMIN', 0x0040)
+define('MENU_IS_LOCAL_TASK', 0x0080)
+
 #
 # @} End of "Menu flags".
 #
@@ -96,30 +97,34 @@
 # the administrator. Use this for most menu items. It is the default value if
 # no menu item type is specified.
 #
-#define('MENU_NORMAL_ITEM', MENU_VISIBLE_IN_TREE | MENU_VISIBLE_IN_BREADCRUMB)
+define('MENU_NORMAL_ITEM', MENU_VISIBLE_IN_TREE | MENU_VISIBLE_IN_BREADCRUMB)
+
 #
 # Callbacks simply register a path so that the correct function is fired
 # when the URL is accessed. They are not shown in the menu.
 #
-#define('MENU_CALLBACK', MENU_VISIBLE_IN_BREADCRUMB)
+define('MENU_CALLBACK', MENU_VISIBLE_IN_BREADCRUMB)
+
 #
 # Modules may "suggest" menu items that the administrator may enable. They act
 # just as callbacks do until enabled, at which time they act like normal items.
 # Note for the value: 0x0010 was a flag which is no longer used, but this way
 # the values of MENU_CALLBACK and MENU_SUGGESTED_ITEM are separate.
 #
-#define('MENU_SUGGESTED_ITEM', MENU_VISIBLE_IN_BREADCRUMB | 0x0010)
-#
+define('MENU_SUGGESTED_ITEM', MENU_VISIBLE_IN_BREADCRUMB | 0x0010)
+
 # Local tasks are rendered as tabs by default. Use this for menu items that
 # describe actions to be performed on their parent item. An example is the path
 # "node/52/edit", which performs the "edit" task on "node/52".
 #
-#define('MENU_LOCAL_TASK', MENU_IS_LOCAL_TASK)
+define('MENU_LOCAL_TASK', MENU_IS_LOCAL_TASK)
+
 #
 # Every set of local tasks should provide one "default" task, that links to the
 # same path as its parent when clicked.
 #
-#define('MENU_DEFAULT_LOCAL_TASK', MENU_IS_LOCAL_TASK | MENU_LINKS_TO_PARENT)
+define('MENU_DEFAULT_LOCAL_TASK', MENU_IS_LOCAL_TASK | MENU_LINKS_TO_PARENT)
+
 #
 # @} End of "Menu item types".
 #
@@ -129,10 +134,12 @@
 # Status codes for menu callbacks.
 #
 
-#define('MENU_FOUND', 1)
-#define('MENU_NOT_FOUND', 2)
-#define('MENU_ACCESS_DENIED', 3)
-#define('MENU_SITE_OFFLINE', 4)
+define('MENU_FOUND', 1)
+define('MENU_NOT_FOUND', 2)
+define('MENU_ACCESS_DENIED', 3)
+define('MENU_SITE_OFFLINE', 4)
+
+
 #
 # @} End of "Menu status codes".
 #
@@ -144,11 +151,13 @@
 #
 # The maximum number of path elements for a menu callback
 #
-#define('MENU_MAX_PARTS', 7)
+define('MENU_MAX_PARTS', 7)
+
 #
 # The maximum depth of a menu links tree - matches the number of p columns.
 #
-#define('MENU_MAX_DEPTH', 9)
+define('MENU_MAX_DEPTH', 9)
+
 #
 # @} End of "Menu tree parameters".
 #
@@ -193,7 +202,7 @@ def menu_get_ancestors(parts):
       continue
     elif (i < (1 << length)):
       # We have exhausted the masks of a given length, so decrease the length.
-      --length
+      length -= 1
     current = ''
     for i in range(length, -1, -1):
       if (i & (1 << j)):
@@ -202,9 +211,9 @@ def menu_get_ancestors(parts):
         current += '%'
       if (j):
         current += '/'
-    placeholders.append(["'%s'"])
-    ancestors.append([current])
-  return ancestors, placeholders
+    placeholders.append("'%s'")
+    ancestors.append(current)
+  return (ancestors, placeholders)
 
 
 
@@ -229,10 +238,11 @@ def menu_get_ancestors(parts):
 #   The data array unserialized and mapped.
 #
 def menu_unserialize(data, _map):
-  if (data == unserialize(data)):
+  data = unserialize(data)
+  if (not empty(data)):
     for k,v in data.items():
       if (is_int(v)):
-        data[k] = map[v] if isset(map, v) else ''
+        data[k] = (_map[v] if isset(_map, v) else '')
     return data
   else:
     return dict()
@@ -271,25 +281,26 @@ def menu_set_item(path, router_item):
 #   filled in based on the database values and the objects loaded.
 #
 def menu_get_item(path = None, router_item = None):
-  global static_menugetitem_router_items
-  if (not isset(path)):
+  global static_menugetitem_routeritems
+  if (path == None):
     path = _GET['q']
-  if (isset(router_item)):
+  if (router_item != None):
     router_items[path] = router_item
   if (not isset(router_items, path)):
     original_map = arg(None, path)
     parts = array_slice(original_map, 0, MENU_MAX_PARTS)
     ancestors, placeholders = menu_get_ancestors(parts)
-    if (router_item == db_fetch_array(db_query_range('SELECT * FROM {menu_router} WHERE path IN (' + implode (',', placeholders) + ') ORDER BY fit DESC', ancestors, 0, 1))):
+    router_item = db_fetch_array(db_query_range('SELECT * FROM {menu_router} WHERE path IN (' + implode (',', placeholders) + ') ORDER BY fit DESC', ancestors, 0, 1))
+    if (router_item):
       _map = _menu_translate(router_item, original_map)
       if (_map == False):
-        router_items[path] = False
+        static_menugetitem_routeritems[path] = False
         return False
       if (router_item['access']):
         router_item['_map'] = _map
         router_item['page_arguments'] = array_merge(menu_unserialize(router_item['page_arguments'], _map), array_slice(_map, router_item['number_parts']))
-    router_items[path] = router_item
-  return router_items[path]
+    static_menugetitem_routeritems[path] = router_item
+  return static_menugetitem_routeritems[path]
 
 
 
@@ -298,18 +309,21 @@ def menu_get_item(path = None, router_item = None):
 #
 def menu_execute_active_handler(path = None):
   if (_menu_site_is_offline()):
-    return MENU_SITE_OFFLINE
+    return MENU_SITE_OFFLINE;
   if (variable_get('menu_rebuild_needed', False)):
-    menu_rebuild()
-  if (router_item == menu_get_item(path)):
+    menu_rebuild();
+  router_item = menu_get_item(path)
+  if (router_item):
+    cache = cache_get('registry:' + router_item['path'], 'cache_registry')
+    if (not empty(cache.data)):
+      for file in explode(';', cache.data):
+        require_once(file)
     if (router_item['access']):
-      if (router_item['file']):
-        require_once(router_item['file'])
-      return call_user_func_array(router_item['page_callback'], router_item['page_arguments'])
+      if (drupal_function_exists(router_item['page_callback'])):
+        return router_item['page_callback']( *router_item['page_arguments'] )
     else:
-      return MENU_ACCESS_DENIED
-  return MENU_NOT_FOUND
-
+      return MENU_ACCESS_DENIED;
+  return MENU_NOT_FOUND;
 
 
 #
@@ -326,15 +340,17 @@ def menu_execute_active_handler(path = None):
 #   item['load_functions'] array.
 #   item['access'] is set to False if an object cannot be loaded.
 #
-def _menu_load_objects(item, _map):
-  if (load_functions == item['load_functions']):
+def _menu_load_objects(_item, _map):
+  load_functions = _item['load_functions']
+  if (load_functions):
     # If someone calls this function twice, then unserialize will fail.
-    if (load_functions_unserialized == unserialize(load_functions)):
+    load_functions_unserialized = unserialize(load_functions)
+    if (load_functions_unserialized):
       load_functions = load_functions_unserialized
     path_map = _map
     for index,function in load_functions.items():
       if (function):
-        value = path_map[index] if isset(path_map, index) else ''
+        value = (path_map[index] if isset(path_map, index) else '')
         if (is_array(function)):
           # Set up arguments for the load function. These were pulled from
           # 'load arguments' in the hook_menu() entry, but they need
@@ -354,18 +370,18 @@ def _menu_load_objects(item, _map):
               # the map.
               args[i] = _map
             if (is_int(arg)):
-              args[i] = path_map[arg] if isset(path_map, arg) else ''
+              args[i] = (path_map[arg] if isset(path_map, arg) else '')
           array_unshift(args, value)
-          return  call_user_func_array(function, args)
+          return function( *args )
         else:
           return  function(value)
         # If callback returned an error or there is no callback, trigger 404.
         if (_return == False):
-          item['access'] = False
+          _item['access'] = False
           _map = False
           return False
         _map[index] = _return
-    item['load_functions'] = load_functions
+    _item['load_functions'] = load_functions
   return True
 
 
@@ -380,22 +396,22 @@ def _menu_load_objects(item, _map):
 # @return
 #   item['access'] becomes True if the item is accessible, False otherwise.
 #
-def _menu_check_access(item, _map):
+def _menu_check_access(_item, _map):
   # Determine access callback, which will decide whether or not the current
   # user has access to this path.
-  DrupyHelper.Reference.check(item)
-  callback = 0 if empty(item['access_callback']) else trim(item, 'access_callback')
+  DrupyHelper.Reference.check(_item)
+  callback = (0 if empty(_item['access_callback']) else trim(_item, 'access_callback'))
   # Check for a True or False value.
   if (is_numeric(callback)):
-    item['access'] = bool(callback)
+    item['access'] = drupy_bool(callback)
   else:
-    arguments = menu_unserialize(item['access_arguments'], _map)
+    arguments = menu_unserialize(_item['access_arguments'], _map)
     # As call_user_func_array is quite slow and user_access is a very common
     # callback, it is worth making a special case for it.
     if (callback == 'user_access'):
-      item['access'] = user_access(arguments[0]) if (count(arguments) == 1) else user_access(arguments[0], arguments[1])
+      item['access'] = (user_access(arguments[0]) if (count(arguments) == 1) else user_access(arguments[0], arguments[1]))
     else:
-      item['access'] = call_user_func_array(callback, arguments)
+      item['access'] = callback(*arguments)
 
 
 
@@ -424,36 +440,36 @@ def _menu_check_access(item, _map):
 #   When doing link translation and the item['options']['attributes']['title']
 #   (link title attribute) matches the description, it is translated as well.
 #
-def _menu_item_localize(item, map, link_translate = False):
-  DrupyHelper.Reference.check(item)
-  callback = item['title_callback']
-  item['localized_options'] = item['options']
+def _menu_item_localize(_item, _map, link_translate = False):
+  DrupyHelper.Reference.check(_item)
+  callback = _item['title_callback']
+  _item['localized_options'] = _item['options']
   # If we are not doing link translation or if the title matches the
   # link title of its router item, localize it.
-  if (not link_translate or (not empty(item['title']) and (item['title'] == item['link_title']))):
+  if (not link_translate or (not empty(_item['title']) and (_item['title'] == _item['link_title']))):
     # t() is a special case. Since it is used very close to all the time,
     # we handle it directly instead of using indirect, slower methods.
     if (callback == 't'):
-      if (empty(item['title_arguments'])):
-        item['title'] = t(item['title'])
+      if (empty(_item['title_arguments'])):
+        _item['title'] = t(_item['title'])
       else:
-        item['title'] = t(item['title'], menu_unserialize(item['title_arguments'], _map))
+        _item['title'] = t(_item['title'], menu_unserialize(_item['title_arguments'], _map))
     elif (callback):
-      if (empty(item['title_arguments'])):
-        item['title'] = callback(item['title'])
+      if (empty(_item['title_arguments'])):
+        _item['title'] = callback(_item['title'])
       else:
-        item['title'] = call_user_func_array(callback, menu_unserialize(item['title_arguments'], _map))
+        _item['title'] = callback(*menu_unserialize(_item['title_arguments'], _map))
       # Avoid calling check_plain again on l() function.
       if (callback == 'check_plain'):
-        item['localized_options']['html'] = True
+        _item['localized_options']['html'] = True
   elif (link_translate):
-    item['title'] = item['link_title']
+    _item['title'] = _item['link_title']
   # Translate description, see the motivation above.
-  if (not empty(item['description'])):
-    original_description = item['description']
-    item['description'] = t(item['description'])
-    if (link_translate and item['options']['attributes']['title'] == original_description):
-      item['localized_options']['attributes']['title'] = item['description']
+  if (not empty(_item['description'])):
+    original_description = _item['description']
+    _item['description'] = t(_item['description'])
+    if (link_translate and _item['options']['attributes']['title'] == original_description):
+      _item['localized_options']['attributes']['title'] = _item['description']
 
 
 
@@ -497,7 +513,7 @@ def _menu_translate(router_item, _map, to_arg = False):
     _menu_link_map_translate(path_map, router_item['to_arg_functions'])
   # Generate the link path for the page request or local tasks.
   link_map = explode('/', router_item['path'])
-  for i in range(router_item['number_parts'], -1, +1):
+  for i in range(router_item['number_parts']):
     if (link_map[i] == '%'):
       link_map[i] = path_map[i]
   router_item['href'] = implode('/', link_map)
@@ -524,8 +540,8 @@ def _menu_link_map_translate(_map, to_arg_functions):
     to_arg_functions = unserialize(to_arg_functions)
     for index,function in to_arg_functions.items():
       # Translate place-holders into real values.
-      arg = function(_map[index] if not empty(_map[index]) else '', _map, index)
-      if (not empty(_map[index]) or isset(arg)):
+      arg = (function(_map[index] if not empty(_map[index]) else '', _map, index))
+      if (not empty(_map[index]) or (arg != None)):
         _map[index] = arg
       else:
         del(_map[index])
@@ -608,7 +624,7 @@ def _menu_link_translate(item):
 #
 def menu_get_object(type = 'node', position = 1, path = None):
   router_item = menu_get_item(path)
-  if (isset(router_item['load_functions'], position) and not empty(router_item['_map'][position]) and router_item['load_functions'],position == type +'_load'):
+  if (isset(router_item['load_functions'], position) and not empty(router_item['_map'][position]) and router_item['load_functions'][position] == type +'_load'):
     return router_item['_map'][position]
 
 
@@ -626,11 +642,13 @@ def menu_get_object(type = 'node', position = 1, path = None):
 #   The rendered HTML of that menu on the current page.
 #
 def menu_tree(menu_name = 'navigation'):
-  global static_menutree_menu_output
-  if (not isset(menu_output, menu_name)):
+  global static_menutree_menuoutput
+  if (static_menutree_menuoutput == None):
+    static_menutree_menuoutput = dict()
+  if (not isset(static_menutree_menuoutput, menu_name)):
     tree = menu_tree_page_data(menu_name)
-    menu_output[menu_name] = menu_tree_output(tree)
-  return menu_output[menu_name]
+    static_menutree_menuoutput[menu_name] = menu_tree_output(tree)
+  return static_menutree_menuoutput[menu_name]
 
 
 
