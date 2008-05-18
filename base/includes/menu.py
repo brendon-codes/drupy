@@ -427,48 +427,40 @@ def _menu_check_access(item, _map):
 #   When doing link translation and the item['options']['attributes']['title']
 #   (link title attribute) matches the description, it is translated as well.
 #
-def _menu_item_localize(&item, map, link_translate = False):
-  callback = item['title_callback']
-  item['localized_options'] = item['options']
+def _menu_item_localize(item, _map, link_translate = False):
+  DrupyHelper.Reference.check(item)
+  callback = item.val['title_callback']
+  item.val['localized_options'] = item.val['options']
   # If we are not doing link translation or if the title matches the
   # link title of its router item, localize it.
-  if (not link_translate or (not empty(item['title']) and (item['title'] == item['link_title']))):
+  if (not link_translate or (not empty(item.val['title']) and (item.val['title'] == item.val['link_title']))):
     # t() is a special case. Since it is used very close to all the time,
     # we handle it directly instead of using indirect, slower methods.
     if (callback == 't'):
-      if (empty(item['title_arguments'])):
-        item['title'] = t(item['title'])
-      }
+      if (empty(item.val['title_arguments'])):
+        item.val['title'] = t(item.val['title'])
       else:
-        item['title'] = t(item['title'], menu_unserialize(item['title_arguments'], map))
-      }
-    }
+        item['title'] = t(item.val['title'], menu_unserialize(item.val['title_arguments'], _map))
     elif (callback):
-      if (empty(item['title_arguments'])):
-        item['title'] = callback(item['title'])
-      }
+      if (empty(item.val['title_arguments'])):
+        item.val['title'] = callback(item.val['title'])
       else:
-        item['title'] = call_user_func_array(callback, menu_unserialize(item['title_arguments'], map))
-      }
+        item.val['title'] = callback(*menu_unserialize(item.val['title_arguments'], _map))
       # Avoid calling check_plain again on l() function.
       if (callback == 'check_plain'):
-        item['localized_options']['html'] = True
-      }
-    }
-  }
+        item.val['localized_options']['html'] = True
   elif (link_translate):
-    item['title'] = item['link_title']
-  }
-
+    item.val['title'] = item.val['link_title']
   # Translate description, see the motivation above.
-  if (not empty(item['description'])):
-    original_description = item['description']
-    item['description'] = t(item['description'])
-    if (link_translate and item['options']['attributes']['title'] == original_description):
-      item['localized_options']['attributes']['title'] = item['description']
-    }
-  }
-}
+  if (not empty(item.val['description'])):
+    original_description = item.val['description']
+    item.val['description'] = t(item.val['description'])
+    if (link_translate and item.val['options']['attributes']['title'] == original_description):
+      item.val['localized_options']['attributes']['title'] = item.val['description']
+
+
+
+
 #
 # Handles dynamic path translation and menu access control.
 #
@@ -498,30 +490,28 @@ def _menu_item_localize(&item, map, link_translate = False):
 #   If an error occurs during calling the load_functions (like trying to load
 #   a non existing node) then this function return False.
 #
-def _menu_translate(&router_item, map, to_arg = False):
-  path_map = map
-  if (not _menu_load_objects(router_item, map)):
+def _menu_translate(router_item, _map, to_arg = False):
+  DrupyHelper.Reference.check(router_item)
+  path_map = _map
+  if (not _menu_load_objects(router_item.val, _map)):
     # An error occurred loading an object.
-    router_item['access'] = False
+    router_item.val['access'] = False
     return False
-  }
   if (to_arg):
-    _menu_link_map_translate(path_map, router_item['to_arg_functions'])
-  }
-
+    _menu_link_map_translate(path_map, router_item.val['to_arg_functions'])
   # Generate the link path for the page request or local tasks.
-  link_map = explode('/', router_item['path'])
-  for (i = 0; i < router_item['number_parts']; i++):
+  link_map = explode('/', router_item.val['path'])
+  for i in range(router_item.val['number_parts']:
     if (link_map[i] == '%'):
       link_map[i] = path_map[i]
-    }
-  }
-  router_item['href'] = implode('/', link_map)
-  router_item['options'] = array()
-  _menu_check_access(router_item, map)
-  _menu_item_localize(router_item, map)
-  return map
-}
+  router_item.val['href'] = implode('/', link_map)
+  router_item.val['options'] = {}
+  _menu_check_access(router_item.val, _map)
+  _menu_item_localize(router_item.val, _map)
+  return _map
+
+
+
 #
 # This function translates the path elements in the map using any to_arg
 # helper function. These functions take an argument and return an object.
@@ -532,25 +522,28 @@ def _menu_translate(&router_item, map, to_arg = False):
 # @param to_arg_functions
 #   An array of helper function (ex: array(2 : 'menu_tail_to_arg'))
 #
-def _menu_link_map_translate(&map, to_arg_functions):
+def _menu_link_map_translate(_map, to_arg_functions):
+  DrupyHelper.Reference.check(_map)
   if (to_arg_functions):
     to_arg_functions = unserialize(to_arg_functions)
     for index,function in to_arg_functions.items():
       # Translate place-holders into real values.
-      arg = function(not empty(map[index]) ? map[index] : '', map, index)
+      arg = function(map.val[index] if (not empty(_map.val[index])) else ''), _map.val, index)
       if (not empty(map[index]) or isset(arg)):
-        map[index] = arg
-      }
+        _map.val[index] = arg
       else:
-        unset(map[index])
-      }
-    }
-  }
+        del(_map.val[index])
+
+
+
+
+def menu_tail_to_arg(arg, _map, index):
+  return implode('/', array_slice(_map, index))
 }
 
-def menu_tail_to_arg(arg, map, index):
-  return implode('/', array_slice(map, index))
-}
+
+
+
 #
 # This function is similar to _menu_translate() but does link-specific
 # preparation such as always calling to_arg functions
@@ -566,46 +559,41 @@ def menu_tail_to_arg(arg, map, index):
 #   item['options'] is unserialized; it is also changed within the call here
 #   to item['localized_options'] by _menu_item_localize().
 #
-def _menu_link_translate(&item):
-  item['options'] = unserialize(item['options'])
-  if (item['external']):
-    item['access'] = 1
-    map = array()
-    item['href'] = item['link_path']
-    item['title'] = item['link_title']
-    item['localized_options'] = item['options']
-  }
+def _menu_link_translate(item):
+  DrupyHelper.Reference.check(item)
+  item.val['options'] = unserialize(item.val['options'])
+  if (item.val['external']):
+    item.val['access'] = 1
+    _map = {}
+    item.val['href'] = item.val['link_path']
+    item.val['title'] = item.val['link_title']
+    item.val['localized_options'] = item.val['options']
   else:
-    map = explode('/', item['link_path'])
-    _menu_link_map_translate(map, item['to_arg_functions'])
-    item['href'] = implode('/', map)
+    _map = explode('/', item.val['link_path'])
+    _menu_link_map_translate(_map, item.val['to_arg_functions'])
+    item.val['href'] = implode('/', _map)
     # Note - skip callbacks without real values for their arguments.
-    if (strpos(item['href'], '%') !== False):
-      item['access'] = False
+    if (strpos(item.val['href'], '%') != False):
+      item.val['access'] = False
       return False
-    }
     # menu_tree_check_access() may set this ahead of time for links to nodes.
-    if (not isset(item['access'])):
-      if (not _menu_load_objects(item, map)):
+    if (not isset(item.val['access'])):
+      if (not _menu_load_objects(item.val, _map)):
         # An error occurred loading an object.
-        item['access'] = False
+        item.val['access'] = False
         return False
-      }
       _menu_check_access(item, map)
-    }
-
-    _menu_item_localize(item, map, True)
-  }
-
+    _menu_item_localize(item.val, _map, True)
   # Allow other customizations - e.g. adding a page-specific query string to the
   # options array. For performance reasons we only invoke this hook if the link
   # has the 'alter' flag set in the options array.
-  if (not empty(item['options']['alter'])):
-    drupal_alter('translated_menu_link', item, map)
-  }
+  if (not empty(item.val['options']['alter'])):
+    drupal_alter('translated_menu_link', item.val, _map)
+  return _map
 
-  return map
-}
+
+
+
 #
 # Get a loaded object from a router item.
 #
@@ -626,12 +614,14 @@ def _menu_link_translate(&item):
 # @param path
 #   See menu_get_item() for more on this. Defaults to the current path.
 #
-def menu_get_object(type = 'node', position = 1, path = None):
+def menu_get_object(_type = 'node', position = 1, path = None):
   router_item = menu_get_item(path)
-  if (isset(router_item['load_functions'][position]) and not empty(router_item['map'][position]) and router_item['load_functions'][position] == type +  '_load'):
+  if (isset(router_item['load_functions'], position) and not empty(router_item['map'][position]) and router_item['load_functions'][position] == _type +  '_load'):
     return router_item['map'][position]
-  }
-}
+
+
+
+
 #
 # Render a menu tree based on the current path.
 #
@@ -645,13 +635,17 @@ def menu_get_object(type = 'node', position = 1, path = None):
 #   The rendered HTML of that menu on the current page.
 #
 def menu_tree(menu_name = 'navigation'):
-  static menu_output = array()
-  if (not isset(menu_output[menu_name])):
+  global static_menutree_menuoutput
+  if static_menutree_menuoutput == None:
+    static_menutree_menuoutput = {}
+  if (not isset(static_menutree_menuoutput, menu_name)):
     tree = menu_tree_page_data(menu_name)
-    menu_output[menu_name] = menu_tree_output(tree)
-  }
-  return menu_output[menu_name]
-}
+    static_menutree_menuoutput[menu_name] = menu_tree_output(tree)
+  return static_menutree_menuoutput[menu_name]
+
+
+
+
 #
 # Returns a rendered menu tree.
 #
@@ -662,34 +656,30 @@ def menu_tree(menu_name = 'navigation'):
 #
 def menu_tree_output(tree):
   output = ''
-  items = array()
+  items = {}
   # Pull out just the menu items we are going to render so that we
   # get an accurate count for the first/last classes.
   for data in tree:
     if (not data['link']['hidden']):
-      items[] = data
-    }
-  }
-
+      items.append( data )
   num_items = count(items)
   for i,data in items.items():
     extra_class = None
     if (i == 0):
       extra_class = 'first'
-    }
     if (i == num_items - 1):
       extra_class = 'last'
-    }
     link = theme('menu_item_link', data['link'])
     if (data['below']):
       output += theme('menu_item', link, data['link']['has_children'], menu_tree_output(data['below']), data['link']['in_active_trail'], extra_class)
-    }
     else:
       output += theme('menu_item', link, data['link']['has_children'], '', data['link']['in_active_trail'], extra_class)
-    }
-  }
-  return output ? theme('menu_tree', output) : ''
-}
+  return (theme('menu_tree', output) if output else '')
+
+
+
+
+
 #
 # Get the data structure representing a named menu tree.
 #
@@ -706,44 +696,42 @@ def menu_tree_output(tree):
 #   An tree of menu links in an array, in the order they should be rendered.
 #
 def menu_tree_all_data(menu_name = 'navigation', item = None):
-  static tree = array()
+  global static_menutreealldata_tree
+  if static_menutreealldata_tree == None
+    static_menutreealldata_tree = {}
+  data = None
   # Use mlid as a flag for whether the data being loaded is for the whole tree.
-  mlid = isset(item['mlid']) ? item['mlid'] : 0
+  mlid = (item['mlid'] if isset(item, 'mlid') else 0)
   # Generate a cache ID (cid) specific for this menu_name and item.
-  cid = 'links:' +  menu_name  + ':all-cid:' . mlid
-  if (not isset(tree[cid])):
+  cid = 'links:' +  menu_name  + ':all-cid:' + mlid
+  if (not isset(static_menutreealldata_tree, cid)):
     # If the static variable doesn't have the data, check {cache_menu}.
     cache = cache_get(cid, 'cache_menu')
-    if (cache and isset(cache.data)):
+    if (cache and isset(cache, 'data')):
       # If the cache entry exists, it will just be the cid for the actual data.
       # This avoids duplication of large amounts of data.
       cache = cache_get(cache.data, 'cache_menu')
-      if (cache and isset(cache.data)):
+      if (cache and isset(cache, 'data')):
         data = cache.data
-      }
-    }
     # If the tree data was not in the cache, data will be None.
     if (not isset(data)):
       # Build and run the query, and build the tree.
       if (mlid):
         # The tree is for a single item, so we need to match the values in its
         # p columns and 0 (the top level) with the plid values of other links.
-        args = array(0)
-        for (i = 1; i < MENU_MAX_DEPTH; i++):
-          args[] = item["pi"]
-        }
+        args = [0]
+        for i in range(1, MENU_MAX_DEPTH):
+          args.append( item["pi"] )
         args = array_unique(args)
         placeholders = implode(', ', array_fill(0, count(args), '%d'))
         where = ' AND ml.plid IN (' +  placeholders  + ')'
         parents = args
-        parents[] = item['mlid']
-      }
+        parents.append( item['mlid'] )
       else:
         # Get all links in this menu.
         where = ''
-        args = array()
-        parents = array()
-      }
+        args = {}
+        parents = {}
       array_unshift(args, menu_name)
       # Select the links from the table, and recursively build the tree.  We
       # LEFT JOIN since there is no match in {menu_router} for an external
@@ -753,23 +741,21 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
         FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path
         WHERE ml.menu_name = '%s'" +  where  + "
         ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC", args), parents)
-      data['node_links'] = array()
+      data['node_links'] = {}
       menu_tree_collect_node_links(data['tree'], data['node_links'])
       # Cache the data, if it is not already in the cache.
       tree_cid = _menu_tree_cid(menu_name, data)
       if (not cache_get(tree_cid, 'cache_menu')):
         cache_set(tree_cid, data, 'cache_menu')
-      }
       # Cache the cid of the (shared) data using the menu and item-specific cid.
       cache_set(cid, tree_cid, 'cache_menu')
-    }
     # Check access for the current user to each item in the tree.
     menu_tree_check_access(data['tree'], data['node_links'])
-    tree[cid] = data['tree']
-  }
+    static_menutreealldata_tree[cid] = data['tree']
+  return static_menutreealldata_tree[cid]
 
-  return tree[cid]
-}
+
+
 #
 # Get the data structure representing a named menu tree, based on the current page.
 #
@@ -786,22 +772,24 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
 #   same structure described for the top-level array.
 #
 def menu_tree_page_data(menu_name = 'navigation'):
-  static tree = array()
+  global static_menutreepagedata_tree
+  if static_menutreepagedata_tree == None:
+    static_menutreepagedata_tree = {}
   # Load the menu item corresponding to the current page.
-  if (item = menu_get_item()):
+  data = None
+  item = menu_get_item()
+  if (item):
     # Generate a cache ID (cid) specific for this page.
-    cid = 'links:' +  menu_name  + ':page-cid:' . item['href'] . ':' . (int)item['access']
-    if (not isset(tree[cid])):
+    cid = 'links:' +  menu_name  + ':page-cid:' + item['href'] + ':' + int(item['access'])
+    if (not isset(tree, cid)):
       # If the static variable doesn't have the data, check {cache_menu}.
       cache = cache_get(cid, 'cache_menu')
-      if (cache and isset(cache.data)):
+      if (cache and isset(cache, 'data')):
         # If the cache entry exists, it will just be the cid for the actual data.
         # This avoids duplication of large amounts of data.
         cache = cache_get(cache.data, 'cache_menu')
-        if (cache and isset(cache.data)):
+        if (cache and isset(cache, 'data')):
           data = cache.data
-        }
-      }
       # If the tree data was not in the cache, data will be None.
       if (not isset(data)):
         # Build and run the query, and build the tree.
@@ -810,43 +798,41 @@ def menu_tree_page_data(menu_name = 'navigation'):
           args = array(menu_name, item['href'])
           placeholders = "'%s'"
           if (drupal_is_front_page()):
-            args[] = '<front>'
+            args.append( '<front>' )
             placeholders += ", '%s'"
-          }
           parents = db_fetch_array(db_query("SELECT p1, p2, p3, p4, p5, p6, p7, p8 FROM {menu_links} WHERE menu_name = '%s' AND link_path IN (" +  placeholders  + ")", args))
           if (empty(parents)):
             # If no link exists, we may be on a local task that's not in the links.
             # TODO: Handle the case like a local task on a specific node in the menu.
             parents = db_fetch_array(db_query("SELECT p1, p2, p3, p4, p5, p6, p7, p8 FROM {menu_links} WHERE menu_name = '%s' AND link_path = '%s'", menu_name, item['tab_root']))
-          }
           # We always want all the top-level links with plid == 0.
-          parents[] = '0'
+          parents.append( '0' )
           # Use array_values() so that the indices are numeric for array_merge().
           args = parents = array_unique(array_values(parents))
           placeholders = implode(', ', array_fill(0, count(args), '%d'))
-          expanded = variable_get('menu_expanded', array())
+          expanded = variable_get('menu_expanded', [])
           # Check whether the current menu has any links set to be expanded.
           if (in_array(menu_name, expanded)):
             # Collect all the links set to be expanded, and then add all of
             # their children to the list as well.
-            do {
+            while True:
               result = db_query("SELECT mlid FROM {menu_links} WHERE menu_name = '%s' AND expanded = 1 AND has_children = 1 AND plid IN (" +  placeholders  + ') AND mlid NOT IN (' . placeholders . ')', array_merge(array(menu_name), args, args))
               num_rows = False
-              while (item = db_fetch_array(result)):
-                args[] = item['mlid']
+              while True:
+                item = db_fetch_array(result)
+                if not item:
+                  break
+                args.append( item['mlid'] )
                 num_rows = True
-              }
               placeholders = implode(', ', array_fill(0, count(args), '%d'))
-            } while (num_rows)
-          }
+              if not num_rows:
+                break
           array_unshift(args, menu_name)
-        }
         else:
           # Show only the top-level menu items when access is denied.
           args = array(menu_name, '0')
           placeholders = '%d'
-          parents = array()
-        }
+          parents = {}
         # Select the links from the table, and recursively build the tree. We
         # LEFT JOIN since there is no match in {menu_router} for an external
         # link.
@@ -855,90 +841,94 @@ def menu_tree_page_data(menu_name = 'navigation'):
           FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path
           WHERE ml.menu_name = '%s' AND ml.plid IN (" +  placeholders  + ")
           ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC", args), parents)
-        data['node_links'] = array()
+        data['node_links'] = {}
         menu_tree_collect_node_links(data['tree'], data['node_links'])
         # Cache the data, if it is not already in the cache.
         tree_cid = _menu_tree_cid(menu_name, data)
         if (not cache_get(tree_cid, 'cache_menu')):
           cache_set(tree_cid, data, 'cache_menu')
-        }
         # Cache the cid of the (shared) data using the page-specific cid.
         cache_set(cid, tree_cid, 'cache_menu')
-      }
       # Check access for the current user to each item in the tree.
       menu_tree_check_access(data['tree'], data['node_links'])
-      tree[cid] = data['tree']
-    }
-    return tree[cid]
-  }
+      static_menutreepagedata_tree[cid] = data['tree']
+    return static_menutreepagedata_tree[cid]
+  return {}
 
-  return array()
-}
+
+
+
 #
 # Helper function - compute the real cache ID for menu tree data.
 #
 def _menu_tree_cid(menu_name, data):
-  return 'links:' +  menu_name  + ':tree-data:' . md5(serialize(data))
-}
+  return 'links:' +  menu_name  + ':tree-data:' + md5(serialize(data))
+
+
+
+
 #
 # Recursive helper function - collect node links.
 #
-def menu_tree_collect_node_links(&tree, &node_links):
-  for key,v in tree.items():
-    if (tree[key]['link']['router_path'] == 'node/%'):
+def menu_tree_collect_node_links(tree, node_links):
+  DrupyHelper.Reference.check(tree)
+  DrupyHelper.Reference.check(node_links)
+  for key,v in tree.val.items():
+    if (tree.val[key]['link']['router_path'] == 'node/%'):
       nid = substr(tree[key]['link']['link_path'], 5)
       if (is_numeric(nid)):
-        node_links[nid][tree[key]['link']['mlid']] = &tree[key]['link']
-        tree[key]['link']['access'] = False
-      }
-    }
-    if (tree[key]['below']):
-      menu_tree_collect_node_links(tree[key]['below'], node_links)
-    }
-  }
-}
+        node_links.val[nid][tree[key]['link']['mlid']] = DrupyHelper.Reference(tree.val[key]['link'])
+        tree.val[key]['link']['access'] = False
+    if (tree.val[key]['below']):
+      menu_tree_collect_node_links(tree[key]['below'], node_links.val)
+
+
+
 #
 # Check access and perform other dynamic operations for each link in the tree.
 #
-def menu_tree_check_access(&tree, node_links = array()):
-
-  if (node_links):
+def menu_tree_check_access(tree, node_links = {}):
+  DrupyHelper.Reference.check(tree)
+  if (not empty(node_links)):
     # Use db_rewrite_sql to evaluate view access without loading each full node.
     nids = array_keys(node_links)
     placeholders = '%d' +  str_repeat(', %d', count(nids) - 1)
     result = db_query(db_rewrite_sql("SELECT n.nid FROM {node} n WHERE n.status = 1 AND n.nid IN (" +  placeholders  + ")"), nids)
-    while (node = db_fetch_array(result)):
+    while True:
+      node = db_fetch_array(result)
+      if not node:
+        break
       nid = node['nid']
-      foreach (node_links[nid] as mlid : link):
+      for mlid,link in node_links[nid].items():
         node_links[nid][mlid]['access'] = True
-      }
-    }
-  }
-  _menu_tree_check_access(tree)
+  _menu_tree_check_access(tree.val)
   return
-}
+
+
+
+
 #
 # Recursive helper function for menu_tree_check_access()
 #
-def _menu_tree_check_access(&tree):
-  new_tree = array()
-  for key,v in tree.items():
-    item = &tree[key]['link']
+def _menu_tree_check_access(tree):
+  DrupyHelper.Reference.check(tree)
+  new_tree = {}
+  for key,v in tree.val.items():
+    item = DrupyHelper.Reference(tree.val[key]['link'])
     _menu_link_translate(item)
-    if (item['access']):
-      if (tree[key]['below']):
-        _menu_tree_check_access(tree[key]['below'])
-      }
+    if (item.val['access']):
+      if (tree.val[key]['below']):
+        _menu_tree_check_access(tree.val[key]['below'])
       # The weights are made a uniform 5 digits by adding 50000 as an offset.
       # After _menu_link_translate(), item['title'] has the localized link title.
       # Adding the mlid to the end of the index insures that it is unique.
-      new_tree[(50000 + item['weight']) +  ' '  + item['title'] . ' ' . item['mlid']] = tree[key]
-    }
-  }
+      new_tree[(50000 + item['weight']) +  ' '  + item['title'] + ' ' + item['mlid']] = tree.val[key]
   # Sort siblings in the tree based on the weights and localized titles.
   ksort(new_tree)
-  tree = new_tree
-}
+  tree.val = new_tree
+
+
+
 #
 # Build the data representing a menu tree.
 #
@@ -952,10 +942,13 @@ def _menu_tree_check_access(&tree):
 # @return
 #   See menu_tree_page_data for a description of the data structure.
 #
-def menu_tree_data(result = None, parents = array(), depth = 1):
-  list(, tree) = _menu_tree_data(result, parents, depth)
+def menu_tree_data(result = None, parents = {}, depth = 1):
+  tree = _menu_tree_data(result, parents, depth)[1]
   return tree
-}
+
+
+
+
 #
 # Recursive helper function to build the data representing a menu tree.
 #
@@ -965,58 +958,55 @@ def menu_tree_data(result = None, parents = array(), depth = 1):
 #
 def _menu_tree_data(result, parents, depth, previous_element = ''):
   remnant = None
-  tree = array()
-  while (item = db_fetch_array(result)):
+  tree = {}
+  while True:
+    item = db_fetch_array(result)
+    if not item:
+      break
     # We need to determine if we're on the path to root so we can later build
     # the correct active trail and breadcrumb.
     item['in_active_trail'] = in_array(item['mlid'], parents)
     # The current item is the first in a new submenu.
     if (item['depth'] > depth):
       # _menu_tree returns an item and the menu tree structure.
-      list(item, below) = _menu_tree_data(result, parents, item['depth'], item)
+      item, below = _menu_tree_data(result, parents, item['depth'], item)
       if (previous_element):
-        tree[previous_element['mlid']] = array(
+        tree[previous_element['mlid']] = {
           'link' : previous_element,
           'below' : below,
-        )
-      }
+        }
       else:
         tree = below
-      }
       # We need to fall back one level.
-      if (not isset(item) or item['depth'] < depth):
-        return array(item, tree)
-      }
+      if (item == None or item['depth'] < depth):
+        return [item, tree]
       # This will be the link to be output in the next iteration.
       previous_element = item
-    }
     # We are at the same depth, so we use the previous element.
     elif (item['depth'] == depth):
       if (previous_element):
         # Only the first time.
-        tree[previous_element['mlid']] = array(
+        tree[previous_element['mlid']] = {
           'link' : previous_element,
           'below' : False,
-        )
-      }
+        }
       # This will be the link to be output in the next iteration.
       previous_element = item
-    }
     # The submenu ended with the previous item, so pass back the current item.
     else:
       remnant = item
       break
-    }
-  }
   if (previous_element):
     # We have one more link dangling.
-    tree[previous_element['mlid']] = array(
+    tree[previous_element['mlid']] = {
       'link' : previous_element,
       'below' : False,
-    )
-  }
-  return array(remnant, tree)
-}
+    }
+  return [remnant, tree]
+
+
+
+
 #
 # Generate the HTML output for a single menu link.
 #
@@ -1024,11 +1014,12 @@ def _menu_tree_data(result, parents, depth, previous_element = ''):
 #
 def theme_menu_item_link(link):
   if (empty(link['localized_options'])):
-    link['localized_options'] = array()
-  }
-
+    link['localized_options'] = {}
   return l(link['title'], link['href'], link['localized_options'])
-}
+
+
+
+
 #
 # Generate the HTML output for a menu tree
 #
@@ -1036,22 +1027,28 @@ def theme_menu_item_link(link):
 #
 def theme_menu_tree(tree):
   return '<ul class="menu">' +  tree  + '</ul>'
-}
+
+
+
+
+
 #
 # Generate the HTML output for a menu item and submenu.
 #
 # @ingroup themeable
 #
 def theme_menu_item(link, has_children, menu = '', in_active_trail = False, extra_class = None):
-  class = (menu ? 'expanded' : (has_children ? 'collapsed' : 'leaf'))
+  _class = (menu ? 'expanded' : (has_children ? 'collapsed' : 'leaf'))
   if (not empty(extra_class)):
     class += ' ' +  extra_class
-  }
   if (in_active_trail):
     class += ' active-trail'
-  }
   return '<li class="' +  class  + '">' . link . menu . "</li>\n"
-}
+
+
+
+
+
 #
 # Generate the HTML output for a single local task link.
 #
