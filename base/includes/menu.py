@@ -501,7 +501,7 @@ def _menu_translate(router_item, _map, to_arg = False):
     _menu_link_map_translate(path_map, router_item.val['to_arg_functions'])
   # Generate the link path for the page request or local tasks.
   link_map = explode('/', router_item.val['path'])
-  for i in range(router_item.val['number_parts']:
+  for i in range(router_item.val['number_parts']):
     if (link_map[i] == '%'):
       link_map[i] = path_map[i]
   router_item.val['href'] = implode('/', link_map)
@@ -528,7 +528,7 @@ def _menu_link_map_translate(_map, to_arg_functions):
     to_arg_functions = unserialize(to_arg_functions)
     for index,function in to_arg_functions.items():
       # Translate place-holders into real values.
-      arg = function(map.val[index] if (not empty(_map.val[index])) else ''), _map.val, index)
+      arg = function((_map.val[index] if (not empty(_map.val[index])) else ''), _map.val, index)
       if (not empty(map[index]) or isset(arg)):
         _map.val[index] = arg
       else:
@@ -539,7 +539,6 @@ def _menu_link_map_translate(_map, to_arg_functions):
 
 def menu_tail_to_arg(arg, _map, index):
   return implode('/', array_slice(_map, index))
-}
 
 
 
@@ -697,7 +696,7 @@ def menu_tree_output(tree):
 #
 def menu_tree_all_data(menu_name = 'navigation', item = None):
   global static_menutreealldata_tree
-  if static_menutreealldata_tree == None
+  if static_menutreealldata_tree == None:
     static_menutreealldata_tree = {}
   data = None
   # Use mlid as a flag for whether the data being loaded is for the whole tree.
@@ -736,11 +735,14 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
       # Select the links from the table, and recursively build the tree.  We
       # LEFT JOIN since there is no match in {menu_router} for an external
       # link.
-      data['tree'] = menu_tree_data(db_query("
-        SELECT m.load_functions, m.to_arg_functions, m.access_callback, m.access_arguments, m.page_callback, m.page_arguments, m.title, m.title_callback, m.title_arguments, m.type, m.description, ml.*
-        FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path
-        WHERE ml.menu_name = '%s'" +  where  + "
-        ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC", args), parents)
+      data['tree'] = menu_tree_data(db_query( \
+        "SELECT m.load_functions, m.to_arg_functions, m.access_callback, " + \
+        "m.access_arguments, m.page_callback, m.page_arguments, m.title, " + \
+        "m.title_callback, m.title_arguments, m.type, m.description, ml.* " + \
+        "FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path " + \
+        "WHERE ml.menu_name = '%s'" +  where  + \
+        "ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, " + \
+        "p9 ASC", args), parents)
       data['node_links'] = {}
       menu_tree_collect_node_links(data['tree'], data['node_links'])
       # Cache the data, if it is not already in the cache.
@@ -816,7 +818,13 @@ def menu_tree_page_data(menu_name = 'navigation'):
             # Collect all the links set to be expanded, and then add all of
             # their children to the list as well.
             while True:
-              result = db_query("SELECT mlid FROM {menu_links} WHERE menu_name = '%s' AND expanded = 1 AND has_children = 1 AND plid IN (" +  placeholders  + ') AND mlid NOT IN (' . placeholders . ')', array_merge(array(menu_name), args, args))
+              result = db_query( \
+                "SELECT mlid FROM {menu_links} WHERE menu_name = '%s' " + \
+                "AND expanded = 1 AND has_children = 1 AND plid IN (" +  \
+                placeholders  + \
+                ") AND mlid NOT IN (" + \
+                placeholders + \
+                ")", array_merge(array(menu_name), args, args))
               num_rows = False
               while True:
                 item = db_fetch_array(result)
@@ -836,11 +844,15 @@ def menu_tree_page_data(menu_name = 'navigation'):
         # Select the links from the table, and recursively build the tree. We
         # LEFT JOIN since there is no match in {menu_router} for an external
         # link.
-        data['tree'] = menu_tree_data(db_query("
-          SELECT m.load_functions, m.to_arg_functions, m.access_callback, m.access_arguments, m.page_callback, m.page_arguments, m.title, m.title_callback, m.title_arguments, m.type, m.description, ml.*
-          FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path
-          WHERE ml.menu_name = '%s' AND ml.plid IN (" +  placeholders  + ")
-          ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, p9 ASC", args), parents)
+        data['tree'] = menu_tree_data(db_query( \
+          "SELECT m.load_functions, m.to_arg_functions, m.access_callback, " + \
+          "m.access_arguments, m.page_callback, m.page_arguments, m.title, " + \
+          "m.title_callback, m.title_arguments, m.type, m.description, ml.* " + \
+          "FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path " + \
+          "WHERE ml.menu_name = '%s' AND ml.plid IN (" +  \
+          placeholders  + \
+          ") ORDER BY p1 ASC, p2 ASC, p3 ASC, p4 ASC, p5 ASC, p6 ASC, p7 ASC, p8 ASC, " + \
+          "p9 ASC", args), parents)
         data['node_links'] = {}
         menu_tree_collect_node_links(data['tree'], data['node_links'])
         # Cache the data, if it is not already in the cache.
@@ -1038,12 +1050,12 @@ def theme_menu_tree(tree):
 # @ingroup themeable
 #
 def theme_menu_item(link, has_children, menu = '', in_active_trail = False, extra_class = None):
-  _class = (menu ? 'expanded' : (has_children ? 'collapsed' : 'leaf'))
+  _class = ('expanded' if not empty(menu) else ('collapsed' if has_children else 'leaf'))
   if (not empty(extra_class)):
-    class += ' ' +  extra_class
+    _class += ' ' +  extra_class
   if (in_active_trail):
-    class += ' active-trail'
-  return '<li class="' +  class  + '">' . link . menu . "</li>\n"
+    _class += ' active-trail'
+  return '<li class="' + _class  + '">' + link + menu + "</li>\n"
 
 
 
@@ -1055,15 +1067,19 @@ def theme_menu_item(link, has_children, menu = '', in_active_trail = False, extr
 # @ingroup themeable
 #
 def theme_menu_local_task(link, active = False):
-  return '<li ' +  (active ? 'class="active" ' : '')  + '>' . link . "</li>\n"
-}
+  return '<li ' +  ('class="active" ' if active else '')  + '>' + link + "</li>\n"
+
+
+
 #
 # Generates elements for the arg array in the help hook.
 #
 def drupal_help_arg(arg = array()):
   # Note - the number of empty elements should be > MENU_MAX_PARTS.
   return arg + array('', '', '', '', '', '', '', '', '', '', '', '')
-}
+
+
+
 #
 # Returns the help associated with the active menu item.
 #
@@ -1075,58 +1091,67 @@ def menu_get_active_help():
   for name in module_list():
     if (module_hook(name, 'help')):
       # Lookup help for this path.
-      if (help = module_invoke(name, 'help', router_path, arg)):
+      help = module_invoke(name, 'help', router_path, arg)
+      if (help):
         output += help +  "\n"
-      }
       # Add "more help" link on admin pages if the module provides a
       # standalone help page.
-      if (arg[0] == "admin" and module_exists('help') and module_invoke(name, 'help', 'admin/help#' . arg[2], empty_arg) and help):
+      if (arg[0] == "admin" and module_exists('help') and module_invoke(name, \
+          'help', 'admin/help#' + arg[2], empty_arg) and help):
         output += theme("more_help_link", url('admin/help/' +  arg[2]))
-      }
-    }
-  }
   return output
-}
+
+
+
+
 #
 # Build a list of named menus.
 #
 def menu_get_names(reset = False):
-  static names
-  if (reset or empty(names)):
-    names = array()
+  global static_menugetnames_names
+  if (reset or empty(static_menugetnames_names)):
+    names = []
     result = db_query("SELECT DISTINCT(menu_name) FROM {menu_links} ORDER BY menu_name")
-    while (name = db_fetch_array(result)):
-      names[] = name['menu_name']
-    }
-  }
+    while True:
+      name = db_fetch_array(result)
+      if name == None:
+        break
+      static_menugetnames_names.append(name['menu_name'])
   return names
-}
+
+
+
+
 #
 # Return an array containing the names of system-defined (default) menus.
 #
 def menu_list_system_menus():
-  return array('navigation', 'primary-links', 'secondary-links')
-}
+  return ['navigation', 'primary-links', 'secondary-links']
+
+
+
 #
 # Return an array of links to be rendered as the Primary links.
 #
 def menu_primary_links():
   return menu_navigation_links(variable_get('menu_primary_links_source', 'primary-links'))
-}
+
+
+
 #
 # Return an array of links to be rendered as the Secondary links.
 #
 def menu_secondary_links():
-
   # If the secondary menu source is set as the primary menu, we display the
   # second level of the primary menu.
   if (variable_get('menu_secondary_links_source', 'secondary-links') == variable_get('menu_primary_links_source', 'primary-links')):
     return menu_navigation_links(variable_get('menu_primary_links_source', 'primary-links'), 1)
-  }
   else:
     return menu_navigation_links(variable_get('menu_secondary_links_source', 'secondary-links'), 0)
-  }
-}
+
+
+
+
 #
 # Return an array of links for a navigation menu.
 #
@@ -1140,39 +1165,37 @@ def menu_secondary_links():
 def menu_navigation_links(menu_name, level = 0):
   # Don't even bother querying the menu table if no menu is specified.
   if (empty(menu_name)):
-    return array()
-  }
-
+    return []
   # Get the menu hierarchy for the current page.
   tree = menu_tree_page_data(menu_name)
   # Go down the active trail until the right level is reached.
-  while (level-- > 0 and tree):
+  while (level > 0 and tree):
+    level -= 1
     # Loop through the current level's items until we find one that is in trail.
-    while (item = array_shift(tree)):
+    while True:
+      item = array_shift(tree)
+      if empty(item):
+        break
       if (item['link']['in_active_trail']):
         # If the item is in the active trail, we continue in the subtree.
-        tree = empty(item['below']) ? array() : item['below']
+        tree = ([] if empty(item['below']) else item['below'])
         break
-      }
-    }
-  }
-
   # Create a single level of links.
-  links = array()
+  links = []
   for item in tree:
     if (not item['link']['hidden']):
       l = item['link']['localized_options']
       l['href'] = item['link']['href']
       l['title'] = item['link']['title']
       if (item['link']['in_active_trail']):
-        l['attributes'] = array('class' : 'active-trail')
-      }
+        l['attributes'] = {'class' : 'active-trail'}
       # Keyed with unique menu id to generate classes from theme_links().
       links['menu-' +  item['link']['mlid']] = l
-    }
-  }
   return links
-}
+
+
+
+
 #
 # Collects the local tasks (tabs) for a given level.
 #
@@ -1186,30 +1209,29 @@ def menu_navigation_links(menu_name, level = 0):
 #   a parent tab, if the current page is a default local task.
 #
 def menu_local_tasks(level = 0, return_root = False):
-  static tabs
-  static root_path
-  if (not isset(tabs)):
-    tabs = array()
+  global static_menulocaltasks_tabs
+  global static_menulocaltasks_rootpath
+  if (static_menulocaltasks_tabs == None):
+    tabs = []
     router_item = menu_get_item()
     if (not router_item or not router_item['access']):
       return ''
-    }
     # Get all tabs and the root page.
     result = db_query("SELECT * FROM {menu_router} WHERE tab_root = '%s' ORDER BY weight, title", router_item['tab_root'])
-    map = arg()
-    children = array()
-    tasks = array()
-    root_path = router_item['path']
-    while (item = db_fetch_array(result)):
-      _menu_translate(item, map, True)
+    _map = arg()
+    children = []
+    tasks = []
+    static_menulocaltasks_rootpath = router_item['path']
+    while True:
+      item = db_fetch_array(result)
+      if item == None:
+        break
+      _menu_translate(item, _map, True)
       if (item['tab_parent']):
         # All tabs, but not the root page.
         children[item['tab_parent']][item['path']] = item
-      }
       # Store the translated item for later use.
       tasks[item['path']] = item
-    }
-
     # Find all tabs below the current path.
     path = router_item['path']
     # Tab parenting may skip levels, so the number of parts in the path may not
@@ -1219,35 +1241,33 @@ def menu_local_tasks(level = 0, return_root = False):
       tabs_current = ''
       next_path = ''
       count = 0
-      foreach (children[path] as item):
+      for item in children[path]:
         if (item['access']):
-          count++
+          count += 1
           # The default task is always active.
           if (item['type'] == MENU_DEFAULT_LOCAL_TASK):
             # Find the first parent which is not a default local task.
-            for (p = item['tab_parent']; tasks[p]['type'] == MENU_DEFAULT_LOCAL_TASK; p = tasks[p]['tab_parent'])
-            link = theme('menu_item_link', array('href' : tasks[p]['href']) + item)
+            p = item['tab_parent']
+            while True:
+              if tasks[p]['type'] != MENU_DEFAULT_LOCAL_TASK:
+                break
+              p = tasks[p]['tab_parent']
+            link = theme('menu_item_link', {'href' : tasks[p]['href']} + item)
             tabs_current += theme('menu_local_task', link, True)
             next_path = item['path']
-          }
           else:
             link = theme('menu_item_link', item)
             tabs_current += theme('menu_local_task', link)
-          }
-        }
-      }
       path = next_path
       tabs[depth]['count'] = count
       tabs[depth]['output'] = tabs_current
-      depth++
-    }
-
+      depth += 1
     # Find all tabs at the same level or above the current one.
     parent = router_item['tab_parent']
     path = router_item['path']
     current = router_item
     depth = 1000
-    while (isset(children[parent])):
+    while (isset(children, parent)):
       tabs_current = ''
       next_path = ''
       next_parent = ''
