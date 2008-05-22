@@ -1,7 +1,36 @@
 # Id: menu.inc,v 1.272 2008/05/13 17:38:42 dries Exp $
 #
-# @file
-# API for the Drupal menu system.
+
+#
+# @package Drupy
+# @see http://drupy.net
+# @note Drupy is a port of the Drupal project.
+#  The Drupal project can be found at http://drupal.org
+# @file menu.py (ported from Drupal's menu.inc)
+#  API for the Drupal menu system.
+# @author Brendon Crawford
+# @copyright 2008 Brendon Crawford
+# @contact message144 at users dot sourceforge dot net
+# @created 2008-05-22
+# @version 0.1
+# @license: 
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
+
 #
 #
 # @defgroup menu Menu system
@@ -1554,68 +1583,64 @@ def menu_rebuild():
 # Collect, alter and store the menu definitions.
 #
 def menu_router_build(reset = False):
-  static menu
-  if (not isset(menu) or reset):
-    if (not reset and (cache = cache_get('router:', 'cache_menu')) and isset(cache.data)):
-      menu = cache.data
-    }
+  static_menurouterbuild_menu
+  if (static_menurouterbuild_menu == None or reset):
+    cache = cache_get('router:', 'cache_menu')
+    if (not reset and cache and isset(cache, 'data')):
+      static_menurouterbuild_menu = cache.data
     else:
       db_query('DELETE FROM {menu_router}')
       # We need to manually call each module so that we can know which module
       # a given item came from.
-      callbacks = array()
-      foreach (module_implements('menu', None, True) as module):
-        router_items = call_user_func(module +  '_menu')
-        if (isset(router_items) and is_array(router_items)):
+      callbacks = []
+      for module in module_implements('menu', None, True):
+        router_items = (module+'_menu')()
+        if (router_items != None and is_array(router_items)):
           for path in array_keys(router_items):
             router_items[path]['module'] = module
-          }
           callbacks = array_merge(callbacks, router_items)
-        }
-      }
       # Alter the menu as defined in modules, keys are like user/%user.
       drupal_alter('menu', callbacks)
-      menu = _menu_router_build(callbacks)
+      static_menurouterbuild_menu = _menu_router_build(callbacks)
       cache_set('router:', menu, 'cache_menu')
-    }
-  }
-  return menu
-}
+  return static_menurouterbuild_menu
+
+
+
+
 #
 # Builds a link from a router item.
 #
 def _menu_link_build(item):
   if (item['type'] == MENU_CALLBACK):
     item['hidden'] = -1
-  }
   elif (item['type'] == MENU_SUGGESTED_ITEM):
     item['hidden'] = 1
-  }
   # Note, we set this as 'system', so that we can be sure to distinguish all
   # the menu links generated automatically from entries in {menu_router}.
   item['module'] = 'system'
-  item += array(
+  item += {
     'menu_name' : 'navigation',
     'link_title' : item['title'],
     'link_path' : item['path'],
     'hidden' : 0,
-    'options' : empty(item['description']) ? array() : array('attributes' : array('title' : item['description'])),
-  )
+    'options' : ({} if empty(item['description']) else {'attributes' : {'title' : item['description']}}),
+  }
   return item
-}
+
+
+
 #
 # Helper function to build menu links for the items in the menu router.
 #
 def _menu_navigation_links_rebuild(menu):
   # Add normal and suggested items as links.
-  menu_links = array()
+  menu_links = {}
   for path,item in menu.items():
     if (item['_visible']):
       item = _menu_link_build(item)
       menu_links[path] = item
       sort[path] = item['_number_parts']
-    }
-  }
   if (menu_links):
     # Make sure no child comes before its parent.
     array_multisort(sort, SORT_NUMERIC, menu_links)
@@ -1627,33 +1652,34 @@ def _menu_navigation_links_rebuild(menu):
         item['plid'] = existing_item['plid']
         item['has_children'] = existing_item['has_children']
         item['updated'] = existing_item['updated']
-      }
       if (not existing_item or not existing_item['customized']):
         menu_link_save(item)
-      }
-    }
-  }
   placeholders = db_placeholders(menu, 'varchar')
   paths = array_keys(menu)
   # Updated and customized items whose router paths are gone need new ones.
   result = db_query("SELECT ml.link_path, ml.mlid, ml.router_path, ml.updated FROM {menu_links} ml WHERE ml.updated = 1 OR (router_path NOT IN (placeholders) AND external = 0 AND customized = 1)", paths)
-  while (item = db_fetch_array(result)):
+  while True:
+    item = db_fetch_array(result)
+    if not item:
+      break
     router_path = _menu_find_router_path(menu, item['link_path'])
     if (not empty(router_path) and (router_path != item['router_path'] or item['updated'])):
       # If the router path and the link path matches, it's surely a working
       # item, so we clear the updated flag.
       updated = item['updated'] and router_path != item['link_path']
       db_query("UPDATE {menu_links} SET router_path = '%s', updated = %d WHERE mlid = %d", router_path, updated, item['mlid'])
-    }
-  }
   # Find any item whose router path does not exist any more.
   result = db_query("SELECT * FROM {menu_links} WHERE router_path NOT IN (placeholders) AND external = 0 AND updated = 0 AND customized = 0 ORDER BY depth DESC", paths)
   # Remove all such items. Starting from those with the greatest depth will
   # minimize the amount of re-parenting done by menu_link_delete().
-  while (item = db_fetch_array(result)):
+  item = db_fetch_array(result)
+  while True:
+    if not item:
+      break
     _menu_delete_item(item, True)
-  }
-}
+
+
+
 #
 # Delete one or several menu links.
 #
@@ -1663,16 +1689,18 @@ def _menu_navigation_links_rebuild(menu):
 #   The path to the menu items to be deleted. mlid must be None.
 #
 def menu_link_delete(mlid, path = None):
-  if (isset(mlid)):
+  if (not empty(mlid)):
     _menu_delete_item(db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", mlid)))
-  }
   else:
     result = db_query("SELECT * FROM {menu_links} WHERE link_path = '%s'", path)
-    while (link = db_fetch_array(result)):
+    while True:
+      link = db_fetch_array(result)
+      if not link:
+        break
       _menu_delete_item(link)
-    }
-  }
-}
+
+
+
 #
 # Helper function for menu_link_delete; deletes a single menu link.
 #
@@ -1686,19 +1714,21 @@ def _menu_delete_item(item, force = False):
     # Children get re-attached to the item's parent.
     if (item['has_children']):
       result = db_query("SELECT mlid FROM {menu_links} WHERE plid = %d", item['mlid'])
-      while (m = db_fetch_array(result)):
+      while True:
+        m = db_fetch_array(result)
+        if not m:
+          break
         child = menu_link_load(m['mlid'])
         child['plid'] = item['plid']
         menu_link_save(child)
-      }
-    }
     db_query('DELETE FROM {menu_links} WHERE mlid = %d', item['mlid'])
     # Update the has_children status of the parent.
     _menu_update_parental_status(item)
     menu_cache_clear(item['menu_name'])
     _menu_clear_page_cache()
-  }
-}
+
+
+
 #
 # Save a menu link.
 #
@@ -1713,14 +1743,15 @@ def _menu_delete_item(item, force = False):
 #   - plid        The mlid of the parent.
 #   - router_path The path of the relevant router item.
 #
-def menu_link_save(&item):
+def menu_link_save(item):
+  DrupyHelper.Reference.check(item)
   menu = menu_router_build()
-  drupal_alter('menu_link', item, menu)
+  drupal_alter('menu_link', item.val, menu)
   # This is the easiest way to handle the unique internal path '<front>',
   # since a path marked as external does not need to match a router path.
-  item['_external'] = menu_path_is_external(item['link_path'])  or item['link_path'] == '<front>'
+  item.val['_external'] = menu_path_is_external(item.val['link_path'])  or item.val['link_path'] == '<front>'
   # Load defaults.
-  item += array(
+  item.val += {
     'menu_name' : 'navigation',
     'weight' : 0,
     'link_title' : '',
@@ -1731,160 +1762,148 @@ def menu_link_save(&item):
     'module' : 'menu',
     'customized' : 0,
     'updated' : 0,
-  )
+  }
   existing_item = False
-  if (isset(item['mlid'])):
-    existing_item = db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", item['mlid']))
-  }
-
-  if (isset(item['plid'])):
-    parent = db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", item['plid']))
-  }
+  if (isset(item.val, 'mlid')):
+    existing_item = db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", item.val['mlid']))
+  if (isset(item.val, 'plid')):
+    parent = db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", item.val['plid']))
   else:
     # Find the parent - it must be unique.
-    parent_path = item['link_path']
+    parent_path = item.val['link_path']
     where = "WHERE link_path = '%s'"
     # Only links derived from router items should have module == 'system', and
     # we want to find the parent even if it's in a different menu.
-    if (item['module'] == 'system'):
+    if (item.val['module'] == 'system'):
       where += " AND module = '%s'"
       arg2 = 'system'
-    }
     else:
-      # If not derived from a router item, we respect the specified menu name.
+      # If not derived from a router item.val, we respect the specified menu name.
       where += " AND menu_name = '%s'"
-      arg2 = item['menu_name']
-    }
-    do {
+      arg2 = item.val['menu_name']
+    while True:
       parent = False
       parent_path = substr(parent_path, 0, strrpos(parent_path, '/'))
       result = db_query("SELECT COUNT(*) FROM {menu_links} " +  where, parent_path, arg2)
       # Only valid if we get a unique result.
       if (db_result(result) == 1):
         parent = db_fetch_array(db_query("SELECT * FROM {menu_links} " +  where, parent_path, arg2))
-      }
-    } while (parent == False and parent_path)
-  }
-  if (parent !== False):
-    item['menu_name'] = parent['menu_name']
-  }
-  menu_name = item['menu_name']
+      if not (parent == False and parent_path):
+        break
+  if (parent != False):
+    item.val['menu_name'] = parent['menu_name']
+  menu_name = item.val['menu_name']
   # Menu callbacks need to be in the links table for breadcrumbs, but can't
-  # be parents if they are generated directly from a router item.
+  # be parents if they are generated directly from a router item.val.
   if (empty(parent['mlid']) or parent['hidden'] < 0):
-    item['plid'] =  0
-  }
+    item.val['plid'] =  0
   else:
-    item['plid'] = parent['mlid']
-  }
-
+    item.val['plid'] = parent['mlid']
   if (not existing_item):
-    db_query("INSERT INTO {menu_links} (
-       menu_name, plid, link_path,
-      hidden, external, has_children,
-      expanded, weight,
-      module, link_title, options,
-      customized, updated) VALUES (
-      '%s', %d, '%s',
-      %d, %d, %d,
-      %d, %d,
-      '%s', '%s', '%s', %d, %d)",
-      item['menu_name'], item['plid'], item['link_path'],
-      item['hidden'], item['_external'], item['has_children'],
-      item['expanded'], item['weight'],
-      item['module'],  item['link_title'], serialize(item['options']),
-      item['customized'], item['updated'])
-    item['mlid'] = db_last_insert_id('menu_links', 'mlid')
-  }
-
-  if (not item['plid']):
-    item['p1'] = item['mlid']
-    for (i = 2; i <= MENU_MAX_DEPTH; i++):
-      item["pi"] = 0
-    }
-    item['depth'] = 1
-  }
+    db_query( \
+      "INSERT INTO {menu_links} ( " + \
+      "menu_name, plid, link_path, " + \
+      "hidden, external, has_children, " + \
+      "expanded, weight, " + \
+      "module, link_title, options, " + \
+      "customized, updated) VALUES ( " + \
+      "'%s', %d, '%s', " + \
+      "%d, %d, %d, " + \
+      "%d, %d,'%s', '%s', '%s', %d, %d)",
+      item.val['menu_name'], item.val['plid'], item.val['link_path'],
+      item.val['hidden'], item.val['_external'], item.val['has_children'],
+      item.val['expanded'], item.val['weight'],
+      item.val['module'],  item.val['link_title'], serialize(item.val['options']),
+      item.val['customized'], item.val['updated'])
+    item.val['mlid'] = db_last_insert_id('menu_links', 'mlid')
+  if (not item.val['plid']):
+    item.val['p1'] = item.val['mlid']
+    for i in range(2, MENU_MAX_DEPTH + 1):
+      item.val["pi"] = 0
+    item.val['depth'] = 1
   else:
     # Cannot add beyond the maximum depth.
-    if (item['has_children'] and existing_item):
+    if (item.val['has_children'] and existing_item):
       limit = MENU_MAX_DEPTH - menu_link_children_relative_depth(existing_item) - 1
-    }
     else:
       limit = MENU_MAX_DEPTH - 1
-    }
     if (parent['depth'] > limit):
       return False
-    }
-    item['depth'] = parent['depth'] + 1
-    _menu_link_parents_set(item, parent)
-  }
+    item.val['depth'] = parent['depth'] + 1
+    _menu_link_parents_set(item.val, parent)
   # Need to check both plid and menu_name, since plid can be 0 in any menu.
-  if (existing_item and (item['plid'] != existing_item['plid'] or menu_name != existing_item['menu_name'])):
-    _menu_link_move_children(item, existing_item)
-  }
+  if (existing_item and (item.val['plid'] != existing_item['plid'] or menu_name != existing_item['menu_name'])):
+    _menu_link_move_children(item.val, existing_item)
   # Find the callback. During the menu update we store empty paths to be
   # fixed later, so we skip this.
-  if (not isset(_SESSION['system_update_6021']) and (empty(item['router_path'])  or not existing_item or (existing_item['link_path'] != item['link_path']))):
-    if (item['_external']):
-      item['router_path'] = ''
-    }
+  if (not isset(_SESSION, 'system_update_6021') and (empty(item.val['router_path'])  or \
+      not existing_item or (existing_item['link_path'] != item.val['link_path']))):
+    if (item.val['_external']):
+      item.val['router_path'] = ''
     else:
       # Find the router path which will serve this path.
-      item['parts'] = explode('/', item['link_path'], MENU_MAX_PARTS)
-      item['router_path'] = _menu_find_router_path(menu, item['link_path'])
-    }
-  }
-  db_query("UPDATE {menu_links} SET menu_name = '%s', plid = %d, link_path = '%s',
-    router_path = '%s', hidden = %d, external = %d, has_children = %d,
-    expanded = %d, weight = %d, depth = %d,
-    p1 = %d, p2 = %d, p3 = %d, p4 = %d, p5 = %d, p6 = %d, p7 = %d, p8 = %d, p9 = %d,
-    module = '%s', link_title = '%s', options = '%s', customized = %d WHERE mlid = %d",
-    item['menu_name'], item['plid'], item['link_path'],
-    item['router_path'], item['hidden'], item['_external'], item['has_children'],
-    item['expanded'], item['weight'],  item['depth'],
-    item['p1'], item['p2'], item['p3'], item['p4'], item['p5'], item['p6'], item['p7'], item['p8'], item['p9'],
-    item['module'],  item['link_title'], serialize(item['options']), item['customized'], item['mlid'])
+      item.val['parts'] = explode('/', item.val['link_path'], MENU_MAX_PARTS)
+      item.val['router_path'] = _menu_find_router_path(menu, item.val['link_path'])
+  db_query( \
+    "UPDATE {menu_links} SET menu_name = '%s', plid = %d, link_path = '%s', " + \
+    "router_path = '%s', hidden = %d, external = %d, has_children = %d, " + \
+    "expanded = %d, weight = %d, depth = %d, " + \
+    "p1 = %d, p2 = %d, p3 = %d, p4 = %d, p5 = %d, p6 = %d, p7 = %d, p8 = %d, p9 = %d, " + \
+    "module = '%s', link_title = '%s', options = '%s', customized = %d WHERE mlid = %d",
+    item.val['menu_name'], item.val['plid'], item.val['link_path'],
+    item.val['router_path'], item.val['hidden'], item.val['_external'], item.val['has_children'],
+    item.val['expanded'], item.val['weight'],  item.val['depth'],
+    item.val['p1'], item.val['p2'], item.val['p3'], item.val['p4'], item.val['p5'], item.val['p6'], item.val['p7'], item.val['p8'], item.val['p9'],
+    item.val['module'],  item.val['link_title'], serialize(item.val['options']), item.val['customized'], item.val['mlid'])
   # Check the has_children status of the parent.
-  _menu_update_parental_status(item)
+  _menu_update_parental_status(item.val)
   menu_cache_clear(menu_name)
   if (existing_item and menu_name != existing_item['menu_name']):
     menu_cache_clear(existing_item['menu_name'])
-  }
-
   _menu_clear_page_cache()
-  return item['mlid']
-}
+  return item.val['mlid']
+
+
+
+
 #
 # Helper function to clear the page and block caches at most twice per page load.
 #
 def _menu_clear_page_cache():
-  static cache_cleared = 0
+  global static_menuclearpagecache_cachecleared
+  if static_menuclearpagecache_cachecleared == None:
+    static_menuclearpagecache_cachecleared = 0
   # Clear the page and block caches, but at most twice, including at
   #  the end of the page load when there are multple links saved or deleted.
-  if (empty(cache_cleared)):
+  if (static_menuclearpagecache_cachecleared == None or \
+      static_menuclearpagecache_cachecleared == 0):
     cache_clear_all()
     # Keep track of which menus have expanded items.
     _menu_set_expanded_menus()
-    cache_cleared = 1
-  }
-  elif (cache_cleared == 1):
+    static_menuclearpagecache_cachecleared = 1
+  elif (static_menuclearpagecache_cachecleared == 1):
     register_shutdown_function('cache_clear_all')
     # Keep track of which menus have expanded items.
     register_shutdown_function('_menu_set_expanded_menus')
-    cache_cleared = 2
-  }
-}
+    static_menuclearpagecache_cachecleared = 2
+
+
+
 #
 # Helper function to update a list of menus with expanded items
 #
 def _menu_set_expanded_menus():
-  names = array()
+  names = []
   result = db_query("SELECT menu_name FROM {menu_links} WHERE expanded != 0 GROUP BY menu_name")
-  while (n = db_fetch_array(result)):
-    names[] = n['menu_name']
-  }
+  while True:
+    n = db_fetch_array(result)
+    if not n:
+      break
+    names.append( n['menu_name'] )
   variable_set('menu_expanded', names)
-}
+
+
+
 #
 # Find the router path which will serve this path.
 #
@@ -1900,16 +1919,15 @@ def _menu_find_router_path(menu, link_path):
   parts = explode('/', link_path, MENU_MAX_PARTS)
   router_path = link_path
   if (not isset(menu[router_path])):
-    list(ancestors) = menu_get_ancestors(parts)
-    ancestors[] = ''
+    ancestors = menu_get_ancestors(parts)
+    ancestors.append('')
     for key,router_path in ancestors.items():
-      if (isset(menu[router_path])):
+      if (isset(menu, router_path)):
         break
-      }
-    }
-  }
   return router_path
-}
+
+
+
 #
 # Insert, update or delete an uncustomized menu link related to a module.
 #
@@ -1926,24 +1944,21 @@ def _menu_find_router_path(menu, link_path):
 #   The insert op returns the mlid of the new item. Others op return None.
 #
 def menu_link_maintain(module, op, link_path, link_title):
-  switch (op):
-    case 'insert':
-      menu_link = array(
-        'link_title' : link_title,
-        'link_path' : link_path,
-        'module' : module,
-      )
-      return menu_link_save(menu_link)
-      break
-    case 'update':
-      db_query("UPDATE {menu_links} SET link_title = '%s' WHERE link_path = '%s' AND customized = 0 AND module = '%s'", link_title, link_path, module)
-      menu_cache_clear()
-      break
-    case 'delete':
-      menu_link_delete(None, link_path)
-      break
-  }
-}
+  if op == 'insert':
+    menu_link = {
+      'link_title' : link_title,
+      'link_path' : link_path,
+      'module' : module,
+    }
+    return menu_link_save(menu_link)
+  elif op == 'update':
+    db_query("UPDATE {menu_links} SET link_title = '%s' WHERE link_path = '%s' AND customized = 0 AND module = '%s'", link_title, link_path, module)
+    menu_cache_clear()
+  elif op == 'delete':
+    menu_link_delete(None, link_path)
+
+
+
 #
 # Find the depth of an item's children relative to its depth.
 #
