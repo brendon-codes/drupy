@@ -106,7 +106,7 @@ def mysqli_connect_error():
 # @return Int
 #
 def mysqli_errno(connection):
-  return connection.errno
+  return connection.errno()
 
 
 
@@ -116,7 +116,7 @@ def mysqli_errno(connection):
 # @return Str
 #
 def mysqli_error(connection):
-  return connection.error
+  return connection.error()
 
 
 
@@ -172,6 +172,19 @@ def mysqli_fetch_object(cursor):
   for k,v in row.items():
     setattr(out, k, v)
   return out
+
+
+#
+# Escapes string
+# @param MySQLdb.connection connection
+# @param Str text
+# @return Str
+#
+def mysqli_real_escape_string(connection, text):
+  if isinstance(text, str):
+    return connection.escape_string(text)
+  else:
+    return text
 
 
 #
