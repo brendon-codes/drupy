@@ -55,13 +55,14 @@ from lib.drupy import DrupyHelper
 #
 # Drupy helpers
 #
-global drupy_buffer; drupy_buffer = []
+drupy_buffer = []
 
 #
 # PHP Constants
 #
-global ENT_QUOTES; ENT_QUOTES = 1
-global E_ALL; E_ALL = 6143
+ENT_QUOTES = 1
+E_USER_WARNING = 512
+E_ALL = 6143
 
 
 #
@@ -398,7 +399,7 @@ def array_shift(item):
       return item.pop(0)
     else:
       return None
-  elif isintance(item, dict):
+  elif isinstance(item, dict):
     k = item.keys()
     if len(k) > 0:
       return item.pop(k[0])
@@ -407,6 +408,13 @@ def array_shift(item):
   else:
     return None
 
+
+#
+# Triggers error
+#
+# @param Str data
+def trigger_error(data, errno):
+  DrupyHelper.output(True, data, errno)
 
 #
 # Function exists
@@ -845,7 +853,17 @@ def preg_replace(pat, rep, subject):
 #
 def __preg_replace_str(pat, rep, subject):
   reg = __preg_setup(pat)
-  return reg.sub(rep, subject)
+  # function call
+  if callable(rep):
+    def __callback(match):
+      match_list = list(match.groups())
+      match_list.insert(0, subject)
+      match_list = tuple(match_list)
+      return rep(match_list)
+    return reg.sub(__callback, subject)
+  # string
+  else:
+    return reg.sub(rep, subject)
 
 
 #
