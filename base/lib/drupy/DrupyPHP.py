@@ -78,22 +78,6 @@ def base64_decode(data):
   return base64.decodestring(data);
 
 
-#
-# Get POST fields
-# @return Dict[Str,List]
-#
-def __postFields():
-  a = {}
-  f = cgi.FieldStorage()
-  for i in f:
-    if isinstance(f[i], list):
-      a[i] = []
-      for j in f[i]:
-        a[i].append(j.value)
-    else:
-      a[i] = f[i].value
-  return a
-
 
 #
 # Gets error.
@@ -1069,6 +1053,88 @@ class stdClass:
   def __init__(self): pass
 
 
+#
+# Class to handle super globals
+#
+class SuperGlobals:
+  
+  #
+  # _SERVER vars
+  # If this is not being run from a webserver, we will simulate
+  # the web server vars for CLI testing.
+  # @return Dict
+  #
+  @staticmethod
+  def getSERVER():
+    env = dict(os.environ)
+    if not env.has_key('DOCUMENT_ROOT'):
+      out = {
+        'WEB' : False,
+        'DOCUMENT_ROOT': env['PWD'],
+        'GATEWAY_INTERFACE': 'CGI/1.1',
+        'HTTP_ACCEPT': 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
+        'HTTP_ACCEPT_CHARSET': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+        'HTTP_ACCEPT_ENCODING': 'gzip,deflate',
+        'HTTP_ACCEPT_LANGUAGE': 'en-us,en;q=0.5',
+        'HTTP_CONNECTION': 'keep-alive',
+        'HTTP_HOST': 'localhost',
+        'HTTP_KEEP_ALIVE': '300',
+        'HTTP_USER_AGENT': 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.12) Gecko/20080201 Firefox/2.0.0.12',
+        'QUERY_STRING': '',
+        'REMOTE_ADDR': '127.0.0.1',
+        'REMOTE_PORT': '49999',
+        'REQUEST_METHOD': 'GET',
+        'REQUEST_URI': '/drupy.py',
+        'SCRIPT_FILENAME': env['PWD'] + '/drupy.py',
+        'SCRIPT_NAME': '/drupy.py',
+        'SERVER_ADDR': '127.0.0.1',
+        'SERVER_ADMIN': 'root@localhost',
+        'SERVER_NAME': 'localhost',
+        'SERVER_PORT': '80',
+        'SERVER_PROTOCOL': 'HTTP/1.1',
+        'SERVER_SIGNATURE': '',
+        'SERVER_SOFTWARE': 'Apache/2.2.8 (Unix) PHP/5.2.5'
+      }
+      return array_merge(env, out)
+    else:
+      env['WEB'] = True
+      return env
+      
+  
+  #
+  # _GET vars
+  # @return Dict
+  #
+  @staticmethod
+  def getGET():
+    return cgi.parse()
+  
+  #
+  # _POST vars
+  # @return Dict
+  #
+  @staticmethod
+  def getPOST():
+    a = {}
+    f = cgi.FieldStorage()
+    for i in f:
+      if isinstance(f[i], list):
+        a[i] = []
+        for j in f[i]:
+          a[i].append(j.value)
+      else:
+        a[i] = f[i].value
+    return a
+
+  #
+  # _REQUEST vars
+  # @return Dict
+  #
+  @staticmethod
+  def getREQUEST(get, post):
+    return array_merge(get, post)
+
+
    
 #
 # Set Aliases
@@ -1089,9 +1155,9 @@ is_writeable = is_writable
 #
 # Superglobals
 #
-global _SERVER; _SERVER = dict(os.environ)
-global _GET; _GET = cgi.parse()
-global _POST; _POST = __postFields()
-global _REQUEST; _REQUEST = array_merge(_GET, _POST)
+_SERVER = SuperGlobals.getSERVER()
+_GET = SuperGlobals.getGET()
+_POST = SuperGlobals.getPOST()
+_REQUEST = SuperGlobals.getREQUEST(_GET, _POST)
 
 
