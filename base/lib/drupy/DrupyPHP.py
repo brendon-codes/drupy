@@ -45,6 +45,7 @@ import base64
 import pickle
 import hashlib
 import zlib
+import pprint
 import htmlentitydefs
 import cgi
 import cgitb; cgitb.enable()
@@ -607,6 +608,21 @@ def parse_url(url, port = 80):
     'host' : u.netloc[((hasuser + 1) if (hasuser >= 0) else 0):]
   }
   return d
+
+
+#
+# Recursive pretty printer
+# @param Any data
+# @param Bool ret
+# @return Bool,Str
+#
+def print_r(data, ret = False):
+  out = pprint.PrettyPrinter().pformat(data)
+  if ret:
+    return out
+  else:
+    print out
+    return True
 
 
 

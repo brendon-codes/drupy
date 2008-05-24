@@ -29,7 +29,6 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-import pprint
 import time
 
 execfile('./lib/drupy/DrupyPHP.py', globals())
@@ -49,7 +48,7 @@ phases = (
 
 which_phase = phases[3];
 drupal_bootstrap(which_phase[0]);
-out = pprint.PrettyPrinter().pformat(globals())
+out = print_r(globals(), True)
 stamp = time.strftime("%c GMT", time.gmtime()) 
 
 #
