@@ -49,28 +49,53 @@ phases = (
 
 which_phase = phases[3];
 drupal_bootstrap(which_phase[0]);
-out = htmlspecialchars(pprint.PrettyPrinter().pformat(globals()))
+out = pprint.PrettyPrinter().pformat(globals())
 stamp = time.strftime("%c GMT", time.gmtime()) 
 
-# Bootstrapping tests
-print "Content-Type: text/html; Charset=UTF-8\r\n\r\n";
-print "<?xml version='1.0' encoding='UTF-8'?>"
-print "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' " + \
-  "'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>"
-print "<html xmlns='http://www.w3.org/1999/xhtml'>"
-print "<head>"
-print "<title>Drupy: Drupal in Python</title>"
-print "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />"
-print "</head>"
-print "<body>"
-print "<h1>Drupy Bootstrap Diagnostic Status</h1>"
-print "<h2>Bootstrap: Completed Phase '%s' (%s)</h2>" % (which_phase[1],which_phase[0]);
-print "<h3>Generated: %s</h3>" % stamp
-print "<p>"
-print "This page dumps all the global scope objects within the Drupy " + \
-  "bootstrap process. This can be used as a basic gauge of bootstap status."
-print "</p>"
-print "<pre style='background-color:yellow;'>%s</pre>" % out;
-print "</body>"
-print "</html>"
+#
+# Executed from Web
+#
+if _SERVER['WEB']:
+  print "Content-Type: text/html; Charset=UTF-8\r\n\r\n";
+  print "<?xml version='1.0' encoding='UTF-8'?>"
+  print "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' " + \
+    "'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>"
+  print "<html xmlns='http://www.w3.org/1999/xhtml'>"
+  print "<head>"
+  print "<title>Drupy: Drupal in Python</title>"
+  print "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />"
+  print "</head>"
+  print "<body>"
+  print "<h1>Drupy Bootstrap Diagnostic Status</h1>"
+  print "<h2>Bootstrap: Completed Phase '%s' (%s)</h2>" % (which_phase[1],which_phase[0])
+  print "<h3>Generated: %s</h3>" % stamp
+  print "<p>"
+  print "This page dumps all the global scope objects within the Drupy " + \
+    "bootstrap process. This can be used as a basic gauge of bootstap status."
+  print "</p>"
+  print "<pre style='background-color:yellow;'>%s</pre>" % htmlspecialchars(out);
+  print "</body>"
+  print "</html>"
+#
+# Executed from CLI
+#
+else:
+  print "Drupy Botstrap Diagnostic Status"
+  print ""
+  print "Bootstrap: Completed Phase '%s' (%s)" % (which_phase[1],which_phase[0])
+  print ""
+  print "Generated: %s" % stamp
+  print ""
+  print "This page dumps all the global scope objects within the Drupy " + \
+    "bootstrap process. This can be used as a basic gauge of bootstap status."
+  print ""
+  print out
+  print ""
+  print "Done."
+  print ""
 
+
+
+
+  
+  
