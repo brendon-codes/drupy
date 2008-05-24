@@ -118,7 +118,7 @@
 #   $db_url = 'mysqli://username:password@localhost/databasename';
 #   $db_url = 'pgsql://username:password@localhost/databasename';
 #
-db_url = 'mysqli://main@localhost/whdrupal';
+db_url = 'mysqli://main@localhost/drupalhead';
 db_prefix = '';
 
 #
