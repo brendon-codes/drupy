@@ -204,11 +204,8 @@ def mysqli_fetch_array(cursor, w = None):
 # @param MySQLdb.cursors.DictCursor cursor
 # @return Int
 #
-def mysql_affected_rows(cursor):
-  return cursor.rowcount
-
-
-
+def mysqli_affected_rows(cursor):
+  return int(cursor.rowcount)
 
 
 #
@@ -221,5 +218,10 @@ def mysqli_init():
 
 
 DB_META = DrupyMySQL_meta()
+
+#
+# Aliases
+#
+mysqli_num_rows = mysqli_affected_rows
 
 

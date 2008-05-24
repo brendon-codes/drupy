@@ -864,7 +864,7 @@ def drupal_is_denied(ip):
     return in_array(ip, blocked_ips)
   else:
     sql = "SELECT 1 FROM {blocked_ips} WHERE ip = '%s'";
-    return (db_result(db_query(sql, ip) != None))
+    return (db_result(db_query(sql, ip)) != False)
 
 
 #
