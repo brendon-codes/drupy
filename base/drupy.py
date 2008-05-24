@@ -86,12 +86,7 @@ else:
   print ""
   print "Generated: %s" % stamp
   print ""
-  print "This page dumps all the global scope objects within the Drupy " + \
-    "bootstrap process. This can be used as a basic gauge of bootstap status."
-  print ""
-  print out
-  print ""
-  print "Done."
+  print "You may now query any Drupal Bootstrap object."
   print ""
 
 
