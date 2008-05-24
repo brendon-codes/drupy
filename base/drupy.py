@@ -79,7 +79,7 @@ if _SERVER['WEB']:
 # Executed from CLI
 #
 else:
-  print "Drupy Botstrap Diagnostic Status"
+  print "Drupy Bootstrap Diagnostic Status"
   print ""
   print "Bootstrap: Completed Phase '%s' (%s)" % (which_phase[1],which_phase[0])
   print ""

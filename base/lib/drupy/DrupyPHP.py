@@ -617,11 +617,20 @@ def parse_url(url, port = 80):
 # @return Bool,Str
 #
 def print_r(data, ret = False):
-  out = pprint.PrettyPrinter().pformat(data)
+  try:
+    d = dict(data)
+  except TypeError:
+    try:
+      d = list(data)
+    except TypeError:
+      try:
+        d = tuple(data)
+      except TypeError:
+        d = data
   if ret:
-    return out
+    return pprint.PrettyPrinter().pformat(d)
   else:
-    print out
+    pprint.PrettyPrinter().pprint(d)
     return True
 
 
