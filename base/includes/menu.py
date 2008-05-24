@@ -102,6 +102,24 @@
 # Flags for use in the "type" attribute of menu items.
 #
 
+static('static_menugetitem_routeritems')
+static('static_menutree_menuoutput')
+static('static_menutree_menuoutput')
+static('static_menutreealldata_tree')
+static('static_menutreepagedata_tree')
+static('static_menugetnames_names')
+static('static_menulocaltasks_tabs')
+static('static_menulocaltasks_rootpath')
+static('static_menusetactivemenuname_active')
+static('static_menusetactivetrail_trail')
+static('static_menucacheclear_cachecleared')
+static('static_menurouterbuild_menu')
+static('static_menuclearpagecache_cachecleared')
+
+
+
+
+
 define('MENU_IS_ROOT', 0x0001)
 define('MENU_VISIBLE_IN_TREE', 0x0002)
 define('MENU_VISIBLE_IN_BREADCRUMB', 0x0004)
@@ -1583,7 +1601,7 @@ def menu_rebuild():
 # Collect, alter and store the menu definitions.
 #
 def menu_router_build(reset = False):
-  static_menurouterbuild_menu
+  global static_menurouterbuild_menu
   if (static_menurouterbuild_menu == None or reset):
     cache = cache_get('router:', 'cache_menu')
     if (not reset and cache and isset(cache, 'data')):

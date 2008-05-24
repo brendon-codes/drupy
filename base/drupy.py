@@ -63,7 +63,7 @@ print "<title>Drupy: Drupal in Python</title>"
 print "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />"
 print "</head>"
 print "<body>"
-print "<h1>Drupy</h1>"
+print "<h1>Drupy Bootstrap Diagnostic Status</h1>"
 print "<h2>Bootstrap: Completed Phase '%s' (%s)</h2>" % (which_phase[1],which_phase[0]);
 print "<h3>Generated: %s</h3>" % stamp
 print "<p>"
