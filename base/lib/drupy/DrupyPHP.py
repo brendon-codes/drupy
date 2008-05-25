@@ -972,15 +972,6 @@ def ini_set(name, val):
 
 
 #
-# Sets session name
-# @param Str name
-# @return Bool
-#
-def session_name(name):
-  return 'session'
-
-
-#
 # serializer
 # @param Any obj
 # @return Str
