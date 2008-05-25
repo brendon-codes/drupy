@@ -1,4 +1,4 @@
-# $Id: common.inc,v 1.765 2008/05/06 12:18:45 dries Exp $
+# $Id: common.inc,v 1.768 2008/05/16 01:23:31 dries Exp $
 
 
 #
@@ -2869,15 +2869,15 @@ def drupal_write_record(table, _object, update = []):
   # Standardize update to an array.
   if (is_string(update)):
     update = [update];
+  schema = drupal_get_schema(table);
+  if empty(schema):
+    return False
   # Convert to an object if needed.
   if (is_array(_object.val)):
     _object.val = drupy_object(_object.val);
     _array = True;
   else:
     _array = False;
-  schema = drupal_get_schema(table);
-  if (empty(schema)):
-    return False;
   fields = defs = values = serials = placeholders = [];
   # Go through our schema, build SQL, and when inserting, fill in defaults for
   # fields that are not set.
@@ -2931,11 +2931,12 @@ def drupal_write_record(table, _object, update = []):
       # Get last insert ids and fill them in.
       for field in serials:
         setattr( object.val, field, db_last_insert_id(table, field) );
-    # If we began with an array, convert back so we don't surprise the caller.
-    if (not empty(_array)):
-      _object.val = drupy_array(_object.val);
-    return _return;
-  return False;
+  else:
+    _return = False
+  # If we began with an array, convert back so we don't surprise the caller.
+  if (not empty(_array)):
+    _object.val = drupy_array(_object.val);
+  return _return;
 
 
 

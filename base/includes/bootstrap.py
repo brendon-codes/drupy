@@ -1,4 +1,4 @@
-# $Id: bootstrap.inc,v 1.209 2008/05/06 12:18:45 dries Exp $
+# $Id: bootstrap.inc,v 1.210 2008/05/13 17:38:42 dries Exp $
 
 #
 # @package Drupy
@@ -35,17 +35,20 @@
 # These are meant to emulate a 'static' var within PHP
 # These should only be used within the context of their owner functions
 #
-static('static_confpath_conf');
-static('static_drupalgetfilename_files');
-static('static_pagegetcache_status');
-static('static_drupalload_files');
-static('static_gett_t');
-static('static_languagelist_languages');
-static('static_ipaddress_ipaddress');
+static('static_confpath_conf')
+static('static_drupalgetfilename_files')
+static('static_pagegetcache_status')
+static('static_drupalload_files')
+static('static_gett_t')
+static('static_languagelist_languages')
+static('static_ipaddress_ipaddress')
+static('static_drupalfunctionexists_checked')
+static('static_registrymarkcode_resources')
+static('static_registrycachehookimplementations_implementations')
+static('static_registryloadpathfiles_filecachedata')
+static('static_registrygethookimplementationscache_implementations')
 
-static('static_drupalfunctionexists_checked');
-static('static_registrymarkcode_resources');
-static('static_registrycachehookimplementations_implementations');
+
 
 #
 # Global variables
@@ -543,7 +546,6 @@ def page_get_cache():
 #
 def bootstrap_invoke_all(hook):
   for module in module_list(True, True):
-    drupal_load('module', module);
     module_invoke(module, hook);
 
 
@@ -1244,7 +1246,11 @@ def registry_cache_hook_implementations(hook, write_to_persistent_cache = False)
     # Newer is always better, so overwrite anything that's come before.
     static_registrycachehookimplementations_implementations[hook['hook']] = hook['modules']
   if (write_to_persistent_cache == True):
-    cache_set('hooks', static_registrycachehookimplementations_implementations, 'cache_registry')
+    # Only write this to cache if the implementations data we are going to cache
+    # is different to what we loaded earlier in the request.
+    if (implementations != registry_get_hook_implementations_cache()):
+      cache_set('hooks', implementations, 'cache_registry');
+
 
 
 
@@ -1268,8 +1274,48 @@ def registry_cache_path_files():
         break
       files.append( row.filename )
     if (files):
-      menu = menu_get_item()
-      cache_set('registry:' +  menu['path'], implode(';', files), 'cache_registry')
+      sort(files);
+      # Only write this to cache if the file list we are going to cache
+      # is different to what we loaded earlier in the request.
+      if (files != registry_load_path_files(True)):
+        menu = menu_get_item();
+        cache_set('registry:' + menu['path'], implode(';', files), 'cache_registry');
+
+
+
+
+#
+# registry_load_path_files
+#
+def registry_load_path_files(_return = False):
+  global static_registryloadpathfiles_filecachedata
+  if static_registryloadpathfiles_filecachedata == None:
+    static_registryloadpathfiles_filecachedata = []
+  if (_return):
+    sort(static_registryloadpathfiles_filecachedata);
+    return static_registryloadpathfiles_filecachedata;
+  menu = menu_get_item();
+  cache = cache_get('registry:' + menu['path'], 'cache_registry');
+  if (not empty(cache.data)):
+    for file in explode(';', cache.data):
+      require_once(file);
+      static_registryloadpathfiles_filecachedata.append( file );
+
+
+
+#
+# registry_get_hook_implementations_cache
+#
+def registry_get_hook_implementations_cache():
+  global static_registrygethookimplementationscache_implementations;
+  if (static_registrygethookimplementationscache_implementations == None):
+    cache = cache_get('hooks', 'cache_registry')
+    if (cache):
+      static_registrygethookimplementationscache_implementations = cache.data;
+    else:
+      static_registrygethookimplementationscache_implementations = [];
+  return static_registrygethookimplementationscache_implementations;
+
 
 
 #

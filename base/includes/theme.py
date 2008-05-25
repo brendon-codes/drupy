@@ -1,4 +1,4 @@
-# $Id: theme.inc,v 1.422 2008/05/06 12:18:45 dries Exp $
+# $Id: theme.inc,v 1.423 2008/05/23 08:28:30 dries Exp $
 
 
 #
@@ -986,20 +986,28 @@ def theme_submenu(links):
   return '<div class="submenu">'+ implode(' | ', links) +'</div>';
 
 
-
 #
-# Return a themed table+ *
+# Return a themed table.
+#
 # @param header
-#   An array containing the table headers+ Each element of the array can be
+#   An array containing the table headers. Each element of the array can be
 #   either a localized string or an associative array with the following keys:
-#   - "data": The localized title of the table column+ *   - "field": The database field represented in the table column (required if
-#     user is to be able to sort on this column)+ *   - "sort": A default sort order for this column ("asc" or "desc")+ *   - Any HTML attributes, such as "colspan", to apply to the column header cell+ * @param rows
-#   An array of table rows+ Every row is an array of cells, or an associative
+#   - "data": The localized title of the table column.
+#   - "field": The database field represented in the table column (required if
+#     user is to be able to sort on this column).
+#   - "sort": A default sort order for this column ("asc" or "desc").
+#   - Any HTML attributes, such as "colspan", to apply to the column header cell.
+# @param rows
+#   An array of table rows. Every row is an array of cells, or an associative
 #   array with the following keys:
 #   - "data": an array of cells
-#   - Any HTML attributes, such as "class", to apply to the table row+ *
+#   - Any HTML attributes, such as "class", to apply to the table row.
+#
 #   Each cell can be either a string or an associative array with the following keys:
-#   - "data": The string to display in the table cell+ *   - "header": Indicates this cell is a header+ *   - Any HTML attributes, such as "colspan", to apply to the table cell+ *
+#   - "data": The string to display in the table cell.
+#   - "header": Indicates this cell is a header.
+#   - Any HTML attributes, such as "colspan", to apply to the table cell.
+#
 #   Here's an example for rows:
 #   @verbatim
 #   rows = array(
@@ -1007,26 +1015,82 @@ def theme_submenu(links):
 #     array(
 #       'Cell 1', 'Cell 2', 'Cell 3'
 #     ),
-#     // Row with attributes on the row and some of its cells+ *     array(
+#     // Row with attributes on the row and some of its cells.
+#     array(
 #       'data' : array('Cell 1', array('data' : 'Cell 2', 'colspan' : 2)), 'class' : 'funky'
 #     )
-#   );
+#   )
 #   @endverbatim
 #
 # @param attributes
-#   An array of HTML attributes to apply to the table tag+ * @param caption
-#   A localized string to use for the <caption> tag+ * @return
-#   An HTML string representing the table+ */
-def theme_table(header, rows, attributes = [], caption = None):
-  # Add sticky headers, if applicable+
-  if (count(header) > 0):
-    drupal_add_js('misc/tableheader.js');
-    # Add 'sticky-enabled' class to the table to identify it for JS+
-    # This is needed to target tables constructed by this function+
-    attributes['class'] = ('sticky-enabled' if empty(attributes['class']) else (attributes['class'] +' sticky-enabled'));
-  output = '<table'+ drupal_attributes(attributes) +">\n";
-  if (caption != None):
-    output += '<caption>'+ caption +"</caption>\n";
+#   An array of HTML attributes to apply to the table tag.
+# @param caption
+#   A localized string to use for the <caption> tag.
+# @param colgroups
+#   An array of column groups. Each element of the array can be either:
+#   - An array of columns, each of which is an associative array of HTML attributes
+#     applied to the COL element.
+#   - An array of attributes applied to the COLGROUP element, which must include a
+#     "data" attribute. To add attributes to COL elements, set the "data" attribute
+#     with an array of columns, each of which is an associative array of HTML attributes.
+#   Here's an example for colgroup:
+#   @verbatim
+#   colgroup = array(
+#     // COLGROUP with one COL element.
+#     array(
+#       array(
+#         'class' : 'funky', // Attribute for the COL element.
+#       ),
+#     ),
+#     // Colgroup with attributes and inner COL elements.
+#     array(
+#       'data' : array(
+#         array(
+#           'class' : 'funky', // Attribute for the COL element.
+#         ),
+#       ),
+#       'class' : 'jazzy', // Attribute for the COLGROUP element.
+#     ),
+#   )
+#   @endverbatim
+#   These optional tags are used to group and set properties on columns
+#   within a table. For example, one may easily group three columns and
+#   apply same background style to all.
+# @return
+#   An HTML string representing the table.
+#
+def theme_table(header, rows, attributes = {}, caption = None, colgroups = {}):
+  # Add sticky headers, if applicable.
+  if (count(header)):
+    drupal_add_js('misc/tableheader.js')
+    # Add 'sticky-enabled' class to the table to identify it for JS.
+    # This is needed to target tables constructed by this function.
+    attributes['class'] = ('sticky-enabled' if empty(attributes['class']) else  (attributes['class'] +  ' sticky-enabled'))
+  output = '<table' +  drupal_attributes(attributes)  + ">\n"
+  if (isset(caption)):
+    output += '<caption>' +  caption  + "</caption>\n"
+  # Format the table columns:
+  if (count(colgroups)):
+    for number,colgroup in colgroups.items():
+      attributes = {}
+      # Check if we're dealing with a simple or complex column
+      if (isset(colgroup, 'data')):
+        for key,value in colgroup.items():
+          if (key == 'data'):
+            cols = value
+          else:
+            attributes[key] = value
+      else:
+        cols = colgroup
+      # Build colgroup
+      if (is_array(cols) and count(cols)):
+        output += ' <colgroup' +  drupal_attributes(attributes)  + '>'
+        i = 0
+        for col in cols:
+          output += ' <col' +  drupal_attributes(col)  + ' />'
+        output += " </colgroup>\n"
+      else:
+        output += ' <colgroup' +  drupal_attributes(attributes)  + " />\n"
   # Format the table header:
   if (count(header) > 0):
     ts = tablesort_init(header);
