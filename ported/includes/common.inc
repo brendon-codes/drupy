@@ -1,5 +1,5 @@
 <?php
-// $Id: common.inc,v 1.765 2008/05/06 12:18:45 dries Exp $
+// $Id: common.inc,v 1.768 2008/05/16 01:23:31 dries Exp $
 
 /**
  * @file
@@ -1406,23 +1406,23 @@ function drupal_attributes($attributes = array()) {
  *       used as is.
  * @param $options
  *   An associative array of additional options, with the following keys:
- *     'attributes'
+ *     - 'attributes'
  *       An associative array of HTML attributes to apply to the anchor tag.
- *     'query'
+ *     - 'query'
  *       A query string to append to the link, or an array of query key/value
  *       properties.
- *     'fragment'
+ *     - 'fragment'
  *       A fragment identifier (named anchor) to append to the link.
  *       Do not include the '#' character.
- *     'absolute' (default FALSE)
+ *     - 'absolute' (default FALSE)
  *       Whether to force the output to be an absolute link (beginning with
  *       http:). Useful for links that will be displayed outside the site, such
  *       as in an RSS feed.
- *     'html' (default FALSE)
+ *     - 'html' (default FALSE)
  *       Whether the title is HTML, or just plain-text. For example for making
  *       an image a link, this must be set to TRUE, or else you will see the
  *       escaped HTML.
- *     'alias' (default FALSE)
+ *     - 'alias' (default FALSE)
  *       Whether the given path is an alias already.
  * @return
  *   an HTML string containing a link to the given path.
@@ -2007,10 +2007,10 @@ function drupal_add_js($data = NULL, $type = 'module', $scope = 'header', $defer
  * are added to the page. Then, all settings are output, followed by 'inline'
  * JavaScript code. If running update.php, all preprocessing is disabled.
  *
- * @parameter $scope
+ * @param $scope
  *   (optional) The scope for which the JavaScript rules should be returned.
  *   Defaults to 'header'.
- * @parameter $javascript
+ * @param $javascript
  *   (optional) An array with all JavaScript code. Defaults to the default
  *   JavaScript array for the given scope.
  * @return
@@ -3232,6 +3232,11 @@ function drupal_write_record($table, &$object, $update = array()) {
     $update = array($update);
   }
 
+  $schema = drupal_get_schema($table);
+  if (empty($schema)) {
+    return FALSE;
+  }
+
   // Convert to an object if needed.
   if (is_array($object)) {
     $object = (object) $object;
@@ -3239,11 +3244,6 @@ function drupal_write_record($table, &$object, $update = array()) {
   }
   else {
     $array = FALSE;
-  }
-
-  $schema = drupal_get_schema($table);
-  if (empty($schema)) {
-    return FALSE;
   }
 
   $fields = $defs = $values = $serials = $placeholders = array();
@@ -3326,16 +3326,17 @@ function drupal_write_record($table, &$object, $update = array()) {
         $object->$field = db_last_insert_id($table, $field);
       }
     }
-
-    // If we began with an array, convert back so we don't surprise the caller.
-    if ($array) {
-      $object = (array) $object;
-    }
-
-    return $return;
+  }
+  else {
+    $return = FALSE;
   }
 
-  return FALSE;
+  // If we began with an array, convert back so we don't surprise the caller.
+  if ($array) {
+    $object = (array) $object;
+  }
+
+  return $return;
 }
 
 /**

@@ -1,4 +1,4 @@
-# Id: menu.inc,v 1.272 2008/05/13 17:38:42 dries Exp $
+# $Id: menu.inc,v 1.273 2008/05/20 20:32:03 dries Exp $
 #
 
 #
@@ -502,7 +502,8 @@ def _menu_item_localize(item, _map, link_translate = False):
   if (not empty(item.val['description'])):
     original_description = item.val['description']
     item.val['description'] = t(item.val['description'])
-    if (link_translate and item.val['options']['attributes']['title'] == original_description):
+    if (link_translate and isset(item['options']['attributes'], 'title') and \
+        item['options']['attributes']['title'] == original_description):
       item.val['localized_options']['attributes']['title'] = item.val['description']
 
 
