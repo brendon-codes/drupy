@@ -29,6 +29,8 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+require_once( './lib/drupy/DrupySession.py' )
+
 
 #
 # Static variables
@@ -192,6 +194,7 @@ define('LANGUAGE_NEGOTIATION_PATH', 2);
 # if no language identified by domain.
 #
 define('LANGUAGE_NEGOTIATION_DOMAIN', 3);
+
 
 #
 # Start the timer with the specified name. If you start and stop
@@ -951,7 +954,7 @@ def _drupal_bootstrap(phase):
       print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
       exit();
   elif phase == DRUPAL_BOOTSTRAP_SESSION:
-    require_once(variable_get('session_inc', './includes/session.inc'), locals());
+    require_once(variable_get('session_inc', './includes/session.py'));
     session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
     session_start();
   elif phase == DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
