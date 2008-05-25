@@ -1,4 +1,4 @@
-# $Id: module.inc,v 1.119 2008/05/07 06:39:57 dries Exp $
+# $Id: module.inc,v 1.120 2008/05/13 17:38:42 dries Exp $
 
 #
 # @package Drupy
@@ -391,6 +391,7 @@ def module_implements(hook, sort = False, refresh = False):
     cache = cache_get('hooks', 'cache_registry')
     if (cache):
       static_moduleimplements_implementations = cache.data;
+    static_moduleimplements_implementations = registry_get_hook_implementations_cache()
   if (not isset(static_moduleimplements_implementations, hook)):
     static_moduleimplements_implementations[hook] = []
     for _module in module_list():
