@@ -1,0 +1,18 @@
+--- drupy/ported/includes/menu.inc	2008-05-21 01:44:51.000000000 -0700
++++ drupal/includes/menu.inc	2008-05-23 19:50:13.000000000 -0700
+@@ -1,5 +1,5 @@
+ <?php
+-// $Id: menu.inc,v 1.272 2008/05/13 17:38:42 dries Exp $
++// $Id: menu.inc,v 1.273 2008/05/20 20:32:03 dries Exp $
+ 
+ /**
+  * @file
+@@ -514,7 +514,7 @@ function _menu_item_localize(&$item, $ma
+   if (!empty($item['description'])) {
+     $original_description = $item['description'];
+     $item['description'] = t($item['description']);
+-    if ($link_translate && $item['options']['attributes']['title'] == $original_description) {
++    if ($link_translate && isset($item['options']['attributes']['title']) && $item['options']['attributes']['title'] == $original_description) {
+       $item['localized_options']['attributes']['title'] = $item['description'];
+     }
+   }
