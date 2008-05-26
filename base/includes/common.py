@@ -35,25 +35,10 @@ import urllib2
 from lib.drupy import DrupyHelper
 
 
-
 # The functions that are critical and need to be available even when serving
 # a cached page are instead located in bootstrap.inc.
 #
-static('static_drupalsetcontent_content');
-static('static_drupalsetbreadcrumb_storedbreadcrumb');
-static('static_drupalsethtmlhead_storedhead');
-static('static_drupalsetheader_storedheaders');
-static('static_drupaladdfeed_storedfeedlinks');
-static('static_drupalhttprequest_selftest');
-static('static_t_customstrings');
-static('static_url_script');
-static('static_url_cleanurl');
-static('static_drupaladdcss_css');
-static('static_drupalbuildcsspath_base');
-static('static_drupalloadstylesheet_optimize');
-static('static_drupaladdjs_javascript');
-static('static_drupalbootstrapfull_called');
-static('static_drupalgetschema_schema');
+
 
 #
 # Return status for saving which involved creating a new item.
@@ -76,12 +61,10 @@ define('SAVED_DELETED', 3);
 #   Content to be set.
 #
 def drupal_set_content(region = None, data = None):
-  global static_drupalsetcontent_content;
-  if (static_drupalsetcontent_content == None):
-    static_drupalsetcontent_content = {};
+  static(drupal_set_content, 'content', {})
   if (not is_null(region) and not is_null(data)):
-    static_drupalsetcontent_content[region].append( data );
-  return static_drupalsetcontent_content;
+    drupal_set_content.content[region].append( data );
+  return drupal_set_content.content;
 
 
 #
