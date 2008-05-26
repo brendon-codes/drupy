@@ -32,25 +32,6 @@
 require_once( './lib/drupy/DrupySession.py' )
 
 
-#
-# Static variables
-# These are meant to emulate a 'static' var within PHP
-# These should only be used within the context of their owner functions
-#
-static('static_confpath_conf')
-static('static_drupalgetfilename_files')
-static('static_pagegetcache_status')
-static('static_drupalload_files')
-static('static_gett_t')
-static('static_languagelist_languages')
-static('static_ipaddress_ipaddress')
-static('static_drupalfunctionexists_checked')
-static('static_registrymarkcode_resources')
-static('static_registrycachehookimplementations_implementations')
-static('static_registryloadpathfiles_filecachedata')
-static('static_registrygethookimplementationscache_implementations')
-
-
 
 #
 # Global variables
@@ -292,8 +273,8 @@ def timer_stop(name):
 #   The path of the matching directory.
 #
 def conf_path(require_settings = True, reset = False):
-  global static_confpath_conf;
-  if (static_confpath_conf != None and not reset):
+  static(conf_path, 'conf', '');
+  if (not empty(conf_path.conf) and not reset):
     return static_confpath_conf;
   confdir = 'sites';
   uri = explode('/', (_SERVER['SCRIPT_NAME'] if isset(_SERVER, 'SCRIPT_NAME') else _SERVER['SCRIPT_FILENAME']));
@@ -303,10 +284,10 @@ def conf_path(require_settings = True, reset = False):
       _dir = implode('.', array_slice(server, -j)) + implode('.', array_slice(uri, 0, i));
       if (file_exists("%(confdir)s/%(dir)s/settings.py" % {'confdir':confdir, 'dir':_dir}) or \
           (not require_settings and file_exists("confdir/dir"))):
-        static_confpath_conf = "%(confdir)s/%(dir)s" % {'confdir':confdir, 'dir':_dir};
+        conf_path.conf = "%(confdir)s/%(dir)s" % {'confdir':confdir, 'dir':_dir};
         return static_confpath_conf;
-  static_confpath_conf = "%(confdir)s/default" % {'confdir':confdir};
-  return static_confpath_conf;
+  conf_path.conf = "%(confdir)s/default" % {'confdir':confdir};
+  return conf_path.conf;
 
 
 #
@@ -407,14 +388,13 @@ def conf_init():
 #   The filename of the requested item.
 #
 def drupal_get_filename(_type, name, filename = None):
-  global static_drupalgetfilename_files;
+  static(drupal_get_filename, 'files', {})
   file = db_result(db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, _type))
-  if (static_drupalgetfilename_files == None):
-    static_drupalgetfilename_files = {}
-    static_drupalgetfilename_files[_type] = {}
+  if (not isset(drupal_get_filename.files, _type)):
+    drupal_get_filename.files[_type] = {}
   if (filename != None and file_exists(filename)):
-    static_drupalgetfilename_files[_type][name] = filename;
-  elif (isset(static_drupalgetfilename_files[_type], name)):
+    drupal_get_filename.files[_type][name] = filename;
+  elif (isset(drupal_get_filename.files[_type], name)):
     # nothing
     pass;
   # Verify that we have an active database connection, before querying
@@ -422,7 +402,7 @@ def drupal_get_filename(_type, name, filename = None):
   # before we have a database connection (i.e. during installation) and
   # when a database connection fails.
   elif (db_is_active() and (file and file_exists(file))):
-    static_drupalgetfilename_files[_type][name] = file;
+    drupal_get_filename.files[_type][name] = file;
   else:
     # Fallback to searching the filesystem if the database connection is
     # not established or the requested file is not found.
@@ -438,10 +418,10 @@ def drupal_get_filename(_type, name, filename = None):
     ];
     for _file in fileChecker:
       if (file_exists(_file)):
-        static_drupalgetfilename_files[_type][name] = _file;
+        drupal_get_filename.files[_type][name] = _file;
         break;
-  if (isset(static_drupalgetfilename_files[_type], name)):
-    return static_drupalgetfilename_files[_type][name];
+  if (isset(drupal_get_filename.files[_type], name)):
+    return drupal_get_filename.files[_type][name];
 
 
 
@@ -564,19 +544,17 @@ def bootstrap_invoke_all(hook):
 # @return
 #   TRUE if the item is loaded or has already been loaded.
 #
-def drupal_load(type, name):
-  global static_drupalload_files;
-  if (static_drupalload_files == None):
-    static_drupalload_files = {}
-  if (not isset(static_drupalload_files, type)):
-    static_drupalload_files[type] = {}
-  if (isset(static_drupalload_files[type], name)):
+def drupal_load(_type, name):
+  static(drupal_load, 'files', {})
+  if (not isset(drupal_load.files, type)):
+    drupal_load.files[_type] = {}
+  if (isset(drupal_load.files[_type], name)):
     return True
   else:
-    filename = drupal_get_filename(type, name);
+    filename = drupal_get_filename(_type, name);
     if (filename != False):
       include_once("./" + filename);
-      static_drupalload_files[type][name] = True;
+      drupal_load.files[_type][name] = True;
       return True;
     else:
       return False;
@@ -1008,10 +986,10 @@ def drupal_maintenance_theme():
 # run both during installation and normal operation.
 #
 def get_t():
-  global static_gett_t;
-  if (static_gett_t == None):
-    t =  ('st' if function_exists('install_main') else 't');
-  return t;
+  static(get_t, 't')
+  if (get_t.t == None):
+    get_t.t =  ('st' if function_exists('install_main') else 't');
+  return get_t.t;
 
 
 
@@ -1035,33 +1013,33 @@ def drupal_init_language():
 # @param reset Boolean to request a reset of the list.
 #
 def language_list(field = 'language', reset = False):
-  global static_languagelist_list;
+  static(language_list, 'languages')
   # Reset language list
   if (reset):
-    static_languagelist_languages = {};
+    languages_list.languages = {};
   # Init language list
-  if (static_languagelist_languages == None):
+  if (languages_list.languages == None):
     if (variable_get('language_count', 1) > 1 or module_exists('locale')):
       result = db_query('SELECT# FROM {languages} ORDER BY weight ASC, name ASC');
       while True:
         row = db_fetch_object(result);
         if row == None:
           break;
-        static_languagelist_languages['language'][row.language] = row;
+        languages_list.languages['language'][row.language] = row;
     else:
       # No locale module, so use the default language only.
       _default = language_default();
-      static_languagelist_languages['language'][_default.language] = _default;
+      languages_list.languages['language'][_default.language] = _default;
   # Return the array indexed by the right field
-  if (not isset(static_languagelist_languages, field)):
-    static_languagelist_languages[field] = {};
-    for lang in static_languagelist_languages['language']:
+  if (not isset(languages_list.languages, field)):
+    languages_list.languages[field] = {};
+    for lang in languages_list.languages['language']:
       # Some values should be collected into an array
       if (in_array(field, ['enabled', 'weight'])):
-        static_languagelist_languages[field][lang.field][lang.language] = lang;
+        languages_list.languages[field][lang.field][lang.language] = lang;
       else:
-        static_languagelist_languages[field][lang.field] = lang;
-  return static_languagelist_languages[field];
+        languages_list.languages[field][lang.field] = lang;
+  return languages_list.languages[field];
 
 
 
@@ -1098,19 +1076,19 @@ def language_default(property = None):
 #   IP address of client machine, adjusted for reverse proxy.
 #
 def ip_address():
-  global static_ipaddress_ipaddress;
-  if (static_ipaddress_ipaddress == None):
-    static_ipaddress_ipaddress = _SERVER['REMOTE_ADDR'];
+  static(ip_address, 'ip_address')
+  if (ip_address.ip_address == None):
+    ip_address.ip_address = _SERVER['REMOTE_ADDR'];
     if (variable_get('reverse_proxy', 0) and array_key_exists('HTTP_X_FORWARDED_FOR', _SERVER)):
       # If an array of known reverse proxy IPs is provided, then trust
       # the XFF header if request really comes from one of them.
       reverse_proxy_addresses = variable_get('reverse_proxy_addresses', []);
       if (not empty(reverse_proxy_addresses) and \
-          in_array(static_ipaddress_ipaddress, reverse_proxy_addresses)):
+          in_array(ip_address.ip_address, reverse_proxy_addresses)):
         # If there are several arguments, we need to check the most
         # recently added one, i.e. the last one.
-        static_ipaddress_ipaddress = array_pop(explode(',', _SERVER['HTTP_X_FORWARDED_FOR']));
-  return static_ipaddress_ipaddress;
+        ip_address.ip_address = array_pop(explode(',', _SERVER['HTTP_X_FORWARDED_FOR']));
+  return ip_address.ip_address;
 
 
 #
@@ -1131,25 +1109,23 @@ def ip_address():
 #   True if the function is now available, False otherwise.
 #
 def drupal_function_exists(function):
-  global static_drupalfunctionexists_checked
-  if (static_drupalfunctionexists_checked == None):
-    static_drupalfunctionexists_checked = []
+  static(drupal_function_exists, 'checked', [])
   if (defined('MAINTENANCE_MODE')):
     return function_exists(function)
-  if (isset(static_drupalfunctionexists_checked, function)):
-    return static_drupalfunctionexists_checked[function]
-  static_drupalfunctionexists_checked[function] = False
+  if (isset(drupal_function_exists.checked, function)):
+    return drupal_function_exists.checked[function]
+  drupal_function_exists.checked[function] = False
   if (function_exists(function)):
     registry_mark_code('function', function)
-    static_drupalfunctionexists_checked[function] = True
+    drupal_function_exists.checked[function] = True
     return True
   file = db_result(db_query("SELECT filename FROM {registry} WHERE name = '%s' AND type = '%s'", function, 'function'))
   if (file):
     require_once(file)
-    static_drupalfunctionexists_checked[function] = function_exists(function)
-    if (static_drupalfunctionexists_checked[function]):
+    drupal_function_exists.checked[function] = function_exists(function)
+    if (drupal_function_exists.checked[function]):
       registry_mark_code('function', function)
-  return static_drupalfunctionexists_checked[function]
+  return drupal_function_exists.checked[function]
 
 
 
@@ -1209,16 +1185,14 @@ def _registry_check_code(_type, name):
 #   Boolean flag to indicate whether to return the resources.
 #
 def registry_mark_code(_type, name, _return = False):
-  global static_registrymarkcode_resources
-  if (static_registrymarkcode_resources == None):
-    static_registrymarkcode_resource = []
+  static(registry_mark_code, 'resources', [])
   if (_type and name):
-    if (not isset(static_registrymarkcode_resources, _type, )):
-      static_registrymarkcode_resources[_type] = []
-    if (not in_array(name, static_registrymarkcode_resources[_type])):
-      static_registrymarkcode_resources[type].append( name )
+    if (not isset(registry_mark_code.resources, _type, )):
+      registry_mark_code.resources[_type] = []
+    if (not in_array(name, registry_mark_code.resources[_type])):
+      registry_mark_code.resources[type].append( name )
   if (_return):
-    return static_registrymarkcode_resources
+    return registry_mark_code.resources
 
 
 
@@ -1244,14 +1218,14 @@ def drupal_rebuild_code_registry():
 #   Whether to write to the persistent cache.
 #
 def registry_cache_hook_implementations(hook, write_to_persistent_cache = False):
-  global static_registrycachehookimplementations_implementations
+  static(registry_cache_hook_implementations, implementations, {})
   if (hook):
     # Newer is always better, so overwrite anything that's come before.
-    static_registrycachehookimplementations_implementations[hook['hook']] = hook['modules']
+    registry_cache_hook_implementations.implementations[hook['hook']] = hook['modules']
   if (write_to_persistent_cache == True):
     # Only write this to cache if the implementations data we are going to cache
     # is different to what we loaded earlier in the request.
-    if (implementations != registry_get_hook_implementations_cache()):
+    if (registry_cache_hook_implementations.implementations != registry_get_hook_implementations_cache()):
       cache_set('hooks', implementations, 'cache_registry');
 
 
@@ -1291,18 +1265,16 @@ def registry_cache_path_files():
 # registry_load_path_files
 #
 def registry_load_path_files(_return = False):
-  global static_registryloadpathfiles_filecachedata
-  if static_registryloadpathfiles_filecachedata == None:
-    static_registryloadpathfiles_filecachedata = []
+  static(registry_load_path_files, 'file_cache_data', [])
   if (_return):
-    sort(static_registryloadpathfiles_filecachedata);
-    return static_registryloadpathfiles_filecachedata;
+    sort(registry_load_path_files.file_cache_data);
+    return registry_load_path_files.file_cache_data;
   menu = menu_get_item();
   cache = cache_get('registry:' + menu['path'], 'cache_registry');
   if (not empty(cache.data)):
     for file in explode(';', cache.data):
       require_once(file);
-      static_registryloadpathfiles_filecachedata.append( file );
+      registry_load_path_files.file_cache_data.append( file );
 
 
 
@@ -1310,14 +1282,14 @@ def registry_load_path_files(_return = False):
 # registry_get_hook_implementations_cache
 #
 def registry_get_hook_implementations_cache():
-  global static_registrygethookimplementationscache_implementations;
-  if (static_registrygethookimplementationscache_implementations == None):
+  static(registry_get_hook_implementations_cache, 'implementations')
+  if (registry_get_hook_implementations_cache.implementations == None):
     cache = cache_get('hooks', 'cache_registry')
     if (cache):
-      static_registrygethookimplementationscache_implementations = cache.data;
+      registry_get_hook_implementations_cache.implementations = cache.data;
     else:
-      static_registrygethookimplementationscache_implementations = [];
-  return static_registrygethookimplementationscache_implementations;
+      registry_get_hook_implementations_cache.implementations = [];
+  return registry_get_hook_implementations_cache.implementations;
 
 
 

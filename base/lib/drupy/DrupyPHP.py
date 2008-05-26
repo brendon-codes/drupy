@@ -126,7 +126,6 @@ def call_user_func_array(func, args):
   return (eval(func)(*tuple(args)))
 
 
-
 #
 # Output buffering start
 # @return Int
@@ -906,6 +905,17 @@ def count(item):
 
 
 #
+# Sets a static var
+#
+def static(func, prop, val = None):
+  if not hasattr(func, prop):
+    setattr(func, prop, val)
+    return False
+  else:
+    return True
+
+
+#
 # Determines whether or not is numeric
 # @param Any val
 # @return Bool
@@ -1158,7 +1168,6 @@ class SuperGlobals:
 gzencode = gzdeflate
 gzdecode = gzinflate
 sizeof = count
-static = define
 set_global = define
 require_once = include
 require = include
