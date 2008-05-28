@@ -29,12 +29,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-static('static_dbsetactive_dbconns');
-static('static_dbsetactive_activename');
-static('static_dbquerycallback_args');
-
-
-set_global('active_db');
+active_db = None
 
 
 #
@@ -42,8 +37,8 @@ set_global('active_db');
 #
 # @see drupal_error_handler()
 #
-define('DB_ERROR', 'a515ac9c2796ca0e23adbe92c68fc9fc');
-define('DB_QUERY_REGEXP', '/(%d|%s|%%|%f|%b)/');
+DB_ERROR = 'a515ac9c2796ca0e23adbe92c68fc9fc'
+DB_QUERY_REGEXP = '/(%d|%s|%%|%f|%b)/'
 
 
 
@@ -148,15 +143,12 @@ def db_prefix_tables(sql):
 #
 def db_set_active(name = 'default'):
   global db_url, db_type, active_db, db_prefix;
-  global static_dbsetactive_dbconns, static_dbsetactive_activename;
-  if (static_dbsetactive_activename == None):
-    static_dbsetactive_activename = False;
-  if (static_dbsetactive_dbconns == None):
-    static_dbsetactive_dbconns = {};
+  static(db_set_active, 'db_conns', {})
+  static(db_set_active, 'active_name', False)
   if (db_url == None):
     include_once('includes/install.py');
     install_goto('install.py');
-  if (not isset(static_dbsetactive_dbconns, name)):
+  if (not isset(db_set_active.db_conns, name)):
     # Initiate a new connection, using the named DB URL specified.
     if (isinstance(db_url, dict)):
       connect_url = (db_url[name] if array_key_exists(name, db_url) else db_url['default']);
@@ -168,15 +160,15 @@ def db_set_active(name = 'default'):
       include_once(handler);
     else:
       _db_error_page("The database type '" + db_type + "' is unsupported. Please use either 'mysql' or 'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
-    static_dbsetactive_dbconns[name] = db_connect(connect_url);
+    db_set_active.db_conns[name] = db_connect(connect_url);
     # We need to pass around the simpletest database prefix in the request
     # and we put that in the user_agent header.
     if (preg_match("/^simpletest\d+$/", _SERVER['HTTP_USER_AGENT'])):
       db_prefix = _SERVER['HTTP_USER_AGENT'];
-  previous_name = static_dbsetactive_activename;
+  previous_name = db_set_active.active_name;
   # Set the active connection.
   static_dbsetactive_activename = name;
-  active_db = static_dbsetactive_dbconns[name];
+  active_db = db_set_active.db_conns[name];
   return previous_name;
 
 
@@ -216,20 +208,20 @@ def db_is_active():
 # Helper function for db_query().
 #
 def _db_query_callback(match, init = False):
-  global static_dbquerycallback_args;
+  static(_db_query_callback, 'args')
   if (init):
-    static_dbquerycallback_args = match;
+    _db_query_callback.args = match;
     return;
   if match[1] == '%d': # We must use type casting to int to convert FALSE/NULL/(TRUE?)
-    return int(array_shift(static_dbquerycallback_args)); # We don't need db_escape_string as numbers are db-safe
+    return int(array_shift(_db_query_callback.args)); # We don't need db_escape_string as numbers are db-safe
   elif match[1] == '%s':
-    return db_escape_string(array_shift(static_dbquerycallback_args));
+    return db_escape_string(array_shift(_db_query_callback.args));
   elif match[1] == '%%':
     return '%';
   elif match[1] == '%f':
-    return float(array_shift(static_dbquerycallback_args));
+    return float(array_shift(_db_query_callback.args));
   elif match[1] == '%b': # binary data
-    return db_encode_blob(array_shift(static_dbquerycallback_args));
+    return db_encode_blob(array_shift(_db_query_callback.args));
 
 
 

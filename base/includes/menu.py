@@ -102,31 +102,13 @@
 # Flags for use in the "type" attribute of menu items.
 #
 
-static('static_menugetitem_routeritems')
-static('static_menutree_menuoutput')
-static('static_menutree_menuoutput')
-static('static_menutreealldata_tree')
-static('static_menutreepagedata_tree')
-static('static_menugetnames_names')
-static('static_menulocaltasks_tabs')
-static('static_menulocaltasks_rootpath')
-static('static_menusetactivemenuname_active')
-static('static_menusetactivetrail_trail')
-static('static_menucacheclear_cachecleared')
-static('static_menurouterbuild_menu')
-static('static_menuclearpagecache_cachecleared')
-
-
-
-
-
-define('MENU_IS_ROOT', 0x0001)
-define('MENU_VISIBLE_IN_TREE', 0x0002)
-define('MENU_VISIBLE_IN_BREADCRUMB', 0x0004)
-define('MENU_LINKS_TO_PARENT', 0x0008)
-define('MENU_MODIFIED_BY_ADMIN', 0x0020)
-define('MENU_CREATED_BY_ADMIN', 0x0040)
-define('MENU_IS_LOCAL_TASK', 0x0080)
+MENU_IS_ROOT = 0x0001
+MENU_VISIBLE_IN_TREE = 0x0002
+MENU_VISIBLE_IN_BREADCRUMB = 0x0004
+MENU_LINKS_TO_PARENT = 0x0008
+MENU_MODIFIED_BY_ADMIN = 0x0020
+MENU_CREATED_BY_ADMIN = 0x0040
+MENU_IS_LOCAL_TASK = 0x0080
 #
 # @} End of "Menu flags".
 #
@@ -141,30 +123,30 @@ define('MENU_IS_LOCAL_TASK', 0x0080)
 # the administrator. Use this for most menu items. It is the default value if
 # no menu item type is specified.
 #
-define('MENU_NORMAL_ITEM', MENU_VISIBLE_IN_TREE | MENU_VISIBLE_IN_BREADCRUMB)
+MENU_NORMAL_ITEM = MENU_VISIBLE_IN_TREE | MENU_VISIBLE_IN_BREADCRUMB
 #
 # Callbacks simply register a path so that the correct function is fired
 # when the URL is accessed. They are not shown in the menu.
 #
-define('MENU_CALLBACK', MENU_VISIBLE_IN_BREADCRUMB)
+MENU_CALLBACK = MENU_VISIBLE_IN_BREADCRUMB
 #
 # Modules may "suggest" menu items that the administrator may enable. They act
 # just as callbacks do until enabled, at which time they act like normal items.
 # Note for the value: 0x0010 was a flag which is no longer used, but this way
 # the values of MENU_CALLBACK and MENU_SUGGESTED_ITEM are separate.
 #
-define('MENU_SUGGESTED_ITEM', MENU_VISIBLE_IN_BREADCRUMB | 0x0010)
+MENU_SUGGESTED_ITEM = MENU_VISIBLE_IN_BREADCRUMB | 0x0010
 #
 # Local tasks are rendered as tabs by default. Use this for menu items that
 # describe actions to be performed on their parent item. An example is the path
 # "node/52/edit", which performs the "edit" task on "node/52".
 #
-define('MENU_LOCAL_TASK', MENU_IS_LOCAL_TASK)
+MENU_LOCAL_TASK = MENU_IS_LOCAL_TASK
 #
 # Every set of local tasks should provide one "default" task, that links to the
 # same path as its parent when clicked.
 #
-define('MENU_DEFAULT_LOCAL_TASK', MENU_IS_LOCAL_TASK | MENU_LINKS_TO_PARENT)
+MENU_DEFAULT_LOCAL_TASK = MENU_IS_LOCAL_TASK | MENU_LINKS_TO_PARENT
 #
 # @} End of "Menu item types".
 #
@@ -174,10 +156,10 @@ define('MENU_DEFAULT_LOCAL_TASK', MENU_IS_LOCAL_TASK | MENU_LINKS_TO_PARENT)
 # Status codes for menu callbacks.
 #
 
-define('MENU_FOUND', 1)
-define('MENU_NOT_FOUND', 2)
-define('MENU_ACCESS_DENIED', 3)
-define('MENU_SITE_OFFLINE', 4)
+MENU_FOUND = 1
+MENU_NOT_FOUND = 2
+MENU_ACCESS_DENIED = 3
+MENU_SITE_OFFLINE = 4
 #
 # @} End of "Menu status codes".
 #
@@ -189,11 +171,12 @@ define('MENU_SITE_OFFLINE', 4)
 #
 # The maximum number of path elements for a menu callback
 #
-define('MENU_MAX_PARTS', 7)
+MENU_MAX_PARTS = 7
 #
 # The maximum depth of a menu links tree - matches the number of p columns.
 #
-define('MENU_MAX_DEPTH', 9)
+MENU_MAX_DEPTH = 9
+
 #
 # @} End of "Menu tree parameters".
 #
@@ -317,12 +300,12 @@ def menu_set_item(path, router_item):
 #   filled in based on the database values and the objects loaded.
 #
 def menu_get_item(path = None, router_item = None):
-  global static_menugetitem_routeritems
+  static(menu_get_item, 'router_items')
   if (not isset(path)):
     path = _GET['q']
-  if (isset(router_item)):
-    static_menugetitem_routeritems[path] = router_item
-  if (not isset(static_menugetitem_routeritems, path)):
+  if (router_item != None):
+    menu_get_item.router_items[path] = router_item
+  if (not isset(menu_get_item.router_items, path)):
     original_map = arg(None, path)
     parts = array_slice(original_map, 0, MENU_MAX_PARTS)
     (ancestors, placeholders) = menu_get_ancestors(parts)
@@ -330,13 +313,13 @@ def menu_get_item(path = None, router_item = None):
     if (router_item):
       _map = _menu_translate(router_item, original_map)
       if (_map == False):
-        static_menugetitem_routeritems[path] = False
+        menu_get_item.router_items[path] = False
         return False
       if (router_item['access']):
         router_item['map'] = map
         router_item['page_arguments'] = array_merge(menu_unserialize(router_item['page_arguments'], map), array_slice(map, router_item['number_parts']))
-    static_menugetitem_routeritems[path] = router_item
-  return static_menugetitem_routeritems[path]
+    menu_get_item.router_items[path] = router_item
+  return menu_get_item.router_items[path]
 
 
 #
@@ -682,13 +665,11 @@ def menu_get_object(_type = 'node', position = 1, path = None):
 #   The rendered HTML of that menu on the current page.
 #
 def menu_tree(menu_name = 'navigation'):
-  global static_menutree_menuoutput
-  if static_menutree_menuoutput == None:
-    static_menutree_menuoutput = {}
-  if (not isset(static_menutree_menuoutput, menu_name)):
+  static(menu_tree, 'menu_output', {})
+  if (not isset(menu_tree.menu_output, menu_name)):
     tree = menu_tree_page_data(menu_name)
-    static_menutree_menuoutput[menu_name] = menu_tree_output(tree)
-  return static_menutree_menuoutput[menu_name]
+    menu_tree.menu_output[menu_name] = menu_tree_output(tree)
+  return menu_tree.menu_output[menu_name]
 
 
 
@@ -743,15 +724,13 @@ def menu_tree_output(tree):
 #   An tree of menu links in an array, in the order they should be rendered.
 #
 def menu_tree_all_data(menu_name = 'navigation', item = None):
-  global static_menutreealldata_tree
-  if static_menutreealldata_tree == None:
-    static_menutreealldata_tree = {}
+  static(menu_tree_all_data, 'tree', {})
   data = None
   # Use mlid as a flag for whether the data being loaded is for the whole tree.
   mlid = (item['mlid'] if isset(item, 'mlid') else 0)
   # Generate a cache ID (cid) specific for this menu_name and item.
   cid = 'links:' +  menu_name  + ':all-cid:' + mlid
-  if (not isset(static_menutreealldata_tree, cid)):
+  if (not isset(menu_tree_all_data.tree, cid)):
     # If the static variable doesn't have the data, check {cache_menu}.
     cache = cache_get(cid, 'cache_menu')
     if (cache and isset(cache, 'data')):
@@ -801,8 +780,8 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
       cache_set(cid, tree_cid, 'cache_menu')
     # Check access for the current user to each item in the tree.
     menu_tree_check_access(data['tree'], data['node_links'])
-    static_menutreealldata_tree[cid] = data['tree']
-  return static_menutreealldata_tree[cid]
+    menu_tree_all_data.tree[cid] = data['tree']
+  return menu_tree_all_data.tree[cid]
 
 
 
@@ -822,9 +801,7 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
 #   same structure described for the top-level array.
 #
 def menu_tree_page_data(menu_name = 'navigation'):
-  global static_menutreepagedata_tree
-  if static_menutreepagedata_tree == None:
-    static_menutreepagedata_tree = {}
+  static(menu_tree_page_data, 'tree', {})
   # Load the menu item corresponding to the current page.
   data = None
   item = menu_get_item()
@@ -911,8 +888,8 @@ def menu_tree_page_data(menu_name = 'navigation'):
         cache_set(cid, tree_cid, 'cache_menu')
       # Check access for the current user to each item in the tree.
       menu_tree_check_access(data['tree'], data['node_links'])
-      static_menutreepagedata_tree[cid] = data['tree']
-    return static_menutreepagedata_tree[cid]
+      menu_tree_page_data.tree[cid] = data['tree']
+    return menu_tree_page_data.tree[cid]
   return {}
 
 
@@ -1156,16 +1133,15 @@ def menu_get_active_help():
 # Build a list of named menus.
 #
 def menu_get_names(reset = False):
-  global static_menugetnames_names
-  if (reset or empty(static_menugetnames_names)):
-    names = []
+  static(menu_get_names, 'names', [])
+  if (reset or empty(menu_get_names.names)):
     result = db_query("SELECT DISTINCT(menu_name) FROM {menu_links} ORDER BY menu_name")
     while True:
       name = db_fetch_array(result)
       if name == None:
         break
-      static_menugetnames_names.append(name['menu_name'])
-  return names
+      menu_get_names.names.append(name['menu_name'])
+  return menu_get_names.names
 
 
 

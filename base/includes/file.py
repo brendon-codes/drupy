@@ -30,23 +30,20 @@
 #
 
 
-
-static('static_filesaveupload_uploadcache')
-static('static_fileuploadmaxsize_maxsize')
-
 #
 # @defgroup file File interface
 # @{
 # Common file handling functions.
 #
 
-define('FILE_DOWNLOADS_PUBLIC', 1)
-define('FILE_DOWNLOADS_PRIVATE', 2)
-define('FILE_CREATE_DIRECTORY', 1)
-define('FILE_MODIFY_PERMISSIONS', 2)
-define('FILE_EXISTS_RENAME', 0)
-define('FILE_EXISTS_REPLACE', 1)
-define('FILE_EXISTS_ERROR', 2)
+FILE_DOWNLOADS_PUBLIC = 1
+FILE_DOWNLOADS_PRIVATE = 2
+FILE_CREATE_DIRECTORY = 1
+FILE_MODIFY_PERMISSIONS = 2
+FILE_EXISTS_RENAME = 0
+FILE_EXISTS_REPLACE = 1
+FILE_EXISTS_ERROR = 2
+
 #
 # A files status can be one of two values: temporary or permanent + The status
 # for each file Drupal manages is stored in the {files} tables + If the status
@@ -56,8 +53,9 @@ define('FILE_EXISTS_ERROR', 2)
 # If you wish to add custom statuses for use by contrib modules please expand as
 # binary flags and consider the first 8 bits reserved + (0,1,2,4,8,16,32,64,128)
 #
-define('FILE_STATUS_TEMPORARY', 0)
-define('FILE_STATUS_PERMANENT', 1)
+FILE_STATUS_TEMPORARY = 0
+FILE_STATUS_PERMANENT = 1
+
 #
 # Create the download path to a file.
 #
@@ -452,15 +450,13 @@ def file_space_used(uid = None):
 #
 def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXISTS_RENAME):
   global user
-  global static_filesaveupload_uploadcache;
-  if (static_filesaveupload_uploadcache == None):
-    static_filesaveupload_uploadcache = {}
+  static(file_save_upload, 'upload_cache', {})
   # Add in our check of the the file name length.
   validators['file_validate_name_length'] = {}
   # Return cached objects without processing since the file will have
   # already been processed and the paths in _FILES will be invalid.
-  if (isset(static_filesaveupload_uploadcache, source)):
-    return static_filesaveupload_uploadcache[source]
+  if (isset(file_save_upload.uploadcache, source)):
+    return file_save_upload.uploadcache[source]
   # If a file was uploaded, process it.
   if (isset(_FILES, 'files') and _FILES['files']['name'][source] and is_uploaded_file(_FILES['files']['tmp_name'][source])):
     # Check for file upload errors and return False if a
@@ -530,7 +526,7 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
     file.timestamp = time()
     drupal_write_record('files', file)
     # Add file to the cache.
-    upload_cache[source] = file
+    file_save_upload.upload_cache[source] = file
     return file
   return 0
 
@@ -873,13 +869,11 @@ def file_directory_path():
 #   A file size limit in bytes based on the PHP upload_max_filesize and post_max_size
 #
 def file_upload_max_size():
-  global static_fileuploadmaxsize_maxsize;
-  if (static_fileuploadmaxsize_maxsize == None):
-    static_fileuploadmaxsize_maxsize = -1
-  if (static_fileuploadmaxsize_maxsize < 0):
+  static(file_upload_max_size, 'max_size', -1)
+  if (file_upload_max_size.max_size < 0):
     upload_max = parse_size(ini_get('upload_max_filesize'))
     post_max = parse_size(ini_get('post_max_size'))
-    static_fileuploadmaxsize_maxsize = (upload_max if (upload_max < post_max) else post_max)
+    file_upload_max_size.max_size = (upload_max if (upload_max < post_max) else post_max)
   return max_size
 
 

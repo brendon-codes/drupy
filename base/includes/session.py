@@ -30,8 +30,6 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-static('static_sessionsavesession_savesession')
-
 def sess_open(save_path, session_name):
   return True
 

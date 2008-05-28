@@ -29,12 +29,6 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-
-static('static_modulelist_list')
-static('static_modulelist_sortedlist')
-static('static_moduleimplements_implementations')
-
-
 #
 # Load all the modules that have been enabled in the system table.
 #

@@ -36,14 +36,6 @@
 from lib.drupy import DrupyHelper
 
 
-static('static_themegetregistry_themeregistry');
-static('static_listthemes_list');
-static('static_theme_hooks');
-static('static_themegetsetting_settings');
-static('static_template_preprocess_count');
-static('static_templatepreprocessblock_blockcounter');
-
-
 # @see <a href="http://drupal.org/node/253">Theme system</a>
 # @see themeable
 #
@@ -53,9 +45,11 @@ static('static_templatepreprocessblock_blockcounter');
 # Markers used by theme_mark() and node_mark() to designate content.
 # @see theme_mark(), node_mark()
 #
-define('MARK_READ',    0);
-define('MARK_NEW',     1);
-define('MARK_UPDATED', 2);
+MARK_READ = 0
+MARK_NEW = 1
+MARK_UPDATED = 2
+
+
 #
 # @} End of "Content markers".
 #
