@@ -32,16 +32,6 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-
-
-static('static_drupallookuppath_map')
-static('static_drupallookuppath_nosrc')
-static('static_arg_arguments')
-static('static_drupalsettitle_storedtitle')
-static('static_drupalmatchpath_regexps')
-
-
-
 # Initialize the _GET['q'] variable to the proper normal path.
 #
 def drupal_init_path():

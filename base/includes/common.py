@@ -43,15 +43,15 @@ from lib.drupy import DrupyHelper
 #
 # Return status for saving which involved creating a new item.
 #
-define('SAVED_NEW', 1);
+SAVED_NEW = 1;
 #
 # Return status for saving which involved an update to an existing item.
 #
-define('SAVED_UPDATED', 2);
+SAVED_UPDATED = 2;
 #
 # Return status for saving which deleted an existing item.
 #
-define('SAVED_DELETED', 3);
+SAVED_DELETED = 3;
 #
 # Set content for a specified region.
 #
@@ -97,10 +97,10 @@ def drupal_get_content(region = None, delimiter = ' '):
 #   the current page.
 #
 def drupal_set_breadcrumb(breadcrumb = None):
-  global static_drupalsetbreadcrumb_storedbreadcrumb;
+  static(drupal_set_breadcrumb, 'stored_breadcrumb')
   if (not is_null(breadcrumb)):
-    static_drupalsetbreadcrumb_storedbreadcrumb = breadcrumb;
-  return static_drupalsetbreadcrumb_storedbreadcrumb;
+    drupal_set_breadcrumb.stored_breadcrumb = breadcrumb;
+  return drupal_set_breadcrumb.stored_breadcrumb;
 
 
 #
@@ -119,7 +119,7 @@ def drupal_get_breadcrumb():
 # This function can be called as long the headers aren't sent.
 #
 def drupal_set_html_head(data = None):
-  global static_drupalsethtmlhead_storedhead;
+  static(drupal_set_html_head, 'stored_head', '')
   if (not is_null(data)):
     static_drupalsethtmlhead_storedhead += data + "\n";
   return static_drupalsethtmlhead_storedhead;
@@ -150,13 +150,11 @@ def drupal_set_header(header = None):
   # We use an array to guarantee there are no leading or trailing delimiters.
   # Otherwise, header('') could get called when serving the page later, which
   # ends HTTP headers prematurely on some PHP versions.
-  global static_drupalsetheader_storedheaders;
-  if (static_drupalsetheader_storedheaders == None):
-    static_drupalsetheader_storedheaders = [];
+  static(drupal_set_header, 'stored_headers', [])
   if (strlen(header) > 0):
     header(header);
-    static_drupalsetheader_storedheaders.append(header);
-  return implode("\n", static_drupalsetheader_storedheaders);
+    drupal_set_header.stored_headers.append(header);
+  return implode("\n", drupal_set_header.stored_headers);
 
 
 #
@@ -175,18 +173,16 @@ def drupal_get_headers():
 #   The title of the feed.
 #
 def drupal_add_feed(url = None, title = ''):
-  global static_drupaladdfeed_storedfeedlinks;
-  if (static_drupaladdfeed_storedfeedlinks == None):
-    static_drupaladdfeed_storedfeedlinks = {};
-  if (not is_null(url) and not isset(static_drupaladdfeed_storedfeedlinks, url)):
-    static_drupaladdfeed_storedfeedlinks[url] = theme('feed_icon', url, title);
+  static(drupal_add_feed, 'stored_feed_links', {})
+  if (not is_null(url) and not isset(drupal_add_feed.stored_feed_links, url)):
+    drupal_add_feed.stored_feed_links[url] = theme('feed_icon', url, title);
     drupal_add_link({
       'rel' : 'alternate',
       'type' : 'application/rss+xml',
       'title' : title,
       'href' : url
     });
-  return stored_feed_links;
+  return drupal_add_feed.stored_feed_links;
 
 
 #
@@ -591,19 +587,17 @@ def fix_gpc_magic():
 #
 def t(string, args = {}, langcode = None):
   global language;
-  global static_t_customstrings;
-  if (static_t_customstrings == None):
-    static_t_customstrings = {};
+  static(t, 'custom_strings', {})
   langcode = (langcode if (langcode != None) else language.language);
   # First, check for an array of customized strings. If present, use the array
   # *instead of* database lookups. This is a high performance way to provide a
   # handful of string replacements. See settings.php for examples.
   # Cache the custom_strings variable to improve performance.
-  if (not isset(static_t_customstrings, langcode)):
-    static_t_customstrings[langcode] = variable_get('locale_custom_strings_' + langcode, {});
+  if (not isset(t.custom_strings, langcode)):
+    t.custom_strings[langcode] = variable_get('locale_custom_strings_' + langcode, {});
   # Custom strings work for English too, even if locale module is disabled.
-  if (isset(static_t_customstrings[langcode], string)):
-    string = static_t_customstrings[langcode][string];
+  if (isset(t.custom_strings[langcode], string)):
+    string = t.custom_strings[langcode][string];
   # Translate with locale module if enabled.
   elif (function_exists('locale') and langcode != 'en'):
     string = locale(string, langcode);
@@ -1056,7 +1050,8 @@ def format_date(timestamp, type = 'medium', format = '', timezone = None, langco
 #
 def url(path = None, options = {}):
   global base_url;
-  global static_url_script, static_url_cleanurl;
+  static(url, 'script')
+  static(url, 'clean_url')
   # Merge in defaults.
   options = array_merge(options, {
     'fragment' : '',
@@ -1096,14 +1091,14 @@ def url(path = None, options = {}):
       path += ('&' if (strpos(path, '?') != False) else '?') + options['query'];
     # Reassemble.
     return path + options['fragment'];
-  if (static_url_script == None):
+  if (url.script == None):
     # On some web servers, such as IIS, we can't omit "index.php". So, we
     # generate "index.php?q=foo" instead of "?q=foo" on anything that is not
     # Apache.
-    script = ('index.php' if (strpos(_SERVER['SERVER_SOFTWARE'], 'Apache') == False) else '');
+    url.script = ('index.php' if (strpos(_SERVER['SERVER_SOFTWARE'], 'Apache') == False) else '');
   # Cache the clean_url variable to improve performance.
-  if (static_url_cleanurl == None):
-    clean_url = bool(variable_get('clean_url', '0'));
+  if (url.clean_url == None):
+    url.clean_url = drupy_bool(variable_get('clean_url', '0'));
   if (not isset(options, 'base_url')):
     # The base_url might be rewritten from the language rewrite in domain mode.
     options['base_url'] = base_url;
@@ -1135,7 +1130,7 @@ def url(path = None, options = {}):
       variables.append( options['query'] );
     query = implode('&', variables);
     if (len(query) > 0):
-      return base + script + '?' + query + options['fragment'];
+      return base + url.script + '?' + query + options['fragment'];
     else:
       return base + options['fragment'];
 
@@ -1387,22 +1382,20 @@ def drupal_add_link(attributes):
 #
 def drupal_add_css(path = None, type = 'module', media = 'all', preprocess = True):
   global language;
-  global static_drupaladdcss_css;
-  if (static_drupaladdcss_css == None):
-    static_drupaladdcss_css = {};
+  static(drupal_add_css, 'css', {})
   # Create an array of CSS files for each media type first, since each type needs to be served
   # to the browser differently.
   if (path != None):
     # This check is necessary to ensure proper cascading of styles and is faster than an asort().
-    if (not isset(css, media)):
-      css[media] = {'module' : {}, 'theme' : {}};
-    css[media][type][path] = preprocess;
+    if (not isset(drupal_add_css.css, media)):
+      drupal_add_css.css[media] = {'module' : {}, 'theme' : {}};
+    drupal_add_css.css[media][type][path] = preprocess;
     # If the current language is RTL, add the CSS file with RTL overrides.
     if (defined('LANGUAGE_RTL') and language.direction == LANGUAGE_RTL):
       rtl_path = str_replace('.css', '-rtl.css', path);
       if (file_exists(rtl_path)):
-        css[media][type][rtl_path] = preprocess;
-  return css;
+        drupal_add_css.css[media][type][rtl_path] = preprocess;
+  return drupal_add_css.css;
 
 
 
@@ -1523,12 +1516,10 @@ def drupal_build_css_cache(types, filename):
 # This function will prefix all paths within a CSS file.
 #
 def _drupal_build_css_path(matches, base = None):
-  global static_drupalbuildcsspath_base;
+  static(_drupal_build_css_path, 'base', base)
   # Store base path for preg_replace_callback.
-  if (base != None):
-    static_drupalbuildcsspath_base = base;
   # Prefix with base and remove '../' segments where possible.
-  path = static_drupalbuildcsspath_base + matches[1];
+  path = _drupal_build_css_path.base + matches[1];
   last = '';
   while (path != last):
     last = path;
@@ -1556,10 +1547,8 @@ def _drupal_build_css_path(matches, base = None):
 #   Contents of the stylesheet including the imported stylesheets.
 #
 def drupal_load_stylesheet(file, optimize = None):
-  global static_drupalloadstylesheet_optimize;
+  static(drupal_load_stylesheet, '_optimize', optimize)
   # Store optimization parameter for preg_replace_callback with nested @import loops.
-  if (optimize != None):
-    static_drupalloadstylesheet_optimize = optimize;
   contents = '';
   if (file_exists(file)):
     # Load the local CSS stylesheet.
@@ -1572,7 +1561,7 @@ def drupal_load_stylesheet(file, optimize = None):
     contents = preg_replace_callback('/@import\s*(?:url\()?[\'"]?(?![a-z]+:)([^\'"\()]+)[\'"]?\)?;/', '_drupal_load_stylesheet', contents);
     # Remove multiple charset declarations for standards compliance (and fixing Safari problems).
     contents = preg_replace('/^@charset\s+[\'"](\S*)\b[\'"];/i', '', contents);
-    if (not empty(static_drupalloadstylesheet_optimize)):
+    if (not empty(drupal_load_stylesheet._optimize)):
       # Perform some safe CSS optimizations.
       contents = preg_replace(
         '<' + 
@@ -1667,12 +1656,11 @@ def drupal_clear_css_cache():
 #   an array with all scopes is returned.
 #
 def drupal_add_js(data = None, _type = 'module', scope = 'header', defer = False, cache = True, preprocess = True):
-  global static_drupaladdjs_javascript;
+  static(drupal_add_js, 'javascript', {})
   if (data != None):
     # Add jquery.js and drupal.js, as well as the basePath setting, the
     # first time a Javascript file is added.
-    if (static_drupaladdjs_javascript == None):
-      static_drupaladdjs_javascript = {};
+    if (empty(drupal_add_js.javascript)):
       javascript['header'] = {
         'core' : {
           'misc/jquery.js' : {'cache' : True, 'defer' : False, 'preprocess' : True},
@@ -1685,24 +1673,24 @@ def drupal_add_js(data = None, _type = 'module', scope = 'header', defer = False
         ],
         'inline' : {},
       };
-    if (not empty(scope) and not isset(javascript, scope)):
-      javascript[scope] = {'core' : {}, 'module' : {}, 'theme' : {}, 'setting' : {}, 'inline' : {}};
-    if (not empty(type) and not empty(scope) and not isset(javascript[scope], _type)):
-      javascript[scope][_type] = [];
+    if (not empty(scope) and not isset(drupal_add_js.javascript, scope)):
+      drupal_add_js.javascript[scope] = {'core' : {}, 'module' : {}, 'theme' : {}, 'setting' : {}, 'inline' : {}};
+    if (not empty(type) and not empty(scope) and not isset(drupal_add_js.javascript[scope], _type)):
+      drupal_add_js.javascript[scope][_type] = [];
     if type == 'setting':
-      javascript[scope][_type].append(data);
+      drupal_add_js.javascript[scope][_type].append(data);
     elif type == 'inline':
-      javascript[scope][_type].append({'code' : data, 'defer' : defer});
+      drupal_add_js.javascript[scope][_type].append({'code' : data, 'defer' : defer});
     else:
       # If cache is False, don't preprocess the JS file.
-      javascript[scope][_type][data] = {'cache' : cache, 'defer' : defer, 'preprocess' : (False if not cache else preprocess)};
+      drupal_add_js.javascript[scope][_type][data] = {'cache' : cache, 'defer' : defer, 'preprocess' : (False if not cache else preprocess)};
   if (not empty(scope)):
-    if (isset(javascript, scope)):
-      return javascript[scope];
+    if (isset(drupal_add_js.javascript, scope)):
+      return drupal_add_js.javascript[scope];
     else:
       return {};
   else:
-    return javascript;
+    return drupal_add_js.javascript;
 
 
 
@@ -1881,10 +1869,10 @@ def drupal_get_js(scope = 'header', javascript = None):
 # @see theme_menu_overview_form()
 #
 def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = None, source = None, hidden = True, limit = 0):
-  global static_drupaladdtabledrag_jsadded;
-  if (static_drupaladdtabledrag_jsadded == None):
+  static(drupal_add_tabledrag, 'js_added', False)
+  if (not drupal_add_tabledrag.js_added):
     drupal_add_js('misc/tabledrag.js', 'core');
-    js_added = True;
+    drupal_add_tabledrag.js_added = True;
   # If a subgroup or source isn't set, assume it is the same as the group.
   target = (subgroup if (subgroup != None) else group);
   source = (source if source != None else target);
@@ -2005,10 +1993,8 @@ def drupal_urlencode(text):
 #   The number of characters (bytes) to return in the string.
 #
 def drupal_random_bytes(_count):
-  global static_drupalrandombytes_randomstate;
   # We initialize with the somewhat random PHP process ID on the first call.
-  if (empty(static_drupalrandombytes_randomstate)):
-    static_drupalrandombytes_randomstate = getmypid();
+  static(drupal_random_bytes, 'random_state', getmypid())
   output = '';
   # /dev/urandom is available on many *nix systems and is considered the best
   # commonly available pseudo-random source.
@@ -2025,8 +2011,8 @@ def drupal_random_bytes(_count):
   # directly leaking $random_state via the $output stream, which could
   # allow for trivial prediction of further "random" numbers.
   while (strlen(output) < _count):
-    static_drupalrandombytes_randomstate = md5(microtime() + mt_rand() + static_drupalrandombytes_randomstate);
-    output += md5(mt_rand() + static_drupalrandombytes_randomstate, True);
+    drupal_random_bytes.random_state = md5(microtime() + mt_rand() + drupal_random_bytes.random_state);
+    output += md5(mt_rand() + drupal_random_bytes.random_state, True);
   return substr(output, 0, count);
 
 
@@ -2107,11 +2093,11 @@ def xmlrpc(url):
 
 
 def _drupal_bootstrap_full():
-  global static_drupalbootstrapfull_called;
-  if (static_drupalbootstrapfull_called != None):
+  static(_drupal_bootstrap_full, 'called', False)
+  if (_drupal_bootstrap_full.called):
     return;
   else:
-    static_drupalbootstrapfull_called = True;
+    _drupal_bootstrap_full.called = True;
   require_once( './includes/theme.inc' );
   require_once( './includes/pager.inc' );
   require_once( './includes/menu.inc' );
@@ -2296,7 +2282,7 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
 #   Any additional params will be passed on to the called
 #   hook_type_alter functions.
 #
-def drupal_alter(type, data, *_additional_args):
+def drupal_alter(_type, data, *_additional_args):
   DrupyHelper.Reference.check(data);
   # PHP's func_get_args() always returns copies of params, not references, so
   # drupal_alter() can only manipulate data that comes in via the required first
@@ -2322,8 +2308,8 @@ def drupal_alter(type, data, *_additional_args):
   array_shift(additional_args);
   array_shift(additional_args);
   args = tuple(array_merge(args, additional_args));
-  for module in module_implements(type + '_alter'):
-    function = module + '_' + type + '_alter';
+  for module in module_implements(_type + '_alter'):
+    function = module + '_' + _type + '_alter';
     function( *args );
 
 
@@ -2668,28 +2654,28 @@ def drupal_common_theme():
 #   If true, the schema will be rebuilt instead of retrieved from the cache.
 #
 def drupal_get_schema(table = None, rebuild = False):
-  global static_drupalgetschema_schema;
-  if (static_drupalgetschema_schema == None or rebuild):
+  static(drupal_get_schema, 'schema', [])
+  if (empty(drupal_get_schema.schema) or rebuild):
     # Try to load the schema from cache.
     cached = cache_get('schema')
     if (not rebuild and cached):
-      static_drupalgetschema_schema = cached.data;
+      drupal_get_schema.schema = cached.data;
     # Otherwise, rebuild the schema cache.
     else:
-      static_drupalgetschema_schema = [];
+      drupal_get_schema.schema = [];
       # Load the .install files to get hook_schema.
       module_load_all_includes('install');
       # Invoke hook_schema for all modules.
       for module in module_implements('schema'):
         current = module_invoke(module, 'schema');
         _drupal_initialize_schema(module, current);
-        schema = array_merge(static_drupalgetschema_schema, current);
-      drupal_alter('schema', static_drupalgetschema_schema);
-      cache_set('schema', static_drupalgetschema_schema);
-  if (not isset(table)):
-    return static_drupalgetschema_schema;
-  elif (isset(static_drupalgetschema_schema, table)):
-    return static_drupalgetschema_schema[table];
+        drupal_get_schema.schema = array_merge(drupal_get_schema.schema, current);
+      drupal_alter('schema', drupal_get_schema.schema);
+      cache_set('schema', drupal_get_schema.schema);
+  if (table != None):
+    return drupal_get_schema.schema;
+  elif (isset(drupal_get_schema.schema, table)):
+    return drupal_get_schema.schema[table];
   else:
     return False;
 

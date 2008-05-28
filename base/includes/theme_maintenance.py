@@ -36,12 +36,11 @@
 #
 
 
-
 #
 # Set globals
 #
-set_global('theme_path')
-set_global('_theme')
+theme_path = None
+_theme = None
 
 
 def _drupal_maintenance_theme():

@@ -33,23 +33,24 @@ from xml.dom import minidom
 import htmlentitydefs
 import re
 
-static('static_decodeentities_table');
-
-set_global('multibyte');
+multibyte = None
 
 #
 # Indicates an error during check for PHP unicode support.
 #
-define('UNICODE_ERROR', -1);
+UNICODE_ERROR = -1
+
 #
 # Indicates that standard PHP (emulated) unicode support is being used.
 #
-define('UNICODE_SINGLEBYTE', 0);
+UNICODE_SINGLEBYTE = 0
+
 #
 # Indicates that full unicode support with the PHP mbstring extension is being
 # used.
 #
-define('UNICODE_MULTIBYTE', 1);
+UNICODE_MULTIBYTE = 1
+
 #
 # Wrapper around _unicode_check().
 #
@@ -269,14 +270,13 @@ def _mime_header_decode(matches):
 # DRUPY(BC): This function heavily modified
 #
 def decode_entities(text, exclude = []):
-  global static_decodeentities_table;
-  if static_decodeentities_table == None:
-    static_decodeentities_table = {};
+  static(decode_entities, 'table', {})
+  if empty(decode_entities.table):
     for k,v in htmlentitydefs.name2codepoint.items():
-      static_decodeentities_table[k.lower()] = v;
+      decode_entities.table[k.lower()] = v;
   def _this_decode_entities(m):
     matches = m.groups();
-    return _decode_entities( matches[1], matches[2], matches[0], static_decodeentities_table, exclude);
+    return _decode_entities( matches[1], matches[2], matches[0], decode_entities.table, exclude);
   # Use a regexp to select all entities in one pass, to avoid decoding double-escaped entities twice.
   pat = re.compile('(&(#x?)?([A-Za-z0-9]+);)', re.I);
   return pat.sub(_this_decode_entities, text);

@@ -36,18 +36,18 @@ require_once( './lib/drupy/DrupySession.py' )
 #
 # Global variables
 #
-set_global('user');
-set_global('base_url');
-set_global('_base_path');
-set_global('base_root');
-set_global('db_url');
-set_global('db_prefix');
-set_global('cookie_domain');
-set_global('installed_profile');
-set_global('update_free_access');
-set_global('language');
-set_global('timers');
-set_global('conf');
+user = None
+base_url = None
+_base_path = None
+base_root = None
+db_url = None
+db_prefix = None
+cookie_domain = None
+installed_profile = None
+update_free_access = None
+language = None
+timers = None
+conf = None
 
 
 
@@ -55,29 +55,29 @@ set_global('conf');
 # Indicates that the item should never be removed unless explicitly told to
 # using cache_clear_all() with a cache ID.
 #
-define('CACHE_PERMANENT', 0);
+CACHE_PERMANENT = 0
 
 #
 # Indicates that the item should be removed at the next general cache wipe.
 #
-define('CACHE_TEMPORARY', -1);
+CACHE_TEMPORARY = -1
 
 #
 # Indicates that page caching is disabled.
 #
-define('CACHE_DISABLED', 0);
+CACHE_DISABLED = 0
 
 #
 # Indicates that page caching is enabled, using "normal" mode.
 #
-define('CACHE_NORMAL', 1);
+CACHE_NORMAL = 1
 
 #
 # Indicates that page caching is using "aggressive" mode. This bypasses
 # loading any modules for additional speed, which may break functionality in
 # modules that expect to be run on each page load.
 #
-define('CACHE_AGGRESSIVE', 2);
+CACHE_AGGRESSIVE = 2
 
 #
 #
@@ -85,96 +85,96 @@ define('CACHE_AGGRESSIVE', 2);
 # @see watchdog()
 # @see watchdog_severity_levels()
 #
-define('WATCHDOG_EMERG',    0); # Emergency: system is unusable
-define('WATCHDOG_ALERT',    1); # Alert: action must be taken immediately
-define('WATCHDOG_CRITICAL', 2); # Critical: critical conditions
-define('WATCHDOG_ERROR',    3); # Error: error conditions
-define('WATCHDOG_WARNING',  4); # Warning: warning conditions
-define('WATCHDOG_NOTICE',   5); # Notice: normal but significant condition
-define('WATCHDOG_INFO',     6); # Informational: informational messages
-define('WATCHDOG_DEBUG',    7); # Debug: debug-level messages
+WATCHDOG_EMERG = 0 # Emergency: system is unusable
+WATCHDOG_ALERT = 1 # Alert: action must be taken immediately
+WATCHDOG_CRITICAL = 2 # Critical: critical conditions
+WATCHDOG_ERROR = 3 # Error: error conditions
+WATCHDOG_WARNING = 4 # Warning: warning conditions
+WATCHDOG_NOTICE = 5 # Notice: normal but significant condition
+WATCHDOG_INFO = 6 # Informational: informational messages
+WATCHDOG_DEBUG = 7 # Debug: debug-level messages
 
 #
 # First bootstrap phase: initialize configuration.
 #
-define('DRUPAL_BOOTSTRAP_CONFIGURATION', 0);
+DRUPAL_BOOTSTRAP_CONFIGURATION = 0
 
 #
 # Second bootstrap phase: try to call a non-database cache
 # fetch routine.
 #
-define('DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE', 1);
+DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE = 1
 
 #
 # Third bootstrap phase: initialize database layer.
 #
-define('DRUPAL_BOOTSTRAP_DATABASE', 2);
+DRUPAL_BOOTSTRAP_DATABASE = 2
 
 #
 # Fourth bootstrap phase: identify and reject banned hosts.
 #
-define('DRUPAL_BOOTSTRAP_ACCESS', 3);
+DRUPAL_BOOTSTRAP_ACCESS = 3
 
 #
 # Fifth bootstrap phase: initialize session handling.
 #
-define('DRUPAL_BOOTSTRAP_SESSION', 4);
+DRUPAL_BOOTSTRAP_SESSION = 4
 
 #
 # Sixth bootstrap phase: load bootstrap.inc and module.inc, start
 # the variable system and try to serve a page from the cache.
 #
-define('DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE', 5);
+DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE = 5
 
 #
 # Seventh bootstrap phase: find out language of the page.
 #
-define('DRUPAL_BOOTSTRAP_LANGUAGE', 6);
+DRUPAL_BOOTSTRAP_LANGUAGE = 6
 
 #
 # Eighth bootstrap phase: set _GET['q'] to Drupal path of request.
 #
-define('DRUPAL_BOOTSTRAP_PATH', 7);
+DRUPAL_BOOTSTRAP_PATH = 7
 
 #
 # Final bootstrap phase: Drupal is fully loaded; validate and fix
 # input data.
 #
-define('DRUPAL_BOOTSTRAP_FULL', 8);
+DRUPAL_BOOTSTRAP_FULL = 8
 
 #
 # Role ID for anonymous users; should match what's in the "role" table.
 #
-define('DRUPAL_ANONYMOUS_RID', 1);
+DRUPAL_ANONYMOUS_RID = 9
 
 #
 # Role ID for authenticated users; should match what's in the "role" table.
 #
-define('DRUPAL_AUTHENTICATED_RID', 2);
+DRUPAL_AUTHENTICATED_RID = 10
 
 #
 # No language negotiation. The default language is used.
 #
-define('LANGUAGE_NEGOTIATION_NONE', 0);
+LANGUAGE_NEGOTIATION_NONE = 0
 
 #
 # Path based negotiation with fallback to default language
 # if no defined path prefix identified.
 #
-define('LANGUAGE_NEGOTIATION_PATH_DEFAULT', 1);
+LANGUAGE_NEGOTIATION_PATH_DEFAULT = 1
 
 #
 # Path based negotiation with fallback to user preferences
 # and browser language detection if no defined path prefix
 # identified.
 #
-define('LANGUAGE_NEGOTIATION_PATH', 2);
+LANGUAGE_NEGOTIATION_PATH = 2
 
 #
 # Domain based negotiation with fallback to default language
 # if no language identified by domain.
 #
-define('LANGUAGE_NEGOTIATION_DOMAIN', 3);
+LANGUAGE_NEGOTIATION_DOMAIN = 3
 
 
 #
