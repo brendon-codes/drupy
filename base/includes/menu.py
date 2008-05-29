@@ -1233,10 +1233,9 @@ def menu_navigation_links(menu_name, level = 0):
 #   a parent tab, if the current page is a default local task.
 #
 def menu_local_tasks(level = 0, return_root = False):
-  global static_menulocaltasks_tabs
-  global static_menulocaltasks_rootpath
-  if (static_menulocaltasks_tabs == None):
-    static_menulocaltasks_tabs = []
+  static(menu_local_tasks, 'tabs', [])
+  static(menu_local_tasks, 'root_path')
+  if (empty(menu_local_tasks.tabs)):
     router_item = menu_get_item()
     if (not router_item or not router_item['access']):
       return ''
@@ -1245,7 +1244,7 @@ def menu_local_tasks(level = 0, return_root = False):
     _map = arg()
     children = []
     tasks = []
-    static_menulocaltasks_rootpath = router_item['path']
+    menu_local_tasks.rootpath = router_item['path']
     while True:
       item = db_fetch_array(result)
       if item == None:
@@ -1283,8 +1282,8 @@ def menu_local_tasks(level = 0, return_root = False):
             link = theme('menu_item_link', item)
             tabs_current += theme('menu_local_task', link)
       path = next_path
-      tabs[depth]['count'] = count
-      tabs[depth]['output'] = tabs_current
+      menu_local_tasks.tabs[depth]['count'] = count
+      menu_local_tasks.tabs[depth]['output'] = tabs_current
       depth += 1
     # Find all tabs at the same level or above the current one.
     parent = router_item['tab_parent']
@@ -1308,7 +1307,7 @@ def menu_local_tasks(level = 0, return_root = False):
               p = tasks[p]['tab_parent']
             link = theme('menu_item_link', {'href' : tasks[p]['href']} + item)
             if (item['path'] == router_item['path']):
-              root_path = tasks[p]['path']
+              menu_local_tasks.root_path = tasks[p]['path']
           else:
             link = theme('menu_item_link', item)
           # We check for the active tab.
@@ -1321,19 +1320,19 @@ def menu_local_tasks(level = 0, return_root = False):
             tabs_current += theme('menu_local_task', link)
       path = next_path
       parent = next_parent
-      static_menulocaltasks_tabs[depth]['count'] = count
-      static_menulocaltasks_tabs[depth]['output'] = tabs_current
+      menu_local_tasks.tabs[depth]['count'] = count
+      menu_local_tasks.tabs[depth]['output'] = tabs_current
       depth -= 1
     # Sort by depth.
-    ksort(static_menulocaltasks_tabs)
+    menu_local_tasks.tabs = ksort(menu_local_tasks.tabs)
     # Remove the depth, we are interested only in their relative placement.
-    static_menulocaltasks_tabs = array_values(static_menulocaltasks_tabs)
+    menu_local_tasks.tabs = array_values(menu_local_tasks.tabs.tabs)
   if (return_root):
-    return static_menulocaltasks_rootpath
+    return menu_local_tasks.rootpath
   else:
     # We do not display single tabs.
-    return (static_menulocaltasks_tabs[level]['output'] if (isset(static_menulocaltasks_tabs, level) and \
-      static_menulocaltasks_tabs[level]['count'] > 1) else '')
+    return (menu_local_tasks.tabs[level]['output'] if (isset(menu_local_tasks.tabs, level) and \
+      menu_local_tasks.tabs[level]['count'] > 1) else '')
 
 
 
@@ -1383,12 +1382,12 @@ def theme_menu_local_tasks():
 # Set (or get) the active menu for the current page - determines the active trail.
 #
 def menu_set_active_menu_name(menu_name = None):
-  global static_menusetactivemenuname_active
+  static(menu_set_active_menu_name, 'active')
   if (menu_name != None):
-    static_menusetactivemenuname_active = menu_name
-  elif (static_menusetactivemenuname_active == None):
-    static_menusetactivemenuname_active = 'navigation'
-  return static_menusetactivemenuname_active
+    menu_set_active_menu_name.active = menu_name
+  elif (menu_set_active_menu_name.active == None):
+    menu_set_active_menu_name.active = 'navigation'
+  return menu_set_active_menu_name.active
 
 
 
@@ -1419,12 +1418,12 @@ def menu_set_active_item(path):
 # Set (or get) the active trail for the current page - the path to root in the menu tree.
 #
 def menu_set_active_trail(new_trail = None):
-  global static_menusetactivetrail_trail
+  static(menu_set_active_trail, 'trail')
   if (new_trail != None):
     static_menusetactivetrail_trail = new_trail
   elif (static_menusetactivetrail_trail == None):
-    static_menusetactivetrail_trail = []
-    static_menusetactivetrail_trail.append( {'title' : t('Home'), 'href' : '<front>', 'localized_options' : {}, 'type' : 0})
+    menu_set_active_trail.trail = []
+    menu_set_active_trail.trail.append( {'title' : t('Home'), 'href' : '<front>', 'localized_options' : {}, 'type' : 0})
     item = menu_get_item()
     # Check whether the current item is a local task (displayed as a tab).
     if (item['tab_parent']):
@@ -1447,20 +1446,21 @@ def menu_set_active_trail(new_trail = None):
     while (curr):
       # Terminate the loop when we find the current path in the active trail.
       if (curr['link']['href'] == item['href']):
-        static_menusetactivetrail_trail.append( curr['link'] )
+        menu_set_active_trail.trail.append( curr['link'] )
         curr = False
       else:
         # Move to the child link if it's in the active trail.
         if (curr['below'] and curr['link']['in_active_trail']):
-          static_menusetactivetrail_trail.append( curr['link'] )
+          menu_set_active_trail.trail.append( curr['link'] )
           tree = curr['below']
         key,curr = each(tree)
     # Make sure the current page is in the trail (needed for the page title),
     # but exclude tabs and the front page.
-    last = count(static_menusetactivetrail_trail) - 1
-    if (static_menusetactivetrail_trail[last]['href'] != item['href'] and not (bool)(item['type'] & MENU_IS_LOCAL_TASK) and not drupal_is_front_page()):
-      static_menusetactivetrail_trail.append( item )
-  return static_menusetactivetrail_trail
+    last = count(menu_set_active_trail.trail) - 1
+    if (menu_set_active_trail.trail[last]['href'] != item['href'] and not \
+        drupy_bool(item['type'] & MENU_IS_LOCAL_TASK) and not drupal_is_front_page()):
+      menu_set_active_trail.trail.append( item )
+  return menu_set_active_trail.trail
 
 
 
@@ -1530,16 +1530,14 @@ def menu_link_load(mlid):
 # Clears the cached cached data for a single named menu.
 #
 def menu_cache_clear(menu_name = 'navigation'):
-  global static_menucacheclear_cachecleared
-  if static_menucacheclear_cachecleared == None:
-    static_menucacheclear_cachecleared = {}
-  if (not isset(static_menucacheclear_cachecleared, menu_name) or \
-      empty(static_menucacheclear_cachecleared[menu_name])):
+  static(menu_cache_clear, 'cache_cleared', {})
+  if (not isset(menu_cache_clear.cache_cleared, menu_name) or \
+      empty(menu_cache_clear.cache_cleared[menu_name])):
     cache_clear_all('links:' +  menu_name  + ':', 'cache_menu', True)
-    static_menucacheclear_cachecleared[menu_name] = 1
-  elif (static_menucacheclear_cachecleared[menu_name] == 1):
+    menu_cache_clear.cache_cleared[menu_name] = 1
+  elif (menu_cache_clear.cache_cleared[menu_name] == 1):
     register_shutdown_function('cache_clear_all', 'links:' +  menu_name  + ':', 'cache_menu', True)
-    static_menucacheclear_cachecleared[menu_name] = 2
+    menu_cache_clear.cache_cleared[menu_name] = 2
 
 
 
@@ -1578,11 +1576,11 @@ def menu_rebuild():
 # Collect, alter and store the menu definitions.
 #
 def menu_router_build(reset = False):
-  global static_menurouterbuild_menu
-  if (static_menurouterbuild_menu == None or reset):
+  static(menu_router_build, 'menu')
+  if (menu_router_build.menu == None or reset):
     cache = cache_get('router:', 'cache_menu')
     if (not reset and cache and isset(cache, 'data')):
-      static_menurouterbuild_menu = cache.data
+      menu_router_build.menu = cache.data
     else:
       db_query('DELETE FROM {menu_router}')
       # We need to manually call each module so that we can know which module
@@ -1596,9 +1594,9 @@ def menu_router_build(reset = False):
           callbacks = array_merge(callbacks, router_items)
       # Alter the menu as defined in modules, keys are like user/%user.
       drupal_alter('menu', callbacks)
-      static_menurouterbuild_menu = _menu_router_build(callbacks)
-      cache_set('router:', menu, 'cache_menu')
-  return static_menurouterbuild_menu
+      menu_router_build.menu = _menu_router_build(callbacks)
+      cache_set('router:', menu_router_build.menu, 'cache_menu')
+  return menu_router_build.menu
 
 
 
@@ -1865,22 +1863,19 @@ def menu_link_save(item):
 # Helper function to clear the page and block caches at most twice per page load.
 #
 def _menu_clear_page_cache():
-  global static_menuclearpagecache_cachecleared
-  if static_menuclearpagecache_cachecleared == None:
-    static_menuclearpagecache_cachecleared = 0
+  static(_menu_clear_page_cache, 'cache_cleared', 0)
   # Clear the page and block caches, but at most twice, including at
   #  the end of the page load when there are multple links saved or deleted.
-  if (static_menuclearpagecache_cachecleared == None or \
-      static_menuclearpagecache_cachecleared == 0):
+  if (_menu_clear_page_cache.cache_cleared == 0):
     cache_clear_all()
     # Keep track of which menus have expanded items.
     _menu_set_expanded_menus()
-    static_menuclearpagecache_cachecleared = 1
-  elif (static_menuclearpagecache_cachecleared == 1):
+    _menu_clear_page_cache.cache_cleared = 1
+  elif (_menu_clear_page_cache.cache_cleared == 1):
     register_shutdown_function('cache_clear_all')
     # Keep track of which menus have expanded items.
     register_shutdown_function('_menu_set_expanded_menus')
-    static_menuclearpagecache_cachecleared = 2
+    _menu_clear_page_cache.cache_cleared = 2
 
 
 
@@ -1913,7 +1908,7 @@ def _menu_set_expanded_menus():
 def _menu_find_router_path(menu, link_path):
   parts = explode('/', link_path, MENU_MAX_PARTS)
   router_path = link_path
-  if (not isset(menu[router_path])):
+  if (not isset(menu, router_path)):
     ancestors = menu_get_ancestors(parts)
     ancestors.append('')
     for key,router_path in ancestors.items():

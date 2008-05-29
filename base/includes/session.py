@@ -168,11 +168,9 @@ def sess_gc(lifetime):
 #   False if writing session data has been disabled. Otherwise, True.
 #
 def session_save_session(status = None):
-  global static_sessionsavesession_savesession
-  if static_sessionsavesession_savesession == None:
-    static_sessionsavesession_savesession = True
+  static(session_save_session, 'save_session', True)
   if status != None:
-    static_sessionsavesession_savesession = status
-  return static_sessionsavesession_savesession
+    session_save_session.save_session = status
+  return session_save_session.save_session
 
 
