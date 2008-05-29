@@ -176,10 +176,10 @@ def _init_theme(_theme, base_theme = [], registry_callback = '_theme_load_regist
 # cache it.
 #
 def theme_get_registry(registry = None):
-  global static_themegetregistry_themeregistry;
-  if (static_themegetregistry_themeregistry != None):
-    static_themegetregistry_themeregistry = registry;
-  return static_themegetregistry_themeregistry;
+  static(theme_get_registry, 'theme_registry')
+  if (theme_get_registry.theme_registry != None):
+    theme_get_registry.theme_registry = registry;
+  return theme_get_registry.theme_registry;
 
 
 
@@ -369,11 +369,10 @@ def _theme_build_registry(_theme, base_theme, theme_engine):
 #   An array of the currently available themes.
 #
 def list_themes(refresh = False):
-  global static_listthemes_list;
+  static(list_themes, '_list', [])
   if (refresh):
-    static_listthemes_list = [];
-  if (empty(static_listthemes_list)):
-    static_listthemes_list = [];
+    list_themes._list = [];
+  if (empty(list_themes._list)):
     themes = [];
     # Extract from the database only when it is available.
     # Also check that the site is not in the middle of an install or update.
@@ -405,8 +404,8 @@ def list_themes(refresh = False):
       # read from the installation directory to prevent notices.
       if (not isset(_theme, 'status')):
         _theme.status = 0;
-      static_listthemes_list[_theme.name] = _theme;
-  return static_listthemes_list;
+      list_themes._list[_theme.name] = _theme;
+  return list_themes._list;
 
 
 
@@ -500,20 +499,20 @@ def list_themes(refresh = False):
 def theme():
   global theme_path;
   global theme_engine;
-  global static_theme_hooks;
+  static(theme, 'hooks')
   args = func_get_args();
   hook = array_shift(args);
-  if (static_theme_hooks == None):
+  if (theme.hooks == None):
     init_theme();
-    static_theme_hooks = theme_get_registry();
+    theme.hooks = theme_get_registry();
   if (is_array(hook)):
     for candidate in hook:
       if (isset(hooks, candidate)):
         break;
     hook = candidate;
-  if (not isset(hooks, hook)):
+  if (not isset(theme.hooks, hook)):
     return;
-  info = static_theme_hooks[hook];
+  info = theme.hooks[hook];
   temp = theme_path;
   # point path_to_theme() to the currently used theme path:
   theme_path = info['theme path'];
@@ -525,7 +524,7 @@ def theme():
     include_once(include_file);
   if (isset(info, 'function')):
     # The theme call is a function.
-    output = call_user_func_array(info['function'], args);
+    output = info['function'](*args);
   else:
     # The theme call is a template.
     variables = {
@@ -534,7 +533,7 @@ def theme():
     if (not empty(info['arguments'])):
       count = 0;
       for name,default in info['arguments'].items():
-        variables[name] = (args[count] if isset(args[count]) else default);
+        variables[name] = (args[count] if isset(args, count) else default);
         count += 1;
     # default render function and extension.
     render_function = 'theme_render_template';
@@ -549,14 +548,14 @@ def theme():
         extension_function = theme_engine + '_extension';
         if (function_exists(extension_function)):
           extension = extension_function();
-    if (isset(info['preprocess functions']) and is_array(info['preprocess functions'])):
+    if (isset(info, 'preprocess functions') and is_array(info['preprocess functions'])):
       # This construct ensures that we can keep a reference through
       # call_user_func_array.
       _variables = drupy.helper.Reference(variables);
       args = (_variables, hook);
       for preprocess_function in info['preprocess functions']:
         if (drupal_function_exists(preprocess_function)):
-          call_user_func_array(preprocess_function, args);
+          preprocess_function( *args );
     # Get suggestions for alternate templates out of the variables
     # that were set. This lets us dynamically choose a template
     # from a list. The order is FILO, so this array is ordered from
@@ -757,32 +756,32 @@ def theme_get_settings(key = None):
 #   The value of the requested setting, None if the setting does not exist+ */
 def theme_get_setting(setting_name, refresh = False):
   global theme_key;
-  global static_themegetsetting_settings;
-  if (static_themegetsetting_settings == None or refresh):
-    static_themegetsetting_settings = theme_get_settings(theme_key);
+  static(theme_get_setting, 'settings')
+  if (theme_get_setting.settings == None or refresh):
+    theme_get_setting.settings = theme_get_settings(theme_key);
     themes = list_themes();
     theme_object = themes[theme_key];
-    if (static_themegetsetting_settings['mission'] == ''):
-      static_themegetsetting_settings['mission'] = variable_get('site_mission', '');
-    if (not static_themegetsetting_settings['toggle_mission']):
-      static_themegetsetting_settings['mission'] = '';
-    if (static_themegetsetting_settings['toggle_logo']):
-      if (static_themegetsetting_settings['default_logo']):
-        static_themegetsetting_settings['logo'] = base_path() + dirname(theme_object.filename) +'/logo.png';
-      elif (static_themegetsetting_settings['logo_path']):
-        static_themegetsetting_settings['logo'] = base_path() + static_themegetsetting_settings['logo_path'];
-    if (static_themegetsetting_settings['toggle_favicon']):
-      if (static_themegetsetting_settings['default_favicon']):
+    if (theme_get_setting.settings['mission'] == ''):
+      theme_get_setting.settings['mission'] = variable_get('site_mission', '');
+    if (not theme_get_setting.settings['toggle_mission']):
+      theme_get_setting.settings['mission'] = '';
+    if (theme_get_setting.settings['toggle_logo']):
+      if (theme_get_setting.settings['default_logo']):
+        theme_get_setting.settings['logo'] = base_path() + dirname(theme_object.filename) +'/logo.png';
+      elif (theme_get_setting.settings['logo_path']):
+        theme_get_setting.settings['logo'] = base_path() + theme_get_setting.settings['logo_path'];
+    if (theme_get_setting.settings['toggle_favicon']):
+      if (theme_get_setting.settings['default_favicon']):
         favicon = (dirname(theme_object.filename) +'/favicon.ico');
         if (file_exists(favicon)):
-          static_themegetsetting_settings['favicon'] = base_path() + favicon;
+          theme_get_setting.settings['favicon'] = base_path() + favicon;
         else:
-          static_themegetsetting_settings['favicon'] = base_path() +'misc/favicon.ico';
-      elif (static_themegetsetting_settings['favicon_path']):
-        static_themegetsetting_settings['favicon'] = base_path() + static_themegetsetting_settings['favicon_path'];
+          theme_get_setting.settings['favicon'] = base_path() +'misc/favicon.ico';
+      elif (theme_get_setting.settings['favicon_path']):
+        theme_get_setting.settings['favicon'] = base_path() + theme_get_setting.settings['favicon_path'];
       else:
-        static_themegetsetting_settings['toggle_favicon'] = False;
-  return (static_themegetsetting_settings[setting_name] if isset(settings, setting_name) else None);
+        theme_get_setting.settings['toggle_favicon'] = False;
+  return (theme_get_setting.settings[setting_name] if isset(theme_get_setting.settings, setting_name) else None);
 
 
 
@@ -1400,19 +1399,17 @@ def _theme_table_cell(cell, header = False):
 # theme functions)+ */
 def template_preprocess(_variables, hook):
   global user;
-  global static_template_preprocess_count;
+  static(template_preprocess, 'count', {})
   DrupyHelper.Reference.check(_variables);
-  if (static_template_preprocess_count == None):
-    static_template_preprocess_count = {};
   # Track run count for each hook to provide zebra striping+
   # See "template_preprocess_block()" which provides the same feature specific to blocks+
-  static_template_preprocess_count[hook] = \
-    (static_template_preprocess_count[hook] \
-      if (isset(static_template_preprocess_count, hook) and \
-        is_int(static_template_preprocess_count[hook])) else 1);
-  _variables.val['zebra'] = ('odd' if ((static_template_preprocess_count[hook] % 2) > 1) else 'even');
-  static_template_preprocess_count[hook] += 1;
-  _variables.val['id'] = static_template_preprocess_count[hook];
+  template_preprocess.count[hook] = \
+    (template_preprocess.count[hook] \
+      if (isset(template_preprocess.count, hook) and \
+        is_int(template_preprocess.count[hook])) else 1);
+  _variables.val['zebra'] = ('odd' if ((template_preprocess.count[hook] % 2) > 1) else 'even');
+  template_preprocess.count[hook] += 1;
+  _variables.val['id'] = template_preprocess.count[hook];
   # Tell all templates where they are located+
   variables['directory'] = path_to_theme();
   # Set default variables that depend on the database+
@@ -1633,17 +1630,15 @@ def template_preprocess_node(_variables):
 # @see block.tpl.php
 #
 def template_preprocess_block(_variables):
-  global static_templatepreprocessblock_blockcounter;
+  static(template_preprocess_block, 'block_counter', {})
   DrupyHelper.Reference.check(_variables);
-  if (static_templatepreprocessblock_blockcounter == None):
-    static_templatepreprocessblock_blockcounter = {};
   # All blocks get an independent counter for each region+
-  if (not isset(static_templatepreprocessblock_blockcounter, _variables.val['block'].region)):
-    static_templatepreprocessblock_blockcounter[_variables.val['block'].region] = 1;
+  if (not isset(template_preprocess_block.block_counter, _variables.val['block'].region)):
+    template_preprocess_block.block_counter[_variables.val['block'].region] = 1;
   # Same with zebra striping+
-  _variables.val['block_zebra'] = ('odd' if ((static_templatepreprocessblock_blockcounter[_variables.val['block'].region] % 2) > 0) else 'even');
-  _variables.val['block_id'] = static_templatepreprocessblock_blockcounter[_variables.val['block'].region];
-  static_templatepreprocessblock_blockcounter[_variables.val['block'].region] += 1;
+  _variables.val['block_zebra'] = ('odd' if ((template_preprocess_block.block_counter[_variables.val['block'].region] % 2) > 0) else 'even');
+  _variables.val['block_id'] = template_preprocess_block.block_counter[_variables.val['block'].region];
+  template_preprocess_block.block_counter[_variables.val['block'].region] += 1;
   _variables.val['template_files'].append( 'block-'+ _variables.val['block'].region );
   _variables.val['template_files'].append('block-'+ _variables.val['block'].module );
   _variables.val['template_files'].append( 'block-'+ _variables.val['block'].module +'-'+ _variables.val['block'].delta );

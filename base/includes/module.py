@@ -66,14 +66,15 @@ def module_iterate(function, argument = ''):
 #   modules.
 #
 def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = None):
-  global static_modulelist_list, static_modulelist_sortedlist
+  static(module_list, '_list')
+  static(module_list, 'sorted_list')
   if (refresh or fixed_list):
-    static_modulelist_sortedlist = None
-    static_modulelist_list = []
+    module_list.sorted_list = None
+    module_list._list = []
     if (fixed_list):
       for name,module in fixed_list.items():
         drupal_get_filename('module', name, module['filename'])
-        static_modulelist_list[name] = name
+        module_list._list[name] = name
     else:
       if (bootstrap):
         result = db_query("SELECT name, filename FROM {system} WHERE type = 'module' AND status = 1 AND bootstrap = 1 ORDER BY weight ASC, filename ASC")
@@ -85,13 +86,13 @@ def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = No
           break
         if (file_exists(_module.filename)):
           drupal_get_filename('module', _module.name, _module.filename)
-          static_modulelist_list[_module.name] = _module.name
+          module_list._list[_module.name] = _module.name
   if (sort):
-    if (sorted_list == None):
-      static_modulelist_sortedlist = static_modulelist_list
-      ksort(static_modulelist_sortedlist)
-    return static_modulelist_sortedlist
-  return static_modulelist_list
+    if (module_list.sorted_list == None):
+      module_list.sorted_list = module_list._list
+      ksort(module_list.sorted_list)
+    return module_list.sorted_list
+  return module_list.sorted_list
 
 
 
@@ -376,29 +377,27 @@ def module_hook(_module, hook):
 #   An array with the names of the modules which are implementing this hook.
 #
 def module_implements(hook, sort = False, refresh = False):
-  global static_moduleimplements_implementations
-  if (static_moduleimplements_implementations == None):
-    static_moduleimplements_implementations = []
+  static(module_implements, 'implementations', [])
   if (refresh):
-    static_moduleimplements_implementations = []
-  elif (not defined('MAINTENANCE_MODE') and empty(static_moduleimplements_implementations)):
+    module_implements.implementations = []
+  elif (not defined('MAINTENANCE_MODE') and empty(module_implements.implementations)):
     cache = cache_get('hooks', 'cache_registry')
     if (cache):
-      static_moduleimplements_implementations = cache.data;
-    static_moduleimplements_implementations = registry_get_hook_implementations_cache()
-  if (not isset(static_moduleimplements_implementations, hook)):
-    static_moduleimplements_implementations[hook] = []
+      module_implements.implementations = cache.data;
+    module_implements.implementations = registry_get_hook_implementations_cache()
+  if (not isset(module_implements.implementations, hook)):
+    module_implements.implementations[hook] = []
     for _module in module_list():
       if (module_hook(_module, hook)):
-        static_moduleimplements_implementations[hook].append( module )
-  registry_cache_hook_implementations({'hook' : hook, 'modules' : static_moduleimplements_implementations[hook]});
+        module_implements.implementations[hook].append( module )
+  registry_cache_hook_implementations({'hook' : hook, 'modules' : module_implements.implementations[hook]});
   # The explicit cast forces a copy to be made. This is needed because
   # implementations[hook] is only a reference to an element of
   # implementations and if there are nested foreaches (due to nested node
   # API calls, for example), they would both manipulate the same array's
   # references, which causes some modules' hooks not to be called.
   # See also http://www.zend.com/zend/art/ref-count.php.
-  return drupy_array(static_moduleimplements_implementations[hook])
+  return drupy_array(module_implements.implementations[hook])
 
 
 
