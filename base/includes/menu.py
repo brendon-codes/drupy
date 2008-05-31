@@ -15,7 +15,7 @@
 # @contact message144 at users dot sourceforge dot net
 # @created 2008-05-22
 # @version 0.1
-# @license: 
+# @license:
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
