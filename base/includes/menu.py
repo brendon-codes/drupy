@@ -270,7 +270,7 @@ def menu_get_ancestors(parts):
   ancestors = []
   length =  number_parts - 1
   end = (1 << number_parts) - 1
-  masks = variable_get('menu_masks', array())
+  masks = variable_get('menu_masks', [])
   # Only examine patterns that actually exist as router items (the masks).
   for i in masks:
     if (i > end):
@@ -325,7 +325,6 @@ def menu_unserialize(data, map):
 
 
 
-
 #
 # Replaces the statically cached item for a given path.
 #
@@ -339,6 +338,7 @@ def menu_unserialize(data, map):
 #
 def menu_set_item(path, router_item):
   menu_get_item(path, router_item)
+
 
 
 #
