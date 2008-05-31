@@ -8,7 +8,7 @@
     morphir at users dot sourceforge dot net
   created 2008-01-10
   version 0.1
-  THESE ARE THE DRUPY CONVERSION AND CODING STANDARDS. 
+  THESE ARE THE DRUPY CONVERSION AND CODING STANDARDS.
   TO RETAIN SVN COMMIT ACCESS, THESE STANDARDS MUST BE FOLLOWED.
   THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
 
@@ -118,20 +118,20 @@
         class, exec, in, raise, continue, finally, is, return, def
         for, lambda, try
 
-     example: 
-     Drupal: class = 1; would become 
+     example:
+     Drupal: class = 1; would become
      Drupy: _class = 1
-     
+
      Drupal: return = class + 10;
      Drupy:  _return = _class + 10
- 
+
 (3) Function input arguments and return values must always retain Drupal API compatibility.
     In addition to this, no Drupal function can be removed. If the function is obseletized
     from Drupy, have the function accept the arguments as normal and raise an exception
     to notify developers that the function is still being called.
 
     (3.1) Referenced variables
-    Drupal: 
+    Drupal:
     function drupal_process_form($form_id, &$form, &$form_state) {
 
     Drupy:
@@ -140,7 +140,7 @@
       DrupyHelper.Reference.check(form_state)
 
     Drupal: $item = &$menu[$path];
-    Drupy: item = DrupyHelper.Reference(menu[path]) is the correct way to do it 
+    Drupy: item = DrupyHelper.Reference(menu[path]) is the correct way to do it
 (4) Array
 
 			(4.1)Declarations
@@ -190,7 +190,7 @@
 		Drupy: for i in range(router_item['number_parts'], -1, +1):
 
 	(5.3) foreach
-    
+
     example:
     Drupal:  foreach element['#options'] as array(index : choice)
     Drupy:   for index,choice in element['#options'].items()
@@ -260,5 +260,13 @@ better readbility - some programmers prefer this.
   Drupal: $checkbox = element['#value'] ? ' checked="checked" ' : ' '
   Drupy: checkbox = ' checked="checked" ' if element['#value'] else ' '
 
-  Comments: Don't forget that a ternary *sometimes* may need to have a paraneteses wrapped around it - if it's part of 
+  Comments: Don't forget that a ternary *sometimes* may need to have a paraneteses wrapped around it - if it's part of
   a larger string construct or something.
+
+(11) If statements
+ Sometime drupal (php) assign variables values withing the the condition, like this:
+ Drupal: if ($data = unserialize($data))
+ In Drupy, we do the assignment outside of the if statement. Like this:
+ Drupy:  data = unserialize(data)
+				 if (data):
+Be very careful about this, as assigning(=) and comparing(==) are very different things, and can get mixed up easily.
