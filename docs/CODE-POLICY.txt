@@ -141,6 +141,7 @@
 
     Drupal: $item = &$menu[$path];
     Drupy: item = DrupyHelper.Reference(menu[path]) is the correct way to do it
+
 (4) Array
 
 			(4.1)Declarations
@@ -148,21 +149,24 @@
 				example:
 
 				Drupal: $names = array()
-				Drupy: names = dict() # do not just do the literal form names = {}
+				Drupy: names = []
 
         Drupal: $foo[] = $bar;
         Drupy: foo.append( bar )
 
         Comments: a PHP array becomes a mutable python dict or a mutable list.
-        Eg. $foo[] = $bar --> becomes a list
-            $foo['some_key'] = $bar --> becomes a dict
+        Eg. $foo[] = $bar # becomes a list
+            $foo['some_key'] = $bar  # becomes a dict
 
-			(4.2)Initalization
+			(4.2)Dicts
 
 				example:
 
 				Drupal: $form = array('#id' => 'foo');
-        Drupy: form = {'#id' : 'foo'}
+        Drupy: form = {'#id': 'foo'}
+
+				Drupal: $form['#id'] = 1++;
+				Drupy: form.val['#id'] +=1
 
 
 (5) Loops
@@ -203,19 +207,14 @@
   (5.4) do..while
 
 (6) Indention/whitespace
-What is indention? It's the white-space before the actual text.
-  2 spaces <-- do this!
+    What is indention? It's the white-space before the actual text.
+
+	2 spaces <-- do this!
 	2-space tabulator indent <-- do NOT this!
 
-Drupal:  2 space indent
-Drupy:  2 space indent
+  Drupal:  2 space indent
+  Drupy:  2 space indent
 
-Comments:
-- Note that a decent text editor should support setting your tab key to 2 spaces.
-- Some text editors support high-lighting indention for
-better readbility - some programmers prefer this.
-- Also, indented code is case sensetive in python, where in PHP (C-like languages), it's not. So wrong indention can cause logic errors in your python code.
-- Avoid trailing whitespace. Like this: def myfunction:
 
 (7) PHP list() function
 	example:
@@ -258,10 +257,9 @@ better readbility - some programmers prefer this.
 
 (10) Conditional ternary
   Drupal: $checkbox = element['#value'] ? ' checked="checked" ' : ' '
-  Drupy: checkbox = ' checked="checked" ' if element['#value'] else ' '
+  Drupy: checkbox = (' checked="checked" ' if element['#value'] else ' ')
 
-  Comments: Don't forget that a ternary *sometimes* may need to have a paraneteses wrapped around it - if it's part of
-  a larger string construct or something.
+  Comments: Always wrap a paranthesis around the ternary.
 
 (11) If statements
  Sometime drupal (php) assign variables values withing the the condition, like this:
@@ -269,4 +267,12 @@ better readbility - some programmers prefer this.
  In Drupy, we do the assignment outside of the if statement. Like this:
  Drupy:  data = unserialize(data)
 				 if (data):
-Be very careful about this, as assigning(=) and comparing(==) are very different things, and can get mixed up easily.
+ Be very careful about this, as assigning(=) and comparing(==) are very different things, and can get mixed up easily.
+
+(12) Bool
+ Drupal: $item['access'] = (bool)$callback;
+ Drupy: item['access'] = drupy_bool(callback)
+
+ Comments: Python does have a method that can typecast a var to a bool...bool(myvar)
+ But that is only typecasting (temporary conversion). drupy_bool converts the variabel
+ to a bool permanantly.
