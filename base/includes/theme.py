@@ -911,7 +911,7 @@ def theme_links(links, attributes = {'class' : 'links'}):
         class_ += ' first';
       if (i == num_links):
         class_ += ' last';
-      if (isset(link['href']) and (link['href'] == _GET['q'] or (link['href'] == '<front>' and drupal_is_front_page()))):
+      if (isset(link['href']) and (link['href'] == GET['q'] or (link['href'] == '<front>' and drupal_is_front_page()))):
         class_ += ' active';
       output += '<li class="'+ class_ +'">';
       if (isset(link['href'])):

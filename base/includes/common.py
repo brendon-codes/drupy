@@ -205,7 +205,7 @@ def drupal_get_feeds(delimiter = "\n"):
 # Parse an array into a valid urlencoded query string.
 #
 # @param query
-#   The array to be processed e.g. _GET.
+#   The array to be processed e.g. GET.
 # @param exclude
 #   The array filled with keys to be excluded. Use parent[child] to exclude
 #   nested items.
@@ -241,12 +241,12 @@ def drupal_query_string_encode(query, exclude = [], parent = ''):
 # @see drupal_goto()
 #
 def drupal_get_destination():
-  if (isset(_REQUEST, 'destination')):
-    return 'destination=' +  urlencode(_REQUEST['destination']);
+  if (isset(REQUEST, 'destination')):
+    return 'destination=' +  urlencode(REQUEST['destination']);
   else:
-    # Use _GET here to retrieve the original path in source form.
-    path =  (_GET.__getitem__('q') if isset(_GET, 'q') else '');
-    query = drupal_query_string_encode(_GET, ['q']);
+    # Use GET here to retrieve the original path in source form.
+    path =  (GET.__getitem__('q') if isset(GET, 'q') else '');
+    query = drupal_query_string_encode(GET, ['q']);
     if (query != ''):
       path += '?' + query;
     return 'destination=' + urlencode(path);
@@ -261,8 +261,8 @@ def drupal_get_destination():
 #
 # Usually the redirected URL is constructed from this function's input
 # parameters. However you may override that behavior by setting a
-# <em>destination</em> in either the _REQUEST-array (i.e. by using
-# the query string of an URI) or the _REQUEST['edit']-array (i.e. by
+# <em>destination</em> in either the REQUEST-array (i.e. by using
+# the query string of an URI) or the REQUEST['edit']-array (i.e. by
 # using a hidden form field). This is used to direct the user back to
 # the proper page after completing a form. For example, after editing
 # a post on the 'admin/content/node'-page or after having logged on using the
@@ -295,10 +295,10 @@ def drupal_get_destination():
 # @see drupal_get_destination()
 #
 def drupal_goto(path = '', query = None, fragment = None, http_response_code = 302):
-  if (isset(_REQUEST, 'destination')):
-    urlP = parse_url(urldecode(_REQUEST['destination']));
-  elif (isset(_REQUEST['edit'], 'destination')):
-    urlP = parse_url(urldecode(_REQUEST['edit']['destination']));
+  if (isset(REQUEST, 'destination')):
+    urlP = parse_url(urldecode(REQUEST['destination']));
+  elif (isset(REQUEST['edit'], 'destination')):
+    urlP = parse_url(urldecode(REQUEST['edit']['destination']));
   url = url(path, {'query' : urlP['query'], 'fragment' : urlP['fragment'], 'absolute' : True});
   # Remove newlines from the URL to avoid header injection attacks.
   url = str_replace(["\n", "\r"], '', url);
@@ -344,12 +344,12 @@ def drupal_site_offline():
 #
 def drupal_not_found():
   drupal_set_header('HTTP/1.1 404 Not Found');
-  watchdog('page not found', check_plain(_GET['q']), None, WATCHDOG_WARNING);
+  watchdog('page not found', check_plain(GET['q']), None, WATCHDOG_WARNING);
   # Keep old path for reference.
-  if (not isset(_REQUEST, 'destination')):
-    _REQUEST['destination'] = _GET['q'];
+  if (not isset(REQUEST, 'destination')):
+    REQUEST['destination'] = GET['q'];
   path = drupal_get_normal_path(variable_get('site_404', ''));
-  if (path and path != _GET['q']):
+  if (path and path != GET['q']):
     # Set the active item in case there are tabs to display, or other
     # dependencies on the path.
     menu_set_active_item(path);
@@ -367,12 +367,12 @@ def drupal_not_found():
 #
 def drupal_access_denied():
   drupal_set_header('HTTP/1.1 403 Forbidden');
-  watchdog('access denied', check_plain(_GET['q']), None, WATCHDOG_WARNING);
+  watchdog('access denied', check_plain(GET['q']), None, WATCHDOG_WARNING);
   # Keep old path for reference.
-  if (not isset(_REQUEST, 'destination')):
-    _REQUEST['destination'] = _GET['q'];
+  if (not isset(REQUEST, 'destination')):
+    REQUEST['destination'] = GET['q'];
   path = drupal_get_normal_path(variable_get('site_403', ''));
-  if (path and path != _GET['q']):
+  if (path and path != GET['q']):
     # Set the active item in case there are tabs to display or other
     # dependencies on the path.
     menu_set_active_item(path);
@@ -457,7 +457,7 @@ def drupal_error_handler(errno, message, filename, line, context, errType = None
     };
     entry = '%(errType)s : %(message)s in %(filename)s on line %(line)s' % err;
     # Force display of error messages in update.php.
-    if (variable_get('error_level', 1) == 1 or strstr(_SERVER['SCRIPT_NAME'], 'update.py')):
+    if (variable_get('error_level', 1) == 1 or strstr(SERVER['SCRIPT_NAME'], 'update.py')):
       drupal_set_message(entry, 'error');
     watchdog('php', '%(message)s in %(file)s on line %(line)s.' % err, WATCHDOG_ERROR);
 
@@ -470,7 +470,7 @@ def _fix_gpc_magic(item):
   pass;
 
 #
-# Helper function to strip slashes from _FILES skipping over the tmp_name keys
+# Helper function to strip slashes from FILES skipping over the tmp_name keys
 # since PHP generates single backslashes for file paths on Windows systems.
 #
 # tmp_name does not have backslashes added see
@@ -1095,7 +1095,7 @@ def url(path = None, options = {}):
     # On some web servers, such as IIS, we can't omit "index.php". So, we
     # generate "index.php?q=foo" instead of "?q=foo" on anything that is not
     # Apache.
-    url.script = ('index.php' if (strpos(_SERVER['SERVER_SOFTWARE'], 'Apache') == False) else '');
+    url.script = ('index.php' if (strpos(SERVER['SERVER_SOFTWARE'], 'Apache') == False) else '');
   # Cache the clean_url variable to improve performance.
   if (url.clean_url == None):
     url.clean_url = drupy_bool(variable_get('clean_url', '0'));
@@ -1202,7 +1202,7 @@ def l(text, path, options = {}):
     'html' : False,
   });
   # Append active class.
-  if ((path == _GET['q']) or (path == '<front>' and drupal_is_front_page())):
+  if ((path == GET['q']) or (path == '<front>' and drupal_is_front_page())):
     if (isset(options['attributes']['class'])):
       options['attributes']['class'] += ' active';
     else:
@@ -2144,7 +2144,7 @@ def _drupal_bootstrap_full():
 #
 def page_set_cache():
   global user, base_root;
-  if ((user.uid < 1) and _SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_get_messages(None, False)) == 0):
+  if ((user.uid < 1) and SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_get_messages(None, False)) == 0):
     # This will fail in some cases, see page_get_cache() for the explanation.
     data = ob_get_contents();
     if (not empty(data = ob_get_contents())):

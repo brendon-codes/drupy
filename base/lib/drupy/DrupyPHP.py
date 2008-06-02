@@ -1178,9 +1178,9 @@ is_writeable = is_writable
 #
 # Superglobals
 #
-_SERVER = __SuperGlobals.getSERVER()
-_GET = __SuperGlobals.getGET()
-_POST = __SuperGlobals.getPOST()
-_REQUEST = __SuperGlobals.getREQUEST(_GET, _POST)
+SERVER = __SuperGlobals.getSERVER()
+GET = __SuperGlobals.getGET()
+POST = __SuperGlobals.getPOST()
+REQUEST = __SuperGlobals.getREQUEST(GET, POST)
 
 

@@ -29,9 +29,8 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-require_once( './lib/drupy/DrupySession.py' )
-
-
+from lib.drupy.DrupyPHP import *
+from lib.drupy import DrupySession
 
 #
 # Global variables
@@ -132,7 +131,7 @@ DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE = 5
 DRUPAL_BOOTSTRAP_LANGUAGE = 6
 
 #
-# Eighth bootstrap phase: set _GET['q'] to Drupal path of request.
+# Eighth bootstrap phase: set GET['q'] to Drupal path of request.
 #
 DRUPAL_BOOTSTRAP_PATH = 7
 
@@ -277,8 +276,8 @@ def conf_path(require_settings = True, reset = False):
   if (not empty(conf_path.conf) and not reset):
     return static_confpath_conf;
   confdir = 'sites';
-  uri = explode('/', (_SERVER['SCRIPT_NAME'] if isset(_SERVER, 'SCRIPT_NAME') else _SERVER['SCRIPT_FILENAME']));
-  server = explode('.', implode('.', array_reverse(explode(':', rtrim(_SERVER['HTTP_HOST'], '.')))));
+  uri = explode('/', (SERVER['SCRIPT_NAME'] if isset(SERVER, 'SCRIPT_NAME') else SERVER['SCRIPT_FILENAME']));
+  server = explode('.', implode('.', array_reverse(explode(':', rtrim(SERVER['HTTP_HOST'], '.')))));
   for i in range(count(uri)-1, 0, -1):
     for j in range(count(server), 1, -1):
       dir_ = implode('.', array_slice(server, -j)) + implode('.', array_slice(uri, 0, i));
@@ -320,14 +319,14 @@ def conf_init():
     base_root = substr(base_url, 0, strlen(base_url) - strlen(parts['path']));
   else:
     # Create base URL
-    base_root = ('https' if (isset(_SERVER, 'HTTPS') and _SERVER['HTTPS'] == 'on') else 'http');
-    # As _SERVER['HTTP_HOST'] is user input, ensure it only contains
+    base_root = ('https' if (isset(SERVER, 'HTTPS') and SERVER['HTTPS'] == 'on') else 'http');
+    # As SERVER['HTTP_HOST'] is user input, ensure it only contains
     # characters allowed in hostnames.
-    base_root += '://' + preg_replace('/[^a-z0-9-:._]/i', '', _SERVER['HTTP_HOST']);
+    base_root += '://' + preg_replace('/[^a-z0-9-:._]/i', '', SERVER['HTTP_HOST']);
     base_url = base_root;
-    # _SERVER['SCRIPT_NAME'] can, in contrast to _SERVER['PHP_SELF'], not
+    # SERVER['SCRIPT_NAME'] can, in contrast to SERVER['PHP_SELF'], not
     # be modified by a visitor.
-    dir = trim(dirname(_SERVER['SCRIPT_NAME']), '\,/');
+    dir = trim(dirname(SERVER['SCRIPT_NAME']), '\,/');
     if (len(dir) > 0):
       base_path_ = "/dir";
       base_url += base_path_;
@@ -342,8 +341,8 @@ def conf_init():
     # to use the same session identifiers across http and https.
     (dummy_, session_name_) = explode('://', base_url, 2);
     # We escape the hostname because it can be modified by a visitor.
-    if (not empty(_SERVER['HTTP_HOST'])):
-      cookie_domain = check_plain(_SERVER['HTTP_HOST']);
+    if (not empty(SERVER['HTTP_HOST'])):
+      cookie_domain = check_plain(SERVER['HTTP_HOST']);
   # Strip leading periods, www., and port numbers from cookie domain.
   cookie_domain = ltrim(cookie_domain, '.');
   if (strpos(cookie_domain, 'www.') == 0):
@@ -355,7 +354,7 @@ def conf_init():
   if (count(explode('.', cookie_domain)) > 2 and not is_numeric(str_replace('.', '', cookie_domain))):
     ini_set('session.cookie_domain', cookie_domain);
   #print session_name;
-  session_name('SESS' + md5(session_name_));
+  DrupySession.session_name('SESS' + md5(session_name_));
 
 
 
@@ -512,7 +511,7 @@ def variable_del(name):
 #
 def page_get_cache():
   cache = None;
-  if (user == None and _SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_set_message()) == 0):
+  if (user == None and SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_set_message()) == 0):
     cache = cache_get(base_root + request_uri(), 'cache_page');
     if (empty(cache)):
       ob_start()
@@ -591,10 +590,10 @@ def drupal_page_cache_header(cache):
   last_modified = gmdate('D, d M Y H:i:s', cache.created) + ' GMT';
   etag = '"' + drupy_md5(last_modified) + '"';
   # See if the client has provided the required HTTP headers:
-  if_modified_since =  (stripslashes(_SERVER['HTTP_IF_MODIFIED_SINCE']) \
-    if isset(_SERVER, 'HTTP_IF_MODIFIED_SINCE') else False);
-  if_none_match = (stripslashes(_SERVER['HTTP_IF_NONE_MATCH']) \
-    if isset(_SERVER, 'HTTP_IF_NONE_MATCH') else False);
+  if_modified_since =  (stripslashes(SERVER['HTTP_IF_MODIFIED_SINCE']) \
+    if isset(SERVER, 'HTTP_IF_MODIFIED_SINCE') else False);
+  if_none_match = (stripslashes(SERVER['HTTP_IF_NONE_MATCH']) \
+    if isset(SERVER, 'HTTP_IF_NONE_MATCH') else False);
   if (if_modified_since and if_none_match
       and if_none_match == etag # etag must match
       and if_modified_since == last_modified):  # if-modified-since must match
@@ -610,7 +609,7 @@ def drupal_page_cache_header(cache):
   header("Cache-Control: must-revalidate");
   if (variable_get('page_compression', True)):
     # Determine if the browser accepts gzipped data.
-    if (strpos(_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') == False and function_exists('gzencode')):
+    if (strpos(SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') == False and function_exists('gzencode')):
       # Strip the gzip header and run uncompress.
       cache.data = gzinflate(substr(substr(cache.data, 10), 0, -8));
     elif (function_exists('gzencode')):
@@ -656,8 +655,8 @@ def drupal_unpack(obj, field = 'data'):
 # Return the URI of the referring page.
 #
 def referer_uri():
-  if (isset(_SERVER, 'HTTP_REFERER')):
-    return _SERVER['HTTP_REFERER'];
+  if (isset(SERVER, 'HTTP_REFERER')):
+    return SERVER['HTTP_REFERER'];
 
 
 
@@ -708,19 +707,19 @@ def drupal_validate_utf8(text):
 
 
 #
-# Since _SERVER['REQUEST_URI'] is only available on Apache, we
+# Since SERVER['REQUEST_URI'] is only available on Apache, we
 # generate an equivalent using other environment variables.
 #
 def request_uri():
-  if (isset(_SERVER, 'REQUEST_URI')):
-    uri = _SERVER['REQUEST_URI'];
+  if (isset(SERVER, 'REQUEST_URI')):
+    uri = SERVER['REQUEST_URI'];
   else:
-    if (isset(_SERVER, 'argv')):
-      uri = _SERVER['SCRIPT_NAME'] + '?' + _SERVER['argv'][0];
-    elif (isset(_SERVER, 'QUERY_STRING')):
-      uri = _SERVER['SCRIPT_NAME'] + '?' + _SERVER['QUERY_STRING'];
+    if (isset(SERVER, 'argv')):
+      uri = SERVER['SCRIPT_NAME'] + '?' + SERVER['argv'][0];
+    elif (isset(SERVER, 'QUERY_STRING')):
+      uri = SERVER['SCRIPT_NAME'] + '?' + SERVER['QUERY_STRING'];
     else:
-      uri = _SERVER['SCRIPT_NAME'];
+      uri = SERVER['SCRIPT_NAME'];
   return uri;
 
 
@@ -884,7 +883,7 @@ def drupal_anonymous_user(session = ''):
 #     DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE: load bootstrap.inc and module.inc, start
 #       the variable system and try to serve a page from the cache.
 #     DRUPAL_BOOTSTRAP_LANGUAGE: identify the language used on the page.
-#     DRUPAL_BOOTSTRAP_PATH: set _GET['q'] to Drupal path of request.
+#     DRUPAL_BOOTSTRAP_PATH: set GET['q'] to Drupal path of request.
 #     DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix input data.
 #
 def drupal_bootstrap(phase):
@@ -960,7 +959,7 @@ def _drupal_bootstrap(phase):
     drupal_init_language();
   elif DRUPAL_BOOTSTRAP_PATH:
     require_once('./includes/path.inc', locals());
-    # Initialize _GET['q'] prior to loading modules and invoking hook_init().
+    # Initialize GET['q'] prior to loading modules and invoking hook_init().
     drupal_init_path();
   elif phase == DRUPAL_BOOTSTRAP_FULL:
     require_once('./includes/common.inc', locals());
@@ -1069,7 +1068,7 @@ def language_default(property = None):
 
 #
 # If Drupal is behind a reverse proxy, we use the X-Forwarded-For header
-# instead of _SERVER['REMOTE_ADDR'], which would be the IP address
+# instead of SERVER['REMOTE_ADDR'], which would be the IP address
 # of the proxy server, and not the client's.
 #
 # @return
@@ -1078,8 +1077,8 @@ def language_default(property = None):
 def ip_address():
   static(ip_address, 'ip_address')
   if (ip_address.ip_address == None):
-    ip_address.ip_address = _SERVER['REMOTE_ADDR'];
-    if (variable_get('reverse_proxy', 0) and array_key_exists('HTTP_X_FORWARDED_FOR', _SERVER)):
+    ip_address.ip_address = SERVER['REMOTE_ADDR'];
+    if (variable_get('reverse_proxy', 0) and array_key_exists('HTTP_X_FORWARDED_FOR', SERVER)):
       # If an array of known reverse proxy IPs is provided, then trust
       # the XFF header if request really comes from one of them.
       reverse_proxy_addresses = variable_get('reverse_proxy_addresses', []);
@@ -1087,7 +1086,7 @@ def ip_address():
           in_array(ip_address.ip_address, reverse_proxy_addresses)):
         # If there are several arguments, we need to check the most
         # recently added one, i.e. the last one.
-        ip_address.ip_address = array_pop(explode(',', _SERVER['HTTP_X_FORWARDED_FOR']));
+        ip_address.ip_address = array_pop(explode(',', SERVER['HTTP_X_FORWARDED_FOR']));
   return ip_address.ip_address;
 
 

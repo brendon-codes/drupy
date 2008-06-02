@@ -454,22 +454,22 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
   # Add in our check of the the file name length.
   validators['file_validate_name_length'] = {}
   # Return cached objects without processing since the file will have
-  # already been processed and the paths in _FILES will be invalid.
+  # already been processed and the paths in FILES will be invalid.
   if (isset(file_save_upload.uploadcache, source)):
     return file_save_upload.uploadcache[source]
   # If a file was uploaded, process it.
-  if (isset(_FILES, 'files') and _FILES['files']['name'][source] and is_uploaded_file(_FILES['files']['tmp_name'][source])):
+  if (isset(FILES, 'files') and FILES['files']['name'][source] and is_uploaded_file(FILES['files']['tmp_name'][source])):
     # Check for file upload errors and return False if a
     # lower level system error occurred.
     # @see http://php.net/manual/en/features.file-upload.errors.php
-    if _FILES['files']['error'][source] == UPLOAD_ERR_OK:
+    if FILES['files']['error'][source] == UPLOAD_ERR_OK:
       pass
-    elif _FILES['files']['error'][source] == UPLOAD_ERR_INI_SIZE or \
-        _FILES['files']['error'][source] == UPLOAD_ERR_FORM_SIZE:
+    elif FILES['files']['error'][source] == UPLOAD_ERR_INI_SIZE or \
+        FILES['files']['error'][source] == UPLOAD_ERR_FORM_SIZE:
       drupal_set_message(t('The file %file could not be saved, because it exceeds %maxsize, the maximum allowed size for uploads.', {'%file' : source, '%maxsize' : format_size(file_upload_max_size())}), 'error')
       return 0
-    elif _FILES['files']['error'][source] == UPLOAD_ERR_PARTIAL or \
-        _FILES['files']['error'][source] == UPLOAD_ERR_NO_FILE:
+    elif FILES['files']['error'][source] == UPLOAD_ERR_PARTIAL or \
+        FILES['files']['error'][source] == UPLOAD_ERR_NO_FILE:
       drupal_set_message(t('The file %file could not be saved, because the upload did not complete.', {'%file' : source}), 'error')
       return 0
     # Unknown error
@@ -484,9 +484,9 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
       variable_get('upload_extensions_default', 'jpg jpeg gif png txt html doc xls pdf ppt pps odt ods odp'))
     # Begin building file object.
     file = stdClass()
-    file.filename = file_munge_filename(trim(basename(_FILES['files']['name'][source]), '.'), extensions)
-    file.filepath = _FILES['files']['tmp_name'][source]
-    file.filemime = _FILES['files']['type'][source]
+    file.filename = file_munge_filename(trim(basename(FILES['files']['name'][source]), '.'), extensions)
+    file.filepath = FILES['files']['tmp_name'][source]
+    file.filemime = FILES['files']['type'][source]
     # Rename potentially executable files, to help prevent exploits.
     if (preg_match('/\.(php|pl|py|cgi|asp|js)$/i', file.filename) and (substr(file.filename, -4) != '.txt')):
       file.filemime = 'text/plain'
@@ -498,7 +498,7 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
       dest = file_directory_temp()
     file.source = source
     file.destination = file_destination(file_create_path(dest + '/' + file.filename), replace)
-    file.filesize = _FILES['files']['size'][source]
+    file.filesize = FILES['files']['size'][source]
     # Call the validation functions.
     errors = {}
     for function,args in validators.items():
@@ -516,7 +516,7 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
     # Move uploaded files from PHP's upload_tmp_dir to Drupal's temporary directory.
     # This overcomes open_basedir restrictions for future file operations.
     file.filepath = file.destination
-    if (not move_uploaded_file(_FILES['files']['tmp_name'][source], file.filepath)):
+    if (not move_uploaded_file(FILES['files']['tmp_name'][source], file.filepath)):
       form_set_error(source, t('File upload error + Could not move uploaded file.'))
       watchdog('file', 'Upload error + Could not move uploaded file %file to destination %destination.', {'%file' : file.filename, '%destination' : file.filepath})
       return 0
@@ -750,8 +750,8 @@ def file_download():
   args = func_get_args()
   filepath = implode('/', args)
   # Maintain compatibility with old ?file=paths saved in node bodies.
-  if (isset(_GET, 'file')):
-    filepath =  _GET['file']
+  if (isset(GET, 'file')):
+    filepath =  GET['file']
   if (file_exists(file_create_path(filepath))):
     headers = module_invoke_all('file_download', filepath)
     if (in_array(-1, headers)):
