@@ -43,18 +43,18 @@ execfile('./includes/bootstrap.py', globals());
 # default exception handler
 #
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
-_return = menu_execute_active_handler();
+return_ = menu_execute_active_handler();
 # Menu status constants are integers; page content is a string.
-if (is_int(_return)):
-  if (_return == MENU_NOT_FOUND):
+if (is_int(return_)):
+  if (return_ == MENU_NOT_FOUND):
       drupal_not_found();
-  elif (_return == MENU_ACCESS_DENIED):
+  elif (return_ == MENU_ACCESS_DENIED):
     drupal_access_denied();
-  elif (_return == MENU_SITE_OFFLINE):
+  elif (return_ == MENU_SITE_OFFLINE):
     drupal_site_offline();
 else:
   # Print any value (including an empty string) except NULL or undefined:
-  print theme('page', _return);
+  print theme('page', return_);
 drupal_page_footer();
 
 

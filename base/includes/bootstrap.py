@@ -38,7 +38,7 @@ require_once( './lib/drupy/DrupySession.py' )
 #
 user = None
 base_url = None
-_base_path = None
+base_path_ = None
 base_root = None
 db_url = None
 db_prefix = None
@@ -281,10 +281,10 @@ def conf_path(require_settings = True, reset = False):
   server = explode('.', implode('.', array_reverse(explode(':', rtrim(_SERVER['HTTP_HOST'], '.')))));
   for i in range(count(uri)-1, 0, -1):
     for j in range(count(server), 1, -1):
-      _dir = implode('.', array_slice(server, -j)) + implode('.', array_slice(uri, 0, i));
-      if (file_exists("%(confdir)s/%(dir)s/settings.py" % {'confdir':confdir, 'dir':_dir}) or \
+      dir_ = implode('.', array_slice(server, -j)) + implode('.', array_slice(uri, 0, i));
+      if (file_exists("%(confdir)s/%(dir)s/settings.py" % {'confdir':confdir, 'dir':dir_}) or \
           (not require_settings and file_exists("confdir/dir"))):
-        conf_path.conf = "%(confdir)s/%(dir)s" % {'confdir':confdir, 'dir':_dir};
+        conf_path.conf = "%(confdir)s/%(dir)s" % {'confdir':confdir, 'dir':dir_};
         return static_confpath_conf;
   conf_path.conf = "%(confdir)s/default" % {'confdir':confdir};
   return conf_path.conf;
@@ -302,7 +302,7 @@ def drupal_unset_globals():
 # session name correctly.
 #
 def conf_init():
-  global base_url, _base_path, \
+  global base_url, base_path_, \
     base_root, db_url, db_prefix, \
     cookie_domain, installed_profile, \
     update_free_access, conf;
@@ -315,7 +315,7 @@ def conf_init():
     parts = parse_url(base_url);
     if (not isset(parts, 'path')):
       parts['path'] = '';
-    _base_path = parts['path'] + '/';
+    base_path_ = parts['path'] + '/';
     # Build base_root (everything until first slash after "scheme://").
     base_root = substr(base_url, 0, strlen(base_url) - strlen(parts['path']));
   else:
@@ -329,18 +329,18 @@ def conf_init():
     # be modified by a visitor.
     dir = trim(dirname(_SERVER['SCRIPT_NAME']), '\,/');
     if (len(dir) > 0):
-      _base_path = "/dir";
-      base_url += _base_path;
-      _base_path += '/';
+      base_path_ = "/dir";
+      base_url += base_path_;
+      base_path_ += '/';
     else:
-      _base_path = '/';
+      base_path_ = '/';
   if (cookie_domain != None):
     # If the user specifies the cookie domain, also use it for session name.
-    _session_name = cookie_domain;
+    session_name_ = cookie_domain;
   else:
     # Otherwise use base_url as session name, without the protocol
     # to use the same session identifiers across http and https.
-    (_dummy, _session_name) = explode('://', base_url, 2);
+    (dummy_, session_name_) = explode('://', base_url, 2);
     # We escape the hostname because it can be modified by a visitor.
     if (not empty(_SERVER['HTTP_HOST'])):
       cookie_domain = check_plain(_SERVER['HTTP_HOST']);
@@ -355,7 +355,7 @@ def conf_init():
   if (count(explode('.', cookie_domain)) > 2 and not is_numeric(str_replace('.', '', cookie_domain))):
     ini_set('session.cookie_domain', cookie_domain);
   #print session_name;
-  session_name('SESS' + drupy_md5(_session_name));
+  session_name('SESS' + md5(session_name_));
 
 
 
@@ -387,14 +387,14 @@ def conf_init():
 # @return
 #   The filename of the requested item.
 #
-def drupal_get_filename(_type, name, filename = None):
+def drupal_get_filename(type_, name, filename = None):
   static(drupal_get_filename, 'files', {})
-  file = db_result(db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, _type))
-  if (not isset(drupal_get_filename.files, _type)):
-    drupal_get_filename.files[_type] = {}
+  file = db_result(db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, type_))
+  if (not isset(drupal_get_filename.files, type_)):
+    drupal_get_filename.files[type_] = {}
   if (filename != None and file_exists(filename)):
-    drupal_get_filename.files[_type][name] = filename;
-  elif (isset(drupal_get_filename.files[_type], name)):
+    drupal_get_filename.files[type_][name] = filename;
+  elif (isset(drupal_get_filename.files[type_], name)):
     # nothing
     pass;
   # Verify that we have an active database connection, before querying
@@ -402,26 +402,26 @@ def drupal_get_filename(_type, name, filename = None):
   # before we have a database connection (i.e. during installation) and
   # when a database connection fails.
   elif (db_is_active() and (file and file_exists(file))):
-    drupal_get_filename.files[_type][name] = file;
+    drupal_get_filename.files[type_][name] = file;
   else:
     # Fallback to searching the filesystem if the database connection is
     # not established or the requested file is not found.
     config = conf_path();
-    _dir = ('themes/engines' if (_type == 'theme_engine') else (_type + 's'));
-    file = (("%(name)s.engine" % {'name':name}) if (_type == 'theme_engine') else ("%(name)s.type" % {'name':name}));
-    fileVals = {'name':name, 'file':file, 'dir':_dir, 'config':config};
+    dir_ = ('themes/engines' if (type_ == 'theme_engine') else (type_ + 's'));
+    file = (("%(name)s.engine" % {'name':name}) if (type_ == 'theme_engine') else ("%(name)s.type" % {'name':name}));
+    fileVals = {'name':name, 'file':file, 'dir':dir_, 'config':config};
     fileChecker = [
       "config/dir/file" % fileVals,
       "config/dir/name/file" % fileVals,
       "dir/file" % fileVals,
       "dir/name/file" % fileVals
     ];
-    for _file in fileChecker:
-      if (file_exists(_file)):
-        drupal_get_filename.files[_type][name] = _file;
+    for file_ in fileChecker:
+      if (file_exists(file_)):
+        drupal_get_filename.files[type_][name] = file_;
         break;
-  if (isset(drupal_get_filename.files[_type], name)):
-    return drupal_get_filename.files[_type][name];
+  if (isset(drupal_get_filename.files[type_], name)):
+    return drupal_get_filename.files[type_][name];
 
 
 
@@ -432,7 +432,7 @@ def drupal_get_filename(_type, name, filename = None):
 # with variable_set() as well as those explicitly specified in the configuration
 # file.
 #
-def variable_init(_conf = {}):
+def variable_init(conf_ = {}):
   # NOTE: caching the variables improves performance by 20% when serving cached pages.
   cached = cache_get('variables', 'cache');
   if (cached):
@@ -445,7 +445,7 @@ def variable_init(_conf = {}):
         break;
       variables[variable.name] = unserialize(variable.value);
     cache_set('variables', variables);
-  for name,value in _conf.items():
+  for name,value in conf_.items():
     variables[name] = value;
   return variables;
 
@@ -462,9 +462,9 @@ def variable_init(_conf = {}):
 # @return
 #   The value of the variable.
 #
-def variable_get(name, _default):
+def variable_get(name, default_):
   global conf;
-  return  (conf[name] if isset(conf, name) else _default);
+  return  (conf[name] if isset(conf, name) else default_);
 
 
 #
@@ -544,17 +544,17 @@ def bootstrap_invoke_all(hook):
 # @return
 #   TRUE if the item is loaded or has already been loaded.
 #
-def drupal_load(_type, name):
+def drupal_load(type_, name):
   static(drupal_load, 'files', {})
   if (not isset(drupal_load.files, type)):
-    drupal_load.files[_type] = {}
-  if (isset(drupal_load.files[_type], name)):
+    drupal_load.files[type_] = {}
+  if (isset(drupal_load.files[type_], name)):
     return True
   else:
-    filename = drupal_get_filename(_type, name);
+    filename = drupal_get_filename(type_, name);
     if (filename != False):
       include_once("./" + filename);
-      drupal_load.files[_type][name] = True;
+      drupal_load.files[type_][name] = True;
       return True;
     else:
       return False;
@@ -619,8 +619,8 @@ def drupal_page_cache_header(cache):
   # another so PHP's header() def can deal with duplicate
   # headers.
   headers = explode("\n", cache.headers);
-  for _header in headers:
-    header(_header);
+  for header_ in headers:
+    header(header_);
   print cache.data;
 
 
@@ -1028,8 +1028,8 @@ def language_list(field = 'language', reset = False):
         languages_list.languages['language'][row.language] = row;
     else:
       # No locale module, so use the default language only.
-      _default = language_default();
-      languages_list.languages['language'][_default.language] = _default;
+      default_ = language_default();
+      languages_list.languages['language'][default_.language] = default_;
   # Return the array indexed by the right field
   if (not isset(languages_list.languages, field)):
     languages_list.languages[field] = {};
@@ -1158,19 +1158,19 @@ def drupal_autoload_interface(interface):
 # @return
 #   True if the class is currently available, False otherwise.
 #
-def drupal_autoload_class(_class):
-  return _registry_check_code('class', _class)
+def drupal_autoload_class(class_):
+  return _registry_check_code('class', class_)
 
 
 
 #
 # Helper for registry_check_{interface, class}.
 #
-def _registry_check_code(_type, name):
-  file = db_result(db_query("SELECT filename FROM {registry} WHERE name = '%s' AND type = '%s'", name, _type))
+def _registry_check_code(type_, name):
+  file = db_result(db_query("SELECT filename FROM {registry} WHERE name = '%s' AND type = '%s'", name, type_))
   if (file):
     require_once(file)
-    registry_mark_code(_type, name)
+    registry_mark_code(type_, name)
     return True
 
 
@@ -1184,14 +1184,14 @@ def _registry_check_code(_type, name):
 # @param return
 #   Boolean flag to indicate whether to return the resources.
 #
-def registry_mark_code(_type, name, _return = False):
+def registry_mark_code(type_, name, return_ = False):
   static(registry_mark_code, 'resources', [])
-  if (_type and name):
-    if (not isset(registry_mark_code.resources, _type, )):
-      registry_mark_code.resources[_type] = []
-    if (not in_array(name, registry_mark_code.resources[_type])):
+  if (type_ and name):
+    if (not isset(registry_mark_code.resources, type_, )):
+      registry_mark_code.resources[type_] = []
+    if (not in_array(name, registry_mark_code.resources[type_])):
       registry_mark_code.resources[type].append( name )
-  if (_return):
+  if (return_):
     return registry_mark_code.resources
 
 
@@ -1264,9 +1264,9 @@ def registry_cache_path_files():
 #
 # registry_load_path_files
 #
-def registry_load_path_files(_return = False):
+def registry_load_path_files(return_ = False):
   static(registry_load_path_files, 'file_cache_data', [])
-  if (_return):
+  if (return_):
     sort(registry_load_path_files.file_cache_data);
     return registry_load_path_files.file_cache_data;
   menu = menu_get_item();

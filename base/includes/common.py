@@ -353,12 +353,12 @@ def drupal_not_found():
     # Set the active item in case there are tabs to display, or other
     # dependencies on the path.
     menu_set_active_item(path);
-    _return = menu_execute_active_handler(path);
-  if (empty(_return) or _return == MENU_NOT_FOUND or _return == MENU_ACCESS_DENIED):
+    return_ = menu_execute_active_handler(path);
+  if (empty(return_) or return_ == MENU_NOT_FOUND or return_ == MENU_ACCESS_DENIED):
     drupal_set_title(t('Page not found'));
-    _return = t('The requested page could not be found.');
+    return_ = t('The requested page could not be found.');
   # To conserve CPU and bandwidth, omit the blocks.
-  print theme('page', _return, False);
+  print theme('page', return_, False);
 
 
 
@@ -376,11 +376,11 @@ def drupal_access_denied():
     # Set the active item in case there are tabs to display or other
     # dependencies on the path.
     menu_set_active_item(path);
-    _return = menu_execute_active_handler(path);
-  if (empty(_return) or _return == MENU_NOT_FOUND or _return == MENU_ACCESS_DENIED):
+    return_ = menu_execute_active_handler(path);
+  if (empty(return_) or return_ == MENU_NOT_FOUND or return_ == MENU_ACCESS_DENIED):
     drupal_set_title(t('Access denied'));
-    _return = t('You are not authorized to access this page.');
-  print theme('page', _return);
+    return_ = t('You are not authorized to access this page.');
+  print theme('page', return_);
 
 
 
@@ -774,9 +774,9 @@ def format_rss_item(title, link, description, args = {}):
 # In both cases, 'value' can be a simple string, or it can be another array
 # with the same format as array itself for nesting.
 #
-def format_xml_elements(_array):
+def format_xml_elements(array_):
   output = '';
-  for key,value in _array.items():
+  for key,value in array_.items():
     if (is_numeric(key)):
       if (not empty(value['key'])):
         output += ' <' + value['key'];
@@ -1076,12 +1076,12 @@ def url(path = None, options = {}):
   if (not empty(options['external'])):
     # Split off the fragment.
     if (strpos(path, '#') != False):
-      _p1 = explode('#', path, 2);
+      p1_ = explode('#', path, 2);
       (path, old_fragment)
-      if isset(_p1, 0):
-        path = _p1[0];
-      if isset(_p1, 1):
-        old_fragment = _p1[1];
+      if isset(p1_, 0):
+        path = p1_[0];
+      if isset(p1_, 1):
+        old_fragment = p1_[1];
       else:
         old_fragment = None;
       if (old_fragment != None and empty(options['fragment'])):
@@ -1246,15 +1246,15 @@ def drupal_page_footer():
 # @result
 #   An associative array.
 #
-def drupal_map_assoc(_array, function = None):
+def drupal_map_assoc(array_, function = None):
   if (function != None):
     result = {};
-    for key,value in _array.items():
+    for key,value in array_.items():
       result[value] = value;
     return result;
   elif (function_exists(function)):
     result = {};
-    for key,value in _array.items():
+    for key,value in array_.items():
       result[value] = function(value);
     return result;
 
@@ -1317,8 +1317,8 @@ def drupal_get_path(type, name):
 # At the very least, this will always default to /.
 #
 def base_path():
-  global _base_path;
-  return _base_path;
+  global base_path_;
+  return base_path_;
 
 
 #
@@ -1438,30 +1438,30 @@ def drupal_get_css(css = None):
   for media,types in css.items():
     # If CSS preprocessing is off, we still need to output the styles.
     # Additionally, go through any remaining styles if CSS preprocessing is on and output the non-cached ones.
-    for _type,files in types.items():
-      if (_type == 'module'):
+    for type_,files in types.items():
+      if (type_ == 'module'):
         # Setup theme overrides for module styles.
         theme_styles = [];
         for theme_style in array_keys(css[media]['theme']):
           theme_styles.append( basename(theme_style) );
-      for _file,preprocess in types[_type].items():
+      for file_,preprocess in types[type_].items():
         # If the theme supplies its own style using the name of the module style, skip its inclusion.
         # This includes any RTL styles associated with its main LTR counterpart.
-        if (_type == 'module' and in_array(str_replace('-rtl.css', '.css', basename(file)), theme_styles)):
+        if (type_ == 'module' and in_array(str_replace('-rtl.css', '.css', basename(file)), theme_styles)):
           # Unset the file to prevent its inclusion when CSS aggregation is enabled.
-          del(types[_type][file]);
+          del(types[type_][file]);
           continue;
         if (not preprocess or not(is_writable and preprocess_css)):
           # If a CSS file is not to be preprocessed and it's a module CSS file, it needs to *always* appear at the *top*,
           # regardless of whether preprocessing is on or off.
-          if (not preprocess and _type == 'module'):
-            no_module_preprocess += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + _file + query_string + '" />' + "\n";
+          if (not preprocess and type_ == 'module'):
+            no_module_preprocess += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + file_ + query_string + '" />' + "\n";
           # If a CSS file is not to be preprocessed and it's a theme CSS file, it needs to *always* appear at the *bottom*,
           # regardless of whether preprocessing is on or off.
-          elif (not preprocess and _type == 'theme'):
-            no_theme_preprocess += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + _file + query_string + '" />' + "\n";
+          elif (not preprocess and type_ == 'theme'):
+            no_theme_preprocess += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + file_ + query_string + '" />' + "\n";
           else:
-            output += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + _file + query_string + '" />' + "\n";
+            output += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + file_ + query_string + '" />' + "\n";
     if (is_writable and preprocess_css):
       filename = md5(serialize(types) + query_string) + '.css';
       preprocess_file = drupal_build_css_cache(types, filename);
@@ -1488,12 +1488,12 @@ def drupal_build_css_cache(types, filename):
   file_check_directory(csspath, FILE_CREATE_DIRECTORY);
   if (not file_exists(csspath + '/' + filename)):
     # Build aggregate CSS file.
-    for _type in types:
-      for _file,cache in _type.items():
+    for type_ in types:
+      for file_,cache in type_.items():
         if (not empty(cache)):
-          contents = drupal_load_stylesheet(_file, True);
+          contents = drupal_load_stylesheet(file_, True);
           # Return the path to where this CSS file originated from.
-          base = base_path() + dirname(_file) + '/';
+          base = base_path() + dirname(file_) + '/';
           _drupal_build_css_path(None, base);
           # Prefix all paths within this CSS file, ignoring external and absolute paths.
           data += preg_replace_callback('/url\([\'"]?(?![a-z]+:|\/+)([^\'")]+)[\'"]?\)/i', '_drupal_build_css_path', contents);
@@ -1547,7 +1547,7 @@ def _drupal_build_css_path(matches, base = None):
 #   Contents of the stylesheet including the imported stylesheets.
 #
 def drupal_load_stylesheet(file, optimize = None):
-  static(drupal_load_stylesheet, '_optimize', optimize)
+  static(drupal_load_stylesheet, 'optimize_', optimize)
   # Store optimization parameter for preg_replace_callback with nested @import loops.
   contents = '';
   if (file_exists(file)):
@@ -1561,7 +1561,7 @@ def drupal_load_stylesheet(file, optimize = None):
     contents = preg_replace_callback('/@import\s*(?:url\()?[\'"]?(?![a-z]+:)([^\'"\()]+)[\'"]?\)?;/', '_drupal_load_stylesheet', contents);
     # Remove multiple charset declarations for standards compliance (and fixing Safari problems).
     contents = preg_replace('/^@charset\s+[\'"](\S*)\b[\'"];/i', '', contents);
-    if (not empty(drupal_load_stylesheet._optimize)):
+    if (not empty(drupal_load_stylesheet.optimize_)):
       # Perform some safe CSS optimizations.
       contents = preg_replace(
         '<' + 
@@ -1655,7 +1655,7 @@ def drupal_clear_css_cache():
 #   far for scope is returned. If the first three parameters are None,
 #   an array with all scopes is returned.
 #
-def drupal_add_js(data = None, _type = 'module', scope = 'header', defer = False, cache = True, preprocess = True):
+def drupal_add_js(data = None, type_ = 'module', scope = 'header', defer = False, cache = True, preprocess = True):
   static(drupal_add_js, 'javascript', {})
   if (data != None):
     # Add jquery.js and drupal.js, as well as the basePath setting, the
@@ -1675,15 +1675,15 @@ def drupal_add_js(data = None, _type = 'module', scope = 'header', defer = False
       };
     if (not empty(scope) and not isset(drupal_add_js.javascript, scope)):
       drupal_add_js.javascript[scope] = {'core' : {}, 'module' : {}, 'theme' : {}, 'setting' : {}, 'inline' : {}};
-    if (not empty(type) and not empty(scope) and not isset(drupal_add_js.javascript[scope], _type)):
-      drupal_add_js.javascript[scope][_type] = [];
+    if (not empty(type) and not empty(scope) and not isset(drupal_add_js.javascript[scope], type_)):
+      drupal_add_js.javascript[scope][type_] = [];
     if type == 'setting':
-      drupal_add_js.javascript[scope][_type].append(data);
+      drupal_add_js.javascript[scope][type_].append(data);
     elif type == 'inline':
-      drupal_add_js.javascript[scope][_type].append({'code' : data, 'defer' : defer});
+      drupal_add_js.javascript[scope][type_].append({'code' : data, 'defer' : defer});
     else:
       # If cache is False, don't preprocess the JS file.
-      drupal_add_js.javascript[scope][_type][data] = {'cache' : cache, 'defer' : defer, 'preprocess' : (False if not cache else preprocess)};
+      drupal_add_js.javascript[scope][type_][data] = {'cache' : cache, 'defer' : defer, 'preprocess' : (False if not cache else preprocess)};
   if (not empty(scope)):
     if (isset(drupal_add_js.javascript, scope)):
       return drupal_add_js.javascript[scope];
@@ -1725,7 +1725,7 @@ def drupal_get_js(scope = 'header', javascript = None):
   files = {};
   preprocess_js = (variable_get('preprocess_js', False) and (not defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'));
   directory = file_directory_path();
-  _is_writable = is_dir(directory) and is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC);
+  is_writable_ = is_dir(directory) and is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC);
   # A dummy query-string is added to filenames, to gain control over
   # browser-caching. The string changes on every update or full cache
   # flush, forcing browsers to load a new copy of the files, as the
@@ -1733,19 +1733,19 @@ def drupal_get_js(scope = 'header', javascript = None):
   # get time() as query-string instead, to enforce reload on every
   # page request.
   query_string = '?' + substr(variable_get('css_js_query_string', '0'), 0, 1);
-  for _type,data in javascript.items():
+  for type_,data in javascript.items():
     if (empty(data)):
       continue;
-    if _type == 'setting':
+    if type_ == 'setting':
       output += '<script type="text/javascript">jQuery.extend(Drupal.settings, ' + drupal_to_js(call_user_func_array('array_merge_recursive', data)) + ");</script>\n";
-    elif _type == 'inline':
-      for _infoKey,info in data.items():
+    elif type_ == 'inline':
+      for infoKey_,info in data.items():
         output += '<script type="text/javascript"' + (' defer="defer"' if info['defer'] else '') + '>' + info['code'] + "</script>\n";
     else:
       # If JS preprocessing is off, we still need to output the scripts.
       # Additionally, go through any remaining scripts if JS preprocessing is on and output the non-cached ones.
       for path,info in data.items():
-        if (not info['preprocess'] or not _is_writable or not preprocess_js):
+        if (not info['preprocess'] or not is_writable_ or not preprocess_js):
           no_preprocess[type] += '<script type="text/javascript"' + (' defer="defer"' if info['defer'] else '') + ' src="' + base_path() + path + (query_string if info['cache'] else '?' + drupy_time()) + "\"></script>\n";
         else:
           files[path] = info;
@@ -1992,7 +1992,7 @@ def drupal_urlencode(text):
 # @param $count
 #   The number of characters (bytes) to return in the string.
 #
-def drupal_random_bytes(_count):
+def drupal_random_bytes(count_):
   # We initialize with the somewhat random PHP process ID on the first call.
   static(drupal_random_bytes, 'random_state', getmypid())
   output = '';
@@ -2000,7 +2000,7 @@ def drupal_random_bytes(_count):
   # commonly available pseudo-random source.
   fh = fopen('/dev/urandom', 'rb')
   if (fh != False):
-    output = fread(fh, _count);
+    output = fread(fh, count_);
     fclose(fh);
   # If /dev/urandom is not available or returns no bytes, this loop will
   # generate a good set of pseudo-random bytes on any system.
@@ -2010,7 +2010,7 @@ def drupal_random_bytes(_count):
   # the microtime() - is prepended rather than appended.  This is to avoid
   # directly leaking $random_state via the $output stream, which could
   # allow for trivial prediction of further "random" numbers.
-  while (strlen(output) < _count):
+  while (strlen(output) < count_):
     drupal_random_bytes.random_state = md5(microtime() + mt_rand() + drupal_random_bytes.random_state);
     output += md5(mt_rand() + drupal_random_bytes.random_state, True);
   return substr(output, 0, count);
@@ -2282,7 +2282,7 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
 #   Any additional params will be passed on to the called
 #   hook_type_alter functions.
 #
-def drupal_alter(_type, data, *_additional_args):
+def drupal_alter(type_, data, *additional_args_):
   DrupyHelper.Reference.check(data);
   # PHP's func_get_args() always returns copies of params, not references, so
   # drupal_alter() can only manipulate data that comes in via the required first
@@ -2304,12 +2304,12 @@ def drupal_alter(_type, data, *_additional_args):
     args = array_merge(args, by_ref_parameters);
   # Now, use func_get_args() to pull in any additional parameters passed into
   # the drupal_alter() call.
-  additional_args = _additional_args;
+  additional_args = additional_args_;
   array_shift(additional_args);
   array_shift(additional_args);
   args = tuple(array_merge(args, additional_args));
-  for module in module_implements(_type + '_alter'):
-    function = module + '_' + _type + '_alter';
+  for module in module_implements(type_ + '_alter'):
+    function = module + '_' + type_ + '_alter';
     function( *args );
 
 
@@ -2753,10 +2753,10 @@ def drupal_uninstall_schema(module):
 #   The name of the table. If not given, the module's complete schema
 #   is returned.
 #
-def drupal_get_schema_unprocessed(_module, table = None):
+def drupal_get_schema_unprocessed(module_, table = None):
   # Load the .install file to get hook_schema.
-  module_load_install(_module);
-  schema = module_invoke(_module, 'schema');
+  module_load_install(module_);
+  schema = module_invoke(module_, 'schema');
   if (not is_null(table) and isset(schema, table)):
     return schema[table];
   else:
@@ -2833,8 +2833,8 @@ def drupal_schema_fields_sql(table, prefix = None):
 #   a new node.
 #
 #
-def drupal_write_record(table, _object, update = []):
-  DrupyHelper.Reference.check(_object);
+def drupal_write_record(table, object_, update = []):
+  DrupyHelper.Reference.check(object_);
   # Standardize update to an array.
   if (is_string(update)):
     update = [update];
@@ -2842,11 +2842,11 @@ def drupal_write_record(table, _object, update = []):
   if empty(schema):
     return False
   # Convert to an object if needed.
-  if (is_array(_object.val)):
-    _object.val = drupy_object(_object.val);
-    _array = True;
+  if (is_array(object_.val)):
+    object_.val = drupy_object(object_.val);
+    array_ = True;
   else:
-    _array = False;
+    array_ = False;
   fields = defs = values = serials = placeholders = [];
   # Go through our schema, build SQL, and when inserting, fill in defaults for
   # fields that are not set.
@@ -2855,34 +2855,34 @@ def drupal_write_record(table, _object, update = []):
     if (info['type'] == 'serial' and count(update)):
       continue;
     # For inserts, populate defaults from Schema if not already provided
-    if (not isset(_object.val, field) and not count(update) and isset(info, 'default')):
-      setattr(_object.val, field, info['default']);
+    if (not isset(object_.val, field) and not count(update) and isset(info, 'default')):
+      setattr(object_.val, field, info['default']);
     # Track serial fields so we can helpfully populate them after the query.
     if (info['type'] == 'serial'):
       serials.append( field );
       # Ignore values for serials when inserting data. Unsupported.
-      delattr(_object.val, field);
+      delattr(object_.val, field);
     # Build arrays for the fields, placeholders, and values in our query.
-    if (isset(_object.val, field)):
+    if (isset(object_.val, field)):
       fields.append( field );
       placeholders.append( db_type_placeholder(info['type']) );
       if (empty(info['serialize'])):
-        values.append( getattr( _object.val, field ) );
-      elif (not empty(getattr( _object.val, field ))):
-        values.append( serialize( getattr(_object.val, field) ) );
+        values.append( getattr( object_.val, field ) );
+      elif (not empty(getattr( object_.val, field ))):
+        values.append( serialize( getattr(object_.val, field) ) );
       else:
         values.append( '' );
   if (empty(fields)):
     # No changes requested.
     # If we began with an array, convert back so we don't surprise the caller.
-    if (_array):
-      _object.val = drupy_array(_object.val);
+    if (array_):
+      object_.val = drupy_array(object_.val);
     return;
   # Build the SQL.
   query = '';
   if (count(update) == 0):
     query = "INSERT INTO {" + table + "} (" + implode(', ', fields) + ') VALUES (' + implode(', ', placeholders) + ')';
-    _return = SAVED_NEW;
+    return_ = SAVED_NEW;
   else:
     query = '';
     for id,field in fields.items():
@@ -2891,9 +2891,9 @@ def drupal_write_record(table, _object, update = []):
       query += field + ' = ' + placeholders[id];
     for key in update:
       conditions.append( key + " = " + db_type_placeholder(schema['fields'][key]['type']) );
-      values.append( _object.val.key );
+      values.append( object_.val.key );
     query = "UPDATE {" + table + "} SET query WHERE " + implode(' AND ', conditions);
-    _return = SAVED_UPDATED;
+    return_ = SAVED_UPDATED;
   # Execute the SQL.
   if (db_query(query, values)):
     if (not empty(serials)):
@@ -2901,11 +2901,11 @@ def drupal_write_record(table, _object, update = []):
       for field in serials:
         setattr( object.val, field, db_last_insert_id(table, field) );
   else:
-    _return = False
+    return_ = False
   # If we began with an array, convert back so we don't surprise the caller.
-  if (not empty(_array)):
-    _object.val = drupy_array(_object.val);
-  return _return;
+  if (not empty(array_)):
+    object_.val = drupy_array(object_.val);
+  return return_;
 
 
 

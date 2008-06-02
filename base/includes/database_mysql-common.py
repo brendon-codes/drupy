@@ -137,8 +137,8 @@ def _db_process_field(field):
     field['size'] = 'normal'
   # Set the correct database-engine specific datatype.
   if (not isset(field, 'mysql_type')):
-    _map = db_type_map()
-    field['mysql_type'] = _map[field['type'] +  ':'  + field['size']]
+    map_ = db_type_map()
+    field['mysql_type'] = map_[field['type'] +  ':'  + field['size']]
   if (field['type'] == 'serial'):
     field['auto_increment'] = True
   return field
@@ -188,7 +188,7 @@ def db_type_map():
   # Put :normal last so it gets preserved by array_flip.  This makes
   # it much easier for modules (such as schema.module) to map
   # database types back into schema types.
-  _map = {
+  map_ = {
     'varchar:normal'  : 'VARCHAR',
     'char:normal'     : 'CHAR',
     'text:tiny'       : 'TINYTEXT',
@@ -216,7 +216,7 @@ def db_type_map():
     'blob:normal'     : 'BLOB',
     'datetime:normal' : 'DATETIME'
   }
-  return _map
+  return map_
 
 
 
