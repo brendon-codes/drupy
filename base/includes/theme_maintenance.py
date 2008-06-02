@@ -35,12 +35,19 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-
 #
 # Set globals
 #
 theme_path = None
 theme_ = None
+
+from includes.path import *
+from includes.theme import *
+from includes.common import *
+from includes.unicode import *
+from includes.file import *
+from includes.module import *
+from includes.database import *
 
 
 def _drupal_maintenance_theme():
@@ -48,13 +55,6 @@ def _drupal_maintenance_theme():
   # If theme is already set, assume the others are set too, and do nothing.
   if (theme_ != None):
     return
-  require_once( './includes/path.py' )
-  require_once( './includes/theme.py' )
-  require_once( './includes/common.py' )
-  require_once( './includes/unicode.py' )
-  require_once( './includes/file.py' )
-  require_once( './includes/module.py' )
-  require_once( './includes/database.py' )
   unicode_check()
   # Install and update pages are treated differently to prevent theming overrides.
   if (defined('MAINTENANCE_MODE') and (MAINTENANCE_MODE == 'install' or MAINTENANCE_MODE == 'update')):

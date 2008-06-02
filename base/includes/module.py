@@ -29,6 +29,9 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+from lib.drupy.DrupyPHP import *
+from includes.bootstrap import *
+
 #
 # Load all the modules that have been enabled in the system table.
 #

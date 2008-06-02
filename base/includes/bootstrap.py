@@ -29,9 +29,6 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-from lib.drupy.DrupyPHP import *
-from lib.drupy import DrupySession
-
 #
 # Global variables
 #
@@ -175,6 +172,17 @@ LANGUAGE_NEGOTIATION_PATH = 2
 #
 LANGUAGE_NEGOTIATION_DOMAIN = 3
 
+#
+# INcludes
+#
+from lib.drupy.DrupyPHP import *
+from lib.drupy import DrupySession
+from lib.drupy import DrupyHelper
+from sites.default.settings import *
+from includes.cache import *
+from includes.database import *
+from includes.session import *
+
 
 #
 # Start the timer with the specified name. If you start and stop
@@ -272,21 +280,7 @@ def timer_stop(name):
 #   The path of the matching directory.
 #
 def conf_path(require_settings = True, reset = False):
-  static(conf_path, 'conf', '');
-  if (not empty(conf_path.conf) and not reset):
-    return static_confpath_conf;
-  confdir = 'sites';
-  uri = explode('/', (SERVER['SCRIPT_NAME'] if isset(SERVER, 'SCRIPT_NAME') else SERVER['SCRIPT_FILENAME']));
-  server = explode('.', implode('.', array_reverse(explode(':', rtrim(SERVER['HTTP_HOST'], '.')))));
-  for i in range(count(uri)-1, 0, -1):
-    for j in range(count(server), 1, -1):
-      dir_ = implode('.', array_slice(server, -j)) + implode('.', array_slice(uri, 0, i));
-      if (file_exists("%(confdir)s/%(dir)s/settings.py" % {'confdir':confdir, 'dir':dir_}) or \
-          (not require_settings and file_exists("confdir/dir"))):
-        conf_path.conf = "%(confdir)s/%(dir)s" % {'confdir':confdir, 'dir':dir_};
-        return static_confpath_conf;
-  conf_path.conf = "%(confdir)s/default" % {'confdir':confdir};
-  return conf_path.conf;
+  pass
 
 
 #
@@ -306,9 +300,6 @@ def conf_init():
     cookie_domain, installed_profile, \
     update_free_access, conf;
   conf = {};
-  thisConfPath = conf_path();
-  if (file_exists('./' + thisConfPath + '/settings.py')):
-    include_once( './' + thisConfPath + '/settings.py', globals());
   if (base_url != None):
     # Parse fixed base URL from settings.php.
     parts = parse_url(base_url);
@@ -910,7 +901,6 @@ def _drupal_bootstrap(phase):
   elif phase == DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE:
     # Allow specifying special cache handlers in settings.php, like
     # using memcached or files for storing cache information.
-    require_once( variable_get('cache_inc', './includes/cache.py'), globals() );
     # If the page_cache_fastpath is set to TRUE in settings.php and
     # page_cache_fastpath (implemented in the special implementation of
     # cache.inc) printed the page and indicated this with a returned TRUE
@@ -919,7 +909,6 @@ def _drupal_bootstrap(phase):
       exit();
   elif phase == DRUPAL_BOOTSTRAP_DATABASE:
     # Initialize the default database.
-    require_once('./includes/database.py', globals());
     db_set_active();
     # Register autoload functions so that we can access classes and interfaces.
     # spl_autoload_register('drupal_autoload_class')
@@ -931,7 +920,6 @@ def _drupal_bootstrap(phase):
       print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
       exit();
   elif phase == DRUPAL_BOOTSTRAP_SESSION:
-    require_once(variable_get('session_inc', './includes/session.py'));
     session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
     session_start();
   elif phase == DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
