@@ -30,11 +30,6 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-
-import urllib2
-from lib.drupy import DrupyHelper
-
-
 # The functions that are critical and need to be available even when serving
 # a cached page are instead located in bootstrap.inc.
 #
@@ -52,6 +47,13 @@ SAVED_UPDATED = 2;
 # Return status for saving which deleted an existing item.
 #
 SAVED_DELETED = 3;
+
+#
+# Includes
+#
+import urllib2
+from lib.drupy import DrupyHelper
+
 #
 # Set content for a specified region.
 #

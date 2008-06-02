@@ -40,9 +40,6 @@
 # @{
 #
 
-# Include functions shared between mysql and mysqli.
-require_once( './includes/database_mysql-common.py' )
-
 
 #
 # Report database status.
@@ -80,7 +77,7 @@ def db_version():
 #
 def db_connect(url):
   # Check if MySQLi support is present in PHP
-  if (not function_exists('mysqli_init') and not extension_loaded('mysqli')):
+  if (not function_exists('mysqli_connect', globals())):
     _db_error_page('Unable to use the MySQLi database because the MySQLi extension for PHP is not installed + Check your <code>php.ini</code> to see how you can enable it.')
   url = parse_url(url, 3306)
   # Decode url-encoded information in the db connection string
@@ -393,3 +390,8 @@ def db_distinct_field(table, field, query):
 # @} End of "ingroup database".
 #
 
+# Include functions shared between mysql and mysqli.
+from includes.database import *
+from lib.drupy.DrupyPHP import *
+from lib.drupy.DrupyMySQL import *
+from includes.database_mysql_common import *

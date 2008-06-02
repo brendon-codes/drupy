@@ -29,7 +29,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-
+from includes.bootstrap import *
 
 #
 # Return data from the persistent cache. Data may be stored as either plain text or as serialized data.
