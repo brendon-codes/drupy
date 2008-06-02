@@ -32,13 +32,13 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-# Initialize the _GET['q'] variable to the proper normal path.
+# Initialize the GET['q'] variable to the proper normal path.
 #
 def drupal_init_path():
-  if (not empty(_GET['q'])):
-    _GET['q'] = drupal_get_normal_path(trim(_GET['q'], '/'))
+  if (not empty(GET['q'])):
+    GET['q'] = drupal_get_normal_path(trim(GET['q'], '/'))
   else:
-    _GET['q'] = drupal_get_normal_path(variable_get('site_frontpage', 'node'))
+    GET['q'] = drupal_get_normal_path(variable_get('site_frontpage', 'node'))
 
 
 #
@@ -167,7 +167,7 @@ def drupal_get_normal_path(path, path_language = ''):
 def arg(index = None, path = None):
   static(arg, 'arguments')
   if (path == None):
-    path = _GET['q'];
+    path = GET['q'];
   if (not isset(arg.arguments, path)):
     arg.arguments[path] = explode('/', path);
   if (index == None):
@@ -215,9 +215,9 @@ def drupal_set_title(title = None):
 #   Boolean value: TRUE if the current page is the front page; FALSE if otherwise.
 #
 def drupal_is_front_page():
-  # As drupal_init_path updates _GET['q'] with the 'site_frontpage' path,
+  # As drupal_init_path updates GET['q'] with the 'site_frontpage' path,
   # we can check it against the 'site_frontpage' variable.
-  return (_GET['q'] == drupal_get_normal_path(variable_get('site_frontpage', 'node')));
+  return (GET['q'] == drupal_get_normal_path(variable_get('site_frontpage', 'node')));
 
 
 #

@@ -29,6 +29,8 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+
+
 active_db = None
 
 
@@ -155,7 +157,7 @@ def db_set_active(name = 'default'):
     else:
       connect_url = db_url;
     db_type = substr(connect_url, 0, strpos(connect_url, '://'));
-    handler = "./includes/database_%(db_type)s.py" % {'db_type' : db_type};
+    handler = "database_%(db_type)s.py" % {'db_type' : db_type};
     if (is_file(handler)):
       include_once(handler);
     else:
@@ -163,8 +165,8 @@ def db_set_active(name = 'default'):
     db_set_active.db_conns[name] = db_connect(connect_url);
     # We need to pass around the simpletest database prefix in the request
     # and we put that in the user_agent header.
-    if (preg_match("/^simpletest\d+$/", _SERVER['HTTP_USER_AGENT'])):
-      db_prefix = _SERVER['HTTP_USER_AGENT'];
+    if (preg_match("/^simpletest\d+$/", SERVER['HTTP_USER_AGENT'])):
+      db_prefix = SERVER['HTTP_USER_AGENT'];
   previous_name = db_set_active.active_name;
   # Set the active connection.
   static_dbsetactive_activename = name;

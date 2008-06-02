@@ -302,7 +302,7 @@ def menu_set_item(path, router_item):
 def menu_get_item(path = None, router_item = None):
   static(menu_get_item, 'router_items')
   if (not isset(path)):
-    path = _GET['q']
+    path = GET['q']
   if (router_item != None):
     menu_get_item.router_items[path] = router_item
   if (not isset(menu_get_item.router_items, path)):
@@ -1410,7 +1410,7 @@ def menu_get_active_menu_name():
 # menu_execute_active_handler() to generate your page output.
 #
 def menu_set_active_item(path):
-  _GET['q'] = path
+  GET['q'] = path
 
 
 
@@ -2242,12 +2242,12 @@ def _menu_site_is_offline():
       # Ensure that the off-line message is displayed only once [allowing for
       # page redirects], and specifically suppress its display on the site
       # maintenance page.
-      if (drupal_get_normal_path(_GET['q']) != 'admin/settings/site-maintenance'):
+      if (drupal_get_normal_path(GET['q']) != 'admin/settings/site-maintenance'):
         drupal_set_message(t('Operating in off-line mode.'), 'status', False)
     else:
       # Anonymous users get a False at the login prompt, True otherwise.
       if (user_is_anonymous()):
-        return _GET['q'] != 'user' and _GET['q'] != 'user/login'
+        return GET['q'] != 'user' and GET['q'] != 'user/login'
       # Logged in users are unprivileged here, so they are logged out.
       require_once( drupal_get_path('module', 'user') +  '/user.pages.inc' )
       user_logout()
