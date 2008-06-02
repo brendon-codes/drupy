@@ -156,16 +156,16 @@ def drupal_convert_to_utf8(data, encoding):
 # @return
 #   The truncated string.
 #
-def drupal_truncate_bytes(_string, _len):
-  if (strlen(_string) <= _len):
-    return _string;
-  if ((ord(_string[_len]) < 0x80) or (ord(_string[_len]) >= 0xC0)):
-    return substr(_string, 0, _len);
+def drupal_truncate_bytes(string_, len_):
+  if (strlen(string_) <= len_):
+    return string_;
+  if ((ord(string_[len_]) < 0x80) or (ord(string_[len_]) >= 0xC0)):
+    return substr(string_, 0, len_);
   while True:
     len -= 1;
-    if (not (_len >= 0 and ord(_string[_len]) >= 0x80 and ord(_string[_len]) < 0xC0) ):
+    if (not (len_ >= 0 and ord(string_[len_]) >= 0x80 and ord(string_[len_]) < 0xC0) ):
       break;
-  return substr(_string, 0, _len);
+  return substr(string_, 0, len_);
 
 
 #
@@ -182,23 +182,23 @@ def drupal_truncate_bytes(_string, _len):
 # @return
 #   The truncated string.
 #
-def truncate_utf8(_string, _len, wordsafe = False, dots = False):
-  if (drupal_strlen(_string) <= _len):
-    return _string;
+def truncate_utf8(string_, len_, wordsafe = False, dots = False):
+  if (drupal_strlen(string_) <= len_):
+    return string_;
   if (dots):
-    _len -= 4;
+    len_ -= 4;
   if (wordsafe):
-    _string = drupal_substr(_string, 0, _len + 1); # leave one more character
-    last_space = strrpos(_string, ' ');
+    string_ = drupal_substr(string_, 0, len_ + 1); # leave one more character
+    last_space = strrpos(string_, ' ');
     if (last_space != False and last_space > 0): # space exists AND is not on position 0
-      _string = substr(_string, 0, last_space);
+      string_ = substr(string_, 0, last_space);
     else:
-      _string = drupal_substr(_string, 0, _len);
+      string_ = drupal_substr(string_, 0, len_);
   else:
-    _string = drupal_substr(_string, 0, _len);
+    string_ = drupal_substr(string_, 0, len_);
   if (dots):
-    _string += ' ...';
-  return _string;
+    string_ += ' ...';
+  return string_;
 
 
 #
@@ -216,19 +216,19 @@ def truncate_utf8(_string, _len, wordsafe = False, dots = False):
 # - Using \n as the chunk separator may cause problems on some systems and may
 #   have to be changed to \r\n or \r.
 #
-def mime_header_encode(_string):
-  if (preg_match('/[^\x20-\x7E]/', _string)):
+def mime_header_encode(string_):
+  if (preg_match('/[^\x20-\x7E]/', string_)):
     chunk_size = 47; # floor((75 - strlen("=?UTF-8?B??=")) * 0.75);
-    _len = strlen(_string);
+    len_ = strlen(string_);
     output = '';
-    while (_len > 0):
-      chunk = drupal_truncate_bytes(_string, chunk_size);
+    while (len_ > 0):
+      chunk = drupal_truncate_bytes(string_, chunk_size);
       output += ' =?UTF-8?B?'+ base64_encode(chunk) +"?=\n";
       c = strlen(chunk);
-      _string = substr(_string, c);
-      _len -= c;
+      string_ = substr(string_, c);
+      len_ -= c;
     return trim(output);
-  return _string;
+  return string_;
 
 
 #
@@ -386,14 +386,14 @@ def drupal_substr(text, start, length = None):
   if (multibyte == UNICODE_MULTIBYTE):
     return (mb_substr(text, start) if (length == None) else mb_substr(text, start, length));
   else:
-    _strlen = strlen(text);
+    strlen_ = strlen(text);
     # Find the starting byte offset
     bytes = 0;
     if (start > 0):
       # Count all the continuation bytes from the start until we have found
       # start characters
       bytes = -1; chars = -1;
-      while (bytes < _strlen and chars < start):
+      while (bytes < strlen_ and chars < start):
         bytes += 1;
         c = ord(text[bytes]);
         if (c < 0x80 or c >= 0xC0):
@@ -402,7 +402,7 @@ def drupal_substr(text, start, length = None):
       # Count all the continuation bytes from the end until we have found
       # abs(start) characters
       start = abs(start);
-      bytes = _strlen; chars = 0;
+      bytes = strlen_; chars = 0;
       while (bytes > 0 and chars < start):
         bytes -= 1;
         c = ord(text[bytes]);
@@ -411,13 +411,13 @@ def drupal_substr(text, start, length = None):
     istart = bytes;
     # Find the ending byte offset
     if (length == None):
-      bytes = _strlen - 1;
+      bytes = strlen_ - 1;
     elif (length > 0):
       # Count all the continuation bytes from the starting index until we have
       # found length + 1 characters+ Then backtrack one byte.
       bytes = istart;
       chars = 0;
-      while (bytes < _strlen and chars < length):
+      while (bytes < strlen_ and chars < length):
         bytes += 1;
         c = ord(text[bytes]);
         if (c < 0x80 or c >= 0xC0):
@@ -427,7 +427,7 @@ def drupal_substr(text, start, length = None):
       # Count all the continuation bytes from the end until we have found
       # abs(length) characters
       length = abs(length);
-      bytes = _strlen - 1;
+      bytes = strlen_ - 1;
       chars = 0;
       while (bytes >= 0 and chars < length):
         c = ord(text[bytes]);

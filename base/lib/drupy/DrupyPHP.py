@@ -66,7 +66,29 @@ ENT_QUOTES = 1
 E_USER_WARNING = 512
 E_ALL = 6143
 
-
+#
+# THIS FUNCTION SHOULD BE DEPRECATED EVENTUALLY
+# Sets globals variable
+# @param Str name
+# @param Number,Str val
+# @return Bool
+#
+def define(name, val = None):
+  v = {'name':name}
+  if \
+      isinstance(val, int) or \
+      isinstance(val, float) or \
+      isinstance(val, bool) or \
+      val == None:
+    v['val'] = val
+  elif isinstance(val, str):
+    v['val'] = "'%s'" % val
+  else:
+    return false
+  out = ("%(name)s = %(val)s") % v
+  exec(out, globals())
+  return True
+    
 
 #
 # Base 64 encode
@@ -675,7 +697,7 @@ def preg_quote(val, delim = None):
 def preg_match(pat, subject, match = None):
   if match != None:
     DrupyHelper.Reference.check(match)
-  reg = DrupyHelper.preg_setup(pat)
+  reg = __preg_setup(pat)
   searcher = reg.search(subject)
   if searcher == None:
     if match != None:
@@ -700,7 +722,7 @@ def preg_match(pat, subject, match = None):
 def preg_match_all(pat, subject, matches = None):
   if matches != None:
     DrupyHelper.Reference.check(matches)
-  reg = DrupyHelper.preg_setup(pat)
+  reg = __preg_setup(pat)
   g = list( reg.finditer(subject) )
   if len(g) > 0:
     out = range(len(g[0].groups()))
@@ -761,9 +783,9 @@ def str_replace(pat, rep, subject):
         repStr = rep
       else:
         repStr = rep[i]
-      out = DrupyHelper.str_replace_str(pat[i], repStr, out)
+      out = __str_replace_str(pat[i], repStr, out)
   else:
-    out = DrupyHelper.str_replace_str(pat, rep, subject)
+    out = __str_replace_str(pat, rep, subject)
   return out
   
 
@@ -787,9 +809,9 @@ def preg_replace(pat, rep, subject):
         repStr = rep
       else:
         repStr = rep[i]
-      out = DrupyHelper.preg_replace_str(pat[i], repStr, out)
+      out = __preg_replace_str(pat[i], repStr, out)
   else:
-    out = DrupyHelper.preg_replace_str(pat, rep, subject)
+    out = __preg_replace_str(pat, rep, subject)
   return out
 
 
@@ -961,7 +983,7 @@ def addslashes(val):
 # @param Str val
 # @return Str
 #
-def md5_(val):
+def md5(val):
   return hashlib.md5(val).hexdigest()
 
 
@@ -997,6 +1019,147 @@ def array_pop(item):
 class stdClass:
   def __init__(self): pass
 
+
+#
+# Class to handle super globals
+#
+class __SuperGlobals:
+  
+  #
+  # _SERVER vars
+  # If this is not being run from a webserver, we will simulate
+  # the web server vars for CLI testing.
+  # @return Dict
+  #
+  @staticmethod
+  def getSERVER():
+    env = dict(os.environ)
+    if not env.has_key('DOCUMENT_ROOT'):
+      out = {
+        'WEB' : False,
+        'DOCUMENT_ROOT': env['PWD'],
+        'GATEWAY_INTERFACE': 'CGI/1.1',
+        'HTTP_ACCEPT': 'text/xml,application/xml,application/xhtml+xml,' + \
+          'text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
+        'HTTP_ACCEPT_CHARSET': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+        'HTTP_ACCEPT_ENCODING': 'gzip,deflate',
+        'HTTP_ACCEPT_LANGUAGE': 'en-us,en;q=0.5',
+        'HTTP_CONNECTION': 'keep-alive',
+        'HTTP_HOST': 'localhost',
+        'HTTP_KEEP_ALIVE': '300',
+        'HTTP_USER_AGENT': 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X; ' + \
+          'en-US; rv:1.8.1.12) Gecko/20080201 Firefox/2.0.0.12',
+        'QUERY_STRING': '',
+        'REMOTE_ADDR': '127.0.0.1',
+        'REMOTE_PORT': '49999',
+        'REQUEST_METHOD': 'GET',
+        'REQUEST_URI': '/drupy.py',
+        'SCRIPT_FILENAME': env['PWD'] + '/drupy.py',
+        'SCRIPT_NAME': '/drupy.py',
+        'SERVER_ADDR': '127.0.0.1',
+        'SERVER_ADMIN': 'root@localhost',
+        'SERVER_NAME': 'localhost',
+        'SERVER_PORT': '80',
+        'SERVER_PROTOCOL': 'HTTP/1.1',
+        'SERVER_SIGNATURE': '',
+        'SERVER_SOFTWARE': 'Apache/2.2.8 (Unix) PHP/5.2.5'
+      }
+      return array_merge(env, out)
+    else:
+      env['WEB'] = True
+      return env
+  
+  #
+  # _GET vars
+  # @return Dict
+  #
+  @staticmethod
+  def getGET():
+    return cgi.parse()
+  
+  #
+  # _POST vars
+  # @return Dict
+  #
+  @staticmethod
+  def getPOST():
+    a = {}
+    f = cgi.FieldStorage()
+    for i in f:
+      if isinstance(f[i], list):
+        a[i] = []
+        for j in f[i]:
+          a[i].append(j.value)
+      else:
+        a[i] = f[i].value
+    return a
+
+  #
+  # _REQUEST vars
+  # @return Dict
+  #
+  @staticmethod
+  def getREQUEST(get, post):
+    return array_merge(get, post)
+
+
+
+#
+# prepares pattern for python regex
+# @param Str pat
+# @return _sre.SRE_Pattern
+#    Regular Expression object
+#
+def __preg_setup(pat):
+  delim = pat[0]
+  flg = 0
+  pat = pat.lstrip(delim)
+  i = len(pat) - 1
+  while True:
+    if i < 1:
+      break
+    else:
+      if pat[i] == delim:
+        pat = pat[0:len(pat)-1]
+        break
+      else:
+        flg = flg | (eval('re.' + pat[i].upper(), globals()))
+        pat = pat[0:len(pat)-1]
+        i = i - 1
+  return re.compile(pat, flg)
+
+
+#
+# str replace real
+# @param Str pat
+# @param Str rep
+# @param Str subject
+# @return Str
+#
+def __str_replace_str(pat, rep, subject):
+  return subject.replace(pat, rep)
+
+#
+# Real preg replace
+# @param Str pat
+# @param Str replace
+# @param Str subject
+# @return Str
+#
+def __preg_replace_str(pat, rep, subject):
+  reg = __preg_setup(pat)
+  # function call
+  if callable(rep):
+    def __callback(match):
+      match_list = list(match.groups())
+      match_list.insert(0, subject)
+      match_list = tuple(match_list)
+      return rep(match_list)
+    return reg.sub(__callback, subject)
+  # string
+  else:
+    return reg.sub(rep, subject)
+
    
 #
 # Set Aliases
@@ -1004,7 +1167,6 @@ class stdClass:
 gzencode = gzdeflate
 gzdecode = gzinflate
 sizeof = count
-set_global = define
 require_once = include
 require = include
 include_once = include
@@ -1016,9 +1178,9 @@ is_writeable = is_writable
 #
 # Superglobals
 #
-_SERVER = DrupyHelper.SuperGlobals.getSERVER()
-_GET = DrupyHelper.SuperGlobals.getGET()
-_POST = DrupyHelper.SuperGlobals.getPOST()
-_REQUEST = DrupyHelper.SuperGlobals.getREQUEST(_GET, _POST)
+_SERVER = __SuperGlobals.getSERVER()
+_GET = __SuperGlobals.getGET()
+_POST = __SuperGlobals.getPOST()
+_REQUEST = __SuperGlobals.getREQUEST(_GET, _POST)
 
 

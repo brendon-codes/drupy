@@ -40,13 +40,13 @@
 # Set globals
 #
 theme_path = None
-_theme = None
+theme_ = None
 
 
 def _drupal_maintenance_theme():
-  global _theme, theme_key
+  global theme_, theme_key
   # If theme is already set, assume the others are set too, and do nothing.
-  if (_theme != None):
+  if (theme_ != None):
     return
   require_once( './includes/path.py' )
   require_once( './includes/theme.py' )
@@ -58,22 +58,22 @@ def _drupal_maintenance_theme():
   unicode_check()
   # Install and update pages are treated differently to prevent theming overrides.
   if (defined('MAINTENANCE_MODE') and (MAINTENANCE_MODE == 'install' or MAINTENANCE_MODE == 'update')):
-    _theme = 'minnelli'
+    theme_ = 'minnelli'
   else:
     # Load module basics (needed for hook invokes).
-    _module_list = { 'system' : {}, 'filter' : {} }
-    _module_list['system']['filename'] = 'modules/system/system.py'
-    _module_list['filter']['filename'] = 'modules/filter/filter.py'
-    module_list(True, False, False, _module_list)
+    module_list_ = { 'system' : {}, 'filter' : {} }
+    module_list_['system']['filename'] = 'modules/system/system.py'
+    module_list_['filter']['filename'] = 'modules/filter/filter.py'
+    module_list(True, False, False, module_list_)
     drupal_load('module', 'system')
     drupal_load('module', 'filter')
-    _theme = variable_get('maintenance_theme', 'minnelli')
+    theme_ = variable_get('maintenance_theme', 'minnelli')
   themes = list_themes()
   # Store the identifier for retrieving theme settings with.
-  theme_key = _theme
+  theme_key = theme_
   # Find all our ancestor themes and put them in an array.
   base_theme = array()
-  ancestor = _theme
+  ancestor = theme_
   while (ancestor and isset(themes[ancestor], base_theme)):
     new_base_theme = themes[themes[ancestor].base_theme]
     base_theme.append(new_base_theme)
@@ -99,16 +99,16 @@ def _theme_load_offline_registry(this_theme, base_theme = None, theme_engine = N
 #
 # @ingroup themeable
 #
-def theme_task_list(_items, active = None):
+def theme_task_list(items_, active = None):
   done = ((active == None) or (isset(items, active)))
   output = '<ol class="task-list">'
-  for k,item in _items.items():
+  for k,item in items_.items():
     if (active == k):
-      _class = 'active'
+      class_ = 'active'
       done = False
     else:
-      _class = ('done' if done else '')
-    output += '<li class="' + _class + '">' + item + '</li>'
+      class_ = ('done' if done else '')
+    output += '<li class="' + class_ + '">' + item + '</li>'
   output += '</ol>'
   return output
 
@@ -208,13 +208,13 @@ def theme_update_page(content, show_messages = True):
 #
 def template_preprocess_maintenance_page(variables):
   DrupyHelper.Reference.check(variables)
-  global _theme
+  global theme_
   # Add favicon
   if (theme_get_setting('toggle_favicon')):
     drupal_set_html_head('<link rel="shortcut icon" href="' + check_url(theme_get_setting('favicon')) + '" type="image/x-icon" />');
   # Retrieve the theme data to list all available regions.
   theme_data = _system_theme_data()
-  regions = theme_data[_theme].info['regions']
+  regions = theme_data[theme_].info['regions']
   # Get all region content set with drupal_set_content().
   for region in array_keys(regions):
     # Assign region to a region variable.

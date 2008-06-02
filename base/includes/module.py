@@ -33,8 +33,8 @@
 # Load all the modules that have been enabled in the system table.
 #
 def module_load_all():
-  for _module in module_list(True, False):
-    drupal_load('module', _module)
+  for module_ in module_list(True, False):
+    drupal_load('module', module_)
 
 
 #
@@ -66,30 +66,30 @@ def module_iterate(function, argument = ''):
 #   modules.
 #
 def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = None):
-  static(module_list, '_list')
+  static(module_list, 'list_')
   static(module_list, 'sorted_list')
   if (refresh or fixed_list):
     module_list.sorted_list = None
-    module_list._list = []
+    module_list.list_ = []
     if (fixed_list):
       for name,module in fixed_list.items():
         drupal_get_filename('module', name, module['filename'])
-        module_list._list[name] = name
+        module_list.list_[name] = name
     else:
       if (bootstrap):
         result = db_query("SELECT name, filename FROM {system} WHERE type = 'module' AND status = 1 AND bootstrap = 1 ORDER BY weight ASC, filename ASC")
       else:
         result = db_query("SELECT name, filename FROM {system} WHERE type = 'module' AND status = 1 ORDER BY weight ASC, filename ASC")
       while True:
-        _module = db_fetch_object(result)
-        if (_module == None or _module == False):
+        module_ = db_fetch_object(result)
+        if (module_ == None or module_ == False):
           break
-        if (file_exists(_module.filename)):
-          drupal_get_filename('module', _module.name, _module.filename)
-          module_list._list[_module.name] = _module.name
+        if (file_exists(module_.filename)):
+          drupal_get_filename('module', module_.name, module_.filename)
+          module_list.list_[module_.name] = module_.name
   if (sort):
     if (module_list.sorted_list == None):
-      module_list.sorted_list = module_list._list
+      module_list.sorted_list = module_list.list_
       ksort(module_list.sorted_list)
     return module_list.sorted_list
   return module_list.sorted_list
@@ -213,18 +213,18 @@ def _module_build_dependencies(files):
 # @return
 #   True if the module is both installed and enabled.
 #
-def module_exists(_module):
-  _list = module_list()
-  return isset(_list, _module)
+def module_exists(module_):
+  list_ = module_list()
+  return isset(list_, module_)
 
 
 #
 # Load a module's installation hooks.
 #
-def module_load_install(_module):
+def module_load_install(module_):
   # Make sure the installation API is available
   include_once( './includes/install.py' )
-  module_load_include('install', _module)
+  module_load_include('install', module_)
 
 
 
@@ -238,9 +238,9 @@ def module_load_install(_module):
 # @param name
 #   Optionally, specify the file name. If not set, the module's name is used.
 #
-def module_load_include(_type, _module, name = None):
+def module_load_include(type_, module_, name = None):
   if (empty(name)):
-    name = _module
+    name = module_
   file = './' +  drupal_get_path('module', module)  + "/name.type"
   if (is_file(file)):
     require_once( file )
@@ -254,10 +254,10 @@ def module_load_include(_type, _module, name = None):
 # Load an include file for each of the modules that have been enabled in
 # the system table.
 #
-def module_load_all_includes(_type, name = None):
+def module_load_all_includes(type_, name = None):
   modules = module_list()
-  for _module in modules:
-    module_load_include(_type, _module, name)
+  for module_ in modules:
+    module_load_include(type_, module_, name)
 
 
 
@@ -267,27 +267,27 @@ def module_load_all_includes(_type, name = None):
 # @param module_list
 #   An array of module names.
 #
-def module_enable(_module_list):
+def module_enable(module_list_):
   invoke_modules = []
-  for _module in _module_list:
+  for module_ in module_list_:
     existing = db_fetch_object(db_query("SELECT status FROM {system} WHERE type = '%s' AND name = '%s'", 'module', module))
     if (existing.status == 0):
-      module_load_install(_module)
-      db_query("UPDATE {system} SET status = %d WHERE type = '%s' AND name = '%s'", 1, 'module', _module)
-      drupal_load('module', _module)
+      module_load_install(module_)
+      db_query("UPDATE {system} SET status = %d WHERE type = '%s' AND name = '%s'", 1, 'module', module_)
+      drupal_load('module', module_)
       invoke_modules.append( module )
   if (not empty(invoke_modules)):
     # Refresh the module list to include the new enabled module.
     module_list(True, False)
     # Force to regenerate the stored list of hook implementations.
     drupal_rebuild_code_registry()
-  for _module in invoke_modules:
-    module_invoke(_module, 'enable')
+  for module_ in invoke_modules:
+    module_invoke(module_, 'enable')
     # Check if node_access table needs rebuilding.
     # We check for the existence of node_access_needs_rebuild() since
     # at install time, module_enable() could be called while node.module
     # is not enabled yet.
-    if (drupal_function_exists('node_access_needs_rebuild') and not node_access_needs_rebuild() and module_hook(_module, 'node_grants')):
+    if (drupal_function_exists('node_access_needs_rebuild') and not node_access_needs_rebuild() and module_hook(module_, 'node_grants')):
       node_access_needs_rebuild(True)
 
 
@@ -298,16 +298,16 @@ def module_enable(_module_list):
 # @param module_list
 #   An array of module names.
 #
-def module_disable(_module_list):
+def module_disable(module_list_):
   invoke_modules = []
-  for _module in _module_list:
-    if (module_exists(_module)):
+  for module_ in module_list_:
+    if (module_exists(module_)):
       # Check if node_access table needs rebuilding.
-      if (not node_access_needs_rebuild() and module_hook(_module, 'node_grants')):
+      if (not node_access_needs_rebuild() and module_hook(module_, 'node_grants')):
         node_access_needs_rebuild(True)
-      module_load_install(_module)
-      module_invoke(_module, 'disable')
-      db_query("UPDATE {system} SET status = %d WHERE type = '%s' AND name = '%s'", 0, 'module', _module)
+      module_load_install(module_)
+      module_invoke(module_, 'disable')
+      db_query("UPDATE {system} SET status = %d WHERE type = '%s' AND name = '%s'", 0, 'module', module_)
       invoke_modules.append(module)
   if (not empty(invoke_modules)):
     # Refresh the module list to exclude the disabled modules.
@@ -352,8 +352,8 @@ def module_disable(_module_list):
 #   True if the module is both installed and enabled, and the hook is
 #   implemented in that module.
 #
-def module_hook(_module, hook):
-  function = _module + '_' + hook;
+def module_hook(module_, hook):
+  function = module_ + '_' + hook;
   if (defined('MAINTENANCE_MODE')):
     return function_exists(function);
   else:
@@ -387,8 +387,8 @@ def module_implements(hook, sort = False, refresh = False):
     module_implements.implementations = registry_get_hook_implementations_cache()
   if (not isset(module_implements.implementations, hook)):
     module_implements.implementations[hook] = []
-    for _module in module_list():
-      if (module_hook(_module, hook)):
+    for module_ in module_list():
+      if (module_hook(module_, hook)):
         module_implements.implementations[hook].append( module )
   registry_cache_hook_implementations({'hook' : hook, 'modules' : module_implements.implementations[hook]});
   # The explicit cast forces a copy to be made. This is needed because
@@ -414,11 +414,11 @@ def module_implements(hook, sort = False, refresh = False):
 #   The return value of the hook implementation.
 #
 def module_invoke(*args):
-  _module = args[0]
+  module_ = args[0]
   hook = args[1]
   del(args[0], args[1])
-  if (module_hook(_module, hook)):
-    function = _module + '_' + hook
+  if (module_hook(module_, hook)):
+    function = module_ + '_' + hook
     return function( *args )
 
 
@@ -437,21 +437,21 @@ def module_invoke(*args):
 def module_invoke_all(*args):
   hook = args[0]
   del(args[0])
-  _return = []
-  for _module in module_implements(hook):
-    function = _module +  '_'  + hook
+  return_ = []
+  for module_ in module_implements(hook):
+    function = module_ +  '_'  + hook
     result = function( *args)
     if (not empty(result) and is_array(result)):
-      _return = array_merge_recursive(_return, result)
+      return_ = array_merge_recursive(return_, result)
     elif (not empty(result)):
-      _return.append( result )
+      return_.append( result )
     if (drupal_function_exists(function)):
       result = function(*args);
       if (result != None and is_array(result)):
-        _return = array_merge_recursive(_return, result);
+        return_ = array_merge_recursive(return_, result);
       elif (result != None):
-        _return.append( result );
-  return _return
+        return_.append( result );
+  return return_
 
 
 #
