@@ -1,0 +1,11 @@
+LIST BRANCHES:
+git branch
+
+CREATE A NEW BRANCH:
+git checkout -b mynewbranch
+
+OR IF YOU WANNA WORK ON A SPECIFIC VERSION NUMBER (A TAG):
+git checkout -b mynewbranch 6.2
+
+SWITCH BETWEEN BRANCHES
+git checkout mybranch
