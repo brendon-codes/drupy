@@ -34,28 +34,39 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+#
+#
+# THIS FILE IS NOT YET READY TO RUN
+# TO SEE A RUNNING INSTANCE OF DRUPY
+# PLEASE RUN DRUPY.PY AS A CGI OR CLI
+#
+#
 
-execfile('./lib/drupy/DrupyPHP.py', globals());
-execfile('./includes/bootstrap.py', globals());
+
+from lib.drupy.DrupyPHP import *
+from includes import bootstrap as inc_bootstrap
+from includes import menu as inc_menu
+from includes import common as inc_common
+from includes import theme as inc_theme
 
 #
 # We need to catch all exceptions and send them to the
 # default exception handler
 #
-drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
-return_ = menu_execute_active_handler();
+drupal_bootstrap(inc_bootstrap.DRUPAL_BOOTSTRAP_FULL);
+return_ = inc_menu.menu_execute_active_handler();
 # Menu status constants are integers; page content is a string.
 if (is_int(return_)):
-  if (return_ == MENU_NOT_FOUND):
-      drupal_not_found();
-  elif (return_ == MENU_ACCESS_DENIED):
-    drupal_access_denied();
-  elif (return_ == MENU_SITE_OFFLINE):
-    drupal_site_offline();
+  if (return_ == inc_menu.MENU_NOT_FOUND):
+      inc_bootstrap.drupal_not_found();
+  elif (return_ == inc_menu.MENU_ACCESS_DENIED):
+    inc_common.drupal_access_denied();
+  elif (return_ == inc_menu.MENU_SITE_OFFLINE):
+    inc_common.drupal_site_offline();
 else:
   # Print any value (including an empty string) except NULL or undefined:
-  print theme('page', return_);
-drupal_page_footer();
+  print inc_theme.theme('page', return_);
+inc_common.drupal_page_footer();
 
 
 

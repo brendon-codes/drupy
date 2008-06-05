@@ -31,22 +31,22 @@
 #
 import time
 from lib.drupy.DrupyPHP import *
-from includes.bootstrap import *
+from includes import bootstrap as inc_bootstrap
 
 phases = (
-  (DRUPAL_BOOTSTRAP_CONFIGURATION,    'DRUPAL_BOOTSTRAP_CONFIGURATION'),
-  (DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE, 'DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE'),
-  (DRUPAL_BOOTSTRAP_DATABASE,         'DRUPAL_BOOTSTRAP_DATABASE'),
-  (DRUPAL_BOOTSTRAP_ACCESS,           'DRUPAL_BOOTSTRAP_ACCESS'),
-  (DRUPAL_BOOTSTRAP_SESSION,          'DRUPAL_BOOTSTRAP_SESSION'),
-  (DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE,  'DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE'),
-  (DRUPAL_BOOTSTRAP_LANGUAGE,         'DRUPAL_BOOTSTRAP_LANGUAGE'),
-  (DRUPAL_BOOTSTRAP_PATH,             'DRUPAL_BOOTSTRAP_PATH'),
-  (DRUPAL_BOOTSTRAP_FULL,             'DRUPAL_BOOTSTRAP_FULL')
+  (inc_bootstrap.DRUPAL_BOOTSTRAP_CONFIGURATION,    'DRUPAL_BOOTSTRAP_CONFIGURATION'),
+  (inc_bootstrap.DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE, 'DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE'),
+  (inc_bootstrap.DRUPAL_BOOTSTRAP_DATABASE,         'DRUPAL_BOOTSTRAP_DATABASE'),
+  (inc_bootstrap.DRUPAL_BOOTSTRAP_ACCESS,           'DRUPAL_BOOTSTRAP_ACCESS'),
+  (inc_bootstrap.DRUPAL_BOOTSTRAP_SESSION,          'DRUPAL_BOOTSTRAP_SESSION'),
+  (inc_bootstrap.DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE,  'DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE'),
+  (inc_bootstrap.DRUPAL_BOOTSTRAP_LANGUAGE,         'DRUPAL_BOOTSTRAP_LANGUAGE'),
+  (inc_bootstrap.DRUPAL_BOOTSTRAP_PATH,             'DRUPAL_BOOTSTRAP_PATH'),
+  (inc_bootstrap.DRUPAL_BOOTSTRAP_FULL,             'DRUPAL_BOOTSTRAP_FULL')
 );
 
 which_phase = phases[4];
-drupal_bootstrap(which_phase[0]);
+inc_bootstrap.drupal_bootstrap(which_phase[0]);
 out = print_r(globals(), True)
 stamp = time.strftime("%c GMT", time.gmtime()) 
 

@@ -943,8 +943,8 @@ def unserialize(val):
 #
 # Checks for defined var
 #
-def defined(val):
-  return isset(globals(), val)
+def defined(val, scope = globals()):
+  return isset(scope, val)
 
 
 #

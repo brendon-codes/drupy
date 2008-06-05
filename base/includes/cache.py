@@ -29,7 +29,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-from includes.bootstrap import *
+import bootstrap as inc_bootstrap
 
 #
 # Return data from the persistent cache. Data may be stored as either plain text or as serialized data.
@@ -119,7 +119,7 @@ def cache_get(cid, table = 'cache'):
 # @param headers
 #   A string containing HTTP header information for cached pages.
 #
-def cache_set(cid, data, table = 'cache', expire = CACHE_PERMANENT, headers = None):
+def cache_set(cid, data, table = 'cache', expire = inc_bootstrap.CACHE_PERMANENT, headers = None):
   serialized = 0;
   if (is_object(data) or is_array(data)):
     data = serialize(data);
