@@ -30,6 +30,8 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+from lib.drupy import DrupySession
+
 def sess_open(save_path, session_name):
   return True
 
@@ -173,4 +175,10 @@ def session_save_session(status = None):
     session_save_session.save_session = status
   return session_save_session.save_session
 
+
+#
+# Aliases
+#
+session_start = DrupySession.session_start
+session_set_save_handler = DrupySession.session_set_save_handler
 

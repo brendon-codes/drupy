@@ -30,7 +30,7 @@
 #
 
 from lib.drupy.DrupyPHP import *
-from includes.bootstrap import *
+import bootstrap as inc_bootstrap
 
 #
 # Load all the modules that have been enabled in the system table.
@@ -76,7 +76,7 @@ def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = No
     module_list.list_ = []
     if (fixed_list):
       for name,module in fixed_list.items():
-        drupal_get_filename('module', name, module['filename'])
+        inc_bootstrap.drupal_get_filename('module', name, module['filename'])
         module_list.list_[name] = name
     else:
       if (bootstrap):

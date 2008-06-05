@@ -44,6 +44,18 @@ DB_QUERY_REGEXP = '/(%d|%s|%%|%f|%b)/'
 
 
 #
+# Includes
+#
+from lib.drupy.DrupyPHP import *
+from sites.default.settings import *
+from lib.drupy import DrupyHelper
+from lib.drupy.DrupyMySQL import *
+import bootstrap as inc_bootstrap
+import database_mysqli as db
+
+
+
+#
 # @defgroup database Database abstraction layer
 # @{
 # Allow the use of different database servers using the same code base.
@@ -165,7 +177,7 @@ def db_set_active(name = 'default'):
     #  import db file here
     #except ImportError:
     #  _db_error_page("The database type '" + db_type + "' is unsupported. Please use either 'mysql' or 'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
-    db_set_active.db_conns[name] = db_connect(connect_url);
+    db_set_active.db_conns[name] = db.db_connect(connect_url);
     # We need to pass around the simpletest database prefix in the request
     # and we put that in the user_agent header.
     if (preg_match("/^simpletest\d+$/", SERVER['HTTP_USER_AGENT'])):
@@ -190,7 +202,7 @@ def db_set_active(name = 'default'):
 #
 def _db_error_page(error = ''):
   global db_type;
-  drupal_maintenance_theme();
+  inc_bootstrap.drupal_maintenance_theme();
   drupal_set_header('HTTP/1.1 503 Service Unavailable');
   drupal_set_title('Site off-line');
   message = '<p>The site is currently not available due to technical problems. Please try again later. Thank you for your understanding.</p>';
@@ -220,7 +232,7 @@ def _db_query_callback(match, init = False):
   if match[1] == '%d': # We must use type casting to int to convert FALSE/NULL/(TRUE?)
     return int(array_shift(_db_query_callback.args)); # We don't need db_escape_string as numbers are db-safe
   elif match[1] == '%s':
-    return db_escape_string(array_shift(_db_query_callback.args));
+    return db.db_escape_string(array_shift(_db_query_callback.args));
   elif match[1] == '%%':
     return '%';
   elif match[1] == '%f':
@@ -253,11 +265,8 @@ def db_placeholders(arguments, type = 'int'):
 # Helper function
 
 #
-# Includes
+# Aliases
 #
-from lib.drupy.DrupyPHP import *
-from sites.default.settings import *
-from includes.bootstrap import *
-from lib.drupy import DrupyHelper
-from includes.database_mysqli import *
+db_result = db.db_result
+db_query = db.db_query
 

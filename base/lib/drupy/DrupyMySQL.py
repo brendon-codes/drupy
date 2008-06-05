@@ -30,6 +30,7 @@
 #
 
 import MySQLdb
+from lib.drupy import DrupyHelper
 
 MYSQLI_ASSOC = 0
 MYSQLI_CLIENT_FOUND_ROWS = 0
@@ -129,6 +130,7 @@ def mysqli_error(connection):
 # @return ???
 #
 def mysqli_query(connection, query, resultmode = None):
+  #DrupyHelper.output(True, type(connection))
   cursor = MySQLdb.cursors.DictCursor(connection)
   try:
     cursor.execute(query)
