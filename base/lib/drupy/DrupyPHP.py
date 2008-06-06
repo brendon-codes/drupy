@@ -6,6 +6,8 @@
 #  The Drupal project can be found at http://drupal.org
 # @file DrupyHelper.py
 #  A PHP abstraction layer for Python
+#  This file currently is built to working only with CGI.
+#  Eventually it will be constructed to work with WSGI
 # @author Brendon Crawford
 # @copyright 2008 Brendon Crawford
 # @contact message144 at users dot sourceforge dot net
@@ -31,7 +33,9 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-
+#
+# Imports
+#
 import sys
 import StringIO
 import time
@@ -51,13 +55,17 @@ import cgi
 import cgitb; cgitb.enable()
 import urllib
 from PIL import Image
+from beaker import session
 from lib.drupy import DrupyHelper
 
 #
-# Helpers
+# Superglobals
 #
-
-DRUPY_OUTPUT = ""
+SERVER = None
+GET = None
+POST = None
+REQUEST = None
+SESSION = None
 
 #
 # PHP Constants
@@ -65,6 +73,265 @@ DRUPY_OUTPUT = ""
 ENT_QUOTES = 1
 E_USER_WARNING = 512
 E_ALL = 6143
+CRLF = "\r\n"
+
+#
+# Function aliases
+#
+#
+# Set Aliases
+#
+gzencode = None
+gzdecode = None
+sizeof = None
+require_once = None
+require = None
+include_once = None
+substr = None
+preg_replace_callback = None
+is_writeable = None
+header = None
+flush = None
+
+#
+# Initiate superglobals and set output buffering
+#
+def __init():
+  global SERVER, GET, POST, REQUEST, SESSION, OUTPUT
+  global __DRUPY_OUTPUT
+  global header, flush
+  global gzencode, gzdecode, sizeof, require_once, require, include_once, \
+    substr, preg_replace_callback, is_writeable
+  # Set SuperGlobals
+  SERVER = __SuperGlobals.getSERVER()
+  GET = __SuperGlobals.getGET()
+  POST = __SuperGlobals.getPOST()
+  REQUEST = __SuperGlobals.getREQUEST(GET, POST)
+  SESSION = __SuperGlobals.getSESSION()
+  # Set output buffer
+  output = __Output()
+  header = output.header
+  flush = output.flush
+  # Set aliases
+  gzencode = gzdeflate
+  gzdecode = gzinflate
+  sizeof = count
+  require_once = include
+  require = include
+  include_once = include
+  substr = array_slice
+  preg_replace_callback = preg_replace
+  is_writeable = is_writable
+  return
+
+
+#
+# Std class
+#
+class stdClass:
+
+  def __init__(self): pass
+
+# end stdClass
+
+
+#
+# Class to handle super globals
+#
+class __SuperGlobals:
+  
+  #
+  # _SERVER vars
+  # If this is not being run from a webserver, we will simulate
+  # the web server vars for CLI testing.
+  # @return Dict
+  #
+  @staticmethod
+  def getSERVER():
+    env = dict(os.environ)
+    if not env.has_key('DOCUMENT_ROOT'):
+      out = {
+        'WEB' : False,
+        'DOCUMENT_ROOT': env['PWD'],
+        'GATEWAY_INTERFACE': 'CGI/1.1',
+        'HTTP_ACCEPT': 'text/xml,application/xml,application/xhtml+xml,' + \
+          'text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
+        'HTTP_ACCEPT_CHARSET': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+        'HTTP_ACCEPT_ENCODING': 'gzip,deflate',
+        'HTTP_ACCEPT_LANGUAGE': 'en-us,en;q=0.5',
+        'HTTP_CONNECTION': 'keep-alive',
+        'HTTP_HOST': 'localhost',
+        'HTTP_KEEP_ALIVE': '300',
+        'HTTP_USER_AGENT': 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X; ' + \
+          'en-US; rv:1.8.1.12) Gecko/20080201 Firefox/2.0.0.12',
+        'QUERY_STRING': '',
+        'REMOTE_ADDR': '127.0.0.1',
+        'REMOTE_PORT': '49999',
+        'REQUEST_METHOD': 'GET',
+        'REQUEST_URI': '/drupy.py',
+        'SCRIPT_FILENAME': env['PWD'] + '/drupy.py',
+        'SCRIPT_NAME': '/drupy.py',
+        'SERVER_ADDR': '127.0.0.1',
+        'SERVER_ADMIN': 'root@localhost',
+        'SERVER_NAME': 'localhost',
+        'SERVER_PORT': '80',
+        'SERVER_PROTOCOL': 'HTTP/1.1',
+        'SERVER_SIGNATURE': '',
+        'SERVER_SOFTWARE': 'Apache/2.2.8 (Unix) PHP/5.2.5'
+      }
+      return array_merge(env, out)
+    else:
+      env['WEB'] = True
+      return env
+  
+  #
+  # _GET vars
+  # @return Dict
+  #
+  @staticmethod
+  def getGET():
+    return cgi.parse()
+  
+  #
+  # _POST vars
+  # @return Dict
+  #
+  @staticmethod
+  def getPOST():
+    a = {}
+    f = cgi.FieldStorage()
+    for i in f:
+      if isinstance(f[i], list):
+        a[i] = []
+        for j in f[i]:
+          a[i].append(j.value)
+      else:
+        a[i] = f[i].value
+    return a
+
+  #
+  # _REQUEST vars
+  # @return Dict
+  #
+  @staticmethod
+  def getREQUEST(get, post):
+    return array_merge(get, post)
+  
+  #
+  # _SESSION vars
+  # @return Dict
+  #
+  @staticmethod
+  def getSESSION():
+    return None
+
+# end __SuperGlobals
+
+
+
+#
+# Handles drupy output functions
+#
+class __Output:
+  #
+  # init
+  #
+  def __init__(self):
+    self._body = ""
+    self._headers = {}
+    sys.stdout = self
+
+  #
+  # Write body
+  # @param Str data
+  #
+  def write(self, data):
+    self._body += data
+  
+  #
+  # Write headers
+  # @param Str data
+  #
+  def header(self, data):
+    name, value = re.split('\s*:\s*', str(data), 1)
+    self._headers[name.lower()] = value
+
+  #
+  # Get header string
+  # @param Str item 
+  #
+  def _get_header(self, item, remove = True):
+    out = "%s: %s%s" % (item, self._headers[item], CRLF)
+    if remove:
+      self._headers.pop(item)
+    return out
+  
+  #
+  # Set a header
+  # @param Str item
+  # @param Str val
+  # @param Bool check
+  # @return Bool
+  #
+  def _set_header(self, item, val, check = False):
+    if not check or not self._headers.has_key(item):
+      self._headers[item] = val
+      return True
+    return False
+    
+  #
+  # Flush buffer
+  # For now this is only constructed to work with CGI
+  # Eventually this will need to be modified to work with WSGI
+  #
+  def flush(self):
+    sys.stdout = sys.__stdout__
+    if SERVER['WEB']:
+    #if True:
+      self._set_header('content-type', "text/html; Charset=UTF-8", True)
+      sys.stdout.write( self._get_header( 'content-type' ) )
+      for k,v in self._headers.items():
+        sys.stdout.write( self._get_header(k) )
+      sys.stdout.write( CRLF )
+    sys.stdout.write( self._body )
+    
+# end __Output
+
+
+
+#
+# Sets user-level session storage functions
+# @param Func open_
+# @param Func close_
+# @param Func read_
+# @param Func write_
+# @param Func destroy_
+# @param Func gc_
+# @return Bool
+#
+def session_set_save_handler(open_, close_, read_, write_, destroy_, gc_):
+  pass
+
+
+#
+# Initialize session data
+# @return Bool
+#
+def session_start():
+  global SESSION
+  SESSION = session.SessionObject(os.environ, type='file', data_dir='/tmp')._session()
+  header(SESSION.cookie)
+  return True
+
+
+#
+# Get and/or set the current session name
+# @param Str name
+# @return Str
+#
+def session_name(name = "DrupySession"):
+  pass
+
 
 #
 # THIS FUNCTION SHOULD BE DEPRECATED EVENTUALLY
@@ -148,38 +415,6 @@ def uasort(item, func):
 #
 def call_user_func_array(func, args):
   return (eval(func)(*tuple(args)))
-
-
-#
-# Output buffering start
-# @return Int
-#
-#def ob_start():
-#  global drupy_buffer
-#  drupy_buffer.append( StringIO.StringIO() )
-#  outIndex = len(drupy_buffer) - 1
-#  sys.stdout = drupy_buffer[outIndex]
-#  return outIndex
-
-
-#
-# Get output buffering contents
-# @return Str
-#
-#def ob_get_clean():
-#  global drupy_buffer
-#  outLen = len(drupy_buffer)
-#  if outLen < 1:
-#    return None
-#  outIndex = outLen - 1
-#  data = drupy_buffer[outIndex].getValue()  
-#  if outIndex > 0:
-#    sys.stdout = drupy_buffer[outIndex - 1]
-#  else:
-#    sys.stdout = sys.__stdout__
-#  close(drupy_buffer[outIndex])
-#  del drupy_buffer[outIndex]
-#  return data
   
 
 
@@ -1013,96 +1248,6 @@ def array_pop(item):
   return item.pop()
 
 
-#
-# Std class
-#
-class stdClass:
-  def __init__(self): pass
-
-
-#
-# Class to handle super globals
-#
-class __SuperGlobals:
-  
-  #
-  # _SERVER vars
-  # If this is not being run from a webserver, we will simulate
-  # the web server vars for CLI testing.
-  # @return Dict
-  #
-  @staticmethod
-  def getSERVER():
-    env = dict(os.environ)
-    if not env.has_key('DOCUMENT_ROOT'):
-      out = {
-        'WEB' : False,
-        'DOCUMENT_ROOT': env['PWD'],
-        'GATEWAY_INTERFACE': 'CGI/1.1',
-        'HTTP_ACCEPT': 'text/xml,application/xml,application/xhtml+xml,' + \
-          'text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
-        'HTTP_ACCEPT_CHARSET': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-        'HTTP_ACCEPT_ENCODING': 'gzip,deflate',
-        'HTTP_ACCEPT_LANGUAGE': 'en-us,en;q=0.5',
-        'HTTP_CONNECTION': 'keep-alive',
-        'HTTP_HOST': 'localhost',
-        'HTTP_KEEP_ALIVE': '300',
-        'HTTP_USER_AGENT': 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X; ' + \
-          'en-US; rv:1.8.1.12) Gecko/20080201 Firefox/2.0.0.12',
-        'QUERY_STRING': '',
-        'REMOTE_ADDR': '127.0.0.1',
-        'REMOTE_PORT': '49999',
-        'REQUEST_METHOD': 'GET',
-        'REQUEST_URI': '/drupy.py',
-        'SCRIPT_FILENAME': env['PWD'] + '/drupy.py',
-        'SCRIPT_NAME': '/drupy.py',
-        'SERVER_ADDR': '127.0.0.1',
-        'SERVER_ADMIN': 'root@localhost',
-        'SERVER_NAME': 'localhost',
-        'SERVER_PORT': '80',
-        'SERVER_PROTOCOL': 'HTTP/1.1',
-        'SERVER_SIGNATURE': '',
-        'SERVER_SOFTWARE': 'Apache/2.2.8 (Unix) PHP/5.2.5'
-      }
-      return array_merge(env, out)
-    else:
-      env['WEB'] = True
-      return env
-  
-  #
-  # _GET vars
-  # @return Dict
-  #
-  @staticmethod
-  def getGET():
-    return cgi.parse()
-  
-  #
-  # _POST vars
-  # @return Dict
-  #
-  @staticmethod
-  def getPOST():
-    a = {}
-    f = cgi.FieldStorage()
-    for i in f:
-      if isinstance(f[i], list):
-        a[i] = []
-        for j in f[i]:
-          a[i].append(j.value)
-      else:
-        a[i] = f[i].value
-    return a
-
-  #
-  # _REQUEST vars
-  # @return Dict
-  #
-  @staticmethod
-  def getREQUEST(get, post):
-    return array_merge(get, post)
-
-
 
 #
 # prepares pattern for python regex
@@ -1160,27 +1305,9 @@ def __preg_replace_str(pat, rep, subject):
   else:
     return reg.sub(rep, subject)
 
-   
-#
-# Set Aliases
-#
-gzencode = gzdeflate
-gzdecode = gzinflate
-sizeof = count
-require_once = include
-require = include
-include_once = include
-substr = array_slice
-preg_replace_callback = preg_replace
-is_writeable = is_writable
 
 
 #
-# Superglobals
+# Initiate
 #
-SERVER = __SuperGlobals.getSERVER()
-GET = __SuperGlobals.getGET()
-POST = __SuperGlobals.getPOST()
-REQUEST = __SuperGlobals.getREQUEST(GET, POST)
-
-
+__init()

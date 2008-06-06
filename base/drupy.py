@@ -54,7 +54,6 @@ stamp = time.strftime("%c GMT", time.gmtime())
 # Executed from Web
 #
 if SERVER['WEB']:
-  print "Content-Type: text/html; Charset=UTF-8\r\n\r\n";
   print "<?xml version='1.0' encoding='UTF-8'?>"
   print "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' " + \
     "'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>"
@@ -79,16 +78,13 @@ if SERVER['WEB']:
 #
 else:
   print "Drupy Bootstrap Diagnostic Status"
-  print ""
   print "Bootstrap: Completed Phase '%s' (%s)" % (which_phase[1],which_phase[0])
-  print ""
   print "Generated: %s" % stamp
-  print ""
   print "You may now query any Drupal Bootstrap object."
-  print ""
 
-
-
-
+#
+# Flush
+#
+flush()
   
   

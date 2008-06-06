@@ -68,7 +68,9 @@ else:
   print inc_theme.theme('page', return_);
 inc_common.drupal_page_footer();
 
-
-
+#
+# Flush the output
+#
+flush()
 
 
