@@ -253,17 +253,31 @@ class __Output:
   # @param Str data
   #
   def header(self, data):
-    name, value = re.split('\s*:\s*', str(data), 1)
-    self._headers[name.lower()] = value
+    parts = re.split('\s*:\s*', str(data), 1)
+    parts_len = len(parts) 
+    if parts_len > 0:
+      if parts_len == 1:
+        name = 'status'
+        value = parts[0]
+      elif parts_len == 2:
+        name = parts[0].lower()
+        value = parts[1]
+      self._headers[name] = value
 
   #
   # Get header string
   # @param Str item 
   #
   def _get_header(self, item, remove = True):
-    out = "%s: %s%s" % (item, self._headers[item], CRLF)
-    if remove:
-      self._headers.pop(item)
+    if self._headers.has_key(item):
+      if item == 'status':
+        out = "%s%s" % (self._headers[item], CRLF)
+      else:
+        out = "%s: %s%s" % (item, self._headers[item], CRLF)
+      if remove:
+        self._headers.pop(item)
+    else:
+      out = ''
     return out
   
   #
@@ -286,9 +300,11 @@ class __Output:
   #
   def flush(self):
     sys.stdout = sys.__stdout__
-    if SERVER['WEB']:
-    #if True:
+    #if SERVER['WEB']:
+    if True:
+      #self._set_header('status', "HTTP/1.1 200 OK", True)
       self._set_header('content-type', "text/html; Charset=UTF-8", True)
+      #sys.stdout.write( self._get_header( 'status' ) )
       sys.stdout.write( self._get_header( 'content-type' ) )
       for k,v in self._headers.items():
         sys.stdout.write( self._get_header(k) )

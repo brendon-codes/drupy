@@ -464,7 +464,7 @@ def module_invoke_all(*args):
 # Array of modules required by core.
 #
 def drupal_required_modules():
-  return ['block', 'filter', 'node', 'system', 'user']
+  return ('block', 'filter', 'node', 'system', 'user')
 
 
 

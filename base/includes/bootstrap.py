@@ -183,6 +183,9 @@ import cache as inc_cache
 import database as inc_database
 import session as inc_session
 import theme_maintenance as inc_theme_maintenance
+import module as inc_module
+import path as inc_path
+import common as inc_common
 
 
 #
@@ -919,7 +922,6 @@ def _drupal_bootstrap(phase):
     if (drupal_is_denied(ip_address())):
       header('HTTP/1.1 403 Forbidden');
       print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
-      exit();
   elif phase == DRUPAL_BOOTSTRAP_SESSION:
     inc_session.session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
     inc_session.session_start();
@@ -927,7 +929,6 @@ def _drupal_bootstrap(phase):
     # Initialize configuration variables, using values from settings.php if available.
     conf = variable_init( ({} if (conf == None) else conf) );
     # Load module handling.
-    require_once('./includes/module.inc', locals());
     cache_mode = variable_get('cache', CACHE_DISABLED);
     # Get the page from the cache.
     cache =  ('' if (cache_mode == CACHE_DISABLED) else page_get_cache());
@@ -947,11 +948,9 @@ def _drupal_bootstrap(phase):
   elif phase == DRUPAL_BOOTSTRAP_LANGUAGE:
     drupal_init_language();
   elif DRUPAL_BOOTSTRAP_PATH:
-    require_once('./includes/path.inc', locals());
     # Initialize GET['q'] prior to loading modules and invoking hook_init().
     drupal_init_path();
   elif phase == DRUPAL_BOOTSTRAP_FULL:
-    require_once('./includes/common.inc', locals());
     _drupal_bootstrap_full();
 
 

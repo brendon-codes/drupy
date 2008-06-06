@@ -1099,7 +1099,7 @@ def theme_menu_local_task(link, active = False):
 #
 # Generates elements for the arg array in the help hook.
 #
-def drupal_help_arg(arg = array()):
+def drupal_help_arg(arg = []):
   # Note - the number of empty elements should be > MENU_MAX_PARTS.
   return arg + array('', '', '', '', '', '', '', '', '', '', '', '')
 

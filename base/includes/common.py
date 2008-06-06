@@ -53,6 +53,17 @@ SAVED_DELETED = 3;
 #
 import urllib2
 from lib.drupy import DrupyHelper
+import theme as inc_theme
+#import pager as inc_pager
+import menu as inc_menu
+#import tablesort as inc_tablesort
+import file as inc_file
+import unicode as inc_unicode
+#import image as inc_image
+#import form as inc_form
+#import mail as inc_mail
+#import actions as inc_actions
+
 
 #
 # Set content for a specified region.
@@ -2100,16 +2111,6 @@ def _drupal_bootstrap_full():
     return;
   else:
     _drupal_bootstrap_full.called = True;
-  require_once( './includes/theme.inc' );
-  require_once( './includes/pager.inc' );
-  require_once( './includes/menu.inc' );
-  require_once( './includes/tablesort.inc' );
-  require_once( './includes/file.inc' );
-  require_once( './includes/unicode.inc' );
-  require_once( './includes/image.inc' );
-  require_once( './includes/form.inc' );
-  require_once( './includes/mail.inc' );
-  require_once( './includes/actions.inc' );
   # Set the Drupal custom error handler.
   try:
     # Emit the correct charset HTTP header.
