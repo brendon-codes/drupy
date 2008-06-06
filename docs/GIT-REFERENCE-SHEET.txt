@@ -1,11 +1,34 @@
+::::WORKING WITH BRANCHES::::
+
 LIST BRANCHES:
 git branch
 
 CREATE A NEW BRANCH:
 git checkout -b mynewbranch
 
+Comment: this will create a new branch based of the branch that you
+currently use. If you wanna base a branch of another specific branch you
+issue this command:
+
+git checkout mynewbranch masterbranch
+
 OR IF YOU WANNA WORK ON A SPECIFIC VERSION NUMBER (A TAG):
 git checkout -b mynewbranch 6.2
 
-SWITCH BETWEEN BRANCHES
-git checkout mybranch
+..or..
+
+git checkout mynewbranch master 6.2
+
+Comment: They mean almost the same, except that the last one specifies what branch name
+you wanna base your work off. Where as the first one will base off what branch you 
+currently are in - again, issue: 
+git branch
+to list your current active branch
+
+SWITCH BETWEEN BRANCHES:
+git checkout mynewbranch
+..and back to master..
+git checkout master
+
+MERGE MYNEWBRANCH WITH MASTER:
+git merge mynewbranch
