@@ -6,7 +6,8 @@ git branch
 CREATE A NEW BRANCH:
 git checkout -b mynewbranch
 
-Comment: this will create a new branch based of the branch that you
+Comment: 
+this will create a new branch based of the branch that you
 currently use. If you wanna base a branch of another specific branch you
 issue this command:
 

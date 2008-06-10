@@ -2,8 +2,7 @@ cvs -z6 -d:pserver:anonymous:anonymous@cvs.drupal.org:/cvs/drupal checkout drupa
 
 svn co https://drupy.svn.sourceforge.net/svnroot/drupy drupy-svn --username morphir
 
-chmod 755 php2py.php
-php2py.php INPUTFILE.php > outputfile.py
+./php2py.php INPUTFILE.php > outputfile.py
 
 <port & edit, add files to right dirs..>
 

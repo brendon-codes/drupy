@@ -1,4 +1,3 @@
-<?php
 # Id: form.inc,v 1.272 2008/05/06 12:18:45 dries Exp $
 #
 # @defgroup forms Form builder functions
@@ -64,7 +63,7 @@
 #   The rendered form.
 #
 def drupal_get_form(form_id):
-  form_state = array('storage' : None, 'submitted' : False)
+  form_state = {'storage': None, 'submitted': False}
   args = func_get_args()
   cacheable = False
   if (isset(_SESSION['batch_form_state'])):
@@ -72,8 +71,7 @@ def drupal_get_form(form_id):
     # already been processed, so we grab the post-process form_state value
     # and move on to form display. See _batch_finished() function.
     form_state = _SESSION['batch_form_state']
-    unset(_SESSION['batch_form_state'])
-  }
+    del(_SESSION['batch_form_state'])
   else:
     # If the incoming _POST contains a form_build_id, we'll check the
     # cache for a copy of the form in question. If it's there, we don't
@@ -82,8 +80,6 @@ def drupal_get_form(form_id):
     # be passed on to the form processing code.
     if (isset(_POST['form_id']) and _POST['form_id'] == form_id and not empty(_POST['form_build_id'])):
       form = form_get_cache(_POST['form_build_id'], form_state)
-    }
-
     # If the previous bit of code didn't result in a populated form
     # object, we're hitting the form for the first time and we need
     # to build it from scratch.
@@ -102,7 +98,6 @@ def drupal_get_form(form_id):
       original_form = form
       cacheable = True
       unset(form_state['post'])
-    }
     form['#post'] = _POST
     # Now that we know we have a form, we'll process it (validating,
     # submitting, and handling the results returned by its submission
@@ -115,9 +110,6 @@ def drupal_get_form(form_id):
       # set #cache. By not sending the form state, we avoid storing
       # form_state['storage'].
       form_set_cache(form_build_id, original_form, None)
-    }
-  }
-
   # Most simple, single-step forms will be finished by this point --
   # drupal_process_form() usually redirects to another page (or to
   # a 'fresh' copy of the form) once processing is complete. If one
@@ -131,15 +123,14 @@ def drupal_get_form(form_id):
   # workflow is NOT complete. We need to construct a fresh copy of
   # the form, passing in the latest form_state in addition to any
   # other variables passed into drupal_get_form().
-
   if (not empty(form_state['rebuild']) or not empty(form_state['storage'])):
     form = drupal_rebuild_form(form_id, form_state, args)
-  }
-
   # If we haven't redirected to a new location by now, we want to
   # render whatever form array is currently in hand.
   return drupal_render_form(form_id, form)
-}
+
+
+
 #
 # Retrieves a form, caches it and processes it with an empty _POST.
 #
@@ -150,7 +141,7 @@ def drupal_get_form(form_id):
 # callback will need to do the same as what drupal_get_form would do when the
 # button is pressed: get the form from the cache, run drupal_process_form over
 # it and then if it needs rebuild, run drupal_rebuild_form over it. Then send
-# back a part of the returned form.
+# backi	a part of the returned form.
 # form_state['clicked_button']['#array_parents'] will help you to find which
 # part.
 #
@@ -188,7 +179,6 @@ def drupal_rebuild_form(form_id, &form_state, args, form_build_id = None):
   if (not isset(form_build_id)):
     # We need a new build_id for the new version of the form.
     form_build_id = 'form-' +  md5(mt_rand())
-  }
   form['#build_id'] = form_build_id
   drupal_prepare_form(form_id, form, form_state)
   # Now, we cache the form structure so it can be retrieved later for
@@ -202,7 +192,9 @@ def drupal_rebuild_form(form_id, &form_state, args, form_build_id = None):
   form['#post'] = array()
   drupal_process_form(form_id, form, form_state)
   return form
-}
+
+
+
 #
 # Fetch a form from cache.
 #
@@ -211,10 +203,10 @@ def form_get_cache(form_build_id, &form_state):
     form = cached.data
     if (cached = cache_get('storage_' +  form_build_id, 'cache_form')):
       form_state['storage'] = cached.data
-    }
     return form
-  }
-}
+
+
+
 #
 # Store a form in the cache
 #
@@ -224,8 +216,9 @@ def form_set_cache(form_build_id, form, form_state):
   cache_set('form_' +  form_build_id, form, 'cache_form', time() + expire)
   if (not empty(form_state['storage'])):
     cache_set('storage_' +  form_build_id, form_state['storage'], 'cache_form', time() + expire)
-  }
-}
+
+
+
 #
 # Retrieves a form using a form_id, populates it with form_state['values'],
 # processes it, and returns any validation errors encountered. This
@@ -274,7 +267,9 @@ def drupal_execute(form_id, &form_state):
   form['#post'] = form_state['values']
   drupal_prepare_form(form_id, form, form_state)
   drupal_process_form(form_id, form, form_state)
-}
+
+
+
 #
 # Retrieves the structured array that defines a given form.
 #
@@ -306,8 +301,6 @@ def drupal_retrieve_form(form_id, &form_state):
   array_shift(args)
   if (isset(form_state)):
     array_shift(args)
-  }
-
   # We first check to see if there's a function named after the form_id.
   # If there is, we simply pass the arguments on to it to get the form.
   if (not drupal_function_exists(form_id)):
@@ -324,29 +317,27 @@ def drupal_retrieve_form(form_id, &form_state):
     # yet have an entry for the requested form_id.
     if (not isset(forms) or not isset(forms[form_id])):
       forms = module_invoke_all('forms', form_id, args)
-    }
     form_definition = forms[form_id]
     if (isset(form_definition['callback arguments'])):
       args = array_merge(form_definition['callback arguments'], args)
-    }
     if (isset(form_definition['callback'])):
       callback = form_definition['callback']
       drupal_function_exists(callback)
-    }
-  }
-
   array_unshift(args, None)
   args[0] = &form_state
   # If callback was returned by a hook_forms() implementation, call it.
   # Otherwise, call the function named after the form id.
-  form = call_user_func_array(isset(callback) ? callback : form_id, args)
+  form = call_user_func_array(callback if isset(callback) else form_id, args)
   # We store the original function arguments, rather than the final arg
   # value, so that form_alter functions can see what was originally
   # passed to drupal_retrieve_form(). This allows the contents of #parameters
   # to be saved and passed in at a later date to recreate the form.
   form['#parameters'] = saved_args
+
   return form
-}
+
+
+
 #
 # This function is the heart of form API. The form gets built, validated and in
 # appropriate cases, submitted.
@@ -1744,7 +1735,9 @@ def form_expand_ahah(element):
 #
 def theme_item(element):
   return theme('form_element', element, element['#value'] . (not empty(element['#children']) ? element['#children'] : ''))
-}
+
+
+
 #
 # Format a checkbox.
 #
@@ -1760,18 +1753,18 @@ def theme_checkbox(element):
   _form_set_class(element, array('form-checkbox'))
   checkbox = '<input '
   checkbox += 'type="checkbox" '
-  checkbox += 'name="' +  element['#name'] . '" '
-  checkbox += 'id="' +  element['#id'] . '" ' 
-  checkbox += 'value="' +  element['#return_value'] . '" '
+  checkbox += 'name="' +  element['#name'] + '" '
+  checkbox += 'id="' +  element['#id'] + '" '
+  checkbox += 'value="' +  element['#return_value'] + '" '
   checkbox += element['#value'] ? ' checked="checked" ' : ' '
-  checkbox += drupal_attributes(element['#attributes']) . ' />'
+  checkbox += drupal_attributes(element['#attributes']) + ' />'
   if (not is_None(element['#title'])):
-    checkbox = '<label class="option">' +  checkbox  + ' ' . element['#title'] . '</label>'
-  }
-
+    checkbox = '<label class="option">' +  checkbox  + ' ' + element['#title'] + '</label>'
   unset(element['#title'])
-  return theme('form_element', element, checkbox)
-}
+	return theme('form_element', element, checkbox)
+
+
+
 #
 # Format a set of checkboxes.
 #
@@ -1786,16 +1779,14 @@ def theme_checkboxes(element):
   class = 'form-checkboxes'
   if (isset(element['#attributes']['class'])):
     class += ' ' +  element['#attributes']['class']
-  }
   element['#children'] = '<div class="' . class . '">' . (not empty(element['#children']) ? element['#children'] : '') . '</div>'
   if (element['#title'] or element['#description']):
     unset(element['#id'])
     return theme('form_element', element, element['#children'])
-  }
   else:
     return element['#children']
-  }
-}
+
+
 
 def expand_checkboxes(element):
   value = is_array(element['#value']) ? element['#value'] : array()
@@ -1807,11 +1798,10 @@ def expand_checkboxes(element):
     foreach (element['#options'] as key : choice):
       if (not isset(element[key])):
         element[key] = array('#type' : 'checkbox', '#processed' : True, '#title' : choice, '#return_value' : key, '#default_value' : isset(value[key]), '#attributes' : element['#attributes'])
-      }
-    }
-  }
   return element
-}
+
+
+
 #
 # Theme a form submit button.
 #
@@ -1819,7 +1809,9 @@ def expand_checkboxes(element):
 #
 def theme_submit(element):
   return theme('button', element)
-}
+
+
+
 #
 # Theme a form button.
 #
@@ -1835,7 +1827,9 @@ def theme_button(element):
   }
 
   return '<input type="submit" ' +  (empty(element['#name']) ? '' : 'name="' . element['#name'] . '" ') . 'id="' . element['#id'] . '" value="' . check_plain(element['#value']) . '" ' . drupal_attributes(element['#attributes']) . " />\n"
-}
+
+
+
 #
 # Theme a form image button.
 #
