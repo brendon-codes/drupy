@@ -2,20 +2,17 @@
 ## About This Document
 ##
 
-  author Brendon Crawford, Morphir
-  copyright 2008 Brendon Crawford, Morhir
+  author Brendon Crawford and morphir
+  copyright 2008 Brendon Crawford and morphir
   contact message144 at users dot sourceforge dot net,
-    morphir at users dot sourceforge dot net
+  morphir: ombinde at gmail dot com
   created 2008-01-10
   version 0.1
-  THESE ARE THE DRUPY CONVERSION AND CODING STANDARDS.
-  TO RETAIN SVN COMMIT ACCESS, THESE STANDARDS MUST BE FOLLOWED.
-  THIS FILE IS STILL INCOMPLETE AND SHOULD BE CONSIDERED SUBJECT TO CHANGE.
+  contents: THESE ARE THE DRUPY CONVERSION AND CODING STANDARDS.
 
 (1) Newline and carriage return whitespace can only exist between function and class definitions.
 	The following is valid:
 
-		#### BEGIN CODE BLOCK
 		def foo():
        print "hello world"
        return True
@@ -23,11 +20,14 @@
 		def bar():
       print "Baz"
       return False
-		#### END CODE BLOCK
 
-	The following is not valid:
 
-		#### BEGIN CODE BLOCK
+
+	but the following is NOT valid:
+
+
+
+
 		def foo():
 
       print "hello world"
@@ -39,14 +39,15 @@
 		   print "Baz"
 
 		   return False
-		#### END CODE BLOCK
 
+
+Comments: write compact code(!) Python has a nice and clean language construct, so we feel no need for much
+space between code.
 
 
 (2) PHP makes use of "static variables". A static variable is essentially a global variable that can
 	only be accessed from it's parent function. Here is an example of a static variable in PHP.
 
-		//// BEGIN CODE BLOCK
 		function foo_baz() {
 			static $do_bar = 1;
 			$do_bar += 1;
@@ -56,7 +57,7 @@
 		print foo_baz(); //prints "2"
 		print foo_baz(); //prints "3"
 		print foo_baz(); //prints "4"
-		//// END CODE BLOCK
+
 
 	This is the mechanism for dealing with this same scenario within Drupy:
 
@@ -71,22 +72,20 @@
 
 		(b) Place a static declaration at the top of the file.
 
-				#### BEGIN CODE BLOCK
+
 				static('static_foobaz_dobar')
-				#### END CODE BLOCK
+
 
 		(c) Declare variable access within function using the "global" keyword.
 
-				### BEGIN CODE BLOCK;
+
 				def foo_baz():
 					global static_foobaz_dobar
-				#### END CODE BLOCK
 
 		(d) Initialize variable within function. This is where the variables inital value is set.
         Drupy static vars must not be unset/deleted. If needed, you can simply set them to None
 		    instead. Here is an example of the entire working function:
 
-				### BEGIN CODE BLOCK;
 				def foo_baz():
 					global static_foobaz_dobar
 					if static_foobaz_dobar == None:
@@ -97,9 +96,6 @@
 				print foo_baz(); #prints "2"
 				print foo_baz(); #prints "3"
 				print foo_baz(); #prints "4"
-				#### END CODE BLOCK
-
-
 
 
 (4) The following words are not allowed to be used as variable names. If these
@@ -144,15 +140,13 @@
 
 (4) Array
 
-			(4.1)Declarations
+			(4.1)Lists
 
-				example:
-
-				Drupal: $names = array()
-				Drupy: names = []
-
+        Drupal: $names = array()
+        Drupy:  names = []
+				
         Drupal: $foo[] = $bar;
-        Drupy: foo.append( bar )
+        Drupy:  foo.append( bar )
 
         Comments: a PHP array becomes a mutable python dict or a mutable list.
         Eg. $foo[] = $bar # becomes a list
@@ -160,13 +154,14 @@
 
 			(4.2)Dicts
 
-				example:
+        Drupal: $items = array()
+        Drupy: items = {}
 
-				Drupal: $form = array('#id' => 'foo');
+        Drupal: $form = array('#id' => 'foo');
         Drupy: form = {'#id': 'foo'}
 
-				Drupal: $form['#id'] = 1++;
-				Drupy: form.val['#id'] +=1
+        Drupal: $form['#id'] = 1++;
+        Drupy: form.val['#id'] +=1
 
 
 (5) Loops
@@ -252,26 +247,34 @@
 
 
 (9) unset
+
   Drupal: unset(element['#title'])
   Drupy:    del(element['#title'])
 
 (10) Conditional ternary
+
   Drupal: $checkbox = element['#value'] ? ' checked="checked" ' : ' '
   Drupy: checkbox = (' checked="checked" ' if element['#value'] else ' ')
 
   Comments: Always wrap a paranthesis around the ternary.
 
 (11) If statements
- Sometime drupal (php) assign variables values withing the the condition, like this:
+
+ Sometime drupal (php) assign variables values within the the condition, like this:
+ 
  Drupal: if ($data = unserialize($data))
+ 
  In Drupy, we do the assignment outside of the if statement. Like this:
+ 
  Drupy:  data = unserialize(data)
 				 if (data):
- Be very careful about this, as assigning(=) and comparing(==) are very different things, and can get mixed up easily.
+ 
+ Comments: Be very careful about this, as assigning(=) and comparing(==) are very different things, and can get mixed up easily.
 
 (12) Bool
+
  Drupal: $item['access'] = (bool)$callback;
- Drupy: item['access'] = drupy_bool(callback)
+ Drupy: item.val['access'] = drupy_bool(callback)
 
  Comments: Python does have a method that can typecast a var to a bool...bool(myvar)
  But that is only typecasting (temporary conversion). drupy_bool converts the variabel
