@@ -66,7 +66,7 @@ def drupal_get_form(form_id):
   form_state = {'storage': None, 'submitted': False}
   args = func_get_args()
   cacheable = False
-  if (isset(_SESSION['batch_form_state'])):
+  if (isset(_SESSION, 'batch_form_state')):
     # We've been redirected here after a batch processing : the form has
     # already been processed, so we grab the post-process form_state value
     # and move on to form display. See _batch_finished() function.
@@ -78,7 +78,7 @@ def drupal_get_form(form_id):
     # have to rebuild the form to proceed. In addition, if there is stored
     # form_state data from a previous step, we'll retrieve it so it can
     # be passed on to the form processing code.
-    if (isset(_POST['form_id']) and _POST['form_id'] == form_id and not empty(_POST['form_build_id'])):
+    if (isset(_POST, 'form_id') and _POST['form_id'] == form_id and not empty(_POST['form_build_id'])):
       form = form_get_cache(_POST['form_build_id'], form_state)
     # If the previous bit of code didn't result in a populated form
     # object, we're hitting the form for the first time and we need
@@ -87,7 +87,7 @@ def drupal_get_form(form_id):
       form_state['post'] = _POST
       # Use a copy of the function's arguments for manipulation
       args_temp = args
-      args_temp[0] = &form_state
+      args_temp[0] = DrupyHelper.Reference.check(form_state)
       array_unshift(args_temp, form_id)
       form = call_user_func_array('drupal_retrieve_form', args_temp)
       form_build_id = 'form-' +  md5(mt_rand())
@@ -168,18 +168,19 @@ def drupal_get_form(form_id):
 # @return
 #   The newly built form.
 #
-def drupal_rebuild_form(form_id, &form_state, args, form_build_id = None):
-  # Remove the first argument. This is form_id.when called from
+def drupal_rebuild_form(form_id, form_state, args, form_build_id = None):
+  DrupyHelper.Reference.check(form_state)
+	# Remove the first argument. This is form_id.when called from
   # drupal_get_form and the original form_state when called from some AHAH
   # callback. Neither is needed. After that, put in the current state.
-  args[0] = &form_state
+  args[0] = form_state
   # And the form_id.
   array_unshift(args, form_id)
   form = call_user_func_array('drupal_retrieve_form', args)
   if (not isset(form_build_id)):
     # We need a new build_id for the new version of the form.
     form_build_id = 'form-' +  md5(mt_rand())
-  form['#build_id'] = form_build_id
+  form.val['#build_id'] = form_build_id
   drupal_prepare_form(form_id, form, form_state)
   # Now, we cache the form structure so it can be retrieved later for
   # validation. If form_state['storage'] is populated, we'll also cache
@@ -198,10 +199,13 @@ def drupal_rebuild_form(form_id, &form_state, args, form_build_id = None):
 #
 # Fetch a form from cache.
 #
-def form_get_cache(form_build_id, &form_state):
-  if (cached = cache_get('form_' +  form_build_id, 'cache_form')):
-    form = cached.data
-    if (cached = cache_get('storage_' +  form_build_id, 'cache_form')):
+def form_get_cache(form_build_id, form_state):
+  DrupyHelper.Reference.check(form_state)
+  cached = cache_get('form_' +  form_build_id, 'cache_form')
+	if (cached):
+		form = cached.data
+    cached = cache_get('storage_' +  form_build_id, 'cache_form')
+		if (cached):
       form_state['storage'] = cached.data
     return form
 
@@ -333,7 +337,6 @@ def drupal_retrieve_form(form_id, &form_state):
   # passed to drupal_retrieve_form(). This allows the contents of #parameters
   # to be saved and passed in at a later date to recreate the form.
   form['#parameters'] = saved_args
-
   return form
 
 
@@ -375,8 +378,6 @@ def drupal_process_form(form_id, &form, &form_state):
       if (variable_get('cache', CACHE_DISABLED) == CACHE_DISABLED and not empty(form_state['values']['form_build_id'])):
         cache_clear_all('form_' +  form_state['values']['form_build_id'], 'cache_form')
         cache_clear_all('storage_' +  form_state['values']['form_build_id'], 'cache_form')
-      }
-
       # If batches were set in the submit handlers, we process them now,
       # possibly ending execution. We make sure we do not react to the batch
       # that is already being processed (if a batch operation performs a
@@ -392,7 +393,6 @@ def drupal_process_form(form_id, &form, &form_state):
         # For 'regular' forms, we get redirected to the batch processing
         # page. Form redirection will be handled in _batch_finished(),
         # after the batch is processed.
-      }
 
       # If no submit handlers have populated the form_state['storage']
       # bundle, and the form_state['rebuild'] flag has not been set,
@@ -403,10 +403,9 @@ def drupal_process_form(form_id, &form, &form_state):
       # the resulting form_state bundle itself.
       if (not form['#programmed'] and empty(form_state['rebuild']) and empty(form_state['storage'])):
         drupal_redirect_form(form, form_state['redirect'])
-      }
-    }
-  }
-}
+
+
+
 #
 # Prepares a structured form array by adding required elements,
 # executing any hook_form_alter functions, and optionally inserting
@@ -432,8 +431,6 @@ def drupal_prepare_form(form_id, &form, &form_state):
       '#id' : form['#build_id'],
       '#name' : 'form_build_id',
     )
-  }
-
   # Add a token, based on either #token or form_id, to any form displayed to
   # authenticated users. This ensures that any submitted form was actually
   # requested previously by the user and protects against cross site request
@@ -441,45 +438,31 @@ def drupal_prepare_form(form_id, &form, &form_state):
   if (isset(form['#token'])):
     if (form['#token'] == False or user.uid == 0 or form['#programmed']):
       unset(form['#token'])
-    }
     else:
-      form['form_token'] = array('#type' : 'token', '#default_value' : drupal_get_token(form['#token']))
-    }
-  }
+      form['form_token'] = array('#type': 'token', '#default_value': drupal_get_token(form['#token']))
   elif (isset(user.uid) and user.uid and not form['#programmed']):
     form['#token'] = form_id
-    form['form_token'] = array(
-      '#id' : form_clean_id('edit-' . form_id . '-form-token'),
-      '#type' : 'token',
-      '#default_value' : drupal_get_token(form['#token']),
-    )
-  }
-
+    form['form_token'] = {
+      '#id': form_clean_id('edit-' + form_id + '-form-token'),
+      '#type': 'token',
+      '#default_value': drupal_get_token(form['#token']),
+    }
   if (isset(form_id)):
-    form['form_id'] = array(
-      '#type' : 'hidden',
-      '#value' : form_id,
-      '#id' : form_clean_id("edit-form_id"),
-    )
-  }
+    form['form_id'] = {
+      '#type': 'hidden',
+      '#value': form_id,
+      '#id': form_clean_id("edit-form_id"),
+    }
   if (not isset(form['#id'])):
     form['#id'] = form_clean_id(form_id)
-  }
-
   form += _element_info('form')
   if (not isset(form['#validate'])):
-    if (drupal_function_exists(form_id +  '_validate')):
-      form['#validate'] = array(form_id . '_validate')
-    }
-  }
-
+    if (drupal_function_exists(form_id + '_validate')):
+      form['#validate'] = array(form_id + '_validate')
   if (not isset(form['#submit'])):
-    if (drupal_function_exists(form_id +  '_submit')):
+    if (drupal_function_exists(form_id + '_submit')):
       # We set submit here so that it can be altered.
-      form['#submit'] = array(form_id . '_submit')
-    }
-  }
-
+      form['#submit'] = array(form_id + '_submit')
   # Normally, we would call drupal_alter(form_id, form, form_state).
   # However, drupal_alter() normally supports just one byref parameter. Using
   # the __drupal_alter_by_ref key, we can store any additional parameters
@@ -493,7 +476,9 @@ def drupal_prepare_form(form_id, &form, &form_state):
   # to repopulate it to ensure both calls get the data.
   data['__drupal_alter_by_ref'] = array(&form_state)
   drupal_alter('form', data, form_id)
-}
+
+
+
 #
 # Validates user-submitted form data from the form_state using
 # the validate functions defined in a structured form array.
@@ -514,24 +499,19 @@ def drupal_prepare_form(form_id, &form, &form_state):
 #   web service requests, or other expensive requests that should
 #   not be repeated in the submission step.
 #
-def drupal_validate_form(form_id, form, &form_state):
+def drupal_validate_form(form_id, form, form_state):
+	Drupy.Helper.Reference.check(form_state)
   static validated_forms = array()
   if (isset(validated_forms[form_id])):
     return
-  }
-
   # If the session token was set by drupal_prepare_form(), ensure that it
   # matches the current user's session.
   if (isset(form['#token'])):
     if (not drupal_valid_token(form_state['values']['form_token'], form['#token'])):
       # Setting this error will cause the form to fail validation.
       form_set_error('form_token', t('Validation error, please try again + If this error persists, please contact the site administrator.'))
-    }
-  }
-
   _form_validate(form, form_state, form_id)
   validated_forms[form_id] = True
-}
 #
 # Renders a structured form array into themed HTML.
 #
