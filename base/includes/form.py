@@ -200,14 +200,14 @@ def drupal_rebuild_form(form_id, form_state, args, form_build_id = None):
 # Fetch a form from cache.
 #
 def form_get_cache(form_build_id, form_state):
-  DrupyHelper.Reference.check(form_state)
-  cached = cache_get('form_' +  form_build_id, 'cache_form')
+	DrupyHelper.Reference.check(form_state)
+	cached = cache_get('form_' +  form_build_id, 'cache_form')
 	if (cached):
 		form = cached.data
-    cached = cache_get('storage_' +  form_build_id, 'cache_form')
+		cached = cache_get('storage_' +  form_build_id, 'cache_form')
 		if (cached):
-      form_state['storage'] = cached.data
-    return form
+			form_state['storage'] = cached.data
+	return form #!WARNING I had to fix indent. Originally it belongs to the most inner if statement.
 
 
 
@@ -265,8 +265,9 @@ def form_set_cache(form_build_id, form, form_state):
 # form_state['values']['op'] = t('Save')
 # drupal_execute('story_node_form', form_state, (object)node)
 #
-def drupal_execute(form_id, &form_state):
-  args = func_get_args()
+def drupal_execute(form_id, form_state):
+  DrupyHelper.Reference.check(form_state)
+	args = func_get_args()
   form = call_user_func_array('drupal_retrieve_form', args)
   form['#post'] = form_state['values']
   drupal_prepare_form(form_id, form, form_state)
