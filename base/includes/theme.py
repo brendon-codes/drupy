@@ -1,4 +1,4 @@
-# $Id: theme.inc,v 1.423 2008/05/23 08:28:30 dries Exp $
+# $Id: theme.inc,v 1.426 2008/06/06 01:50:20 dries Exp $
 
 
 #
@@ -45,8 +45,20 @@ from lib.drupy import DrupyHelper
 # Markers used by theme_mark() and node_mark() to designate content.
 # @see theme_mark(), node_mark()
 #
+
+#
+# Mark content as read.
+#
 MARK_READ = 0
+
+#
+# Mark content as being new.
+#
 MARK_NEW = 1
+
+#
+# Mark content as being updated.
+#
 MARK_UPDATED = 2
 
 
@@ -830,7 +842,7 @@ def theme_render_template(file, variables):
 # arguments the function or template will need, and provides
 # defaults for the template in case they are not filled in+ If the default
 # implementation is a function, by convention it is named theme_HOOK()+ *
-# Each module should provide a default implementation for themes that
+# Each module should provide a default implementation for theme_hooks that
 # it registers+ This implementation may be either a function or a template;
 # if it is a function it must be specified via hook_theme()+ By convention,
 # default implementations of theme hooks are named theme_HOOK+ Default
@@ -1203,7 +1215,7 @@ def theme_mark(type = MARK_NEW):
 #   The type of list to return (e.g+ "ul", "ol")
 # @return
 #   A string containing the list output+ */
-def theme_item_list(items = [], title = None, type = 'ul', attributes = None):
+def theme_item_list(items = [], title = None, type = 'ul', attributes = []):
   output = '<div class="item-list">';
   if (title != None):
     output += '<h3>'+ title +'</h3>';

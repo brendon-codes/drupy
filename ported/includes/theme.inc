@@ -1,5 +1,5 @@
 <?php
-// $Id: theme.inc,v 1.423 2008/05/23 08:28:30 dries Exp $
+// $Id: theme.inc,v 1.426 2008/06/06 01:50:20 dries Exp $
 
 /**
  * @file
@@ -18,9 +18,22 @@
  * Markers used by theme_mark() and node_mark() to designate content.
  * @see theme_mark(), node_mark()
  */
-define('MARK_READ',    0);
-define('MARK_NEW',     1);
+
+/**
+ * Mark content as read.
+ */
+define('MARK_READ', 0);
+
+/**
+ * Mark content as being new.
+ */
+define('MARK_NEW', 1);
+
+/**
+ * Mark content as being updated.
+ */
 define('MARK_UPDATED', 2);
+
 /**
  * @} End of "Content markers".
  */
@@ -1001,7 +1014,7 @@ function theme_render_template($file, $variables) {
  * defaults for the template in case they are not filled in. If the default
  * implementation is a function, by convention it is named theme_HOOK().
  *
- * Each module should provide a default implementation for themes that
+ * Each module should provide a default implementation for theme_hooks that
  * it registers. This implementation may be either a function or a template;
  * if it is a function it must be specified via hook_theme(). By convention,
  * default implementations of theme hooks are named theme_HOOK. Default
@@ -1467,7 +1480,7 @@ function theme_mark($type = MARK_NEW) {
  * @return
  *   A string containing the list output.
  */
-function theme_item_list($items = array(), $title = NULL, $type = 'ul', $attributes = NULL) {
+function theme_item_list($items = array(), $title = NULL, $type = 'ul', $attributes = array()) {
   $output = '<div class="item-list">';
   if (isset($title)) {
     $output .= '<h3>' . $title . '</h3>';

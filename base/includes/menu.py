@@ -1,4 +1,4 @@
-# $Id: menu.inc,v 1.273 2008/05/20 20:32:03 dries Exp $
+# $Id: menu.inc,v 1.275 2008/06/12 20:49:39 dries Exp $
 #
 
 #
@@ -102,13 +102,43 @@
 # Flags for use in the "type" attribute of menu items.
 #
 
+#
+# Internal menu flag -- menu item is the root of the menu tree.
+#
 MENU_IS_ROOT = 0x0001
+
+#
+# Internal menu flag -- menu item is visible in the menu tree.
+#
 MENU_VISIBLE_IN_TREE = 0x0002
+
+#
+# Internal menu flag -- menu item is visible in the breadcrumb.
+#
 MENU_VISIBLE_IN_BREADCRUMB = 0x0004
+
+#
+# Internal menu flag -- menu item links back to its parnet.
+#
+
 MENU_LINKS_TO_PARENT = 0x0008
+
+#
+# Internal menu flag -- menu item can be modified by administrator.
+#
 MENU_MODIFIED_BY_ADMIN = 0x0020
+
+#
+# Internal menu flag -- menu item was created by administrator.
+#
 MENU_CREATED_BY_ADMIN = 0x0040
+
+#
+# Internal menu flag -- menu item is a local task.
+#
 MENU_IS_LOCAL_TASK = 0x0080
+
+
 #
 # @} End of "Menu flags".
 #
@@ -119,16 +149,21 @@ MENU_IS_LOCAL_TASK = 0x0080
 # combinations of the above flags.
 #
 #
+# Menu type -- A "normal" menu item that's shown in menu and breadcrumbs.
 # Normal menu items show up in the menu tree and can be moved/hidden by
 # the administrator. Use this for most menu items. It is the default value if
 # no menu item type is specified.
 #
 MENU_NORMAL_ITEM = MENU_VISIBLE_IN_TREE | MENU_VISIBLE_IN_BREADCRUMB
+
+# Menu type -- A hidden, internal callback, typically used for API calls.
 #
 # Callbacks simply register a path so that the correct function is fired
 # when the URL is accessed. They are not shown in the menu.
 #
 MENU_CALLBACK = MENU_VISIBLE_IN_BREADCRUMB
+
+# Menu type -- A normal menu item, hidden until enabled by an administrator.
 #
 # Modules may "suggest" menu items that the administrator may enable. They act
 # just as callbacks do until enabled, at which time they act like normal items.
@@ -136,12 +171,15 @@ MENU_CALLBACK = MENU_VISIBLE_IN_BREADCRUMB
 # the values of MENU_CALLBACK and MENU_SUGGESTED_ITEM are separate.
 #
 MENU_SUGGESTED_ITEM = MENU_VISIBLE_IN_BREADCRUMB | 0x0010
+
+# Menu type -- A task specific to the parent item, usually rendered as a tab.
 #
-# Local tasks are rendered as tabs by default. Use this for menu items that
-# describe actions to be performed on their parent item. An example is the path
-# "node/52/edit", which performs the "edit" task on "node/52".
-#
+# Local tasks are menu items that describe actions to be performed on their
+# parent item. An example is the path "node/52/edit", which performs the
+# "edit" task on "node/52".
 MENU_LOCAL_TASK = MENU_IS_LOCAL_TASK
+
+# Menu type -- The "default" local task, which is initially active.
 #
 # Every set of local tasks should provide one "default" task, that links to the
 # same path as its parent when clicked.
@@ -156,10 +194,26 @@ MENU_DEFAULT_LOCAL_TASK = MENU_IS_LOCAL_TASK | MENU_LINKS_TO_PARENT
 # Status codes for menu callbacks.
 #
 
+#
+# Internal menu status code -- Menu item was found.
+#
 MENU_FOUND = 1
+
+#
+# Internal menu status code -- Menu item was not found.
+#
 MENU_NOT_FOUND = 2
+
+#
+# Internal menu status code -- Menu item access is denied.
+#
 MENU_ACCESS_DENIED = 3
+
+#
+# Internal menu status code -- Menu item inaccessible because site is offline.
+#
 MENU_SITE_OFFLINE = 4
+
 #
 # @} End of "Menu status codes".
 #
@@ -538,7 +592,9 @@ def _menu_translate(router_item, map_, to_arg = False):
   router_item.val['href'] = implode('/', link_map)
   router_item.val['options'] = {}
   _menu_check_access(router_item.val, map_)
-  _menu_item_localize(router_item.val, map_)
+  # For performance, don't localize an item the user can't access.
+  if (router_item.val['access']):
+    _menu_item_localize(router_item.val, map_)
   return map_
 
 
@@ -614,6 +670,9 @@ def _menu_link_translate(item):
         return False
       _menu_check_access(item, map)
     _menu_item_localize(item.val, map_, True)
+    # For performance, don't localize a link the user can't access.
+    if (item.val['access']):
+      _menu_item_localize(item.val, map_, True)
   # Allow other customizations - e.g. adding a page-specific query string to the
   # options array. For performance reasons we only invoke this hook if the link
   # has the 'alter' flag set in the options array.
