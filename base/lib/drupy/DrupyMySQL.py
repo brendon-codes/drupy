@@ -30,6 +30,7 @@
 #
 
 import MySQLdb
+from lib.drupy.DrupyPHP import *
 from lib.drupy import DrupyHelper
 
 MYSQLI_ASSOC = 0
@@ -171,8 +172,9 @@ def mysqli_fetch_assoc(cursor):
 def mysqli_fetch_object(cursor):
   row = cursor.fetchone()
   out = DrupyMySQL_row()
-  for k,v in row.items():
-    setattr(out, k, v)
+  if row != None:
+    for k,v in row.items():
+      setattr(out, k, v)
   return out
 
 

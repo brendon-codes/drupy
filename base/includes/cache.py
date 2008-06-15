@@ -29,7 +29,9 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+from lib.drupy.DrupyPHP import *
 import bootstrap as inc_bootstrap
+import database as inc_database
 
 #
 # Return data from the persistent cache. Data may be stored as either plain text or as serialized data.
@@ -43,14 +45,14 @@ import bootstrap as inc_bootstrap
 #
 def cache_get(cid, table = 'cache'):
   # Garbage collection necessary when enforcing a minimum cache lifetime
-  cache_flush = variable_get('cache_flush', 0);
+  cache_flush = inc_bootstrap.variable_get('cache_flush', 0);
   if (cache_flush and (cache_flush + variable_get('cache_lifetime', 0) <= time())):
     # Reset the variable immediately to prevent a meltdown in heavy load situations.
     variable_set('cache_flush', 0);
     # Time to flush old cache data
-    db_query("DELETE FROM {" + table + "} WHERE expire != %d AND expire <= %d", CACHE_PERMANENT, cache_flush);
-  cache = db_fetch_object(db_query("SELECT data, created, headers, expire, serialized FROM {" + table + "} WHERE cid = '%s'", cid));
-  if (isset(cache, data)):
+    inc_database.db_query("DELETE FROM {" + table + "} WHERE expire != %d AND expire <= %d", CACHE_PERMANENT, cache_flush);
+  cache = inc_database.db_fetch_object(inc_database.db_query("SELECT data, created, headers, expire, serialized FROM {" + table + "} WHERE cid = '%s'", cid));
+  if (isset(cache, 'data')):
     # If the data is permanent or we're not enforcing a minimum cache lifetime
     # always return the cached data.
     if (cache.expire == CACHE_PERMANENT or not variable_get('cache_lifetime', 0)):
@@ -124,8 +126,8 @@ def cache_set(cid, data, table = 'cache', expire = inc_bootstrap.CACHE_PERMANENT
   if (is_object(data) or is_array(data)):
     data = serialize(data);
     serialized = 1;
-  created = time();
-  db_query("UPDATE {" + table + "} SET data = %b, created = %d, expire = %d, headers = '%s', serialized = %d WHERE cid = '%s'", data, created, expire, headers, serialized, cid);
+  created = time_();
+  inc_database.db_query("UPDATE {" + table + "} SET data = %b, created = %d, expire = %d, headers = '%s', serialized = %d WHERE cid = '%s'", data, created, expire, headers, serialized, cid);
   if (not db_affected_rows()):
     db_query("INSERT INTO {" + table + "} (cid, data, created, expire, headers, serialized) VALUES ('%s', %b, %d, %d, '%s', %d)", cid, data, created, expire, headers, serialized);
 
