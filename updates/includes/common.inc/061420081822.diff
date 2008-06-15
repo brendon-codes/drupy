@@ -1,0 +1,68 @@
+--- drupy/ported/includes/common.inc	2008-05-25 13:43:33.000000000 -0700
++++ drupal/includes/common.inc	2008-06-14 18:16:17.000000000 -0700
+@@ -1,5 +1,5 @@
+ <?php
+-// $Id: common.inc,v 1.768 2008/05/16 01:23:31 dries Exp $
++// $Id: common.inc,v 1.771 2008/06/09 08:11:44 dries Exp $
+ 
+ /**
+  * @file
+@@ -1079,17 +1079,21 @@ function parse_size($size) {
+  *   A translated string representation of the size.
+  */
+ function format_size($size, $langcode = NULL) {
+-  if ($size < 1024) {
++  if ($size < 1000) {
+     return format_plural($size, '1 byte', '@count bytes', array(), $langcode);
+   }
+   else {
+-    $size = round($size / 1024, 2);
+-    $suffix = t('KB', array(), $langcode);
+-    if ($size >= 1024) {
+-      $size = round($size / 1024, 2);
+-      $suffix = t('MB', array(), $langcode);
++    $size = $size / 1000; // convert bytes to kilobytes (1000 bytes)
++    $units = array('KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
++    foreach ($units as $suffix) {
++      if (round($size, 2) >= 1000) {
++        $size = $size / 1000;
++      }
++      else {
++        break;
++      }
+     }
+-    return t('@size @suffix', array('@size' => $size, '@suffix' => $suffix), $langcode);
++    return t('@size @suffix', array('@size' => round($size, 2), '@suffix' => $suffix), $langcode);
+   }
+ }
+ 
+@@ -2502,10 +2506,11 @@ function page_set_cache() {
+  * Returns TRUE if ran successfully
+  */
+ function drupal_cron_run() {
+-  // If not in 'safe mode', increase the maximum execution time:
+-  if (!ini_get('safe_mode')) {
+-    set_time_limit(240);
+-  }
++  // Allow execution to continue even if the request gets canceled.
++  @ignore_user_abort(TRUE);
++
++  // Increase the maximum execution time.
++  @set_time_limit(240);
+ 
+   // Fetch the cron semaphore
+   $semaphore = variable_get('cron_semaphore', FALSE);
+@@ -3464,10 +3469,12 @@ function drupal_parse_info_file($filenam
+ }
+ 
+ /**
++ * Severity levels, as defined in RFC 3164: http://www.ietf.org/rfc/rfc3164.txt.
++ *
+  * @return
+  *   Array of the possible severity levels for log messages.
+  *
+- * @see watchdog
++ * @see watchdog()
+  */
+ function watchdog_severity_levels() {
+   return array(

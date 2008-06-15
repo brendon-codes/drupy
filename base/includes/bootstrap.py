@@ -1,4 +1,4 @@
-# $Id: bootstrap.inc,v 1.210 2008/05/13 17:38:42 dries Exp $
+# $Id: bootstrap.inc,v 1.211 2008/05/26 17:12:54 dries Exp $
 
 #
 # @package Drupy
@@ -76,19 +76,65 @@ CACHE_NORMAL = 1
 CACHE_AGGRESSIVE = 2
 
 #
+# Log message severity -- Alert: action must be taken immediately.
 #
-# Severity levels, as defined in RFC 3164 http://www.faqs.org/rfcs/rfc3164.html
 # @see watchdog()
 # @see watchdog_severity_levels()
 #
-WATCHDOG_EMERG = 0 # Emergency: system is unusable
-WATCHDOG_ALERT = 1 # Alert: action must be taken immediately
-WATCHDOG_CRITICAL = 2 # Critical: critical conditions
-WATCHDOG_ERROR = 3 # Error: error conditions
-WATCHDOG_WARNING = 4 # Warning: warning conditions
-WATCHDOG_NOTICE = 5 # Notice: normal but significant condition
-WATCHDOG_INFO = 6 # Informational: informational messages
-WATCHDOG_DEBUG = 7 # Debug: debug-level messages
+
+WATCHDOG_ALERT = 1
+
+#
+# Log message severity -- Critical: critical conditions.
+#
+# @see watchdog()
+# @see watchdog_severity_levels()
+#
+WATCHDOG_CRITICAL = 2
+
+#
+# Log message severity -- Error: error conditions.
+#
+# @see watchdog()
+# @see watchdog_severity_levels()
+#
+
+WATCHDOG_ERROR = 3
+
+#
+# Log message severity -- Warning: warning conditions.
+#
+# @see watchdog()
+# @see watchdog_severity_levels()
+#
+
+WATCHDOG_WARNING = 4
+
+#
+# Log message severity -- Notice: normal but significant condition.
+#
+# @see watchdog()
+# @see watchdog_severity_levels()
+#
+WATCHDOG_NOTICE = 5
+
+#
+# Log message severity -- Informational: informational messages.
+#
+# @see watchdog()
+# @see watchdog_severity_levels()
+#
+
+WATCHDOG_INFO = 6
+
+#
+# Log message severity -- Debug: debug-level messages.
+#
+# @see watchdog()
+# @see watchdog_severity_levels()
+#
+
+WATCHDOG_DEBUG = 7
 
 #
 # First bootstrap phase: initialize configuration.
@@ -922,6 +968,7 @@ def _drupal_bootstrap(phase):
     if (drupal_is_denied(ip_address())):
       header('HTTP/1.1 403 Forbidden');
       print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
+      exit()
   elif phase == DRUPAL_BOOTSTRAP_SESSION:
     inc_session.session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
     inc_session.session_start();

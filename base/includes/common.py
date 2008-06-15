@@ -1,4 +1,4 @@
-# $Id: common.inc,v 1.768 2008/05/16 01:23:31 dries Exp $
+# $Id: common.inc,v 1.771 2008/06/09 08:11:44 dries Exp $
 
 
 #
@@ -906,15 +906,17 @@ def parse_size(size):
 #   A translated string representation of the size.
 #
 def format_size(size, langcode = None):
-  if (size < 1024):
+  if (size < 1000):
     return format_plural(size, '1 byte', '@count bytes', {}, langcode);
   else:
-    size = round(size / 1024, 2);
-    suffix = t('KB', {}, langcode);
-    if (size >= 1024):
-      size = round(size / 1024, 2);
-      suffix = t('MB', {}, langcode);
-    return t('@size @suffix', {'@size' : size, '@suffix' : suffix}, langcode);
+    size = size / 1000 # convert bytes to kilobytes (1000 bytes)
+    units = array('KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+    for sufix in units:
+      if (round(size, 2) >= 1000):
+        size = size / 1000;
+      else:
+        break
+    return t('@size @suffix', {'@size' : round(size, 2), '@suffix' : suffix}, langcode);
 
 
 #
@@ -2978,12 +2980,13 @@ def drupal_parse_info_file(filename):
   return DrupyHelper.get_import(filename).__all__;
 
 
-
+#
+# Severity levels, as defined in RFC 3164: http://www.ietf.org/rfc/rfc3164.txt.
 #
 # @return
 #   Array of the possible severity levels for log messages.
 #
-# @see watchdog
+# @see watchdog()
 #
 def watchdog_severity_levels():
   return {
