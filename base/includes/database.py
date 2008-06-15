@@ -230,6 +230,9 @@ def _db_query_callback(match, init = False):
     _db_query_callback.args = match;
     return;
   if match[1] == '%d': # We must use type casting to int to convert FALSE/NULL/(TRUE?)
+    #print _db_query_callback.args
+    #flush()
+    #exit()
     return int(array_shift(_db_query_callback.args)); # We don't need db_escape_string as numbers are db-safe
   elif match[1] == '%s':
     return db.db_escape_string(array_shift(_db_query_callback.args));
@@ -238,7 +241,7 @@ def _db_query_callback(match, init = False):
   elif match[1] == '%f':
     return float(array_shift(_db_query_callback.args));
   elif match[1] == '%b': # binary data
-    return db_encode_blob(array_shift(_db_query_callback.args));
+    return db.db_encode_blob(array_shift(_db_query_callback.args));
 
 
 
@@ -269,4 +272,4 @@ def db_placeholders(arguments, type = 'int'):
 #
 db_result = db.db_result
 db_query = db.db_query
-
+db_fetch_object = db.db_fetch_object

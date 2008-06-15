@@ -175,3 +175,7 @@ def session_save_session(status = None):
     session_save_session.save_session = status
   return session_save_session.save_session
 
+#
+# Aliases
+#
+sess_name = session_name

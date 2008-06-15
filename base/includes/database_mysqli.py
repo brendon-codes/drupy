@@ -132,7 +132,7 @@ def _db_query(query, debug = 0):
   else:
     # Indicate to drupal_error_handler that this is a database error.
     DB_ERROR = True
-    trigger_error(check_plain(mysqli_error(active_db) +  "\nquery: "  + query), E_USER_WARNING)
+    trigger_error(inc_bootstrap.check_plain(mysqli_error(inc_database.active_db) +  "\nquery: "  + query), E_USER_WARNING)
     return False
 
 
@@ -311,7 +311,7 @@ def db_query_temporary(query):
 #
 def db_encode_blob(data):
   global active_db
-  return "'" +  mysqli_real_escape_string(active_db, data)  + "'"
+  return "'" +  mysqli_real_escape_string(inc_database.active_db, data)  + "'"
 
 
 

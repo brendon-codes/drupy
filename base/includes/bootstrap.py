@@ -222,7 +222,6 @@ LANGUAGE_NEGOTIATION_DOMAIN = 3
 # INcludes
 #
 from lib.drupy.DrupyPHP import *
-from lib.drupy import DrupySession
 from lib.drupy import DrupyHelper
 from sites.default.settings import *
 import cache as inc_cache
@@ -395,7 +394,7 @@ def conf_init():
   if (count(explode('.', cookie_domain)) > 2 and not is_numeric(str_replace('.', '', cookie_domain))):
     ini_set('session.cookie_domain', cookie_domain);
   #print session_name;
-  DrupySession.session_name('SESS' + md5(session_name_));
+  inc_session.sess_name('SESS' + md5(session_name_));
 
 
 
@@ -474,17 +473,18 @@ def drupal_get_filename(type_, name, filename = None):
 #
 def variable_init(conf_ = {}):
   # NOTE: caching the variables improves performance by 20% when serving cached pages.
-  cached = cache_get('variables', 'cache');
+  cached = inc_cache.cache_get('variables', 'cache');
   if (cached):
     variables = cached.data;
   else:
-    result = db_query('SELECT# FROM {variable}');
+    variables = {}
+    result = inc_database.db_query('SELECT * FROM {variable}');
     while True:
-      variable = db_fetch_object(result);
+      variable = inc_database.db_fetch_object(result);
       if (not variable):
         break;
       variables[variable.name] = unserialize(variable.value);
-    cache_set('variables', variables);
+    inc_cache.cache_set('variables', variables);
   for name,value in conf_.items():
     variables[name] = value;
   return variables;

@@ -645,7 +645,9 @@ def array_shift(item):
 #
 # @param Str data
 def trigger_error(data, errno):
-  DrupyHelper.output(True, data, errno)
+  print data
+  flush()
+  exit
 
 #
 # Function exists
@@ -1137,6 +1139,11 @@ def is_array(val):
     isinstance(val, list)
   )
 
+#
+# Determnes if object
+#
+def is_object(val):
+  return isinstance(val, object)
 
 
 #
