@@ -1,6 +1,0 @@
-line 1902 for n in xrange(-element['#delta'],element['#delta']+1): ... it will need review.
-line 2211 batch['sets'].append(batch_set)
-line 678 batch['sets'].append( {'form_submit' : function} )
-line 2267 require_once is commented out.
-line 2275 function &batch_get() got reference sign?
-

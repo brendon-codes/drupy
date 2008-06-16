@@ -1,0 +1,11 @@
+##
+## About This Document
+##
+
+  author Brendon Crawford
+  copyright 2008 Brendon Crawford
+  contact message144 at users dot sourceforge dot net
+  created 2008-01-10
+  version 0.1
+
+THIS DOCUMENT NOT YET COMPLETE
