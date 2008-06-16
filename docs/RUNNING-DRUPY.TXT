@@ -1,0 +1,9 @@
+##
+## About This Document
+##
+
+  author Brendon Brendonopyright 2008 Brendon Brendonontact Brendon at users dot sourceforge dot net
+  created 2008-01-10
+  version 0.1
+
+THIS DOCUMENT NOT YET COMPLETE
