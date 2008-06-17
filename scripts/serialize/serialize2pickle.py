@@ -32,22 +32,47 @@
 #
 
 import PHPUnserialize
-from includes import bootstrap
-from includes import database
+from includes import bootstrap as inc_bootstrap
+from includes import database as inc_database
+import pickle
+import copy
 from lib.drupy.DrupyPHP import *
 
-bootstrap.drupal_bootstrap(bootstrap.DRUPAL_BOOTSTRAP_DATABASE)
-
+#
+# List of tables
+#
 tables = (
   {
-    'select' : ("SELECT variable.value, variable.name FROM variable"),
-    'update' : ("UPDATE variable SET variable.value = '%(value)s' WHERE variable.name = '%(name)s'")
-  }
+    'select' : "SELECT variable.value, variable.name FROM variable",
+    'update' : "UPDATE variable SET variable.value = '%(value)s' WHERE variable.name = '%(name)s'",
+    'key' : 'value'
+  },
 )
 
-res = database.db_query("SELECT * FROM variable")
-while True:
-  r = database.db_fetch_object(res)
-  if not r:
-    break
-  print r.value
+inc_bootstrap.drupal_bootstrap(inc_bootstrap.DRUPAL_BOOTSTRAP_DATABASE)
+u = PHPUnserialize.PHPUnserialize()
+i = 0
+
+for t in tables:
+  s_res = inc_database.db_query(t['select'])
+  while True:
+    s_row = inc_database.db_fetch_assoc(s_res)
+    if not s_row:
+      break
+    try:
+      udata = u.unserialize(s_row[t['key']])
+    except PHPUnserialize.InvalidObject:
+      continue
+    out = copy.deepcopy(s_row)
+    for ok,ov in out.items():
+      if ok == t['key']:
+        out[ok] = inc_database.db_escape_string(pickle.dumps(udata))
+      else:
+        out[ok] = inc_database.db_escape_string(ov)
+    u_query = t['update'] % out
+    inc_database.db_query(u_query)
+    i += 1
+
+
+print "%s records processed" % i
+exit(0)

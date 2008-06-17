@@ -7,6 +7,7 @@ Unserialize class for the PHP serialization format.
 
 @version v0.4 BETA
 @author Scott Hurring; scott at hurring dot com
+  Also modified by Brendon Crawford; message144 at users dot sourceforge dotnet
 @copyright Copyright (c) 2005 Scott Hurring
 @license http://opensource.org/licenses/gpl-license.php GNU Public License
 $Id: PHPUnserialize.py,v 1.1 2006/01/08 21:53:19 shurring Exp $
@@ -115,7 +116,7 @@ class PHPUnserialize(object):
 			dataoffset += chars + 2
 
 			if chars != int(stringlength) != int(readdata):
-				raise Exception("String length mismatch")
+				raise InvalidObject("String length mismatch")
 
 		# array => Dict
 		# If you originally serialized a Tuple or List, it will
@@ -151,7 +152,7 @@ class PHPUnserialize(object):
 
 		# I don't know how to unserialize this
 		else:
-			raise Exception("Unknown / Unhandled data type (%s)!" % dtype)
+			raise InvalidObject("Unknown / Unhandled data type (%s)!" % dtype)
 
 
 		return (dtype, dataoffset-offset, typeconvert(readdata))
@@ -166,7 +167,7 @@ class PHPUnserialize(object):
 		while char != stopchar:
 			# Consumed all the characters and havent found ';'
 			if i+offset > len(data):
-				raise Exception("Invalid")
+				raise InvalidObject("Invalid")
 			buf.append(char)
 			char = data[offset+(i-1):offset+i]
 			i += 1
@@ -187,5 +188,15 @@ class PHPUnserialize(object):
 
 		# (chars_read, data)
 		return (len(buf), "".join(buf))
+
+
+"""
+  Exception class for an invalid object
+"""
+class InvalidObject(Exception):
+  def __init__(self, value):
+    self.value = value
+  def __str__(self):
+    return repr(self.value)
 
 

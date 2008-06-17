@@ -273,3 +273,7 @@ def db_placeholders(arguments, type = 'int'):
 db_result = db.db_result
 db_query = db.db_query
 db_fetch_object = db.db_fetch_object
+db_fetch_assoc = db.db_fetch_assoc
+db_escape_string = db.db_escape_string
+
+
