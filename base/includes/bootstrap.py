@@ -568,8 +568,8 @@ def page_get_cache():
 #   The name of the bootstrap hook we wish to invoke.
 #
 def bootstrap_invoke_all(hook):
-  for module in module_list(True, True):
-    module_invoke(module, hook);
+  for module_ in inc_module.module_list(True, True):
+    inc_module.module_invoke(module_, hook);
 
 
 #
@@ -1083,7 +1083,7 @@ def language_list(field = 'language', reset = False):
 #   Optional property of the language object to return
 #
 def language_default(property = None):
-  theList = drupy_object({
+  theList = object_({
     'language' : 'en',
     'name' : 'English',
     'native' : 'English',

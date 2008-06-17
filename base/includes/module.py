@@ -31,6 +31,7 @@
 
 from lib.drupy.DrupyPHP import *
 import bootstrap as inc_bootstrap
+import database as inc_database
 
 #
 # Load all the modules that have been enabled in the system table.
@@ -69,7 +70,7 @@ def module_iterate(function, argument = ''):
 #   modules.
 #
 def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = None):
-  static(module_list, 'list_')
+  static(module_list, 'list_', [])
   static(module_list, 'sorted_list')
   if (refresh or fixed_list):
     module_list.sorted_list = None
@@ -80,11 +81,11 @@ def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = No
         module_list.list_[name] = name
     else:
       if (bootstrap):
-        result = db_query("SELECT name, filename FROM {system} WHERE type = 'module' AND status = 1 AND bootstrap = 1 ORDER BY weight ASC, filename ASC")
+        result = inc_database.db_query("SELECT name, filename FROM {system} WHERE type = 'module' AND status = 1 AND bootstrap = 1 ORDER BY weight ASC, filename ASC")
       else:
-        result = db_query("SELECT name, filename FROM {system} WHERE type = 'module' AND status = 1 ORDER BY weight ASC, filename ASC")
+        result = inc_database.db_query("SELECT name, filename FROM {system} WHERE type = 'module' AND status = 1 ORDER BY weight ASC, filename ASC")
       while True:
-        module_ = db_fetch_object(result)
+        module_ = inc_database.db_fetch_object(result)
         if (module_ == None or module_ == False):
           break
         if (file_exists(module_.filename)):
@@ -95,7 +96,7 @@ def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = No
       module_list.sorted_list = module_list.list_
       ksort(module_list.sorted_list)
     return module_list.sorted_list
-  return module_list.sorted_list
+  return module_list.list_
 
 
 

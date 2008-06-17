@@ -227,13 +227,10 @@ def db_is_active():
 def _db_query_callback(match, init = False):
   static(_db_query_callback, 'args')
   if (init):
-    _db_query_callback.args = match;
+    _db_query_callback.args = list(match);
     return;
   if match[1] == '%d': # We must use type casting to int to convert FALSE/NULL/(TRUE?)
-    #print _db_query_callback.args
-    #flush()
-    #exit()
-    return int(array_shift(_db_query_callback.args)); # We don't need db_escape_string as numbers are db-safe
+    return str(int(array_shift(_db_query_callback.args))); # We don't need db_escape_string as numbers are db-safe
   elif match[1] == '%s':
     return db.db_escape_string(array_shift(_db_query_callback.args));
   elif match[1] == '%%':

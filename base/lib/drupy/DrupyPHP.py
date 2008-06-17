@@ -256,7 +256,7 @@ class __Output:
   # Write headers
   # @param Str data
   #
-  def header(self, data):
+  def header(self, data, replace = True):
     if self._usebuffer:
       parts = re.split('\s*:\s*', str(data), 1)
       parts_len = len(parts) 
@@ -1326,7 +1326,8 @@ def __preg_replace_str(pat, rep, subject):
       match_list = list(match.groups())
       match_list.insert(0, subject)
       match_list = tuple(match_list)
-      return rep(match_list)
+      o = rep(match_list)
+      return o
     return reg.sub(__callback, subject)
   # string
   else:
