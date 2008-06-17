@@ -30,6 +30,7 @@
 
 import os
 import cgi
+import cgitb
 
 
 #

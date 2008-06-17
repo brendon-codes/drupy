@@ -39,7 +39,7 @@ MYSQLI_CLIENT_FOUND_ROWS = 0
 #
 # Stores error information
 #
-class DrupyMySQL_meta:
+class __DrupyMySQLMeta:
   def __init__(self):
     self.error_connect = [-1, 'No Error']
 
@@ -53,7 +53,7 @@ class DrupyMySQL_meta:
 #
 # Stores row information
 #
-class DrupyMySQL_row:
+class __DrupyMySQLRow:
   def __init__(self):
     pass
 
@@ -73,12 +73,12 @@ class DrupyMySQL_row:
 #
 def mysqli_real_connect(host = None, username = None, passwd = None,
     dbname = None, port = None, socket = '', flags = None):
-  global DB_META
+  global __DB_META
   connection = None
   try:
     connection = MySQLdb.connect(host, username, passwd, dbname, port)
   except MySQLdb.Error, e:
-    DB_META.setErrorConnect(e.args[0], e.args[1])
+    __DB_META.setErrorConnect(e.args[0], e.args[1])
   return connection;
 
 
@@ -88,8 +88,8 @@ def mysqli_real_connect(host = None, username = None, passwd = None,
 # @return Int
 # 
 def mysqli_connect_errno():
-  global DB_META
-  return DB_META.getErrorConnect()[0]
+  global __DB_META
+  return __DB_META.getErrorConnect()[0]
 
 
 #
@@ -98,8 +98,8 @@ def mysqli_connect_errno():
 # @return Str
 #
 def mysqli_connect_error():
-  global DB_META
-  return DB_META.getErrorConnect()[1]
+  global __DB_META
+  return __DB_META.getErrorConnect()[1]
 
 
 #
@@ -171,11 +171,13 @@ def mysqli_fetch_assoc(cursor):
 #
 def mysqli_fetch_object(cursor):
   row = cursor.fetchone()
-  out = DrupyMySQL_row()
+  out = __DrupyMySQLRow()
   if row != None:
     for k,v in row.items():
       setattr(out, k, v)
-  return out
+    return out
+  else:
+    return False
 
 
 #
@@ -221,7 +223,7 @@ def mysqli_init():
 
 
 
-DB_META = DrupyMySQL_meta()
+__DB_META = __DrupyMySQLMeta()
 
 #
 # Aliases
