@@ -901,3 +901,15 @@ def db_change_field(ret, table, field, field_new, spec, keys_new = []):
 def db_last_insert_id(table, field):
   return db_result(db_query('SELECT LAST_INSERT_ID()'))
 
+#
+# Wrapper to escape a string
+#
+def db_escape_string(data):
+  return mysqli_real_escape_string(inc_database.active_db, data)
+
+
+#
+# Aliases
+#
+db_fetch_assoc = db_fetch_array
+
