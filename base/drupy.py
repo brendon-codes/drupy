@@ -30,6 +30,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 import time
+import re
 from lib.drupy.DrupyPHP import *
 from includes import bootstrap as inc_bootstrap
 
@@ -47,13 +48,16 @@ phases = (
 
 which_phase = phases[6];
 inc_bootstrap.drupal_bootstrap(which_phase[0]);
-out = print_r(globals(), True)
-stamp = time.strftime("%c GMT", time.gmtime()) 
+stamp, revised = time.strftime("%c GMT||%m/%d/%Y", time.gmtime()).split('||')
 
 #
 # Executed from Web
 #
 if SERVER['WEB']:
+  out = print_r(globals(), True)
+  out = re.sub('[a-zA-Z0-9_\.-]+@.+?\.[a-zA-Z]+', '********', out)
+  out = re.sub('[a-zA-Z0-9]{32}', '********************************', out)
+
   print "<?xml version='1.0' encoding='UTF-8'?>"
   print "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' " + \
     "'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>"
@@ -61,6 +65,7 @@ if SERVER['WEB']:
   print "<head>"
   print "<title>Drupy: Drupal in Python</title>"
   print "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />"
+  print "<meta name='revised' content='DrupyStatus, %s' />" % revised
   print "</head>"
   print "<body>"
   print "<h1>Drupy Bootstrap Diagnostic Status</h1>"
