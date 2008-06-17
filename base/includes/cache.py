@@ -128,8 +128,8 @@ def cache_set(cid, data, table = 'cache', expire = inc_bootstrap.CACHE_PERMANENT
     serialized = 1;
   created = time_();
   inc_database.db_query("UPDATE {" + table + "} SET data = %b, created = %d, expire = %d, headers = '%s', serialized = %d WHERE cid = '%s'", data, created, expire, headers, serialized, cid);
-  if (not db_affected_rows()):
-    db_query("INSERT INTO {" + table + "} (cid, data, created, expire, headers, serialized) VALUES ('%s', %b, %d, %d, '%s', %d)", cid, data, created, expire, headers, serialized);
+  #if (not db_affected_rows()):
+    #db_query("INSERT INTO {" + table + "} (cid, data, created, expire, headers, serialized) VALUES ('%s', %b, %d, %d, '%s', %d)", cid, data, created, expire, headers, serialized);
 
 
 
