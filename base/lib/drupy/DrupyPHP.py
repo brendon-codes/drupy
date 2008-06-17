@@ -52,7 +52,7 @@ import zlib
 import pprint
 import htmlentitydefs
 import cgi
-import cgitb; cgitb.enable()
+import cgitb;
 import urllib
 from PIL import Image
 from beaker import session
@@ -109,7 +109,7 @@ def __init():
   REQUEST = __SuperGlobals.getREQUEST(GET, POST)
   SESSION = __SuperGlobals.getSESSION()
   # Set output buffer
-  output = __Output()
+  output = __Output(SERVER['WEB'])
   header = output.header
   flush = output.flush
   # Set aliases
@@ -236,33 +236,38 @@ class __Output:
   #
   # init
   #
-  def __init__(self):
+  def __init__(self, usebuffer = True):
+    self._usebuffer = usebuffer
     self._body = ""
     self._headers = {}
-    sys.stdout = self
+    if self._usebuffer:
+      cgitb.enable()
+      sys.stdout = self
 
   #
   # Write body
   # @param Str data
   #
   def write(self, data):
-    self._body += data
+    if self._usebuffer:
+      self._body += data
   
   #
   # Write headers
   # @param Str data
   #
   def header(self, data):
-    parts = re.split('\s*:\s*', str(data), 1)
-    parts_len = len(parts) 
-    if parts_len > 0:
-      if parts_len == 1:
-        name = 'status'
-        value = parts[0]
-      elif parts_len == 2:
-        name = parts[0].lower()
-        value = parts[1]
-      self._headers[name] = value
+    if self._usebuffer:
+      parts = re.split('\s*:\s*', str(data), 1)
+      parts_len = len(parts) 
+      if parts_len > 0:
+        if parts_len == 1:
+          name = 'status'
+          value = parts[0]
+        elif parts_len == 2:
+          name = parts[0].lower()
+          value = parts[1]
+        self._headers[name] = value
 
   #
   # Get header string
@@ -299,9 +304,8 @@ class __Output:
   # Eventually this will need to be modified to work with WSGI
   #
   def flush(self):
-    sys.stdout = sys.__stdout__
-    #if SERVER['WEB']:
-    if True:
+    if self._usebuffer:
+      sys.stdout = sys.__stdout__
       #self._set_header('status', "HTTP/1.1 200 OK", True)
       self._set_header('content-type', "text/html; Charset=UTF-8", True)
       #sys.stdout.write( self._get_header( 'status' ) )
@@ -309,7 +313,7 @@ class __Output:
       for k,v in self._headers.items():
         sys.stdout.write( self._get_header(k) )
       sys.stdout.write( CRLF )
-    sys.stdout.write( self._body )
+      sys.stdout.write( self._body )
     
 # end __Output
 
