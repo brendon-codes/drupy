@@ -41,7 +41,7 @@ db_prefix = None
 cookie_domain = None
 installed_profile = None
 update_free_access = None
-language = None
+language_ = None
 timers = None
 conf = None
 
@@ -231,6 +231,7 @@ import theme_maintenance as inc_theme_maintenance
 import module as inc_module
 import path as inc_path
 import common as inc_common
+import language as inc_language
 
 
 #
@@ -996,7 +997,7 @@ def _drupal_bootstrap(phase):
     drupal_init_language();
   elif DRUPAL_BOOTSTRAP_PATH:
     # Initialize GET['q'] prior to loading modules and invoking hook_init().
-    drupal_init_path();
+    inc_path.drupal_init_path();
   elif phase == DRUPAL_BOOTSTRAP_FULL:
     _drupal_bootstrap_full();
 
@@ -1030,13 +1031,13 @@ def get_t():
 #  Choose a language for the current page, based on site and user preferences.
 #
 def drupal_init_language():
+  global language
   # Ensure the language is correctly returned, even without multilanguage support.
   # Useful for eg. XML/HTML 'lang' attributes.
   if (variable_get('language_count', 1) == 1):
-    language = language_default();
+    language_ = language_default();
   else:
-    include_once('./includes/language.inc', locals());
-    language = language_initialize();
+    language_ = inc_language.language_initialize();
 
 
 #
