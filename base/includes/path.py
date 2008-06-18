@@ -32,13 +32,16 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+from lib.drupy.DrupyPHP import *
+import bootstrap as inc_bootstrap
+
 # Initialize the GET['q'] variable to the proper normal path.
 #
 def drupal_init_path():
-  if (not empty(GET['q'])):
+  if (isset(GET, 'q') and not empty(GET['q'])):
     GET['q'] = drupal_get_normal_path(trim(GET['q'], '/'))
   else:
-    GET['q'] = drupal_get_normal_path(variable_get('site_frontpage', 'node'))
+    GET['q'] = drupal_get_normal_path(inc_bootstrap.variable_get('site_frontpage', 'node'))
 
 
 #
@@ -63,11 +66,10 @@ def drupal_init_path():
 #   found.
 #
 def drupal_lookup_path(action, path = '', path_language = ''):
-  global language
   static(drupal_lookup_path, '_map', {})
   static(drupal_lookup_path, 'no_src', {})
   # map is an array with language keys, holding arrays of Drupal paths to alias relations
-  path_language =  (path_language if (path_language != '') else language.language)
+  path_language =  (path_language if (path_language != '') else inc_bootstrap.language_.language)
   if (action == 'wipe' ):
     drupal_lookup_path._map = {}
     drupal_lookup_path.no_src = {}
