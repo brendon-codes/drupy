@@ -826,14 +826,14 @@ def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, link = N
 #
 def drupal_set_message(message = None, type = 'status', repeat = True):
   if (message):
-    if (not isset(_SESSION, 'messages')):
-      _SESSION['messages'] = {};
+    if (not isset(SESSION, 'messages')):
+      SESSION['messages'] = {};
     if (not isset(_SESSION['messages'], type)):
-      _SESSION['messages'][type] = [];
-    if (repeat or not in_array(message, _SESSION['messages'][type])):
-      _SESSION['messages'][type].append( message );
+      SESSION['messages'][type] = [];
+    if (repeat or not in_array(message, SESSION['messages'][type])):
+      SESSION['messages'][type].append( message );
   # messages not set when DB connection fails
-  return  (_SESSION['messages'] if isset(_SESSION, 'messages') else None);
+  return  (SESSION['messages'] if isset(SESSION, 'messages') else None);
 
 
 
@@ -855,12 +855,12 @@ def drupal_get_messages(type = None, clear_queue = True):
   if (not empty('messages')):
     if (type != None and type != False):
       if (clear_queue):
-        del(_SESSION['messages'][type]);
+        del(SESSION['messages'][type]);
       if (isset(messages, type)):
         return {type : messages[type]};
     else:
       if (clear_queue):
-        del(_SESSION['messages']);
+        del(SESSION['messages']);
       return messages;
   return {};
 
@@ -932,7 +932,7 @@ def drupal_bootstrap(phase):
   # DRUPY(BC): Why the hell did Drupal set the vars in here as static?
   # No longer needed. 
   phase_index = 0;
-  phases = range(DRUPAL_BOOTSTRAP_CONFIGURATION, DRUPAL_BOOTSTRAP_FULL);
+  phases = range(DRUPAL_BOOTSTRAP_CONFIGURATION, DRUPAL_BOOTSTRAP_FULL+1);
   while (phase >= phase_index and isset(phases, phase_index)):
     current_phase = phases[phase_index];
     #Drupal was unsetting the phase var here.
@@ -943,7 +943,7 @@ def drupal_bootstrap(phase):
 
 
 def _drupal_bootstrap(phase):
-  global conf;
+  global conf
   if phase == DRUPAL_BOOTSTRAP_CONFIGURATION:
     # Start a page timer:
     timer_start('page');
@@ -971,8 +971,8 @@ def _drupal_bootstrap(phase):
       print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
       exit()
   elif phase == DRUPAL_BOOTSTRAP_SESSION:
-    inc_session.session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
-    inc_session.session_start();
+    session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
+    session_start();
   elif phase == DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
     # Initialize configuration variables, using values from settings.php if available.
     conf = variable_init( ({} if (conf == None) else conf) );
@@ -995,11 +995,12 @@ def _drupal_bootstrap(phase):
     drupal_page_header();
   elif phase == DRUPAL_BOOTSTRAP_LANGUAGE:
     drupal_init_language();
-  elif DRUPAL_BOOTSTRAP_PATH:
+  elif phase == DRUPAL_BOOTSTRAP_PATH:
     # Initialize GET['q'] prior to loading modules and invoking hook_init().
-    inc_path.drupal_init_path();
+    #inc_path.drupal_init_path();
+    pass
   elif phase == DRUPAL_BOOTSTRAP_FULL:
-    _drupal_bootstrap_full();
+    inc_common._drupal_bootstrap_full();
 
 
 #

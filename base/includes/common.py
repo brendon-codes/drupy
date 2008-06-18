@@ -51,8 +51,10 @@ SAVED_DELETED = 3;
 #
 # Includes
 #
-import urllib2
+from lib.drupy.DrupyPHP import *
 from lib.drupy import DrupyHelper
+import urllib2
+import bootstrap as inc_bootstrap
 import theme as inc_theme
 #import pager as inc_pager
 import menu as inc_menu
@@ -470,8 +472,8 @@ def drupal_error_handler(errno, message, filename, line, context, errType = None
     };
     entry = '%(errType)s : %(message)s in %(filename)s on line %(line)s' % err;
     # Force display of error messages in update.php.
-    if (variable_get('error_level', 1) == 1 or strstr(SERVER['SCRIPT_NAME'], 'update.py')):
-      drupal_set_message(entry, 'error');
+    if (inc_bootstrap.variable_get('error_level', 1) == 1 or strstr(SERVER['SCRIPT_NAME'], 'update.py')):
+      inc_bootstrap.drupal_set_message(entry, 'error');
     watchdog('php', '%(message)s in %(file)s on line %(line)s.' % err, WATCHDOG_ERROR);
 
 
