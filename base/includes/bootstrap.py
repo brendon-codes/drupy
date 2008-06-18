@@ -1098,7 +1098,7 @@ def language_default(property = None):
     'javascript' : ''
   });
   languagelist_language = variable_get('language_default', theList);
-  return (language.property if property else language);
+  return (language_.property if property else language_);
 
 
 #
