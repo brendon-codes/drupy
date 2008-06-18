@@ -35,7 +35,6 @@ from lib.drupy.DrupyPHP import *
 def sess_open(save_path, session_name):
   return True
 
-
 def sess_close():
   return True
 
@@ -179,3 +178,8 @@ def session_save_session(status = None):
 # Aliases
 #
 sess_name = session_name
+
+
+
+
+
