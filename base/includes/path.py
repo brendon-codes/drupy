@@ -34,6 +34,8 @@
 
 from lib.drupy.DrupyPHP import *
 import bootstrap as inc_bootstrap
+import module as inc_module
+
 
 # Initialize the GET['q'] variable to the proper normal path.
 #
@@ -73,7 +75,7 @@ def drupal_lookup_path(action, path = '', path_language = ''):
   if (action == 'wipe' ):
     drupal_lookup_path._map = {}
     drupal_lookup_path.no_src = {}
-  elif (module_exists('path') and path != ''):
+  elif (inc_module.module_exists('path') and path != ''):
     if (action == 'alias'):
       if (isset(drupal_lookup_path._map[path_language], path)):
         return drupal_lookup_path._map[path_language][path]

@@ -1031,7 +1031,7 @@ def get_t():
 #  Choose a language for the current page, based on site and user preferences.
 #
 def drupal_init_language():
-  global language
+  global language_
   # Ensure the language is correctly returned, even without multilanguage support.
   # Useful for eg. XML/HTML 'lang' attributes.
   if (variable_get('language_count', 1) == 1):
@@ -1084,7 +1084,7 @@ def language_list(field = 'language', reset = False):
 #   Optional property of the language object to return
 #
 def language_default(property = None):
-  theList = object_({
+  language_local = variable_get('language_default', object_({
     'language' : 'en',
     'name' : 'English',
     'native' : 'English',
@@ -1096,9 +1096,8 @@ def language_default(property = None):
     'prefix' : '',
     'weight' : 0,
     'javascript' : ''
-  });
-  languagelist_language = variable_get('language_default', theList);
-  return (language_.property if property else language_);
+  }));
+  return (getattr(language_local, property) if (property != None) else language_local);
 
 
 #
