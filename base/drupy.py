@@ -31,7 +31,9 @@
 #
 import time
 import re
+import sys
 from lib.drupy import DrupyPHP as p
+from lib.drupy import DrupyHelper
 from includes import bootstrap as inc_bootstrap
 
 phases = (
@@ -50,14 +52,17 @@ which_phase = phases[7];
 inc_bootstrap.drupal_bootstrap(which_phase[0]);
 stamp, revised = time.strftime("%c GMT||%m/%d/%Y", time.gmtime()).split('||')
 
+out_vars = p.print_r(vars(), True)
+out_vars = re.sub('[a-zA-Z0-9_\.-]+@.+?\.[a-zA-Z]+', '********', out_vars)
+out_vars = re.sub('[a-zA-Z0-9]{32}', '********************************', out_vars)
+out_vars = p.htmlspecialchars(out_vars)
+out_mods = p.print_r(DrupyHelper.modules(), True)
+out_mods = p.htmlspecialchars(out_mods)
+
 #
 # Executed from Web
 #
 if p.SERVER['WEB']:
-  out = p.print_r(globals(), True)
-  out = re.sub('[a-zA-Z0-9_\.-]+@.+?\.[a-zA-Z]+', '********', out)
-  out = re.sub('[a-zA-Z0-9]{32}', '********************************', out)
-
   print "<?xml version='1.0' encoding='UTF-8'?>"
   print "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' " + \
     "'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>"
@@ -71,11 +76,10 @@ if p.SERVER['WEB']:
   print "<h1>Drupy Bootstrap Diagnostic Status</h1>"
   print "<h2>Bootstrap: Completed Phase '%s' (%s)</h2>" % (which_phase[1],which_phase[0])
   print "<h3>Generated: %s</h3>" % stamp
-  print "<p>"
-  print "This page dumps all the global scope objects within the Drupy " + \
-    "bootstrap process. This can be used as a basic gauge of bootstap status."
-  print "</p>"
-  print "<pre style='background-color:yellow;'>%s</pre>" % p.htmlspecialchars(out);
+  print "<h4>Global Scope Objects</h4>"
+  print "<pre style='background-color:yellow;'>%s</pre>" % out_vars
+  print "<h4>Loaded Modules</h4>"
+  print "<pre style='background-color:yellow;'>%s</pre>" % out_mods
   print "</body>"
   print "</html>"
 #
