@@ -121,7 +121,9 @@ def cache_get(cid, table = 'cache'):
 # @param headers
 #   A string containing HTTP header information for cached pages.
 #
-def cache_set(cid, data, table = 'cache', expire = inc_bootstrap.CACHE_PERMANENT, headers = None):
+def cache_set(cid, data, table = 'cache', expire = None, headers = None):
+  if expire is None:
+    expire = inc_bootstrap.CACHE_PERMANENT
   serialized = 0;
   if (is_object(data) or is_array(data)):
     data = serialize(data);

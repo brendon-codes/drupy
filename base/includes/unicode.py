@@ -33,6 +33,10 @@ from xml.dom import minidom
 import htmlentitydefs
 import re
 
+
+#
+# Globals
+#
 multibyte = None
 
 #

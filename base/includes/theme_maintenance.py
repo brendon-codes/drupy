@@ -35,12 +35,10 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-#
-# Set globals
-#
-theme_path = None
-theme_ = None
 
+#
+# Imports
+#
 from lib.drupy.DrupyPHP import *
 import path as inc_path
 import theme as inc_theme
@@ -50,6 +48,12 @@ import file as inc_file
 import module as inc_module
 import database as inc_database
 
+
+#
+# Set globals
+#
+theme_path = None
+theme_ = None
 
 def _drupal_maintenance_theme():
   global theme_, theme_key
