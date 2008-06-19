@@ -34,20 +34,6 @@
 # a cached page are instead located in bootstrap.inc.
 #
 
-
-#
-# Return status for saving which involved creating a new item.
-#
-SAVED_NEW = 1;
-#
-# Return status for saving which involved an update to an existing item.
-#
-SAVED_UPDATED = 2;
-#
-# Return status for saving which deleted an existing item.
-#
-SAVED_DELETED = 3;
-
 #
 # Includes
 #
@@ -66,6 +52,19 @@ import unicode as inc_unicode
 #import mail as inc_mail
 #import actions as inc_actions
 
+
+#
+# Return status for saving which involved creating a new item.
+#
+SAVED_NEW = 1;
+#
+# Return status for saving which involved an update to an existing item.
+#
+SAVED_UPDATED = 2;
+#
+# Return status for saving which deleted an existing item.
+#
+SAVED_DELETED = 3;
 
 #
 # Set content for a specified region.

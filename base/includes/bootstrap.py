@@ -30,6 +30,22 @@
 #
 
 #
+# INcludes
+#
+from lib.drupy.DrupyPHP import *
+from lib.drupy import DrupyHelper
+from sites.default.settings import *
+import cache as inc_cache
+import database as inc_database
+import session as inc_session
+import theme_maintenance as inc_theme_maintenance
+import module as inc_module
+import path as inc_path
+import common as inc_common
+import language as inc_language
+
+
+#
 # Global variables
 #
 user = None
@@ -218,20 +234,6 @@ LANGUAGE_NEGOTIATION_PATH = 2
 #
 LANGUAGE_NEGOTIATION_DOMAIN = 3
 
-#
-# INcludes
-#
-from lib.drupy.DrupyPHP import *
-from lib.drupy import DrupyHelper
-from sites.default.settings import *
-import cache as inc_cache
-import database as inc_database
-import session as inc_session
-import theme_maintenance as inc_theme_maintenance
-import module as inc_module
-import path as inc_path
-import common as inc_common
-import language as inc_language
 
 
 #

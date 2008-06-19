@@ -30,19 +30,6 @@
 #
 
 
-
-active_db = None
-
-
-#
-# A hash value to check when outputting database errors, md5('DB_ERROR').
-#
-# @see drupal_error_handler()
-#
-DB_ERROR = 'a515ac9c2796ca0e23adbe92c68fc9fc'
-DB_QUERY_REGEXP = '/(%d|%s|%%|%f|%b)/'
-
-
 #
 # Includes
 #
@@ -53,6 +40,19 @@ from lib.drupy.DrupyMySQL import *
 import bootstrap as inc_bootstrap
 import database_mysqli as db
 
+#
+# Globals
+#
+active_db = None
+
+
+#
+# A hash value to check when outputting database errors, md5('DB_ERROR').
+#
+# @see drupal_error_handler()
+#
+DB_ERROR = 'a515ac9c2796ca0e23adbe92c68fc9fc'
+DB_QUERY_REGEXP = '/(%d|%s|%%|%f|%b)/'
 
 
 #
