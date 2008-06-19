@@ -873,13 +873,13 @@ def parse_url(url, port = 80):
 def print_r(data, ret = False):
   try:
     d = dict(data)
-  except TypeError:
+  except:
     try:
       d = list(data)
-    except TypeError:
+    except:
       try:
         d = tuple(data)
-      except TypeError:
+      except:
         d = data
   if ret:
     return pprint.PrettyPrinter().pformat(d)

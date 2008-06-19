@@ -31,6 +31,7 @@
 import os
 import cgi
 import cgitb
+import sys
 
 
 #
@@ -58,6 +59,17 @@ def output(should_die, *data):
   else:
     return True
 
+#
+# Get loaded modules
+# @return List
+#
+def modules():
+  mods = sys.modules
+  out = {}
+  for k,v in mods.items():
+    if v is not None:
+      out[k] = v
+  return out
 
 #
 # Reference class
