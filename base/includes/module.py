@@ -34,6 +34,7 @@
 from lib.drupy import DrupyPHP as p
 import bootstrap as inc_bootstrap
 import database as inc_database
+import cache as inc_cache
 
 #
 # Load all the modules that have been enabled in the system table.
@@ -383,14 +384,14 @@ def module_hook(module_, hook):
 #   An array with the names of the modules which are implementing this hook.
 #
 def module_implements(hook, sort = False, refresh = False):
-  p.static(module_implements, 'implementations', [])
+  p.static(module_implements, 'implementations', {})
   if (refresh):
-    module_implements.implementations = []
+    module_implements.implementations = {}
   elif (not p.defined('MAINTENANCE_MODE') and p.empty(module_implements.implementations)):
-    cache = cache_get('hooks', 'cache_registry')
+    cache = inc_cache.cache_get('hooks', 'cache_registry')
     if (cache):
       module_implements.implementations = cache.data;
-    module_implements.implementations = registry_get_hook_implementations_cache()
+    module_implements.implementations = inc_bootstrap.registry_get_hook_implementations_cache()
   if (not p.isset(module_implements.implementations, hook)):
     module_implements.implementations[hook] = []
     for module_ in module_list():

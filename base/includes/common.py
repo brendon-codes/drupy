@@ -475,7 +475,7 @@ def drupal_error_handler(errno, message, filename, line, context, errType = None
     # Force display of error messages in update.php.
     if (inc_bootstrap.variable_get('error_level', 1) == 1 or strstr(p.SERVER['SCRIPT_NAME'], 'update.py')):
       inc_bootstrap.drupal_set_message(entry, 'error');
-    watchdog('php', '%(message)s in %(file)s on line %(line)s.' % err, WATCHDOG_ERROR);
+    inc_bootstrap.watchdog('php', '%(message)s in %(filename)s on line %(line)s.' % err, inc_bootstrap.WATCHDOG_ERROR);
 
 
 

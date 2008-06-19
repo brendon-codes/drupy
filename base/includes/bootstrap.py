@@ -799,13 +799,13 @@ def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, link = N
     'severity'    : severity,
     'link'        : link,
     'user'        : user,
-    'request_uri' : base_root . request_uri(),
+    'request_uri' : base_root + request_uri(),
     'referer'     : referer_uri(),
     'ip'          : ip_address(),
-    'timestamp'   : drupy_time(),
+    'timestamp'   : p.time_(),
   }
   # Call the logging hooks to log/process the message
-  for module in module_implements('watchdog', True):
+  for module in inc_module.module_implements('watchdog', True):
     module_invoke(module, 'watchdog', log_message);
 
 
@@ -832,7 +832,7 @@ def drupal_set_message(message = None, type = 'status', repeat = True):
   if (message):
     if (not p.isset(p.SESSION, 'messages')):
       p.SESSION['messages'] = {};
-    if (not p.isset(_SESSION['messages'], type)):
+    if (not p.isset(p.SESSION['messages'], type)):
       p.SESSION['messages'][type] = [];
     if (repeat or not p.in_array(message, p.SESSION['messages'][type])):
       p.SESSION['messages'][type].append( message );
@@ -1322,7 +1322,7 @@ def registry_load_path_files(return_ = False):
 def registry_get_hook_implementations_cache():
   p.static(registry_get_hook_implementations_cache, 'implementations')
   if (registry_get_hook_implementations_cache.implementations == None):
-    cache = cache_get('hooks', 'cache_registry')
+    cache = inc_cache.cache_get('hooks', 'cache_registry')
     if (cache):
       registry_get_hook_implementations_cache.implementations = cache.data;
     else:
