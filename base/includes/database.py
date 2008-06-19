@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # $Id: database.inc,v 1.94 2008/04/20 18:23:21 dries Exp $
 
 #
@@ -33,7 +35,7 @@
 #
 # Includes
 #
-from lib.drupy.DrupyPHP import *
+from lib.drupy import DrupyPHP as p
 from sites.default.settings import *
 from lib.drupy import DrupyHelper
 from lib.drupy.DrupyMySQL import *
@@ -47,7 +49,7 @@ active_db = None
 
 
 #
-# A hash value to check when outputting database errors, md5('DB_ERROR').
+# A hash value to check when outputting database errors, p.md5('DB_ERROR').
 #
 # @see drupal_error_handler()
 #
@@ -120,19 +122,19 @@ def update_sql(sql):
 #
 def db_prefix_tables(sql):
   global db_prefix;
-  if (is_array(db_prefix)):
-    if (array_key_exists('default', db_prefix)):
+  if (p.is_array(db_prefix)):
+    if (p.array_key_exists('default', db_prefix)):
       tmp = db_prefix;
       del(tmp['default']);
       for key,val in tmp.items():
-        sql = strtr(sql, {('{' + key + '}') : (val + key)});
-      return strtr(sql, {'{' : db_prefix['default'], '}' : ''});
+        sql = p.strtr(sql, {('{' + key + '}') : (val + key)});
+      return p.strtr(sql, {'{' : db_prefix['default'], '}' : ''});
     else:
       for key,val in db_prefix.items():
-        sql = strtr(sql, {('{' + key + '}') : (val + key)});
-      return strtr(sql, {'{' : '', '}' : ''});
+        sql = p.strtr(sql, {('{' + key + '}') : (val + key)});
+      return p.strtr(sql, {'{' : '', '}' : ''});
   else:
-    return strtr(sql, {'{' : db_prefix, '}' : ''});
+    return p.strtr(sql, {'{' : db_prefix, '}' : ''});
 
 
 
@@ -160,18 +162,18 @@ def db_prefix_tables(sql):
 #
 def db_set_active(name = 'default'):
   global db_url, db_type, active_db, db_prefix;
-  static(db_set_active, 'db_conns', {})
-  static(db_set_active, 'active_name', False)
+  p.static(db_set_active, 'db_conns', {})
+  p.static(db_set_active, 'active_name', False)
   if (db_url == None):
-    include_once('includes/install.py');
+    p.include_once('includes/install.py');
     install_goto('install.py');
-  if (not isset(db_set_active.db_conns, name)):
+  if (not p.isset(db_set_active.db_conns, name)):
     # Initiate a new connection, using the named DB URL specified.
     if (isinstance(db_url, dict)):
-      connect_url = (db_url[name] if array_key_exists(name, db_url) else db_url['default']);
+      connect_url = (db_url[name] if p.array_key_exists(name, db_url) else db_url['default']);
     else:
       connect_url = db_url;
-    db_type = substr(connect_url, 0, strpos(connect_url, '://'));
+    db_type = p.substr(connect_url, 0, p.strpos(connect_url, '://'));
     #handler = "includes/database_%(db_type)s.py" % {'db_type' : db_type};
     #try:
     #  import db file here
@@ -179,9 +181,9 @@ def db_set_active(name = 'default'):
     #  _db_error_page("The database type '" + db_type + "' is unsupported. Please use either 'mysql' or 'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
     db_set_active.db_conns[name] = db.db_connect(connect_url);
     # We need to pass around the simpletest database prefix in the request
-    # and we put that in the user_agent header.
-    if (preg_match("/^simpletest\d+$/", SERVER['HTTP_USER_AGENT'])):
-      db_prefix = SERVER['HTTP_USER_AGENT'];
+    # and we put that in the user_agent p.header.
+    if (p.preg_match("/^simpletest\d+$/", p.SERVER['HTTP_USER_AGENT'])):
+      db_prefix = p.SERVER['HTTP_USER_AGENT'];
   previous_name = db_set_active.active_name;
   # Set the active connection.
   db_set_active.active_name = name;
@@ -225,20 +227,20 @@ def db_is_active():
 # Helper function for db_query().
 #
 def _db_query_callback(match, init = False):
-  static(_db_query_callback, 'args')
+  p.static(_db_query_callback, 'args')
   if (init):
     _db_query_callback.args = list(match);
     return;
   if match[1] == '%d': # We must use type casting to int to convert FALSE/NULL/(TRUE?)
-    return str(int(array_shift(_db_query_callback.args))); # We don't need db_escape_string as numbers are db-safe
+    return str(int(p.array_shift(_db_query_callback.args))); # We don't need db_escape_string as numbers are db-safe
   elif match[1] == '%s':
-    return db.db_escape_string(array_shift(_db_query_callback.args));
+    return db.db_escape_string(p.array_shift(_db_query_callback.args));
   elif match[1] == '%%':
     return '%';
   elif match[1] == '%f':
-    return float(array_shift(_db_query_callback.args));
+    return float(p.array_shift(_db_query_callback.args));
   elif match[1] == '%b': # binary data
-    return db.db_encode_blob(array_shift(_db_query_callback.args));
+    return db.db_encode_blob(p.array_shift(_db_query_callback.args));
 
 
 
@@ -255,7 +257,7 @@ def _db_query_callback(match, init = False):
 #
 def db_placeholders(arguments, type = 'int'):
   placeholder = db_type_placeholder(type);
-  return implode(',', array_fill(0, count(arguments), placeholder));
+  return p.implode(',', p.array_fill(0, p.count(arguments), placeholder));
 
 
 #

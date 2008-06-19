@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # $Id: module.inc,v 1.120 2008/05/13 17:38:42 dries Exp $
 
 #
@@ -29,7 +31,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-from lib.drupy.DrupyPHP import *
+from lib.drupy import DrupyPHP as p
 import bootstrap as inc_bootstrap
 import database as inc_database
 
@@ -70,8 +72,8 @@ def module_iterate(function, argument = ''):
 #   modules.
 #
 def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = None):
-  static(module_list, 'list_', [])
-  static(module_list, 'sorted_list')
+  p.static(module_list, 'list_', [])
+  p.static(module_list, 'sorted_list')
   if (refresh or fixed_list):
     module_list.sorted_list = None
     module_list.list_ = []
@@ -88,7 +90,7 @@ def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = No
         module_ = inc_database.db_fetch_object(result)
         if (module_ == None or module_ == False):
           break
-        if (file_exists(module_.filename)):
+        if (p.file_exists(module_.filename)):
           drupal_get_filename('module', module_.name, module_.filename)
           module_list.list_[module_.name] = module_.name
   if (sort):
@@ -122,9 +124,9 @@ def module_rebuild_cache():
   }
   for filename,file in files.items():
     # Look for the info file.
-    file.info = drupal_parse_info_file(dirname(file.filename) +  '/'  + file.name + '.info')
+    file.info = drupal_parse_info_file(p.dirname(file.filename) +  '/'  + file.name + '.info')
     # Skip modules that don't provide info.
-    if (empty(file.info)):
+    if (p.empty(file.info)):
       del(files[filename])
       continue
     # Merge in defaults and save.
@@ -139,12 +141,12 @@ def module_rebuild_cache():
         bootstrap = 1
         break
     # Update the contents of the system table:
-    if (isset(file, 'status') or (isset(file, 'old_filename') and file.old_filename != file.filename)):
-      db_query("UPDATE {system} SET info = '%s', name = '%s', filename = '%s', bootstrap = %d WHERE filename = '%s'", serialize(files[filename].info), file.name, file.filename, bootstrap, file.old_filename)
+    if (p.isset(file, 'status') or (p.isset(file, 'old_filename') and file.old_filename != file.filename)):
+      db_query("UPDATE {system} SET info = '%s', name = '%s', filename = '%s', bootstrap = %d WHERE filename = '%s'", p.serialize(files[filename].info), file.name, file.filename, bootstrap, file.old_filename)
     else:
       # This is a new module.
       files[filename].status = 0
-      db_query("INSERT INTO {system} (name, info, type, filename, status, bootstrap) VALUES ('%s', '%s', '%s', '%s', %d, %d)", file.name, serialize(files[filename].info), 'module', file.filename, 0, bootstrap)
+      db_query("INSERT INTO {system} (name, info, type, filename, status, bootstrap) VALUES ('%s', '%s', '%s', '%s', %d, %d)", file.name, p.serialize(files[filename].info), 'module', file.filename, 0, bootstrap)
   files = _module_build_dependencies(files)
   return files
 
@@ -174,15 +176,15 @@ def _module_build_dependencies(files):
     for filename,file in files.items():
       # We will modify this object (module A, see doxygen for module A, B, C).
       file = files[filename]
-      if (isset(file.info, 'dependencies') and is_array(file.info, 'dependencies')):
+      if (p.isset(file.info, 'dependencies') and p.is_array(file.info, 'dependencies')):
         for dependency_name in file.info['dependencies']:
           # This is a nonexistent module.
-          if (dependency_name == '-circular-' or not isset(files[dependency_name])):
+          if (dependency_name == '-circular-' or not p.isset(files[dependency_name])):
             continue
           # dependency_name is module B (again, see doxygen).
           files[dependency_name].info['dependents'][filename] = filename
           dependency = files[dependency_name]
-          if (isset(dependency.info['dependencies']) and is_array(dependency.info['dependencies'])):
+          if (p.isset(dependency.info['dependencies']) and p.is_array(dependency.info['dependencies'])):
             # Let's find possible C modules.
             for candidate in dependency.info['dependencies']:
               if (array_search(candidate, file.info['dependencies']) == False):
@@ -219,7 +221,7 @@ def _module_build_dependencies(files):
 #
 def module_exists(module_):
   list_ = module_list()
-  return isset(list_, module_)
+  return p.isset(list_, module_)
 
 
 #
@@ -227,7 +229,7 @@ def module_exists(module_):
 #
 def module_load_install(module_):
   # Make sure the installation API is available
-  include_once( './includes/install.py' )
+  p.include_once( './includes/install.py' )
   module_load_include('install', module_)
 
 
@@ -243,11 +245,11 @@ def module_load_install(module_):
 #   Optionally, specify the file name. If not set, the module's name is used.
 #
 def module_load_include(type_, module_, name = None):
-  if (empty(name)):
+  if (p.empty(name)):
     name = module_
   file = './' +  drupal_get_path('module', module)  + "/name.type"
-  if (is_file(file)):
-    require_once( file )
+  if (p.is_file(file)):
+    p.require_once( file )
     return file
   else:
     return False
@@ -280,7 +282,7 @@ def module_enable(module_list_):
       db_query("UPDATE {system} SET status = %d WHERE type = '%s' AND name = '%s'", 1, 'module', module_)
       drupal_load('module', module_)
       invoke_modules.append( module )
-  if (not empty(invoke_modules)):
+  if (not p.empty(invoke_modules)):
     # Refresh the module list to include the new enabled module.
     module_list(True, False)
     # Force to regenerate the stored list of hook implementations.
@@ -313,14 +315,14 @@ def module_disable(module_list_):
       module_invoke(module_, 'disable')
       db_query("UPDATE {system} SET status = %d WHERE type = '%s' AND name = '%s'", 0, 'module', module_)
       invoke_modules.append(module)
-  if (not empty(invoke_modules)):
+  if (not p.empty(invoke_modules)):
     # Refresh the module list to exclude the disabled modules.
     module_list(True, False)
     # Force to regenerate the stored list of hook implementations.
     drupal_rebuild_code_registry();
   # If there remains no more node_access module, rebuilding will be
   # straightforward, we can do it right now.
-  if (node_access_needs_rebuild() and count(module_implements('node_grants')) == 0):
+  if (node_access_needs_rebuild() and p.count(module_implements('node_grants')) == 0):
     node_access_rebuild()
 
 
@@ -358,8 +360,8 @@ def module_disable(module_list_):
 #
 def module_hook(module_, hook):
   function = module_ + '_' + hook;
-  if (defined('MAINTENANCE_MODE')):
-    return function_exists(function);
+  if (p.defined('MAINTENANCE_MODE')):
+    return p.function_exists(function);
   else:
      return drupal_function_exists(function);
 
@@ -381,15 +383,15 @@ def module_hook(module_, hook):
 #   An array with the names of the modules which are implementing this hook.
 #
 def module_implements(hook, sort = False, refresh = False):
-  static(module_implements, 'implementations', [])
+  p.static(module_implements, 'implementations', [])
   if (refresh):
     module_implements.implementations = []
-  elif (not defined('MAINTENANCE_MODE') and empty(module_implements.implementations)):
+  elif (not p.defined('MAINTENANCE_MODE') and p.empty(module_implements.implementations)):
     cache = cache_get('hooks', 'cache_registry')
     if (cache):
       module_implements.implementations = cache.data;
     module_implements.implementations = registry_get_hook_implementations_cache()
-  if (not isset(module_implements.implementations, hook)):
+  if (not p.isset(module_implements.implementations, hook)):
     module_implements.implementations[hook] = []
     for module_ in module_list():
       if (module_hook(module_, hook)):
@@ -445,13 +447,13 @@ def module_invoke_all(*args):
   for module_ in module_implements(hook):
     function = module_ +  '_'  + hook
     result = function( *args)
-    if (not empty(result) and is_array(result)):
+    if (not p.empty(result) and p.is_array(result)):
       return_ = array_merge_recursive(return_, result)
-    elif (not empty(result)):
+    elif (not p.empty(result)):
       return_.append( result )
     if (drupal_function_exists(function)):
       result = function(*args);
-      if (result != None and is_array(result)):
+      if (result != None and p.is_array(result)):
         return_ = array_merge_recursive(return_, result);
       elif (result != None):
         return_.append( result );

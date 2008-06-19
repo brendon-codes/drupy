@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 # $Id: index.php,v 1.94 2007/12/26 08:46:48 dries Exp $
 
 #
@@ -34,6 +35,13 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+
+from lib.drupy import DrupyPHP as p
+from includes import bootstrap as inc_bootstrap
+from includes import menu as inc_menu
+from includes import common as inc_common
+from includes import theme as inc_theme
+
 #
 #
 # THIS FILE IS NOT YET READY TO RUN
@@ -42,12 +50,14 @@
 #
 #
 
+print
+print "THIS FILE IS NOT YET FUNCTIONAL"
+print "TO SEE A RUNNING INSTANCE OF DRUPY"
+print "PLEASE RUN DRUPY.PY AS A CGI OR CLI"
+print
+p.flush()
+exit(1)
 
-from lib.drupy.DrupyPHP import *
-from includes import bootstrap as inc_bootstrap
-from includes import menu as inc_menu
-from includes import common as inc_common
-from includes import theme as inc_theme
 
 #
 # We need to catch all exceptions and send them to the
@@ -71,6 +81,6 @@ inc_common.drupal_page_footer();
 #
 # Flush the output
 #
-flush()
+p.flush()
 
 

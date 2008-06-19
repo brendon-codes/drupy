@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # $Id: unicode.inc,v 1.30 2008/04/14 17:48:33 dries Exp $
 
 
@@ -29,6 +31,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+from lib.drupy import DrupyPHP as p
 from xml.dom import minidom
 import htmlentitydefs
 import re

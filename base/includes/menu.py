@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # $Id: menu.inc,v 1.275 2008/06/12 20:49:39 dries Exp $
 #
 
@@ -30,6 +32,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+from lib.drupy import DrupyPHP as p
 
 #
 #
@@ -262,7 +265,7 @@ MENU_MAX_DEPTH = 9
 #   simply contain as many '%s' as the ancestors.
 #
 def menu_get_ancestors(parts):
-  number_parts = count(parts)
+  number_parts = p.count(parts)
   placeholders = []
   ancestors = []
   length =  number_parts - 1
@@ -297,7 +300,7 @@ def menu_get_ancestors(parts):
 # necessary change.
 #
 # Integer values are mapped according to the map parameter. For
-# example, if unserialize(data) is array('view', 1) and map is
+# example, if p.unserialize(data) is array('view', 1) and map is
 # array('node', '12345') then 'view' will not be changed because
 # it is not an integer, but 1 will as it is an integer. As map[1]
 # is '12345', 1 will be replaced with '12345'. So the result will
@@ -311,11 +314,11 @@ def menu_get_ancestors(parts):
 #   The data array unserialized and mapped.
 #
 def menu_unserialize(data, map):
-  data = unserialize(data)
+  data = p.unserialize(data)
   if (data):
     for k,v in data.items():
       if (is_int(v)):
-        data[k] = (map[v] if isset(map, v) else '')
+        data[k] = (map[v] if p.isset(map, v) else '')
     return data
   else:
     return []
@@ -354,14 +357,14 @@ def menu_set_item(path, router_item):
 #   filled in based on the database values and the objects loaded.
 #
 def menu_get_item(path = None, router_item = None):
-  static(menu_get_item, 'router_items')
-  if (not isset(path)):
-    path = GET['q']
+  p.static(menu_get_item, 'router_items')
+  if (not p.isset(path)):
+    path = p.GET['q']
   if (router_item != None):
     menu_get_item.router_items[path] = router_item
-  if (not isset(menu_get_item.router_items, path)):
+  if (not p.isset(menu_get_item.router_items, path)):
     original_map = arg(None, path)
-    parts = array_slice(original_map, 0, MENU_MAX_PARTS)
+    parts = p.array_slice(original_map, 0, MENU_MAX_PARTS)
     (ancestors, placeholders) = menu_get_ancestors(parts)
     router_item = db_fetch_array(db_query_range('SELECT * FROM {menu_router} WHERE path IN (' +  implode (',', placeholders)  + ') ORDER BY fit DESC', ancestors, 0, 1))
     if (router_item):
@@ -371,7 +374,7 @@ def menu_get_item(path = None, router_item = None):
         return False
       if (router_item['access']):
         router_item['map'] = map
-        router_item['page_arguments'] = array_merge(menu_unserialize(router_item['page_arguments'], map), array_slice(map, router_item['number_parts']))
+        router_item['page_arguments'] = p.array_merge(menu_unserialize(router_item['page_arguments'], map), p.array_slice(map, router_item['number_parts']))
     menu_get_item.router_items[path] = router_item
   return menu_get_item.router_items[path]
 
@@ -416,14 +419,14 @@ def _menu_load_objects(item, map_):
   load_functions = item['load_functions']
   if (load_functions):
     # If someone calls this function twice, then unserialize will fail.
-    load_functions_unserialized = unserialize(load_functions)
+    load_functions_unserialized = p.unserialize(load_functions)
     if (load_functions_unserialized):
       load_functions = load_functions_unserialized
     path_map = map_.val
     for index,function in load_functions.items():
       if (function):
-        value = (path_map[index] if isset(path_map, index) else '')
-        if (is_array(function)):
+        value = (path_map[index] if p.isset(path_map, index) else '')
+        if (p.is_array(function)):
           # Set up arguments for the load function. These were pulled from
           # 'load arguments' in the hook_menu() entry, but they need
           # some processing. In this case the function is the key to the
@@ -442,7 +445,7 @@ def _menu_load_objects(item, map_):
               # the map.
               args[i] = map_
             if (is_int(arg)):
-              args[i] = (path_map[arg] if isset(path_map, arg) else '')
+              args[i] = (path_map[arg] if p.isset(path_map, arg) else '')
           array_unshift(args, value)
           return_ = function(*args)
         else:
@@ -471,16 +474,16 @@ def _menu_check_access(item, map_):
   DrupyHelper.Reference.check(item)
   # Determine access callback, which will decide whether or not the current
   # user has access to this path.
-  callback = (0 if empty(item.val['access_callback']) else trim(item.val['access_callback']))
+  callback = (0 if p.empty(item.val['access_callback']) else p.trim(item.val['access_callback']))
   # Check for a True or False value.
-  if (is_numeric(callback)):
+  if (p.is_numeric(callback)):
     item['access'] = drupy_bool(callback)
   else:
     arguments = menu_unserialize(item.val['access_arguments'], map_)
     # As call_user_func_array is quite slow and user_access is a very common
     # callback, it is worth making a special case for it.
     if (callback == 'user_access'):
-      item.val['access'] = (user_access(arguments[0]) if (count(arguments) == 1) else user_access(arguments[0], arguments[1]))
+      item.val['access'] = (user_access(arguments[0]) if (p.count(arguments) == 1) else user_access(arguments[0], arguments[1]))
     else:
       item.val['access'] = callback(*arguments)
 
@@ -517,16 +520,16 @@ def _menu_item_localize(item, map_, link_translate = False):
   item.val['localized_options'] = item.val['options']
   # If we are not doing link translation or if the title matches the
   # link title of its router item, localize it.
-  if (not link_translate or (not empty(item.val['title']) and (item.val['title'] == item.val['link_title']))):
+  if (not link_translate or (not p.empty(item.val['title']) and (item.val['title'] == item.val['link_title']))):
     # t() is a special case. Since it is used very close to all the time,
     # we handle it directly instead of using indirect, slower methods.
     if (callback == 't'):
-      if (empty(item.val['title_arguments'])):
+      if (p.empty(item.val['title_arguments'])):
         item.val['title'] = t(item.val['title'])
       else:
         item['title'] = t(item.val['title'], menu_unserialize(item.val['title_arguments'], map_))
     elif (callback):
-      if (empty(item.val['title_arguments'])):
+      if (p.empty(item.val['title_arguments'])):
         item.val['title'] = callback(item.val['title'])
       else:
         item.val['title'] = callback(*menu_unserialize(item.val['title_arguments'], map_))
@@ -536,10 +539,10 @@ def _menu_item_localize(item, map_, link_translate = False):
   elif (link_translate):
     item.val['title'] = item.val['link_title']
   # Translate description, see the motivation above.
-  if (not empty(item.val['description'])):
+  if (not p.empty(item.val['description'])):
     original_description = item.val['description']
     item.val['description'] = t(item.val['description'])
-    if (link_translate and isset(item['options']['attributes'], 'title') and \
+    if (link_translate and p.isset(item['options']['attributes'], 'title') and \
         item['options']['attributes']['title'] == original_description):
       item.val['localized_options']['attributes']['title'] = item.val['description']
 
@@ -585,11 +588,11 @@ def _menu_translate(router_item, map_, to_arg = False):
   if (to_arg):
     _menu_link_map_translate(path_map, router_item.val['to_arg_functions'])
   # Generate the link path for the page request or local tasks.
-  link_map = explode('/', router_item.val['path'])
+  link_map = p.explode('/', router_item.val['path'])
   for i in range(router_item.val['number_parts']):
     if (link_map[i] == '%'):
       link_map[i] = path_map[i]
-  router_item.val['href'] = implode('/', link_map)
+  router_item.val['href'] = p.implode('/', link_map)
   router_item.val['options'] = {}
   _menu_check_access(router_item.val, map_)
   # For performance, don't localize an item the user can't access.
@@ -612,11 +615,11 @@ def _menu_translate(router_item, map_, to_arg = False):
 def _menu_link_map_translate(map_, to_arg_functions):
   DrupyHelper.Reference.check(map_)
   if (to_arg_functions):
-    to_arg_functions = unserialize(to_arg_functions)
+    to_arg_functions = p.unserialize(to_arg_functions)
     for index,function in to_arg_functions.items():
       # Translate place-holders into real values.
-      arg = function((map_.val[index] if (not empty(map_.val[index])) else ''), map_.val, index)
-      if (not empty(map[index]) or isset(arg)):
+      arg = function((map_.val[index] if (not p.empty(map_.val[index])) else ''), map_.val, index)
+      if (not p.empty(map[index]) or p.isset(arg)):
         map_.val[index] = arg
       else:
         del(map_.val[index])
@@ -625,7 +628,7 @@ def _menu_link_map_translate(map_, to_arg_functions):
 
 
 def menu_tail_to_arg(arg, map_, index):
-  return implode('/', array_slice(map_, index))
+  return p.implode('/', p.array_slice(map_, index))
 
 
 
@@ -647,7 +650,7 @@ def menu_tail_to_arg(arg, map_, index):
 #
 def _menu_link_translate(item):
   DrupyHelper.Reference.check(item)
-  item.val['options'] = unserialize(item.val['options'])
+  item.val['options'] = p.unserialize(item.val['options'])
   if (item.val['external']):
     item.val['access'] = 1
     map_ = {}
@@ -655,15 +658,15 @@ def _menu_link_translate(item):
     item.val['title'] = item.val['link_title']
     item.val['localized_options'] = item.val['options']
   else:
-    map_ = explode('/', item.val['link_path'])
+    map_ = p.explode('/', item.val['link_path'])
     _menu_link_map_translate(map_, item.val['to_arg_functions'])
-    item.val['href'] = implode('/', map_)
+    item.val['href'] = p.implode('/', map_)
     # Note - skip callbacks without real values for their arguments.
-    if (strpos(item.val['href'], '%') != False):
+    if (p.strpos(item.val['href'], '%') != False):
       item.val['access'] = False
       return False
     # menu_tree_check_access() may set this ahead of time for links to nodes.
-    if (not isset(item.val['access'])):
+    if (not p.isset(item.val['access'])):
       if (not _menu_load_objects(item.val, map_)):
         # An error occurred loading an object.
         item.val['access'] = False
@@ -676,7 +679,7 @@ def _menu_link_translate(item):
   # Allow other customizations - e.g. adding a page-specific query string to the
   # options array. For performance reasons we only invoke this hook if the link
   # has the 'alter' flag set in the options array.
-  if (not empty(item.val['options']['alter'])):
+  if (not p.empty(item.val['options']['alter'])):
     drupal_alter('translated_menu_link', item.val, map_)
   return map_
 
@@ -705,7 +708,7 @@ def _menu_link_translate(item):
 #
 def menu_get_object(type_ = 'node', position = 1, path = None):
   router_item = menu_get_item(path)
-  if (isset(router_item['load_functions'], position) and not empty(router_item['map'][position]) and router_item['load_functions'][position] == type_ +  '_load'):
+  if (p.isset(router_item['load_functions'], position) and not p.empty(router_item['map'][position]) and router_item['load_functions'][position] == type_ +  '_load'):
     return router_item['map'][position]
 
 
@@ -724,8 +727,8 @@ def menu_get_object(type_ = 'node', position = 1, path = None):
 #   The rendered HTML of that menu on the current page.
 #
 def menu_tree(menu_name = 'navigation'):
-  static(menu_tree, 'menu_output', {})
-  if (not isset(menu_tree.menu_output, menu_name)):
+  p.static(menu_tree, 'menu_output', {})
+  if (not p.isset(menu_tree.menu_output, menu_name)):
     tree = menu_tree_page_data(menu_name)
     menu_tree.menu_output[menu_name] = menu_tree_output(tree)
   return menu_tree.menu_output[menu_name]
@@ -749,7 +752,7 @@ def menu_tree_output(tree):
   for data in tree:
     if (not data['link']['hidden']):
       items.append( data )
-  num_items = count(items)
+  num_items = p.count(items)
   for i,data in items.items():
     extra_class = None
     if (i == 0):
@@ -783,23 +786,23 @@ def menu_tree_output(tree):
 #   An tree of menu links in an array, in the order they should be rendered.
 #
 def menu_tree_all_data(menu_name = 'navigation', item = None):
-  static(menu_tree_all_data, 'tree', {})
+  p.static(menu_tree_all_data, 'tree', {})
   data = None
   # Use mlid as a flag for whether the data being loaded is for the whole tree.
-  mlid = (item['mlid'] if isset(item, 'mlid') else 0)
+  mlid = (item['mlid'] if p.isset(item, 'mlid') else 0)
   # Generate a cache ID (cid) specific for this menu_name and item.
   cid = 'links:' +  menu_name  + ':all-cid:' + mlid
-  if (not isset(menu_tree_all_data.tree, cid)):
+  if (not p.isset(menu_tree_all_data.tree, cid)):
     # If the static variable doesn't have the data, check {cache_menu}.
     cache = cache_get(cid, 'cache_menu')
-    if (cache and isset(cache, 'data')):
+    if (cache and p.isset(cache, 'data')):
       # If the cache entry exists, it will just be the cid for the actual data.
       # This avoids duplication of large amounts of data.
       cache = cache_get(cache.data, 'cache_menu')
-      if (cache and isset(cache, 'data')):
+      if (cache and p.isset(cache, 'data')):
         data = cache.data
     # If the tree data was not in the cache, data will be None.
-    if (not isset(data)):
+    if (not p.isset(data)):
       # Build and run the query, and build the tree.
       if (mlid):
         # The tree is for a single item, so we need to match the values in its
@@ -808,7 +811,7 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
         for i in range(1, MENU_MAX_DEPTH):
           args.append( item["pi"] )
         args = array_unique(args)
-        placeholders = implode(', ', array_fill(0, count(args), '%d'))
+        placeholders = p.implode(', ', p.array_fill(0, p.count(args), '%d'))
         where = ' AND ml.plid IN (' +  placeholders  + ')'
         parents = args
         parents.append( item['mlid'] )
@@ -860,24 +863,24 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
 #   same structure described for the top-level array.
 #
 def menu_tree_page_data(menu_name = 'navigation'):
-  static(menu_tree_page_data, 'tree', {})
+  p.static(menu_tree_page_data, 'tree', {})
   # Load the menu item corresponding to the current page.
   data = None
   item = menu_get_item()
   if (item):
     # Generate a cache ID (cid) specific for this page.
     cid = 'links:' +  menu_name  + ':page-cid:' + item['href'] + ':' + int(item['access'])
-    if (not isset(tree, cid)):
+    if (not p.isset(tree, cid)):
       # If the static variable doesn't have the data, check {cache_menu}.
       cache = cache_get(cid, 'cache_menu')
-      if (cache and isset(cache, 'data')):
+      if (cache and p.isset(cache, 'data')):
         # If the cache entry exists, it will just be the cid for the actual data.
         # This avoids duplication of large amounts of data.
         cache = cache_get(cache.data, 'cache_menu')
-        if (cache and isset(cache, 'data')):
+        if (cache and p.isset(cache, 'data')):
           data = cache.data
       # If the tree data was not in the cache, data will be None.
-      if (not isset(data)):
+      if (not p.isset(data)):
         # Build and run the query, and build the tree.
         if (item['access']):
           # Check whether a menu link exists that corresponds to the current path.
@@ -887,18 +890,18 @@ def menu_tree_page_data(menu_name = 'navigation'):
             args.append( '<front>' )
             placeholders += ", '%s'"
           parents = db_fetch_array(db_query("SELECT p1, p2, p3, p4, p5, p6, p7, p8 FROM {menu_links} WHERE menu_name = '%s' AND link_path IN (" +  placeholders  + ")", args))
-          if (empty(parents)):
+          if (p.empty(parents)):
             # If no link exists, we may be on a local task that's not in the links.
             # TODO: Handle the case like a local task on a specific node in the menu.
             parents = db_fetch_array(db_query("SELECT p1, p2, p3, p4, p5, p6, p7, p8 FROM {menu_links} WHERE menu_name = '%s' AND link_path = '%s'", menu_name, item['tab_root']))
           # We always want all the top-level links with plid == 0.
           parents.append( '0' )
-          # Use array_values() so that the indices are numeric for array_merge().
+          # Use array_values() so that the indices are numeric for p.array_merge().
           args = parents = array_unique(array_values(parents))
-          placeholders = implode(', ', array_fill(0, count(args), '%d'))
+          placeholders = p.implode(', ', p.array_fill(0, p.count(args), '%d'))
           expanded = variable_get('menu_expanded', [])
           # Check whether the current menu has any links set to be expanded.
-          if (in_array(menu_name, expanded)):
+          if (p.in_array(menu_name, expanded)):
             # Collect all the links set to be expanded, and then add all of
             # their children to the list as well.
             while True:
@@ -908,7 +911,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
                 placeholders  + \
                 ") AND mlid NOT IN (" + \
                 placeholders + \
-                ")", array_merge(array(menu_name), args, args))
+                ")", p.array_merge(array(menu_name), args, args))
               num_rows = False
               while True:
                 item = db_fetch_array(result)
@@ -916,7 +919,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
                   break
                 args.append( item['mlid'] )
                 num_rows = True
-              placeholders = implode(', ', array_fill(0, count(args), '%d'))
+              placeholders = p.implode(', ', p.array_fill(0, p.count(args), '%d'))
               if not num_rows:
                 break
           array_unshift(args, menu_name)
@@ -958,7 +961,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
 # Helper function - compute the real cache ID for menu tree data.
 #
 def _menu_tree_cid(menu_name, data):
-  return 'links:' +  menu_name  + ':tree-data:' + md5(serialize(data))
+  return 'links:' +  menu_name  + ':tree-data:' + p.md5(p.serialize(data))
 
 
 
@@ -971,8 +974,8 @@ def menu_tree_collect_node_links(tree, node_links):
   DrupyHelper.Reference.check(node_links)
   for key,v in tree.val.items():
     if (tree.val[key]['link']['router_path'] == 'node/%'):
-      nid = substr(tree[key]['link']['link_path'], 5)
-      if (is_numeric(nid)):
+      nid = p.substr(tree[key]['link']['link_path'], 5)
+      if (p.is_numeric(nid)):
         node_links.val[nid][tree[key]['link']['mlid']] = DrupyHelper.Reference(tree.val[key]['link'])
         tree.val[key]['link']['access'] = False
     if (tree.val[key]['below']):
@@ -985,10 +988,10 @@ def menu_tree_collect_node_links(tree, node_links):
 #
 def menu_tree_check_access(tree, node_links = {}):
   DrupyHelper.Reference.check(tree)
-  if (not empty(node_links)):
+  if (not p.empty(node_links)):
     # Use db_rewrite_sql to evaluate view access without loading each full node.
-    nids = array_keys(node_links)
-    placeholders = '%d' +  str_repeat(', %d', count(nids) - 1)
+    nids = p.array_keys(node_links)
+    placeholders = '%d' +  str_repeat(', %d', p.count(nids) - 1)
     result = db_query(db_rewrite_sql("SELECT n.nid FROM {node} n WHERE n.status = 1 AND n.nid IN (" +  placeholders  + ")"), nids)
     while True:
       node = db_fetch_array(result)
@@ -1061,7 +1064,7 @@ def _menu_tree_data(result, parents, depth, previous_element = ''):
       break
     # We need to determine if we're on the path to root so we can later build
     # the correct active trail and breadcrumb.
-    item['in_active_trail'] = in_array(item['mlid'], parents)
+    item['in_active_trail'] = p.in_array(item['mlid'], parents)
     # The current item is the first in a new submenu.
     if (item['depth'] > depth):
       # _menu_tree returns an item and the menu tree structure.
@@ -1109,7 +1112,7 @@ def _menu_tree_data(result, parents, depth, previous_element = ''):
 # @ingroup themeable
 #
 def theme_menu_item_link(link):
-  if (empty(link['localized_options'])):
+  if (p.empty(link['localized_options'])):
     link['localized_options'] = {}
   return l(link['title'], link['href'], link['localized_options'])
 
@@ -1134,8 +1137,8 @@ def theme_menu_tree(tree):
 # @ingroup themeable
 #
 def theme_menu_item(link, has_children, menu = '', in_active_trail = False, extra_class = None):
-  class_ = ('expanded' if not empty(menu) else ('collapsed' if has_children else 'leaf'))
-  if (not empty(extra_class)):
+  class_ = ('expanded' if not p.empty(menu) else ('collapsed' if has_children else 'leaf'))
+  if (not p.empty(extra_class)):
     class_ += ' ' +  extra_class
   if (in_active_trail):
     class_ += ' active-trail'
@@ -1192,8 +1195,8 @@ def menu_get_active_help():
 # Build a list of named menus.
 #
 def menu_get_names(reset = False):
-  static(menu_get_names, 'names', [])
-  if (reset or empty(menu_get_names.names)):
+  p.static(menu_get_names, 'names', [])
+  if (reset or p.empty(menu_get_names.names)):
     result = db_query("SELECT DISTINCT(menu_name) FROM {menu_links} ORDER BY menu_name")
     while True:
       name = db_fetch_array(result)
@@ -1247,7 +1250,7 @@ def menu_secondary_links():
 #
 def menu_navigation_links(menu_name, level = 0):
   # Don't even bother querying the menu table if no menu is specified.
-  if (empty(menu_name)):
+  if (p.empty(menu_name)):
     return []
   # Get the menu hierarchy for the current page.
   tree = menu_tree_page_data(menu_name)
@@ -1256,12 +1259,12 @@ def menu_navigation_links(menu_name, level = 0):
     level -= 1
     # Loop through the current level's items until we find one that is in trail.
     while True:
-      item = array_shift(tree)
-      if empty(item):
+      item = p.array_shift(tree)
+      if p.empty(item):
         break
       if (item['link']['in_active_trail']):
         # If the item is in the active trail, we continue in the subtree.
-        tree = ([] if empty(item['below']) else item['below'])
+        tree = ([] if p.empty(item['below']) else item['below'])
         break
   # Create a single level of links.
   links = []
@@ -1292,9 +1295,9 @@ def menu_navigation_links(menu_name, level = 0):
 #   a parent tab, if the current page is a default local task.
 #
 def menu_local_tasks(level = 0, return_root = False):
-  static(menu_local_tasks, 'tabs', [])
-  static(menu_local_tasks, 'root_path')
-  if (empty(menu_local_tasks.tabs)):
+  p.static(menu_local_tasks, 'tabs', [])
+  p.static(menu_local_tasks, 'root_path')
+  if (p.empty(menu_local_tasks.tabs)):
     router_item = menu_get_item()
     if (not router_item or not router_item['access']):
       return ''
@@ -1319,7 +1322,7 @@ def menu_local_tasks(level = 0, return_root = False):
     # Tab parenting may skip levels, so the number of parts in the path may not
     # equal the depth. Thus we use the depth counter (offset by 1000 for ksort).
     depth = 1001
-    while (isset(children, path)):
+    while (p.isset(children, path)):
       tabs_current = ''
       next_path = ''
       count = 0
@@ -1349,7 +1352,7 @@ def menu_local_tasks(level = 0, return_root = False):
     path = router_item['path']
     current = router_item
     depth = 1000
-    while (isset(children, parent)):
+    while (p.isset(children, parent)):
       tabs_current = ''
       next_path = ''
       next_parent = ''
@@ -1373,7 +1376,7 @@ def menu_local_tasks(level = 0, return_root = False):
           if (item['path'] == path):
             tabs_current += theme('menu_local_task', link, True)
             next_path = item['tab_parent']
-            if (isset(tasks, next_path)):
+            if (p.isset(tasks, next_path)):
               next_parent = tasks[next_path]['tab_parent']
           else:
             tabs_current += theme('menu_local_task', link)
@@ -1390,7 +1393,7 @@ def menu_local_tasks(level = 0, return_root = False):
     return menu_local_tasks.rootpath
   else:
     # We do not display single tabs.
-    return (menu_local_tasks.tabs[level]['output'] if (isset(menu_local_tasks.tabs, level) and \
+    return (menu_local_tasks.tabs[level]['output'] if (p.isset(menu_local_tasks.tabs, level) and \
       menu_local_tasks.tabs[level]['count'] > 1) else '')
 
 
@@ -1441,7 +1444,7 @@ def theme_menu_local_tasks():
 # Set (or get) the active menu for the current page - determines the active trail.
 #
 def menu_set_active_menu_name(menu_name = None):
-  static(menu_set_active_menu_name, 'active')
+  p.static(menu_set_active_menu_name, 'active')
   if (menu_name != None):
     menu_set_active_menu_name.active = menu_name
   elif (menu_set_active_menu_name.active == None):
@@ -1469,7 +1472,7 @@ def menu_get_active_menu_name():
 # menu_execute_active_handler() to generate your page output.
 #
 def menu_set_active_item(path):
-  GET['q'] = path
+  p.GET['q'] = path
 
 
 
@@ -1477,7 +1480,7 @@ def menu_set_active_item(path):
 # Set (or get) the active trail for the current page - the path to root in the menu tree.
 #
 def menu_set_active_trail(new_trail = None):
-  static(menu_set_active_trail, 'trail')
+  p.static(menu_set_active_trail, 'trail')
   if (new_trail != None):
     static_menusetactivetrail_trail = new_trail
   elif (static_menusetactivetrail_trail == None):
@@ -1490,14 +1493,14 @@ def menu_set_active_trail(new_trail = None):
       # Thus, replace it with the item corresponding to the root path to get
       # the relevant href and title.  For example, the menu item corresponding
       # to 'admin' is used when on the 'By module' tab at 'admin/by-module'.
-      parts = explode('/', item['tab_root'])
+      parts = p.explode('/', item['tab_root'])
       args = arg()
       # Replace wildcards in the root path using the current path.
       for index,part in parts.items():
         if (part == '%'):
           parts[index] = args[index]
       # Retrieve the menu item using the root path after wildcard replacement.
-      root_item = menu_get_item(implode('/', parts))
+      root_item = menu_get_item(p.implode('/', parts))
       if (root_item and root_item['access']):
         item = root_item
     tree = menu_tree_page_data(menu_get_active_menu_name())
@@ -1515,7 +1518,7 @@ def menu_set_active_trail(new_trail = None):
         key,curr = each(tree)
     # Make sure the current page is in the trail (needed for the page title),
     # but exclude tabs and the front page.
-    last = count(menu_set_active_trail.trail) - 1
+    last = p.count(menu_set_active_trail.trail) - 1
     if (menu_set_active_trail.trail[last]['href'] != item['href'] and not \
         drupy_bool(item['type'] & MENU_IS_LOCAL_TASK) and not drupal_is_front_page()):
       menu_set_active_trail.trail.append( item )
@@ -1547,7 +1550,7 @@ def menu_get_active_breadcrumb():
     end = end(active_trail)
     # Don't show a link to the current page in the breadcrumb trail.
     if (item['href'] == end['href'] or (item['type'] == MENU_DEFAULT_LOCAL_TASK and end['href'] != '<front>')):
-      array_pop(breadcrumb)
+      p.array_pop(breadcrumb)
   return breadcrumb
 
 
@@ -1557,7 +1560,7 @@ def menu_get_active_breadcrumb():
 #
 def menu_get_active_title():
   active_trail = menu_get_active_trail()
-  for item in array_reverse(active_trail):
+  for item in p.array_reverse(active_trail):
     if (not drupy_bool(item['type'] & MENU_IS_LOCAL_TASK)):
       return item['title']
 
@@ -1578,7 +1581,7 @@ def menu_get_active_title():
 #
 def menu_link_load(mlid):
   item = db_fetch_array(db_query("SELECT m.*, ml.* FROM {menu_links} ml LEFT JOIN {menu_router} m ON m.path = ml.router_path WHERE ml.mlid = %d", mlid))
-  if (is_numeric(mlid) and item):
+  if (p.is_numeric(mlid) and item):
     _menu_link_translate(item)
     return item
   return False
@@ -1589,9 +1592,9 @@ def menu_link_load(mlid):
 # Clears the cached cached data for a single named menu.
 #
 def menu_cache_clear(menu_name = 'navigation'):
-  static(menu_cache_clear, 'cache_cleared', {})
-  if (not isset(menu_cache_clear.cache_cleared, menu_name) or \
-      empty(menu_cache_clear.cache_cleared[menu_name])):
+  p.static(menu_cache_clear, 'cache_cleared', {})
+  if (not p.isset(menu_cache_clear.cache_cleared, menu_name) or \
+      p.empty(menu_cache_clear.cache_cleared[menu_name])):
     cache_clear_all('links:' +  menu_name  + ':', 'cache_menu', True)
     menu_cache_clear.cache_cleared[menu_name] = 1
   elif (menu_cache_clear.cache_cleared[menu_name] == 1):
@@ -1626,7 +1629,7 @@ def menu_rebuild():
   _menu_navigation_links_rebuild(menu)
   # Clear the page and block caches.
   _menu_clear_page_cache()
-  if (defined('MAINTENANCE_MODE')):
+  if (p.defined('MAINTENANCE_MODE')):
     variable_set('menu_rebuild_needed', True)
 
 
@@ -1635,10 +1638,10 @@ def menu_rebuild():
 # Collect, alter and store the menu definitions.
 #
 def menu_router_build(reset = False):
-  static(menu_router_build, 'menu')
+  p.static(menu_router_build, 'menu')
   if (menu_router_build.menu == None or reset):
     cache = cache_get('router:', 'cache_menu')
-    if (not reset and cache and isset(cache, 'data')):
+    if (not reset and cache and p.isset(cache, 'data')):
       menu_router_build.menu = cache.data
     else:
       db_query('DELETE FROM {menu_router}')
@@ -1647,10 +1650,10 @@ def menu_router_build(reset = False):
       callbacks = []
       for module in module_implements('menu', None, True):
         router_items = (module+'_menu')()
-        if (router_items != None and is_array(router_items)):
-          for path in array_keys(router_items):
+        if (router_items != None and p.is_array(router_items)):
+          for path in p.array_keys(router_items):
             router_items[path]['module'] = module
-          callbacks = array_merge(callbacks, router_items)
+          callbacks = p.array_merge(callbacks, router_items)
       # Alter the menu as defined in modules, keys are like user/%user.
       drupal_alter('menu', callbacks)
       menu_router_build.menu = _menu_router_build(callbacks)
@@ -1676,7 +1679,7 @@ def _menu_link_build(item):
     'link_title' : item['title'],
     'link_path' : item['path'],
     'hidden' : 0,
-    'options' : ({} if empty(item['description']) else {'attributes' : {'title' : item['description']}}),
+    'options' : ({} if p.empty(item['description']) else {'attributes' : {'title' : item['description']}}),
   }
   return item
 
@@ -1707,7 +1710,7 @@ def _menu_navigation_links_rebuild(menu):
       if (not existing_item or not existing_item['customized']):
         menu_link_save(item)
   placeholders = db_placeholders(menu, 'varchar')
-  paths = array_keys(menu)
+  paths = p.array_keys(menu)
   # Updated and customized items whose router paths are gone need new ones.
   result = db_query("SELECT ml.link_path, ml.mlid, ml.router_path, ml.updated FROM {menu_links} ml WHERE ml.updated = 1 OR (router_path NOT IN (placeholders) AND external = 0 AND customized = 1)", paths)
   while True:
@@ -1715,7 +1718,7 @@ def _menu_navigation_links_rebuild(menu):
     if not item:
       break
     router_path = _menu_find_router_path(menu, item['link_path'])
-    if (not empty(router_path) and (router_path != item['router_path'] or item['updated'])):
+    if (not p.empty(router_path) and (router_path != item['router_path'] or item['updated'])):
       # If the router path and the link path matches, it's surely a working
       # item, so we clear the updated flag.
       updated = item['updated'] and router_path != item['link_path']
@@ -1741,7 +1744,7 @@ def _menu_navigation_links_rebuild(menu):
 #   The path to the menu items to be deleted. mlid must be None.
 #
 def menu_link_delete(mlid, path = None):
-  if (not empty(mlid)):
+  if (not p.empty(mlid)):
     _menu_delete_item(db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", mlid)))
   else:
     result = db_query("SELECT * FROM {menu_links} WHERE link_path = '%s'", path)
@@ -1816,9 +1819,9 @@ def menu_link_save(item):
     'updated' : 0,
   }
   existing_item = False
-  if (isset(item.val, 'mlid')):
+  if (p.isset(item.val, 'mlid')):
     existing_item = db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", item.val['mlid']))
-  if (isset(item.val, 'plid')):
+  if (p.isset(item.val, 'plid')):
     parent = db_fetch_array(db_query("SELECT * FROM {menu_links} WHERE mlid = %d", item.val['plid']))
   else:
     # Find the parent - it must be unique.
@@ -1835,7 +1838,7 @@ def menu_link_save(item):
       arg2 = item.val['menu_name']
     while True:
       parent = False
-      parent_path = substr(parent_path, 0, strrpos(parent_path, '/'))
+      parent_path = p.substr(parent_path, 0, strrpos(parent_path, '/'))
       result = db_query("SELECT COUNT(*) FROM {menu_links} " +  where, parent_path, arg2)
       # Only valid if we get a unique result.
       if (db_result(result) == 1):
@@ -1847,7 +1850,7 @@ def menu_link_save(item):
   menu_name = item.val['menu_name']
   # Menu callbacks need to be in the links table for breadcrumbs, but can't
   # be parents if they are generated directly from a router item.val.
-  if (empty(parent['mlid']) or parent['hidden'] < 0):
+  if (p.empty(parent['mlid']) or parent['hidden'] < 0):
     item.val['plid'] =  0
   else:
     item.val['plid'] = parent['mlid']
@@ -1865,7 +1868,7 @@ def menu_link_save(item):
       item.val['menu_name'], item.val['plid'], item.val['link_path'],
       item.val['hidden'], item.val['_external'], item.val['has_children'],
       item.val['expanded'], item.val['weight'],
-      item.val['module'],  item.val['link_title'], serialize(item.val['options']),
+      item.val['module'],  item.val['link_title'], p.serialize(item.val['options']),
       item.val['customized'], item.val['updated'])
     item.val['mlid'] = db_last_insert_id('menu_links', 'mlid')
   if (not item.val['plid']):
@@ -1888,13 +1891,13 @@ def menu_link_save(item):
     _menu_link_move_children(item.val, existing_item)
   # Find the callback. During the menu update we store empty paths to be
   # fixed later, so we skip this.
-  if (not isset(_SESSION, 'system_update_6021') and (empty(item.val['router_path'])  or \
+  if (not p.isset(_SESSION, 'system_update_6021') and (p.empty(item.val['router_path'])  or \
       not existing_item or (existing_item['link_path'] != item.val['link_path']))):
     if (item.val['_external']):
       item.val['router_path'] = ''
     else:
       # Find the router path which will serve this path.
-      item.val['parts'] = explode('/', item.val['link_path'], MENU_MAX_PARTS)
+      item.val['parts'] = p.explode('/', item.val['link_path'], MENU_MAX_PARTS)
       item.val['router_path'] = _menu_find_router_path(menu, item.val['link_path'])
   db_query( \
     "UPDATE {menu_links} SET menu_name = '%s', plid = %d, link_path = '%s', " + \
@@ -1906,7 +1909,7 @@ def menu_link_save(item):
     item.val['router_path'], item.val['hidden'], item.val['_external'], item.val['has_children'],
     item.val['expanded'], item.val['weight'],  item.val['depth'],
     item.val['p1'], item.val['p2'], item.val['p3'], item.val['p4'], item.val['p5'], item.val['p6'], item.val['p7'], item.val['p8'], item.val['p9'],
-    item.val['module'],  item.val['link_title'], serialize(item.val['options']), item.val['customized'], item.val['mlid'])
+    item.val['module'],  item.val['link_title'], p.serialize(item.val['options']), item.val['customized'], item.val['mlid'])
   # Check the has_children status of the parent.
   _menu_update_parental_status(item.val)
   menu_cache_clear(menu_name)
@@ -1922,7 +1925,7 @@ def menu_link_save(item):
 # Helper function to clear the page and block caches at most twice per page load.
 #
 def _menu_clear_page_cache():
-  static(_menu_clear_page_cache, 'cache_cleared', 0)
+  p.static(_menu_clear_page_cache, 'cache_cleared', 0)
   # Clear the page and block caches, but at most twice, including at
   #  the end of the page load when there are multple links saved or deleted.
   if (_menu_clear_page_cache.cache_cleared == 0):
@@ -1965,13 +1968,13 @@ def _menu_set_expanded_menus():
 #  place.
 #
 def _menu_find_router_path(menu, link_path):
-  parts = explode('/', link_path, MENU_MAX_PARTS)
+  parts = p.explode('/', link_path, MENU_MAX_PARTS)
   router_path = link_path
-  if (not isset(menu, router_path)):
+  if (not p.isset(menu, router_path)):
     ancestors = menu_get_ancestors(parts)
     ancestors.append('')
     for key,router_path in ancestors.items():
-      if (isset(menu, router_path)):
+      if (p.isset(menu, router_path)):
         break
   return router_path
 
@@ -2074,8 +2077,8 @@ def _menu_link_move_children(item, existing_item):
     # old ones before they can be used because "Single-table UPDATE
     # assignments are generally evaluated from left to right"
     # see: http://dev.mysql.com/doc/refman/5.0/en/update.html
-    set = array_reverse(set)
-    args = array_reverse(args)
+    set = p.array_reverse(set)
+    args = p.array_reverse(args)
     args.append( shift )
     set.append( 'depth = depth + %d' )
   where.append( "menu_name = '%s'" )
@@ -2089,7 +2092,7 @@ def _menu_link_move_children(item, existing_item):
     args.append( existing_item[p] )
     i += 1
     p = 'p' + i
-  db_query("UPDATE {menu_links} SET " +  implode(', ', set)  + " WHERE " . implode(' AND ', where), args)
+  db_query("UPDATE {menu_links} SET " +  p.implode(', ', set)  + " WHERE " . p.implode(' AND ', where), args)
   # Check the has_children status of the parent, while excluding this item.
   _menu_update_parental_status(existing_item, True)
 
@@ -2140,16 +2143,16 @@ def _menu_router_build(callbacks):
     to_arg_functions = []
     fit = 0
     move = False
-    parts = explode('/', path, MENU_MAX_PARTS)
-    number_parts = count(parts)
+    parts = p.explode('/', path, MENU_MAX_PARTS)
+    number_parts = p.count(parts)
     # We store the highest index of parts here to save some work in the fit
     # calculation loop.
     slashes = number_parts - 1
     # Extract load and to_arg functions.
     for k,part in parts.items():
       match = False
-      if (preg_match('/^%([a-z_]*)$/', part, matches)):
-        if (empty(matches[1])):
+      if (p.preg_match('/^%([a-z_]*)$/', part, matches)):
+        if (p.empty(matches[1])):
           match = True
           load_functions[k] = None
         else:
@@ -2162,7 +2165,7 @@ def _menu_router_build(callbacks):
             # Create an array of arguments that will be passed to the _load
             # function when this menu path is checked, if 'load arguments'
             # exists.
-            load_functions[k] = ({function : item['load arguments']} if isset(item, 'load arguments') else function)
+            load_functions[k] = ({function : item['load arguments']} if p.isset(item, 'load arguments') else function)
             match = True
       if (match):
         parts[k] = '%'
@@ -2174,8 +2177,8 @@ def _menu_router_build(callbacks):
       # If there is no %, it fits maximally.
       fit = (1 << number_parts) - 1
     masks[fit] = 1
-    item['load_functions'] = ('' if empty(load_functions) else serialize(load_functions))
-    item['to_arg_functions'] = ('' if empty(to_arg_functions) else serialize(to_arg_functions))
+    item['load_functions'] = ('' if p.empty(load_functions) else p.serialize(load_functions))
+    item['to_arg_functions'] = ('' if p.empty(to_arg_functions) else p.serialize(to_arg_functions))
     item += {
       'title' : '',
       'weight' : 0,
@@ -2189,7 +2192,7 @@ def _menu_router_build(callbacks):
       '_tab' : drupy_bool((item['type'] & MENU_IS_LOCAL_TASK)),
     }
     if (move):
-      new_path = implode('/', item['_parts'])
+      new_path = p.implode('/', item['_parts'])
       menu[new_path] = item
       sort[new_path] = number_parts
     else:
@@ -2204,31 +2207,31 @@ def _menu_router_build(callbacks):
       item['tab_parent'] = ''
       item['tab_root'] = path
     for i in range(item['_number_parts'] - 1, 0, -1):
-      parent_path = implode('/', array_slice(item['_parts'], 0, i))
-      if (isset(menu, parent_path)):
+      parent_path = p.implode('/', p.array_slice(item['_parts'], 0, i))
+      if (p.isset(menu, parent_path)):
         parent = menu[parent_path]
-        if (not isset(item, 'tab_parent')):
+        if (not p.isset(item, 'tab_parent')):
           # Parent stores the parent of the path.
           item['tab_parent'] = parent_path
-        if (not isset(item, 'tab_root') and not parent['_tab']):
+        if (not p.isset(item, 'tab_root') and not parent['_tab']):
           item['tab_root'] = parent_path
         # If an access callback is not found for a default local task we use
         # the callback from the parent, since we expect them to be identical.
         # In all other cases, the access parameters must be specified.
-        if ((item['type'] == MENU_DEFAULT_LOCAL_TASK) and not isset(item, 'access callback') and \
-            isset(parent, 'access callback')):
+        if ((item['type'] == MENU_DEFAULT_LOCAL_TASK) and not p.isset(item, 'access callback') and \
+            p.isset(parent, 'access callback')):
           item['access callback'] = parent['access callback']
-          if (not isset(item, 'access arguments') and isset(parent, 'access arguments')):
+          if (not p.isset(item, 'access arguments') and p.isset(parent, 'access arguments')):
             item['access arguments'] = parent['access arguments']
         # Same for page callbacks.
-        if (not isset(item, 'page callback') and isset(parent, 'page callback')):
+        if (not p.isset(item, 'page callback') and p.isset(parent, 'page callback')):
           item['page callback'] = parent['page callback']
-          if (not isset(item, 'page arguments') and isset(parent, 'page arguments')):
+          if (not p.isset(item, 'page arguments') and p.isset(parent, 'page arguments')):
             item['page arguments'] = parent['page arguments']
-    if (not isset(item, 'access callback') and isset(item, 'access arguments')):
+    if (not p.isset(item, 'access callback') and p.isset(item, 'access arguments')):
       # Default callback.
       item['access callback'] = 'user_access'
-    if (not isset(item, 'access callback') or empty(item['page callback'])):
+    if (not p.isset(item, 'access callback') or p.empty(item['page callback'])):
       item['access callback'] = 0
     if (is_bool(item['access callback'])):
       item['access callback'] = intval(item['access callback'])
@@ -2246,7 +2249,7 @@ def _menu_router_build(callbacks):
       'tab_root' : path,
       'path' : path
     }
-    title_arguments = (serialize(item['title arguments']) if item['title arguments'] else  '')
+    title_arguments = (p.serialize(item['title arguments']) if item['title arguments'] else  '')
     db_query( \
       "INSERT INTO {menu_router} " + \
       "(path, load_functions, to_arg_functions, access_callback, " + \
@@ -2260,12 +2263,12 @@ def _menu_router_build(callbacks):
       "'%s', '%s', '%s', " + \
       "%d, '%s', '%s', '%s', %d)",
       path, item['load_functions'], item['to_arg_functions'], item['access callback'],
-      serialize(item['access arguments']), item['page callback'], serialize(item['page arguments']), item['_fit'],
+      p.serialize(item['access arguments']), item['page callback'], p.serialize(item['page arguments']), item['_fit'],
       item['_number_parts'], item['tab_parent'], item['tab_root'],
       item['title'], item['title callback'], title_arguments,
       item['type'], item['block callback'], item['description'], item['position'], item['weight'])
   # Sort the masks so they are in order of descending fit, and store them.
-  masks = array_keys(masks)
+  masks = p.array_keys(masks)
   rsort(masks)
   variable_set('menu_masks', masks)
   return menu
@@ -2276,8 +2279,8 @@ def _menu_router_build(callbacks):
 # Returns True if a path is external (e.g. http://example.com).
 #
 def menu_path_is_external(path):
-  colonpos = strpos(path, ':')
-  return (colonpos != False and not preg_match('not [/?#]not ', substr(path, 0, colonpos)) and \
+  colonpos = p.strpos(path, ':')
+  return (colonpos != False and not p.preg_match('not [/?#]not ', p.substr(path, 0, colonpos)) and \
     filter_xss_bad_protocol(path, False) == check_plain(path))
 
 
@@ -2301,14 +2304,14 @@ def _menu_site_is_offline():
       # Ensure that the off-line message is displayed only once [allowing for
       # page redirects], and specifically suppress its display on the site
       # maintenance page.
-      if (drupal_get_normal_path(GET['q']) != 'admin/settings/site-maintenance'):
+      if (drupal_get_normal_path(p.GET['q']) != 'admin/settings/site-maintenance'):
         drupal_set_message(t('Operating in off-line mode.'), 'status', False)
     else:
       # Anonymous users get a False at the login prompt, True otherwise.
       if (user_is_anonymous()):
-        return GET['q'] != 'user' and GET['q'] != 'user/login'
+        return p.GET['q'] != 'user' and p.GET['q'] != 'user/login'
       # Logged in users are unprivileged here, so they are logged out.
-      require_once( drupal_get_path('module', 'user') +  '/user.pages.inc' )
+      p.require_once( drupal_get_path('module', 'user') +  '/user.pages.inc' )
       user_logout()
   return False
 
@@ -2328,7 +2331,7 @@ def menu_valid_path(form_item):
   menu_admin = True
   if (path == '<front>' or menu_path_is_external(path)):
     item = {'access' : True}
-  elif (preg_match('/\/\%/', path)):
+  elif (p.preg_match('/\/\%/', path)):
     # Path is dynamic (ie 'user/%'), so check directly against menu_router table.
     item = db_fetch_array(db_query("SELECT * FROM {menu_router} where path = '%s' ", path))
     if (item):

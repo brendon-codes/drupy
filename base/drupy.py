@@ -31,7 +31,7 @@
 #
 import time
 import re
-from lib.drupy.DrupyPHP import *
+from lib.drupy import DrupyPHP as p
 from includes import bootstrap as inc_bootstrap
 
 phases = (
@@ -53,8 +53,8 @@ stamp, revised = time.strftime("%c GMT||%m/%d/%Y", time.gmtime()).split('||')
 #
 # Executed from Web
 #
-if SERVER['WEB']:
-  out = print_r(globals(), True)
+if p.SERVER['WEB']:
+  out = p.print_r(globals(), True)
   out = re.sub('[a-zA-Z0-9_\.-]+@.+?\.[a-zA-Z]+', '********', out)
   out = re.sub('[a-zA-Z0-9]{32}', '********************************', out)
 
@@ -75,7 +75,7 @@ if SERVER['WEB']:
   print "This page dumps all the global scope objects within the Drupy " + \
     "bootstrap process. This can be used as a basic gauge of bootstap status."
   print "</p>"
-  print "<pre style='background-color:yellow;'>%s</pre>" % htmlspecialchars(out);
+  print "<pre style='background-color:yellow;'>%s</pre>" % p.htmlspecialchars(out);
   print "</body>"
   print "</html>"
 #
@@ -90,6 +90,6 @@ else:
 #
 # Flush
 #
-flush()
+p.flush()
   
   

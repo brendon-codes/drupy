@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 
 #
 # @package Drupy
@@ -30,7 +32,7 @@
 #
 
 import MySQLdb
-from lib.drupy.DrupyPHP import *
+from lib.drupy import DrupyPHP as p 
 from lib.drupy import DrupyHelper
 
 MYSQLI_ASSOC = 0
