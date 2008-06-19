@@ -36,40 +36,23 @@ import re
 import sys
 from lib.drupy import DrupyPHP
 
-exclude = (
-  'DrupyHelper',
-  'sys',
-  'StringIO',
-  'time',
-  'datetime',
-  'os',
-  'urlparse',
-  'random',
-  'copy',
-  're',
-  'base64',
-  'pickle',
-  'hashlib',
-  'zlib',
-  'pprint',
-  'htmlentitydefs',
-  'cgi',
-  'cgitb',
-  'urllib',
-  'Image',
-  'session'
-)
-
 f = open(sys.argv[1], 'r+')
 data = f.read()
 
-items = dir(DrupyPHP)
-for i in items:
-  if exclude.has_key(i):
+for k,v in vars(DrupyPHP).items():
+  t = type(v).__name__
+  # Module
+  if (t == 'module'):
     continue
-  pat = r'(?<![a-zA-Z0-9_\.])(%s)(?=\()' % i
+  # Function
+  elif (t == 'function'):
+    pat = r'(?<![a-zA-Z0-9_\.])(%s)(?=\()' % k
+  # Variable
+  else:
+    pat = r'(?<![a-zA-Z0-9_\.])(%s)(?![a-zA-Z])' % k
   rep = r'p.\1'
   data = re.sub(pat, rep, data)
+
 
 f.truncate(0)
 f.seek(0)

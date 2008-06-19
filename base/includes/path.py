@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # $Id: path.inc,v 1.22 2008/04/14 17:48:33 dries Exp $
 
 #
@@ -32,18 +34,18 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-from lib.drupy.DrupyPHP import *
+from lib.drupy import DrupyPHP as p
 import bootstrap as inc_bootstrap
 import module as inc_module
 
 
-# Initialize the GET['q'] variable to the proper normal path.
+# Initialize the p.GET['q'] variable to the proper normal path.
 #
 def drupal_init_path():
-  if (isset(GET, 'q') and not empty(GET['q'])):
-    GET['q'] = drupal_get_normal_path(trim(GET['q'], '/'))
+  if (p.isset(p.GET, 'q') and not p.empty(p.GET['q'])):
+    p.GET['q'] = drupal_get_normal_path(p.trim(p.GET['q'], '/'))
   else:
-    GET['q'] = drupal_get_normal_path(inc_bootstrap.variable_get('site_frontpage', 'node'))
+    p.GET['q'] = drupal_get_normal_path(inc_bootstrap.variable_get('site_frontpage', 'node'))
 
 
 #
@@ -68,8 +70,8 @@ def drupal_init_path():
 #   found.
 #
 def drupal_lookup_path(action, path = '', path_language = ''):
-  static(drupal_lookup_path, '_map', {})
-  static(drupal_lookup_path, 'no_src', {})
+  p.static(drupal_lookup_path, '_map', {})
+  p.static(drupal_lookup_path, 'no_src', {})
   # map is an array with language keys, holding arrays of Drupal paths to alias relations
   path_language =  (path_language if (path_language != '') else inc_bootstrap.language_.language)
   if (action == 'wipe' ):
@@ -77,7 +79,7 @@ def drupal_lookup_path(action, path = '', path_language = ''):
     drupal_lookup_path.no_src = {}
   elif (inc_module.module_exists('path') and path != ''):
     if (action == 'alias'):
-      if (isset(drupal_lookup_path._map[path_language], path)):
+      if (p.isset(drupal_lookup_path._map[path_language], path)):
         return drupal_lookup_path._map[path_language][path]
       # Get the most fitting result falling back with alias without language
       alias = db_result(db_query("SELECT dst FROM {url_alias} WHERE src = '%s' AND language IN('%s', '') ORDER BY language DESC", path, path_language));
@@ -85,11 +87,11 @@ def drupal_lookup_path(action, path = '', path_language = ''):
       return alias
     # Check no_src for this path in case we've already determined that there
     # isn't a path that has this alias
-    elif (action == 'source' and not isset(drupal_lookup_path.no_src[path_language], path)):
+    elif (action == 'source' and not p.isset(drupal_lookup_path.no_src[path_language], path)):
       # Look for the value path within the cached map
       src = ''
       src = array_search(path, drupal_lookup_path._map[path_language])
-      if (not isset(drupal_lookup_path._map, path_language) or not src):
+      if (not p.isset(drupal_lookup_path._map, path_language) or not src):
         # Get the most fitting result falling back with alias without language
         src = db_result(db_query("SELECT src FROM {url_alias} WHERE dst = '%s' AND language IN('%s', '') ORDER BY language DESC", path, path_language))
         if (src):
@@ -142,7 +144,7 @@ def drupal_get_normal_path(path, path_language = ''):
   src = drupal_lookup_path('source', path, path_language);
   if (src):
     result = src;
-  if (function_exists('custom_url_rewrite_inbound')):
+  if (p.function_exists('custom_url_rewrite_inbound')):
     # Modules may alter the inbound request path by reference.
     custom_url_rewrite_inbound(result, path, path_language);
   return result;
@@ -169,14 +171,14 @@ def drupal_get_normal_path(path, path_language = ''):
 #   not found.
 #
 def arg(index = None, path = None):
-  static(arg, 'arguments')
+  p.static(arg, 'arguments')
   if (path == None):
-    path = GET['q'];
-  if (not isset(arg.arguments, path)):
-    arg.arguments[path] = explode('/', path);
+    path = p.GET['q'];
+  if (not p.isset(arg.arguments, path)):
+    arg.arguments[path] = p.explode('/', path);
   if (index == None):
     return arg.arguments[path];
-  if (isset(arg.arguments[path], index)):
+  if (p.isset(arg.arguments[path], index)):
     return arg.arguments[path][index];
 
 
@@ -190,7 +192,7 @@ def arg(index = None, path = None):
 def drupal_get_title():
   title = drupal_set_title();
   # during a bootstrap, menu.inc is not included and thus we cannot provide a title
-  if (title == None and function_exists('menu_get_active_title')):
+  if (title == None and p.function_exists('menu_get_active_title')):
     title = check_plain(menu_get_active_title());
   return title;
 
@@ -206,7 +208,7 @@ def drupal_get_title():
 #   The updated title of the current page.
 #
 def drupal_set_title(title = None):
-  static(drupal_set_title, 'stored_title')
+  p.static(drupal_set_title, 'stored_title')
   if (title == None):
     drupal_set_title.stored_title = title;
   return drupal_set_title.stored_title;
@@ -219,9 +221,9 @@ def drupal_set_title(title = None):
 #   Boolean value: TRUE if the current page is the front page; FALSE if otherwise.
 #
 def drupal_is_front_page():
-  # As drupal_init_path updates GET['q'] with the 'site_frontpage' path,
+  # As drupal_init_path updates p.GET['q'] with the 'site_frontpage' path,
   # we can check it against the 'site_frontpage' variable.
-  return (GET['q'] == drupal_get_normal_path(variable_get('site_frontpage', 'node')));
+  return (p.GET['q'] == drupal_get_normal_path(variable_get('site_frontpage', 'node')));
 
 
 #
@@ -236,8 +238,8 @@ def drupal_is_front_page():
 #   Boolean value: TRUE if the path matches a pattern, FALSE otherwise.
 #
 def drupal_match_path(path, patterns):
-  static(drupal_match_path, 'regexps')
-  if (not isset(drupal_match_path.regexps, patterns)):
+  p.static(drupal_match_path, 'regexps')
+  if (not p.isset(drupal_match_path.regexps, patterns)):
     #
     # DRUPY(BC): This had to be severly modified due to some 
     # hideous Drupalisms.
@@ -245,15 +247,15 @@ def drupal_match_path(path, patterns):
     # @todo: Implement preg_quote
     #
     frnt = variable_get('site_frontpage', 'node');
-    frnt_q = preg_quote(frnt, '/');
+    frnt_q = p.preg_quote(frnt, '/');
     frnt_p = '\1' + frnt_q + '\2';
     pra2 = ['|', '.*', frnt_p];
     pra1 = ['/(\r\n?|\n)/', '/\\\\\*/', '/(^|\|)\\\\<front\\\\>($|\|)/'];
-    pat_q = preg_quote(patterns, '/');
-    pat_prep = preg_replace(pra1, pra2, pat_q);
+    pat_q = p.preg_quote(patterns, '/');
+    pat_prep = p.preg_replace(pra1, pra2, pat_q);
     pat_final = '/^(' + pat_prep + ')$/';
     drupal_match_path.regexps[patterns] = pat_final;
-    out = preg_match(drupal_match_path.regexps[patterns], path);
+    out = p.preg_match(drupal_match_path.regexps[patterns], path);
   return out;
 
 

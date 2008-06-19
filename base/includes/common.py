@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # $Id: common.inc,v 1.771 2008/06/09 08:11:44 dries Exp $
 
 
@@ -37,7 +39,7 @@
 #
 # Includes
 #
-from lib.drupy.DrupyPHP import *
+from lib.drupy import DrupyPHP as p
 from lib.drupy import DrupyHelper
 import urllib2
 import bootstrap as inc_bootstrap
@@ -75,8 +77,8 @@ SAVED_DELETED = 3;
 #   Content to be set.
 #
 def drupal_set_content(region = None, data = None):
-  static(drupal_set_content, 'content', {})
-  if (not is_null(region) and not is_null(data)):
+  p.static(drupal_set_content, 'content', {})
+  if (not p.is_null(region) and not p.is_null(data)):
     drupal_set_content.content[region].append( data );
   return drupal_set_content.content;
 
@@ -93,12 +95,12 @@ def drupal_set_content(region = None, data = None):
 def drupal_get_content(region = None, delimiter = ' '):
   content = drupal_set_content();
   if (region != None):
-    if (isset(content, region) and is_array(content, region)):
-      return implode(delimiter, content[region]);
+    if (p.isset(content, region) and p.is_array(content, region)):
+      return p.implode(delimiter, content[region]);
   else:
-    for region in array_keys(content):
-      if (is_array(content[region])):
-        content[region] = implode(delimiter, content[region]);
+    for region in p.array_keys(content):
+      if (p.is_array(content[region])):
+        content[region] = p.implode(delimiter, content[region]);
     return content;
 
 
@@ -111,8 +113,8 @@ def drupal_get_content(region = None, delimiter = ' '):
 #   the current page.
 #
 def drupal_set_breadcrumb(breadcrumb = None):
-  static(drupal_set_breadcrumb, 'stored_breadcrumb')
-  if (not is_null(breadcrumb)):
+  p.static(drupal_set_breadcrumb, 'stored_breadcrumb')
+  if (not p.is_null(breadcrumb)):
     drupal_set_breadcrumb.stored_breadcrumb = breadcrumb;
   return drupal_set_breadcrumb.stored_breadcrumb;
 
@@ -122,7 +124,7 @@ def drupal_set_breadcrumb(breadcrumb = None):
 #
 def drupal_get_breadcrumb():
   breadcrumb = drupal_set_breadcrumb();
-  if (is_null(breadcrumb)):
+  if (p.is_null(breadcrumb)):
     breadcrumb = menu_get_active_breadcrumb();
   return breadcrumb;
 
@@ -133,8 +135,8 @@ def drupal_get_breadcrumb():
 # This function can be called as long the headers aren't sent.
 #
 def drupal_set_html_head(data = None):
-  static(drupal_set_html_head, 'stored_head', '')
-  if (not is_null(data)):
+  p.static(drupal_set_html_head, 'stored_head', '')
+  if (not p.is_null(data)):
     static_drupalsethtmlhead_storedhead += data + "\n";
   return static_drupalsethtmlhead_storedhead;
 
@@ -155,20 +157,20 @@ def drupal_clear_path_cache():
 
 
 #
-# Set an HTTP response header for the current page.
+# Set an HTTP response p.header for the current page.
 #
-# Note: When sending a Content-Type header, always include a 'charset' type,
+# Note: When sending a Content-Type p.header, always include a 'charset' type,
 # too. This is necessary to avoid security bugs (e.g. UTF-7 XSS).
 #
-def drupal_set_header(header = None):
+def drupal_set_header(header_ = None):
   # We use an array to guarantee there are no leading or trailing delimiters.
-  # Otherwise, header('') could get called when serving the page later, which
+  # Otherwise, p.header('') could get called when serving the page later, which
   # ends HTTP headers prematurely on some PHP versions.
-  static(drupal_set_header, 'stored_headers', [])
-  if (strlen(header) > 0):
-    header(header);
-    drupal_set_header.stored_headers.append(header);
-  return implode("\n", drupal_set_header.stored_headers);
+  p.static(drupal_set_header, 'stored_headers', [])
+  if (p.strlen(header_) > 0):
+    p.header(header_);
+    drupal_set_header.stored_headers.append(header_);
+  return p.implode("\n", drupal_set_header.stored_headers);
 
 
 #
@@ -187,8 +189,8 @@ def drupal_get_headers():
 #   The title of the feed.
 #
 def drupal_add_feed(url = None, title = ''):
-  static(drupal_add_feed, 'stored_feed_links', {})
-  if (not is_null(url) and not isset(drupal_add_feed.stored_feed_links, url)):
+  p.static(drupal_add_feed, 'stored_feed_links', {})
+  if (not p.is_null(url) and not p.isset(drupal_add_feed.stored_feed_links, url)):
     drupal_add_feed.stored_feed_links[url] = theme('feed_icon', url, title);
     drupal_add_link({
       'rel' : 'alternate',
@@ -207,7 +209,7 @@ def drupal_add_feed(url = None, title = ''):
 #
 def drupal_get_feeds(delimiter = "\n"):
   feeds = drupal_add_feed();
-  return implode(feeds, delimiter);
+  return p.implode(feeds, delimiter);
 
 
 #
@@ -219,7 +221,7 @@ def drupal_get_feeds(delimiter = "\n"):
 # Parse an array into a valid urlencoded query string.
 #
 # @param query
-#   The array to be processed e.g. GET.
+#   The array to be processed e.g. p.GET.
 # @param exclude
 #   The array filled with keys to be excluded. Use parent[child] to exclude
 #   nested items.
@@ -234,13 +236,13 @@ def drupal_query_string_encode(query, exclude = [], parent = ''):
     key = drupal_urlencode(key);
     if (parent):
       key = parent + '[' + key + ']';
-    if (in_array(key, exclude)):
+    if (p.in_array(key, exclude)):
       continue;
-    if (is_array(value)):
+    if (p.is_array(value)):
       params.append( drupal_query_string_encode(value, exclude, key) );
     else:
       params.append( key + '=' + drupal_urlencode(value) );
-  return implode('&', params);
+  return p.implode('&', params);
 
 
 
@@ -255,12 +257,12 @@ def drupal_query_string_encode(query, exclude = [], parent = ''):
 # @see drupal_goto()
 #
 def drupal_get_destination():
-  if (isset(REQUEST, 'destination')):
-    return 'destination=' +  urlencode(REQUEST['destination']);
+  if (p.isset(p.REQUEST, 'destination')):
+    return 'destination=' +  urlencode(p.REQUEST['destination']);
   else:
-    # Use GET here to retrieve the original path in source form.
-    path =  (GET.__getitem__('q') if isset(GET, 'q') else '');
-    query = drupal_query_string_encode(GET, ['q']);
+    # Use p.GET here to retrieve the original path in source form.
+    path =  (p.GET.__getitem__('q') if p.isset(p.GET, 'q') else '');
+    query = drupal_query_string_encode(p.GET, ['q']);
     if (query != ''):
       path += '?' + query;
     return 'destination=' + urlencode(path);
@@ -275,8 +277,8 @@ def drupal_get_destination():
 #
 # Usually the redirected URL is constructed from this function's input
 # parameters. However you may override that behavior by setting a
-# <em>destination</em> in either the REQUEST-array (i.e. by using
-# the query string of an URI) or the REQUEST['edit']-array (i.e. by
+# <em>destination</em> in either the p.REQUEST-array (i.e. by using
+# the query string of an URI) or the p.REQUEST['edit']-array (i.e. by
 # using a hidden form field). This is used to direct the user back to
 # the proper page after completing a form. For example, after editing
 # a post on the 'admin/content/node'-page or after having logged on using the
@@ -309,22 +311,22 @@ def drupal_get_destination():
 # @see drupal_get_destination()
 #
 def drupal_goto(path = '', query = None, fragment = None, http_response_code = 302):
-  if (isset(REQUEST, 'destination')):
-    urlP = parse_url(urldecode(REQUEST['destination']));
-  elif (isset(REQUEST['edit'], 'destination')):
-    urlP = parse_url(urldecode(REQUEST['edit']['destination']));
+  if (p.isset(p.REQUEST, 'destination')):
+    urlP = p.parse_url(p.urldecode(p.REQUEST['destination']));
+  elif (p.isset(p.REQUEST['edit'], 'destination')):
+    urlP = p.parse_url(p.urldecode(p.REQUEST['edit']['destination']));
   url = url(path, {'query' : urlP['query'], 'fragment' : urlP['fragment'], 'absolute' : True});
-  # Remove newlines from the URL to avoid header injection attacks.
-  url = str_replace(["\n", "\r"], '', url);
+  # Remove newlines from the URL to avoid p.header injection attacks.
+  url = p.str_replace(["\n", "\r"], '', url);
   # Allow modules to react to the end of the page request before redirecting.
   # We do not want this while running update.php.
-  if (not defined(locals(), 'MAINTENANCE_MODE', True) or MAINTENANCE_MODE != 'update'):
+  if (not p.defined(locals(), 'MAINTENANCE_MODE', True) or MAINTENANCE_MODE != 'update'):
     module_invoke_all('exit', url);
   # Even though session_write_close() is registered as a shutdown function, we
   # need all session data written to the database before redirecting.
   session_write_close();
-  header('Location: '. url, True, http_response_code);
-  # The "Location" header sends a redirect status code to the HTTP daemon. In
+  p.header('Location: '. url, True, http_response_code);
+  # The "Location" p.header sends a redirect status code to the HTTP daemon. In
   # some cases this can be wrong, so we make sure none of the code below the
   # drupal_goto() call gets executed upon redirection.
   exit();
@@ -358,17 +360,17 @@ def drupal_site_offline():
 #
 def drupal_not_found():
   drupal_set_header('HTTP/1.1 404 Not Found');
-  watchdog('page not found', check_plain(GET['q']), None, WATCHDOG_WARNING);
+  watchdog('page not found', check_plain(p.GET['q']), None, WATCHDOG_WARNING);
   # Keep old path for reference.
-  if (not isset(REQUEST, 'destination')):
-    REQUEST['destination'] = GET['q'];
+  if (not p.isset(p.REQUEST, 'destination')):
+    p.REQUEST['destination'] = p.GET['q'];
   path = drupal_get_normal_path(variable_get('site_404', ''));
-  if (path and path != GET['q']):
+  if (path and path != p.GET['q']):
     # Set the active item in case there are tabs to display, or other
     # dependencies on the path.
     menu_set_active_item(path);
     return_ = menu_execute_active_handler(path);
-  if (empty(return_) or return_ == MENU_NOT_FOUND or return_ == MENU_ACCESS_DENIED):
+  if (p.empty(return_) or return_ == MENU_NOT_FOUND or return_ == MENU_ACCESS_DENIED):
     drupal_set_title(t('Page not found'));
     return_ = t('The requested page could not be found.');
   # To conserve CPU and bandwidth, omit the blocks.
@@ -381,17 +383,17 @@ def drupal_not_found():
 #
 def drupal_access_denied():
   drupal_set_header('HTTP/1.1 403 Forbidden');
-  watchdog('access denied', check_plain(GET['q']), None, WATCHDOG_WARNING);
+  watchdog('access denied', check_plain(p.GET['q']), None, WATCHDOG_WARNING);
   # Keep old path for reference.
-  if (not isset(REQUEST, 'destination')):
-    REQUEST['destination'] = GET['q'];
+  if (not p.isset(p.REQUEST, 'destination')):
+    p.REQUEST['destination'] = p.GET['q'];
   path = drupal_get_normal_path(variable_get('site_403', ''));
-  if (path and path != GET['q']):
+  if (path and path != p.GET['q']):
     # Set the active item in case there are tabs to display or other
     # dependencies on the path.
     menu_set_active_item(path);
     return_ = menu_execute_active_handler(path);
-  if (empty(return_) or return_ == MENU_NOT_FOUND or return_ == MENU_ACCESS_DENIED):
+  if (p.empty(return_) or return_ == MENU_NOT_FOUND or return_ == MENU_ACCESS_DENIED):
     drupal_set_title(t('Access denied'));
     return_ = t('You are not authorized to access this page.');
   print theme('page', return_);
@@ -402,12 +404,12 @@ def drupal_access_denied():
 # Perform an HTTP request.
 #
 # This is a flexible and powerful HTTP client implementation. Correctly handles
-# GET, POST, PUT or any other HTTP requests. Handles redirects.
+# p.GET, p.POST, PUT or any other HTTP requests. Handles redirects.
 #
 # @param url
 #   A string containing a fully qualified URI.
 # @param headers
-#   An array containing an HTTP header : value pair.
+#   An array containing an HTTP p.header : value pair.
 # @param method
 #   A string defining the HTTP request to use.
 # @param data
@@ -433,7 +435,7 @@ def drupal_access_denied():
 #      Str redirect_url
 #      
 #
-def drupal_http_request(url, headers = {}, method = 'GET', data = None, retry = None):
+def drupal_http_request(url, headers = {}, method = 'p.GET', data = None, retry = None):
   headers['User-Agent'] = 'Drupy (+http://drupy.sourceforge.net/)';
   req = urllib2.Request(url, data, headers);
   res = urllib2.urlopen(req);
@@ -471,7 +473,7 @@ def drupal_error_handler(errno, message, filename, line, context, errType = None
     };
     entry = '%(errType)s : %(message)s in %(filename)s on line %(line)s' % err;
     # Force display of error messages in update.php.
-    if (inc_bootstrap.variable_get('error_level', 1) == 1 or strstr(SERVER['SCRIPT_NAME'], 'update.py')):
+    if (inc_bootstrap.variable_get('error_level', 1) == 1 or strstr(p.SERVER['SCRIPT_NAME'], 'update.py')):
       inc_bootstrap.drupal_set_message(entry, 'error');
     watchdog('php', '%(message)s in %(file)s on line %(line)s.' % err, WATCHDOG_ERROR);
 
@@ -601,21 +603,21 @@ def fix_gpc_magic():
 #
 def t(string, args = {}, langcode = None):
   global language;
-  static(t, 'custom_strings', {})
+  p.static(t, 'custom_strings', {})
   langcode = (langcode if (langcode != None) else language.language);
   # First, check for an array of customized strings. If present, use the array
   # *instead of* database lookups. This is a high performance way to provide a
   # handful of string replacements. See settings.php for examples.
   # Cache the custom_strings variable to improve performance.
-  if (not isset(t.custom_strings, langcode)):
+  if (not p.isset(t.custom_strings, langcode)):
     t.custom_strings[langcode] = variable_get('locale_custom_strings_' + langcode, {});
   # Custom strings work for English too, even if locale module is disabled.
-  if (isset(t.custom_strings[langcode], string)):
+  if (p.isset(t.custom_strings[langcode], string)):
     string = t.custom_strings[langcode][string];
   # Translate with locale module if enabled.
-  elif (function_exists('locale') and langcode != 'en'):
+  elif (p.function_exists('locale') and langcode != 'en'):
     string = locale(string, langcode);
-  if (empty(args)):
+  if (p.empty(args)):
     return string;
   else:
     # Transform arguments before inserting them.
@@ -628,7 +630,7 @@ def t(string, args = {}, langcode = None):
       elif key[0] == '%' or True:
         # Escaped and placeholder.
         args[key] = theme('placeholder', value);
-    return strtr(string, args);
+    return p.strtr(string, args);
 
 
 
@@ -656,7 +658,7 @@ def valid_email_address(mail):
     ipv6 : '[0-9a-fA-F]{1,4}(\:[0-9a-fA-F]{1,4}){7}'
   };
   mail = DrupyHelper.Reference();
-  cnt = preg_match("/^%(user)s@(%(domain)s|(\[(%(ipv4)s|%(ipv6)s)\]))$/" % items, mail);
+  cnt = p.preg_match("/^%(user)s@(%(domain)s|(\[(%(ipv4)s|%(ipv6)s)\]))$/" % items, mail);
   return (cnt > 0);
 
 
@@ -678,11 +680,11 @@ def valid_url(url, absolute = False):
   allowed_characters = '[a-z0-9\/:_\-_\.\?\$,;~=#&%\+]';
   if (absolute):
     url = DrupyHelper.Reference();
-    cnt = preg_match("/^(http|https|ftp):\/\/" + allowed_characters + "+$/i", url);
+    cnt = p.preg_match("/^(http|https|ftp):\/\/" + allowed_characters + "+$/i", url);
     return (cnt > 0);
   else:
     url = DrupyHelper.Reference();
-    cnt = preg_match("/^" + allowed_characters + "+$/i", url);
+    cnt = p.preg_match("/^" + allowed_characters + "+$/i", url);
     return (cnt > 0);
 
 
@@ -720,7 +722,7 @@ def flood_is_allowed(name, threshold):
 
 
 def check_file(filename):
-  return is_uploaded_file(filename);
+  return p.is_uploaded_file(filename);
 
 
 
@@ -791,17 +793,17 @@ def format_rss_item(title, link, description, args = {}):
 def format_xml_elements(array_):
   output = '';
   for key,value in array_.items():
-    if (is_numeric(key)):
-      if (not empty(value['key'])):
+    if (p.is_numeric(key)):
+      if (not p.empty(value['key'])):
         output += ' <' + value['key'];
-        if (isset(value, 'attributes') and is_array(value['attributes'])):
+        if (p.isset(value, 'attributes') and p.is_array(value['attributes'])):
           output += drupal_attributes(value['attributes']);
         if (value['value'] != ''):
-          output += '>' + (format_xml_elements(value['value']) if is_array(value['value']) else check_plain(value['value'])) + '</' + value['key'] + ">\n";
+          output += '>' + (format_xml_elements(value['value']) if p.is_array(value['value']) else check_plain(value['value'])) + '</' + value['key'] + ">\n";
         else:
           output += " />\n";
     else:
-      output += ' <' + key + '>' + (format_xml_elements(value) if is_array(value) else check_plain(value)) + "</" + key + ">\n";
+      output += ' <' + key + '>' + (format_xml_elements(value) if p.is_array(value) else check_plain(value)) + "</" + key + ">\n";
   return output;
 
 
@@ -857,7 +859,7 @@ def format_plural(count, singular, plural, args = {}, langcode = None):
   if (count == 1):
     return t(singular, args, langcode);
   # Get the plural index through the gettext formula.
-  index = (locale_get_plural(count, langcode) if function_exists('locale_get_plural') else -1);
+  index = (locale_get_plural(count, langcode) if p.function_exists('locale_get_plural') else -1);
   # Backwards compatibility.
   if (index < 0):
     return t(plural, args, langcode);
@@ -869,7 +871,7 @@ def format_plural(count, singular, plural, args = {}, langcode = None):
     else:
       del(args['@count']);
       args['@count[' + index + ']'] = count;
-      return t(strtr(plural, {'@count' : '@count[' + index + ']'}), args, langcode);
+      return t(p.strtr(plural, {'@count' : '@count[' + index + ']'}), args, langcode);
 
 
 
@@ -890,7 +892,7 @@ def parse_size(size):
     'g' : 1073741824, # 1024 * 1024 * 1024
   };
   match = DrupyHelper.Reference()
-  if (preg_match('/([0-9]+)\s*(k|m|g)?(b?(ytes?)?)/i', size, match) > 0):
+  if (p.preg_match('/([0-9]+)\s*(k|m|g)?(b?(ytes?)?)/i', size, match) > 0):
     return match.val[1] * suffixes[drupal_strtolower(match.val[2])];
 
 
@@ -944,7 +946,7 @@ def format_interval(timestamp, granularity = 2, langcode = None):
   };
   output = '';
   for key,value in units.items():
-    key = explode('|', key);
+    key = p.explode('|', key);
     if (timestamp >= value):
       output += (' ' if (output != '') else '') + format_plural(floor(timestamp / value), key[0], key[1], {}, langcode);
       timestamp %= value;
@@ -982,7 +984,7 @@ def format_interval(timestamp, granularity = 2, langcode = None):
 def format_date(timestamp, type = 'medium', format = '', timezone = None, langcode = None):
   global user;
   if (timezone == None):
-    if (variable_get('configurable_timezones', 1) and user.uid and strlen(user.timezone)):
+    if (variable_get('configurable_timezones', 1) and user.uid and p.strlen(user.timezone)):
       timezone = user.timezone;
     else:
       timezone = variable_get('date_default_timezone', 0);
@@ -996,19 +998,19 @@ def format_date(timestamp, type = 'medium', format = '', timezone = None, langco
     pass;
   elif type == 'medium' or True:
     format = variable_get('date_format_medium', 'D, m/d/Y - H:i');
-  max = strlen(format);
+  max = p.strlen(format);
   date = '';
   for i in range(max):
     c = format[i];
-    if (strpos('AaDlM', c) != False):
-      date += t(gmdate(c, timestamp), {}, langcode);
+    if (p.strpos('AaDlM', c) != False):
+      date += t(p.gmdate(c, timestamp), {}, langcode);
     elif (c == 'F'):
       # Special treatment for long month names: May is both an abbreviation
       # and a full month name in English, but other languages have
       # different abbreviations.
-      date += trim(t('!long-month-name ' + gmdate(c, timestamp), {'!long-month-name' : ''}, langcode));
-    elif (strpos('BdgGhHiIjLmnsStTUwWYyz', c) != False):
-      date += gmdate(c, timestamp);
+      date += p.trim(t('!long-month-name ' + p.gmdate(c, timestamp), {'!long-month-name' : ''}, langcode));
+    elif (p.strpos('BdgGhHiIjLmnsStTUwWYyz', c) != False):
+      date += p.gmdate(c, timestamp);
     elif (c == 'r'):
       date += format_date(timestamp - timezone, 'custom', 'D, d M Y H:i:s O', timezone, langcode);
     elif (c == 'O'):
@@ -1066,56 +1068,56 @@ def format_date(timestamp, type = 'medium', format = '', timezone = None, langco
 #
 def url(path = None, options = {}):
   global base_url;
-  static(url, 'script')
-  static(url, 'clean_url')
+  p.static(url, 'script')
+  p.static(url, 'clean_url')
   # Merge in defaults.
-  options = array_merge(options, {
+  options = p.array_merge(options, {
     'fragment' : '',
     'query' : '',
     'absolute' : False,
     'alias' : False,
     'prefix' : ''
   });
-  if (not isset(options, 'external')):
+  if (not p.isset(options, 'external')):
     # Return an external link if path contains an allowed absolute URL.
     # Only call the slow filter_xss_bad_protocol if path contains a ':' before
     # any / ? or #.
-    colonpos = strpos(path, ':');
-    options['external'] = (colonpos != False and preg_match('![/?#]!', substr(path, 0, colonpos) == 0) and filter_xss_bad_protocol(path, False) == check_plain(path));
+    colonpos = p.strpos(path, ':');
+    options['external'] = (colonpos != False and p.preg_match('![/?#]!', p.substr(path, 0, colonpos) == 0) and filter_xss_bad_protocol(path, False) == check_plain(path));
   # May need language dependent rewriting if language.inc is present.
-  if (function_exists('language_url_rewrite')):
+  if (p.function_exists('language_url_rewrite')):
     language_url_rewrite(path, options);
-  if (not empty(options['fragment'])):
+  if (not p.empty(options['fragment'])):
     options['fragment'] = '#' + options['fragment'];
-  if (is_array(options['query'])):
+  if (p.is_array(options['query'])):
     options['query'] = drupal_query_string_encode(options['query']);
-  if (not empty(options['external'])):
+  if (not p.empty(options['external'])):
     # Split off the fragment.
-    if (strpos(path, '#') != False):
-      p1_ = explode('#', path, 2);
+    if (p.strpos(path, '#') != False):
+      p1_ = p.explode('#', path, 2);
       (path, old_fragment)
-      if isset(p1_, 0):
+      if p.isset(p1_, 0):
         path = p1_[0];
-      if isset(p1_, 1):
+      if p.isset(p1_, 1):
         old_fragment = p1_[1];
       else:
         old_fragment = None;
-      if (old_fragment != None and empty(options['fragment'])):
+      if (old_fragment != None and p.empty(options['fragment'])):
         options['fragment'] = '#' + old_fragment;
     # Append the query.
-    if (not empty(options['query'])):
-      path += ('&' if (strpos(path, '?') != False) else '?') + options['query'];
+    if (not p.empty(options['query'])):
+      path += ('&' if (p.strpos(path, '?') != False) else '?') + options['query'];
     # Reassemble.
     return path + options['fragment'];
   if (url.script == None):
     # On some web servers, such as IIS, we can't omit "index.php". So, we
     # generate "index.php?q=foo" instead of "?q=foo" on anything that is not
     # Apache.
-    url.script = ('index.php' if (strpos(SERVER['SERVER_SOFTWARE'], 'Apache') == False) else '');
+    url.script = ('index.php' if (p.strpos(p.SERVER['p.SERVER_SOFTWARE'], 'Apache') == False) else '');
   # Cache the clean_url variable to improve performance.
   if (url.clean_url == None):
     url.clean_url = drupy_bool(variable_get('clean_url', '0'));
-  if (not isset(options, 'base_url')):
+  if (not p.isset(options, 'base_url')):
     # The base_url might be rewritten from the language rewrite in domain mode.
     options['base_url'] = base_url;
   # Preserve the original path before aliasing.
@@ -1123,13 +1125,13 @@ def url(path = None, options = {}):
   # The special path '<front>' links to the default front page.
   if (path == '<front>'):
     path = '';
-  elif (not empty(path) and not options['alias']):
-    path = drupal_get_path_alias(path, (options['language'].language if isset(options, 'language') else ''));
-  if (function_exists('custom_url_rewrite_outbound')):
+  elif (not p.empty(path) and not options['alias']):
+    path = drupal_get_path_alias(path, (options['language'].language if p.isset(options, 'language') else ''));
+  if (p.function_exists('custom_url_rewrite_outbound')):
     # Modules may alter outbound links by reference.
     custom_url_rewrite_outbound(path, options, original_path);
   base =  ((options['base_url'] + '/') if options['absolute'] else base_path());
-  prefix = (rtrim(options['prefix'], '/') if empty(path) else options['prefix']);
+  prefix = (p.rtrim(options['prefix'], '/') if p.empty(path) else options['prefix']);
   path = drupal_urlencode(prefix . path);
   if (clean_url):
     # With Clean URLs.
@@ -1140,11 +1142,11 @@ def url(path = None, options = {}):
   else:
     # Without Clean URLs.
     variables = [];
-    if (not empty(path)):
+    if (not p.empty(path)):
       variables.append( 'q=' + path );
-    if (not empty(options['query'])):
+    if (not p.empty(options['query'])):
       variables.append( options['query'] );
-    query = implode('&', variables);
+    query = p.implode('&', variables);
     if (len(query) > 0):
       return base + url.script + '?' + query + options['fragment'];
     else:
@@ -1161,7 +1163,7 @@ def url(path = None, options = {}):
 #   An HTML string ready for insertion in a tag.
 #
 def drupal_attributes(attributes = {}):
-  if (is_array(attributes)):
+  if (p.is_array(attributes)):
     t = '';
     for key,value in attributes.items():
       t += ' %s=%s' % (key, check_plain(value));
@@ -1213,19 +1215,19 @@ def drupal_attributes(attributes = {}):
 #
 def l(text, path, options = {}):
   # Merge in defaults.
-  options = array_merge(options, {
+  options = p.array_merge(options, {
     'attributes' : {},
     'html' : False,
   });
   # Append active class.
-  if ((path == GET['q']) or (path == '<front>' and drupal_is_front_page())):
-    if (isset(options['attributes']['class'])):
+  if ((path == p.GET['q']) or (path == '<front>' and drupal_is_front_page())):
+    if (p.isset(options['attributes']['class'])):
       options['attributes']['class'] += ' active';
     else:
       options['attributes']['class'] = 'active';
   # Remove all HTML and PHP tags from a tooltip. For best performance, we act only
-  # if a quick strpos() pre-check gave a suspicion (because strip_tags() is expensive).
-  if (isset(options['attributes'], 'title') and strpos(options['attributes']['title'], '<') != False):
+  # if a quick p.strpos() pre-check gave a suspicion (because strip_tags() is expensive).
+  if (p.isset(options['attributes'], 'title') and p.strpos(options['attributes']['title'], '<') != False):
     options['attributes']['title'] = strip_tags(options['attributes']['title']);
   return '<a href="' + check_url(url(path, options)) + '"' + drupal_attributes(options['attributes']) + '>' + (text if options['html'] else check_plain(text)) + '</a>';
 
@@ -1268,7 +1270,7 @@ def drupal_map_assoc(array_, function = None):
     for key,value in array_.items():
       result[value] = value;
     return result;
-  elif (function_exists(function)):
+  elif (p.function_exists(function)):
     result = {};
     for key,value in array_.items():
       result[value] = function(value);
@@ -1300,10 +1302,10 @@ def drupal_eval(code):
   # Restore theme_path to the theme, as long as drupal_eval() executes,
   # so code evaluted will not see the caller module as the current theme.
   # If theme info is not initialized get the path from theme_default.
-  if (not isset(locals(), theme_info, True)):
+  if (not p.isset(locals(), theme_info, True)):
     theme_path = drupal_get_path('theme', conf['theme_default']);
   else:
-    theme_path = dirname(theme_info.filename);
+    theme_path = p.dirname(theme_info.filename);
   ob_start();
   exec(code);
   output = ob_get_clean();
@@ -1325,7 +1327,7 @@ def drupal_eval(code):
 #   The path to the requested item.
 #
 def drupal_get_path(type, name):
-  return dirname(drupal_get_filename(type, name));
+  return p.dirname(drupal_get_filename(type, name));
 
 
 #
@@ -1398,18 +1400,18 @@ def drupal_add_link(attributes):
 #
 def drupal_add_css(path = None, type = 'module', media = 'all', preprocess = True):
   global language;
-  static(drupal_add_css, 'css', {})
+  p.static(drupal_add_css, 'css', {})
   # Create an array of CSS files for each media type first, since each type needs to be served
   # to the browser differently.
   if (path != None):
     # This check is necessary to ensure proper cascading of styles and is faster than an asort().
-    if (not isset(drupal_add_css.css, media)):
+    if (not p.isset(drupal_add_css.css, media)):
       drupal_add_css.css[media] = {'module' : {}, 'theme' : {}};
     drupal_add_css.css[media][type][path] = preprocess;
     # If the current language is RTL, add the CSS file with RTL overrides.
-    if (defined('LANGUAGE_RTL') and language.direction == LANGUAGE_RTL):
-      rtl_path = str_replace('.css', '-rtl.css', path);
-      if (file_exists(rtl_path)):
+    if (p.defined('LANGUAGE_RTL') and language.direction == LANGUAGE_RTL):
+      rtl_path = p.str_replace('.css', '-rtl.css', path);
+      if (p.file_exists(rtl_path)):
         drupal_add_css.css[media][type][rtl_path] = preprocess;
   return drupal_add_css.css;
 
@@ -1443,14 +1445,14 @@ def drupal_get_css(css = None):
     css = drupal_add_css();
   no_module_preprocess = '';
   no_theme_preprocess = '';
-  preprocess_css = ((variable_get('preprocess_css', False) and (not defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update')));
+  preprocess_css = ((variable_get('preprocess_css', False) and (not p.defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update')));
   directory = file_directory_path();
-  is_writable = (is_dir(directory) and is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC));
+  is_writable = (p.is_dir(directory) and p.is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC));
   # A dummy query-string is added to filenames, to gain control over
   # browser-caching. The string changes on every update or full cache
-  # flush, forcing browsers to load a new copy of the files, as the
+  # p.flush, forcing browsers to load a new copy of the files, as the
   # URL changed.
-  query_string = '?' + substr(variable_get('css_js_query_string', '0'), 0, 1);
+  query_string = '?' + p.substr(variable_get('css_js_query_string', '0'), 0, 1);
   for media,types in css.items():
     # If CSS preprocessing is off, we still need to output the styles.
     # Additionally, go through any remaining styles if CSS preprocessing is on and output the non-cached ones.
@@ -1458,12 +1460,12 @@ def drupal_get_css(css = None):
       if (type_ == 'module'):
         # Setup theme overrides for module styles.
         theme_styles = [];
-        for theme_style in array_keys(css[media]['theme']):
+        for theme_style in p.array_keys(css[media]['theme']):
           theme_styles.append( basename(theme_style) );
       for file_,preprocess in types[type_].items():
         # If the theme supplies its own style using the name of the module style, skip its inclusion.
         # This includes any RTL styles associated with its main LTR counterpart.
-        if (type_ == 'module' and in_array(str_replace('-rtl.css', '.css', basename(file)), theme_styles)):
+        if (type_ == 'module' and p.in_array(p.str_replace('-rtl.css', '.css', basename(file)), theme_styles)):
           # Unset the file to prevent its inclusion when CSS aggregation is enabled.
           del(types[type_][file]);
           continue;
@@ -1479,7 +1481,7 @@ def drupal_get_css(css = None):
           else:
             output += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + file_ + query_string + '" />' + "\n";
     if (is_writable and preprocess_css):
-      filename = md5(serialize(types) + query_string) + '.css';
+      filename = p.md5(p.serialize(types) + query_string) + '.css';
       preprocess_file = drupal_build_css_cache(types, filename);
       output += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + preprocess_file + '" />' + "\n";
   return no_module_preprocess . output . no_theme_preprocess;
@@ -1502,24 +1504,24 @@ def drupal_build_css_cache(types, filename):
   # Create the css/ within the files folder.
   csspath = file_create_path('css');
   file_check_directory(csspath, FILE_CREATE_DIRECTORY);
-  if (not file_exists(csspath + '/' + filename)):
+  if (not p.file_exists(csspath + '/' + filename)):
     # Build aggregate CSS file.
     for type_ in types:
       for file_,cache in type_.items():
-        if (not empty(cache)):
+        if (not p.empty(cache)):
           contents = drupal_load_stylesheet(file_, True);
           # Return the path to where this CSS file originated from.
-          base = base_path() + dirname(file_) + '/';
+          base = base_path() + p.dirname(file_) + '/';
           _drupal_build_css_path(None, base);
           # Prefix all paths within this CSS file, ignoring external and absolute paths.
-          data += preg_replace_callback('/url\([\'"]?(?![a-z]+:|\/+)([^\'")]+)[\'"]?\)/i', '_drupal_build_css_path', contents);
+          data += p.preg_replace_callback('/url\([\'"]?(?![a-z]+:|\/+)([^\'")]+)[\'"]?\)/i', '_drupal_build_css_path', contents);
     # Per the W3C specification at http://www.w3.org/TR/REC-CSS2/cascade.html#at-import,
     # @import rules must proceed any other style, so we move those to the top.
     regexp = '/@import[^;]+;/i';
     matches = DrupyHelper.Reference()
-    preg_match_all(regexp, data, matches);
-    data = preg_replace(regexp, '', data);
-    data = implode('', matches.val[0]) . data;
+    p.preg_match_all(regexp, data, matches);
+    data = p.preg_replace(regexp, '', data);
+    data = p.implode('', matches.val[0]) . data;
     # Create the CSS file.
     file_save_data(data, csspath + '/' + filename, FILE_EXISTS_REPLACE);
   return csspath + '/' + filename;
@@ -1532,14 +1534,14 @@ def drupal_build_css_cache(types, filename):
 # This function will prefix all paths within a CSS file.
 #
 def _drupal_build_css_path(matches, base = None):
-  static(_drupal_build_css_path, 'base', base)
+  p.static(_drupal_build_css_path, 'base', base)
   # Store base path for preg_replace_callback.
   # Prefix with base and remove '../' segments where possible.
   path = _drupal_build_css_path.base + matches[1];
   last = '';
   while (path != last):
     last = path;
-    path = preg_replace('`(^|/)(?!../)([^/]+)/../`', '%(1)s', path);
+    path = p.preg_replace('`(^|/)(?!../)([^/]+)/../`', '%(1)s', path);
   return 'url(' + path + ')';
 
 
@@ -1563,23 +1565,23 @@ def _drupal_build_css_path(matches, base = None):
 #   Contents of the stylesheet including the imported stylesheets.
 #
 def drupal_load_stylesheet(file, optimize = None):
-  static(drupal_load_stylesheet, 'optimize_', optimize)
+  p.static(drupal_load_stylesheet, 'optimize_', optimize)
   # Store optimization parameter for preg_replace_callback with nested @import loops.
   contents = '';
-  if (file_exists(file)):
+  if (p.file_exists(file)):
     # Load the local CSS stylesheet.
     contents = file_get_contents(file);
     # Change to the current stylesheet's directory.
     cwd = getcwd();
-    chdir(dirname(file));
+    chdir(p.dirname(file));
     # Replaces @import commands with the actual stylesheet content.
     # This happens recursively but omits external files.
-    contents = preg_replace_callback('/@import\s*(?:url\()?[\'"]?(?![a-z]+:)([^\'"\()]+)[\'"]?\)?;/', '_drupal_load_stylesheet', contents);
+    contents = p.preg_replace_callback('/@import\s*(?:url\()?[\'"]?(?![a-z]+:)([^\'"\()]+)[\'"]?\)?;/', '_drupal_load_stylesheet', contents);
     # Remove multiple charset declarations for standards compliance (and fixing Safari problems).
-    contents = preg_replace('/^@charset\s+[\'"](\S*)\b[\'"];/i', '', contents);
-    if (not empty(drupal_load_stylesheet.optimize_)):
+    contents = p.preg_replace('/^@charset\s+[\'"](\S*)\b[\'"];/i', '', contents);
+    if (not p.empty(drupal_load_stylesheet.optimize_)):
       # Perform some safe CSS optimizations.
-      contents = preg_replace(
+      contents = p.preg_replace(
         '<' + 
         "\s*([@{}:;,]|\)\s|\s\()\s* |" +   # Remove whitespace around separators, but keep space around parentheses.
         '/\*([^*\\\\]|\*(?!/))+\*/ |' +    # Remove comments that are not CSS hacks.
@@ -1605,7 +1607,7 @@ def _drupal_load_stylesheet(matches):
   # Load the imported stylesheet and replace @import commands in there as well.
   file = drupal_load_stylesheet(filename);
   # Alter all url() paths, but not external.
-  return preg_replace('/url\(([\'"]?)(?![a-z]+:)([^\'")]+)[\'"]?\)?;/i', 'url(\1' + dirname(filename) + '/', file);
+  return p.preg_replace('/url\(([\'"]?)(?![a-z]+:)([^\'")]+)[\'"]?\)?;/i', 'url(\1' + p.dirname(filename) + '/', file);
 
 
 #
@@ -1654,7 +1656,7 @@ def drupal_clear_css_cache():
 #   file. Defaults to 'module'.
 # @param scope
 #   (optional) The location in which you want to place the script. Possible
-#   values are 'header' and 'footer' by default. If your theme implements
+#   values are 'p.header' and 'footer' by default. If your theme implements
 #   different locations, however, you can also use these.
 # @param defer
 #   (optional) If set to True, the defer attribute is set on the <script> tag.
@@ -1671,13 +1673,13 @@ def drupal_clear_css_cache():
 #   far for scope is returned. If the first three parameters are None,
 #   an array with all scopes is returned.
 #
-def drupal_add_js(data = None, type_ = 'module', scope = 'header', defer = False, cache = True, preprocess = True):
-  static(drupal_add_js, 'javascript', {})
+def drupal_add_js(data = None, type_ = 'module', scope = 'p.header', defer = False, cache = True, preprocess = True):
+  p.static(drupal_add_js, 'javascript', {})
   if (data != None):
     # Add jquery.js and drupal.js, as well as the basePath setting, the
     # first time a Javascript file is added.
-    if (empty(drupal_add_js.javascript)):
-      javascript['header'] = {
+    if (p.empty(drupal_add_js.javascript)):
+      javascript['p.header'] = {
         'core' : {
           'misc/jquery.js' : {'cache' : True, 'defer' : False, 'preprocess' : True},
           'misc/drupal.js' : {'cache' : True, 'defer' : False, 'preprocess' : True}
@@ -1689,9 +1691,9 @@ def drupal_add_js(data = None, type_ = 'module', scope = 'header', defer = False
         ],
         'inline' : {},
       };
-    if (not empty(scope) and not isset(drupal_add_js.javascript, scope)):
+    if (not p.empty(scope) and not p.isset(drupal_add_js.javascript, scope)):
       drupal_add_js.javascript[scope] = {'core' : {}, 'module' : {}, 'theme' : {}, 'setting' : {}, 'inline' : {}};
-    if (not empty(type) and not empty(scope) and not isset(drupal_add_js.javascript[scope], type_)):
+    if (not p.empty(type) and not p.empty(scope) and not p.isset(drupal_add_js.javascript[scope], type_)):
       drupal_add_js.javascript[scope][type_] = [];
     if type == 'setting':
       drupal_add_js.javascript[scope][type_].append(data);
@@ -1700,8 +1702,8 @@ def drupal_add_js(data = None, type_ = 'module', scope = 'header', defer = False
     else:
       # If cache is False, don't preprocess the JS file.
       drupal_add_js.javascript[scope][type_][data] = {'cache' : cache, 'defer' : defer, 'preprocess' : (False if not cache else preprocess)};
-  if (not empty(scope)):
-    if (isset(drupal_add_js.javascript, scope)):
+  if (not p.empty(scope)):
+    if (p.isset(drupal_add_js.javascript, scope)):
       return drupal_add_js.javascript[scope];
     else:
       return {};
@@ -1721,39 +1723,39 @@ def drupal_add_js(data = None, type_ = 'module', scope = 'header', defer = False
 #
 # @parameter scope
 #   (optional) The scope for which the JavaScript rules should be returned.
-#   Defaults to 'header'.
+#   Defaults to 'p.header'.
 # @parameter javascript
 #   (optional) An array with all JavaScript code. Defaults to the default
 #   JavaScript array for the given scope.
 # @return
 #   All JavaScript code segments and includes for the scope as HTML tags.
 #
-def drupal_get_js(scope = 'header', javascript = None):
-  if ((not defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update') and function_exists('locale_update_js_files')):
+def drupal_get_js(scope = 'p.header', javascript = None):
+  if ((not p.defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update') and p.function_exists('locale_update_js_files')):
     locale_update_js_files();
   if (javascript == None):
     javascript = drupal_add_js(None, None, scope);
-  if (empty(javascript)):
+  if (p.empty(javascript)):
     return '';
   output = '';
   preprocessed = '';
   no_preprocess = {'core' : '', 'module' : '', 'theme' : ''};
   files = {};
-  preprocess_js = (variable_get('preprocess_js', False) and (not defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'));
+  preprocess_js = (variable_get('preprocess_js', False) and (not p.defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'));
   directory = file_directory_path();
-  is_writable_ = is_dir(directory) and is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC);
+  is_writable_ = p.is_dir(directory) and p.is_writable(directory) and (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PUBLIC);
   # A dummy query-string is added to filenames, to gain control over
   # browser-caching. The string changes on every update or full cache
-  # flush, forcing browsers to load a new copy of the files, as the
+  # p.flush, forcing browsers to load a new copy of the files, as the
   # URL changed. Files that should not be cached (see drupal_add_js())
   # get time() as query-string instead, to enforce reload on every
   # page request.
-  query_string = '?' + substr(variable_get('css_js_query_string', '0'), 0, 1);
+  query_string = '?' + p.substr(variable_get('css_js_query_string', '0'), 0, 1);
   for type_,data in javascript.items():
-    if (empty(data)):
+    if (p.empty(data)):
       continue;
     if type_ == 'setting':
-      output += '<script type="text/javascript">jQuery.extend(Drupal.settings, ' + drupal_to_js(call_user_func_array('array_merge_recursive', data)) + ");</script>\n";
+      output += '<script type="text/javascript">jQuery.extend(Drupal.settings, ' + drupal_to_js(p.call_user_func_array('array_merge_recursive', data)) + ");</script>\n";
     elif type_ == 'inline':
       for infoKey_,info in data.items():
         output += '<script type="text/javascript"' + (' defer="defer"' if info['defer'] else '') + '>' + info['code'] + "</script>\n";
@@ -1766,13 +1768,13 @@ def drupal_get_js(scope = 'header', javascript = None):
         else:
           files[path] = info;
   # Aggregate any remaining JS files that haven't already been output.
-  if (is_writable and preprocess_js and count(files) > 0):
-    filename = md5(serialize(files) + query_string) + '.js';
+  if (is_writable and preprocess_js and p.count(files) > 0):
+    filename = p.md5(p.serialize(files) + query_string) + '.js';
     preprocess_file = drupal_build_js_cache(files, filename);
     preprocessed += '<script type="text/javascript" src="' + base_path() + preprocess_file + '"></script>' + "\n";
   # Keep the order of JS files consistent as some are preprocessed and others are not.
   # Make sure any inline or JS setting variables appear last after libraries have loaded.
-  output = preprocessed + implode('', no_preprocess) + output;
+  output = preprocessed + p.implode('', no_preprocess) + output;
   return output;
 
 
@@ -1789,7 +1791,7 @@ def drupal_get_js(scope = 'header', javascript = None):
 # themed into a table. The table must have an id attribute set. If using
 # theme_table(), the id may be set as such:
 # @code
-# output = theme('table', %(header)s, rows, array('id' : 'my-module-table'));
+# output = theme('table', %(p.header)s, rows, array('id' : 'my-module-table'));
 # return output;
 # @endcode
 #
@@ -1885,7 +1887,7 @@ def drupal_get_js(scope = 'header', javascript = None):
 # @see theme_menu_overview_form()
 #
 def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = None, source = None, hidden = True, limit = 0):
-  static(drupal_add_tabledrag, 'js_added', False)
+  p.static(drupal_add_tabledrag, 'js_added', False)
   if (not drupal_add_tabledrag.js_added):
     drupal_add_js('misc/tabledrag.js', 'core');
     drupal_add_tabledrag.js_added = True;
@@ -1919,10 +1921,10 @@ def drupal_build_js_cache(files, filename):
   # Create the js/ within the files folder.
   jspath = file_create_path('js');
   file_check_directory(jspath, FILE_CREATE_DIRECTORY);
-  if (not file_exists(jspath + '/' + filename)):
+  if (not p.file_exists(jspath + '/' + filename)):
     # Build aggregate JS file.
     for path,info in files.items():
-      if (not empty(info['preprocess'])):
+      if (not p.empty(info['preprocess'])):
         # Append a ';' after each JS file to prevent them from running together.
         contents += file_get_contents(path) + ';';
     # Create the JS file.
@@ -1945,8 +1947,8 @@ def drupal_clear_js_cache():
 # We use HTML-safe strings, i.e. with <, > and & escaped.
 #
 def drupal_to_js(var):
-  # json_encode() does not escape <, > and &, so we do it with str_replace()
-  return str_replace(array("<", ">", "&"), array('\x3c', '\x3e', '\x26'), json_encode(var));
+  # json_encode() does not escape <, > and &, so we do it with p.str_replace()
+  return p.str_replace(array("<", ">", "&"), array('\x3c', '\x3e', '\x26'), json_encode(var));
 
 
 
@@ -1954,7 +1956,7 @@ def drupal_to_js(var):
 # Return data in JSON format.
 #
 # This function should be used for JavaScript callback functions returning
-# data in JSON format. It sets the header for JavaScript output.
+# data in JSON format. It sets the p.header for JavaScript output.
 #
 # @param var
 #   (optional) If set, the variable will be converted to JSON and output.
@@ -1988,29 +1990,29 @@ def drupal_json(var = None):
 #
 def drupal_urlencode(text):
   if (variable_get('clean_url', '0')):
-    return str_replace(
+    return p.str_replace(
       ['%2F', '%26', '%23', '//'],
       ['/', '%2526', '%2523', '/%252F'],
       rawurlencode(text)
     );
   else:
-    return str_replace('%2F', '/', rawurlencode(text));
+    return p.str_replace('%2F', '/', rawurlencode(text));
 
 
 
 #
 # Returns a string of highly randomized bytes (over the full 8-bit range).
 #
-# This function is better than simply calling mt_rand() or any other built-in
+# This function is better than simply calling p.mt_rand() or any other built-in
 # PHP function because it can return a long string of bytes (compared to < 4
-# bytes normally from mt_rand()) and uses the best available pseudo-random source.
+# bytes normally from p.mt_rand()) and uses the best available pseudo-random source.
 #
 # @param $count
 #   The number of characters (bytes) to return in the string.
 #
 def drupal_random_bytes(count_):
   # We initialize with the somewhat random PHP process ID on the first call.
-  static(drupal_random_bytes, 'random_state', getmypid())
+  p.static(drupal_random_bytes, 'random_state', getmypid())
   output = '';
   # /dev/urandom is available on many *nix systems and is considered the best
   # commonly available pseudo-random source.
@@ -2021,15 +2023,15 @@ def drupal_random_bytes(count_):
   # If /dev/urandom is not available or returns no bytes, this loop will
   # generate a good set of pseudo-random bytes on any system.
   # Note that it may be important that our $random_state is passed
-  # through md5() prior to being rolled into $output, that the two md5()
+  # through p.md5() prior to being rolled into $output, that the two p.md5()
   # invocations are different, and that the extra input into the first one -
-  # the microtime() - is prepended rather than appended.  This is to avoid
+  # the p.microtime() - is prepended rather than appended.  This is to avoid
   # directly leaking $random_state via the $output stream, which could
   # allow for trivial prediction of further "random" numbers.
-  while (strlen(output) < count_):
-    drupal_random_bytes.random_state = md5(microtime() + mt_rand() + drupal_random_bytes.random_state);
-    output += md5(mt_rand() + drupal_random_bytes.random_state, True);
-  return substr(output, 0, count);
+  while (p.strlen(output) < count_):
+    drupal_random_bytes.random_state = p.md5(p.microtime() + p.mt_rand() + drupal_random_bytes.random_state);
+    output += p.md5(p.mt_rand() + drupal_random_bytes.random_state, True);
+  return p.substr(output, 0, count);
 
 
 #
@@ -2041,7 +2043,7 @@ def drupal_random_bytes(count_):
 def drupal_get_private_key():
   key = variable_get('drupal_private_key', 0);
   if (not key):
-    key = md5(drupal_random_bytes(64));
+    key = p.md5(drupal_random_bytes(64));
     variable_set('drupal_private_key', key);
   return key;
 
@@ -2055,7 +2057,7 @@ def drupal_get_private_key():
 #
 def drupal_get_token(value = ''):
   private_key = drupal_get_private_key();
-  return md5(session_id() + value + private_key);
+  return p.md5(session_id() + value + private_key);
 
 
 
@@ -2074,7 +2076,7 @@ def drupal_get_token(value = ''):
 #
 def drupal_valid_token(token, value = '', skip_anonymous = False):
   global user;
-  return ((skip_anonymous and user.uid == 0) or (token == md5(session_id() + value + variable_get('drupal_private_key', ''))));
+  return ((skip_anonymous and user.uid == 0) or (token == p.md5(session_id() + value + variable_get('drupal_private_key', ''))));
 
 
 
@@ -2101,22 +2103,22 @@ def drupal_valid_token(token, value = '', skip_anonymous = False):
 #     failed. See xmlrpc_error().
 #
 def xmlrpc(url):
-  require_once('./includes/xmlrpc.inc');
+  p.require_once('./includes/xmlrpc.inc');
   args = func_get_args();
-  return call_user_func_array('_xmlrpc', args);
+  return p.call_user_func_array('_xmlrpc', args);
 
 
 
 
 def _drupal_bootstrap_full():
-  static(_drupal_bootstrap_full, 'called', False)
+  p.static(_drupal_bootstrap_full, 'called', False)
   if (_drupal_bootstrap_full.called):
     return;
   else:
     _drupal_bootstrap_full.called = True;
   # Set the Drupal custom error handler.
   try:
-    # Emit the correct charset HTTP header.
+    # Emit the correct charset HTTP p.header.
     drupal_set_header('Content-Type: text/html; charset=utf-8');
     # Detect string handling method
     unicode_check();
@@ -2126,11 +2128,11 @@ def _drupal_bootstrap_full():
     module_load_all();
     # Let all modules take action before menu system handles the request
     # We do not want this while running update.php.
-    if (not defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'):
+    if (not p.defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'):
       module_invoke_all('init');
   except:
     # DRUPY(BC): Args get expanded from tuple
-    drupal_error_handler(*error_get_last());
+    drupal_error_handler(*p.error_get_last());
 
 
 
@@ -2150,18 +2152,18 @@ def _drupal_bootstrap_full():
 #
 def page_set_cache():
   global user, base_root;
-  if ((user.uid < 1) and SERVER['REQUEST_METHOD'] == 'GET' and count(drupal_get_messages(None, False)) == 0):
+  if ((user.uid < 1) and p.SERVER['p.REQUEST_METHOD'] == 'p.GET' and p.count(drupal_get_messages(None, False)) == 0):
     # This will fail in some cases, see page_get_cache() for the explanation.
     data = ob_get_contents();
-    if (not empty(data = ob_get_contents())):
+    if (not p.empty(data = ob_get_contents())):
       cache = True;
-      if (variable_get('page_compression', True) and function_exists('gzencode')):
+      if (variable_get('page_compression', True) and p.function_exists('gzencode')):
         # We do not store the data in case the zlib mode is deflate.
         # This should be rarely happening.
         if (zlib_get_coding_type() == 'deflate'):
           cache = False;
         elif (zlib_get_coding_type() == False):
-          data = gzencode(data, 9, FORCE_GZIP);
+          data = p.gzencode(data, 9, FORCE_GZIP);
         # The remaining case is 'gzip' which means the data is
         # already compressed and nothing left to do but to store it.
       ob_end_flush();
@@ -2263,13 +2265,13 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
   # themes as organized by a distribution.  It is pristine in the same way
   # that /modules is pristine for core; users should avoid changing anything
   # there in favor of sites/all or sites/<domain> directories.
-  if (file_exists("profiles/%(profile)s/directory" % {'profile' : profile})):
+  if (p.file_exists("profiles/%(profile)s/directory" % {'profile' : profile})):
     searchdir.append( "profiles/%(profile)s/directory" % {'profile' : profile} );
-  if (file_exists("%(config)s/directory" % {'config':config})):
+  if (p.file_exists("%(config)s/directory" % {'config':config})):
     searchdir.append( "%(config)s/directory" % {'config':config} );
   # Get current list of items
   for dir in searchdir:
-    files = array_merge(files, file_scan_directory(dir, mask, ['.', '..', 'CVS'], 0, True, key, min_depth));
+    files = p.array_merge(files, file_scan_directory(dir, mask, ['.', '..', 'CVS'], 0, True, key, min_depth));
   return files;
 
 
@@ -2298,7 +2300,7 @@ def drupal_alter(type_, data, *additional_args_):
   # array. This is somewhat ugly, but is an unavoidable consequence of a flexible
   # drupal_alter() function, and the limitations of func_get_args().
   # @todo: Remove this in Drupal 7.
-  if (is_array(data.val) and isset(data.val['__drupal_alter_by_ref'])):
+  if (p.is_array(data.val) and p.isset(data.val['__drupal_alter_by_ref'])):
     by_ref_parameters = data.val['__drupal_alter_by_ref'];
     del(data.val['__drupal_alter_by_ref']);
   else:
@@ -2307,13 +2309,13 @@ def drupal_alter(type_, data, *additional_args_):
   # Also, merge in any parameters that need to be passed by reference.
   args = [data];
   if (by_ref_parameters != None):
-    args = array_merge(args, by_ref_parameters);
+    args = p.array_merge(args, by_ref_parameters);
   # Now, use func_get_args() to pull in any additional parameters passed into
   # the drupal_alter() call.
   additional_args = additional_args_;
-  array_shift(additional_args);
-  array_shift(additional_args);
-  args = tuple(array_merge(args, additional_args));
+  p.array_shift(additional_args);
+  p.array_shift(additional_args);
+  args = tuple(p.array_merge(args, additional_args));
   for module in module_implements(type_ + '_alter'):
     function = module + '_' + type_ + '_alter';
     function( *args );
@@ -2334,37 +2336,37 @@ def drupal_alter(type_, data, *additional_args_):
 #
 def drupal_render(elements):
   DrupyHelper.Reference.check(elements);
-  if (elements.val == None or (isset(elements.val, '#access') and not elements.val['#access'])):
+  if (elements.val == None or (p.isset(elements.val, '#access') and not elements.val['#access'])):
     return None;
   # If the default values for this element haven't been loaded yet, populate
   # them.
-  if (not isset(elements.val, '#defaults_loaded') or not elements.val['#defaults_loaded']):
+  if (not p.isset(elements.val, '#defaults_loaded') or not elements.val['#defaults_loaded']):
     info = _element_info(elements.val['#type']);
-    if ((not empty(elements.val['#type'])) and (info)):
+    if ((not p.empty(elements.val['#type'])) and (info)):
       elements.val += info;
   # Make any final changes to the element before it is rendered. This means
   # that the element or the children can be altered or corrected before the
   # element is rendered into the final text.
-  if (isset(elements.val, '#pre_render')):
+  if (p.isset(elements.val, '#pre_render')):
     for function in elements.val['#pre_render']:
       if (drupal_function_exists(function)):
         elements.val = function(elements.val);
   content = '';
   # Either the elements did not go through form_builder or one of the children
   # has a #weight.
-  if (not isset(elements.val, '#sorted')):
-    uasort(elements.val, element_sort);
-  elements.val = array_merge(elements.val, {'#title' : None, '#description' : None});
-  if (not isset(elements.val['#children'])):
+  if (not p.isset(elements.val, '#sorted')):
+    p.uasort(elements.val, element_sort);
+  elements.val = p.array_merge(elements.val, {'#title' : None, '#description' : None});
+  if (not p.isset(elements.val['#children'])):
     children = element_children(elements.val);
 # Render all the children that use a theme function */
-    if (isset(elements.val, '#theme') and empty(elements.val['#theme_used'])):
+    if (p.isset(elements.val, '#theme') and p.empty(elements.val['#theme_used'])):
       elements.val['#theme_used'] = True;
       previous = {};
       for key in ['#value', '#type', '#prefix', '#suffix']:
-        previous[key] = (elements.val[key] if isset(elements.val, key) else None);
+        previous[key] = (elements.val[key] if p.isset(elements.val, key) else None);
       # If we rendered a single element, then we will skip the renderer.
-      if (empty(children)):
+      if (p.empty(children)):
         elements.val['#printed'] = True;
       else:
         elements.val['#value'] = '';
@@ -2373,27 +2375,27 @@ def drupal_render(elements):
       del(elements.val['#suffix']);
       content = theme(elements.val['#theme'], elements.val);
       for key in ['#value', '#type', '#prefix', '#suffix']:
-        elements.val[key] = (previous[key] if isset(previous, key) else None);
+        elements.val[key] = (previous[key] if p.isset(previous, key) else None);
     # render each of the children using drupal_render and concatenate them */
-    if (empty(content)):
+    if (p.empty(content)):
       for key in children:
         content += drupal_render(elements.val[key]);
-  if (not empty(content)):
+  if (not p.empty(content)):
     elements.val['#children'] = content;
   # Until now, we rendered the children, here we render the element itself
-  if (not isset(elements.val, '#printed')):
-    content = theme((elements.val['#type'] if not empty(elements.val['#type']) else 'markup'), elements.val);
+  if (not p.isset(elements.val, '#printed')):
+    content = theme((elements.val['#type'] if not p.empty(elements.val['#type']) else 'markup'), elements.val);
     elements.val['#printed'] = True;
-  if (not empty(content)):
+  if (not p.empty(content)):
     # Filter the outputted content and make any last changes before the
     # content is sent to the browser. The changes are made on content
     # which allows the output'ed text to be filtered.
-    if (isset(elements.val, '#post_render')):
+    if (p.isset(elements.val, '#post_render')):
       for function in elements.val['#post_render']:
         if (drupal_function_exists(function)):
           content = function(content, elements.val);
-    prefix = (elements.val['#prefix'] if isset(elements.val, '#prefix') else '');
-    suffix = (elements.val['#suffix'] if isset(elements.val, '#suffix') else '');
+    prefix = (elements.val['#prefix'] if p.isset(elements.val, '#prefix') else '');
+    suffix = (elements.val['#suffix'] if p.isset(elements.val, '#suffix') else '');
     return prefix + content + suffix;
 
 
@@ -2402,8 +2404,8 @@ def drupal_render(elements):
 # Function used by uasort to sort structured arrays by weight.
 #
 def element_sort(a, b):
-  a_weight = (a['#weight'] if (is_array(a) and isset(a['#weight'])) else 0);
-  b_weight = (b['#weight'] if (is_array(b) and isset(b['#weight'])) else 0);
+  a_weight = (a['#weight'] if (p.is_array(a) and p.isset(a['#weight'])) else 0);
+  b_weight = (b['#weight'] if (p.is_array(b) and p.isset(b['#weight'])) else 0);
   if (a_weight == b_weight):
     return 0;
   return  (-1 if (a_weight < b_weight) else 1);
@@ -2422,7 +2424,7 @@ def element_property(key):
 # Get properties of a structured array element. Properties begin with '#'.
 #
 def element_properties(element):
-  return array_filter(array_keys(element), 'element_property');
+  return p.array_filter(p.array_keys(element), 'element_property');
 
 
 
@@ -2430,7 +2432,7 @@ def element_properties(element):
 # Check if the key is a child.
 #
 def element_child(key):
-  return (not isset(key, 0) or key[0] != '#');
+  return (not p.isset(key, 0) or key[0] != '#');
 
 
 
@@ -2438,7 +2440,7 @@ def element_child(key):
 # Get keys of a structured array tree element that are not properties (i.e., do not begin with '#').
 #
 def element_children(element):
-  return array_filter(array_keys(element), 'element_child');
+  return p.array_filter(p.array_keys(element), 'element_child');
 
 
 
@@ -2487,7 +2489,7 @@ def drupal_common_theme():
       'arguments' : {'links' : None}
     },
     'table' : {
-      'arguments' : {'header' : None, 'rows' : None, 'attributes' : {}, 'caption' : None}
+      'arguments' : {'p.header' : None, 'rows' : None, 'attributes' : {}, 'caption' : None}
     },
     'table_select_header_cell' : {
       'arguments' : {}
@@ -2660,8 +2662,8 @@ def drupal_common_theme():
 #   If true, the schema will be rebuilt instead of retrieved from the cache.
 #
 def drupal_get_schema(table = None, rebuild = False):
-  static(drupal_get_schema, 'schema', [])
-  if (empty(drupal_get_schema.schema) or rebuild):
+  p.static(drupal_get_schema, 'schema', [])
+  if (p.empty(drupal_get_schema.schema) or rebuild):
     # Try to load the schema from cache.
     cached = cache_get('schema')
     if (not rebuild and cached):
@@ -2675,12 +2677,12 @@ def drupal_get_schema(table = None, rebuild = False):
       for module in module_implements('schema'):
         current = module_invoke(module, 'schema');
         _drupal_initialize_schema(module, current);
-        drupal_get_schema.schema = array_merge(drupal_get_schema.schema, current);
+        drupal_get_schema.schema = p.array_merge(drupal_get_schema.schema, current);
       drupal_alter('schema', drupal_get_schema.schema);
       cache_set('schema', drupal_get_schema.schema);
   if (table != None):
     return drupal_get_schema.schema;
-  elif (isset(drupal_get_schema.schema, table)):
+  elif (p.isset(drupal_get_schema.schema, table)):
     return drupal_get_schema.schema[table];
   else:
     return False;
@@ -2763,7 +2765,7 @@ def drupal_get_schema_unprocessed(module_, table = None):
   # Load the .install file to get hook_schema.
   module_load_install(module_);
   schema = module_invoke(module_, 'schema');
-  if (not is_null(table) and isset(schema, table)):
+  if (not p.is_null(table) and p.isset(schema, table)):
     return schema[table];
   else:
     return schema;
@@ -2785,9 +2787,9 @@ def _drupal_initialize_schema(module, schema):
   DrupyHelper.Reference.check(schema);
   # Set the name and module key for all tables.
   for name,table in schema.val.items():
-    if (empty(table['module'])):
+    if (p.empty(table['module'])):
       schema.val[name]['module'] = module;
-    if (not isset(table, 'name')):
+    if (not p.isset(table, 'name')):
       schema.val[name]['name'] = name;
 
 
@@ -2804,7 +2806,7 @@ def _drupal_initialize_schema(module, schema):
 #*/
 def drupal_schema_fields_sql(table, prefix = None):
   schema = drupal_get_schema(table);
-  fields = array_keys(schema['fields']);
+  fields = p.array_keys(schema['fields']);
   if (prefix != None):
     columns = [];
     for field in fields:
@@ -2845,10 +2847,10 @@ def drupal_write_record(table, object_, update = []):
   if (is_string(update)):
     update = [update];
   schema = drupal_get_schema(table);
-  if empty(schema):
+  if p.empty(schema):
     return False
   # Convert to an object if needed.
-  if (is_array(object_.val)):
+  if (p.is_array(object_.val)):
     object_.val = drupy_object(object_.val);
     array_ = True;
   else:
@@ -2858,10 +2860,10 @@ def drupal_write_record(table, object_, update = []):
   # fields that are not set.
   for field,info in schema['fields'].items():
     # Special case -- skip serial types if we are updating.
-    if (info['type'] == 'serial' and count(update)):
+    if (info['type'] == 'serial' and p.count(update)):
       continue;
     # For inserts, populate defaults from Schema if not already provided
-    if (not isset(object_.val, field) and not count(update) and isset(info, 'default')):
+    if (not p.isset(object_.val, field) and not p.count(update) and p.isset(info, 'default')):
       setattr(object_.val, field, info['default']);
     # Track serial fields so we can helpfully populate them after the query.
     if (info['type'] == 'serial'):
@@ -2869,16 +2871,16 @@ def drupal_write_record(table, object_, update = []):
       # Ignore values for serials when inserting data. Unsupported.
       delattr(object_.val, field);
     # Build arrays for the fields, placeholders, and values in our query.
-    if (isset(object_.val, field)):
+    if (p.isset(object_.val, field)):
       fields.append( field );
       placeholders.append( db_type_placeholder(info['type']) );
-      if (empty(info['serialize'])):
+      if (p.empty(info['serialize'])):
         values.append( getattr( object_.val, field ) );
-      elif (not empty(getattr( object_.val, field ))):
-        values.append( serialize( getattr(object_.val, field) ) );
+      elif (not p.empty(getattr( object_.val, field ))):
+        values.append( p.serialize( getattr(object_.val, field) ) );
       else:
         values.append( '' );
-  if (empty(fields)):
+  if (p.empty(fields)):
     # No changes requested.
     # If we began with an array, convert back so we don't surprise the caller.
     if (array_):
@@ -2886,30 +2888,30 @@ def drupal_write_record(table, object_, update = []):
     return;
   # Build the SQL.
   query = '';
-  if (count(update) == 0):
-    query = "INSERT INTO {" + table + "} (" + implode(', ', fields) + ') VALUES (' + implode(', ', placeholders) + ')';
+  if (p.count(update) == 0):
+    query = "INSERT INTO {" + table + "} (" + p.implode(', ', fields) + ') VALUES (' + p.implode(', ', placeholders) + ')';
     return_ = SAVED_NEW;
   else:
     query = '';
     for id,field in fields.items():
-      if (not empty(query)):
+      if (not p.empty(query)):
         query += ', ';
       query += field + ' = ' + placeholders[id];
     for key in update:
       conditions.append( key + " = " + db_type_placeholder(schema['fields'][key]['type']) );
       values.append( object_.val.key );
-    query = "UPDATE {" + table + "} SET query WHERE " + implode(' AND ', conditions);
+    query = "UPDATE {" + table + "} SET query WHERE " + p.implode(' AND ', conditions);
     return_ = SAVED_UPDATED;
   # Execute the SQL.
   if (db_query(query, values)):
-    if (not empty(serials)):
+    if (not p.empty(serials)):
       # Get last insert ids and fill them in.
       for field in serials:
         setattr( object.val, field, db_last_insert_id(table, field) );
   else:
     return_ = False
   # If we began with an array, convert back so we don't surprise the caller.
-  if (not empty(array_)):
+  if (not p.empty(array_)):
     object_.val = drupy_array(object_.val);
   return return_;
 
@@ -2940,7 +2942,7 @@ def drupal_write_record(table, object_, update = []):
 #   'value'
 # @endverbatim
 #
-# Arrays are created using a GET-like syntax:
+# Arrays are created using a p.GET-like syntax:
 #
 # @verbatim
 #   key[] = "numeric array"
@@ -3011,14 +3013,14 @@ def drupal_explode_tags(tags):
   # this, "somecompany, llc", "and ""this"" w,o.rks", foo bar
   regexp = '%(?:^|,\ *)("(?>[^"]*)(?>""[^"]* )*"|(?: [^",]*))%x';
   matches = DrupyHelper.Reference()
-  preg_match_all(regexp, tags, matches);
+  p.preg_match_all(regexp, tags, matches);
   typed_tags = array_unique(matches.val[1]);
   tags = [];
   for tag in typed_tags:
     # If a user has escaped a term (to demonstrate that it is a group,
     # or includes a comma or quote character), we remove the escape
     # formatting so to save the term into the database as the user intends.
-    tag = trim(str_replace('""', '"', preg_replace('/^"(.*)"$/', '\1', tag)));
+    tag = p.trim(p.str_replace('""', '"', p.preg_replace('/^"(.*)"$/', '\1', tag)));
     if (tag != ""):
       tags.append( tag );
   return tags;
@@ -3032,10 +3034,10 @@ def drupal_implode_tags(tags):
   encoded_tags = [];
   for tag in tags:
     # Commas and quotes in tag names are special cases, so encode them.
-    if (strpos(tag, ',') != False or strpos(tag, '"') != False):
-      tag = '"' + str_replace('"', '""', tag) + '"';
+    if (p.strpos(tag, ',') != False or p.strpos(tag, '"') != False):
+      tag = '"' + p.str_replace('"', '""', tag) + '"';
     encoded_tags.append( tag );
-  return implode(', ', encoded_tags);
+  return p.implode(', ', encoded_tags);
 
 
 
@@ -3058,7 +3060,7 @@ def drupal_flush_all_caches():
   # Don't clear cache_form - in-progress form submissions may break.
   # Ordered so clearing the page cache will always be the last action.
   core = ['cache', 'cache_block', 'cache_filter', 'cache_registry', 'cache_page'];
-  cache_tables = array_merge(module_invoke_all('flush_caches'), core);
+  cache_tables = p.array_merge(module_invoke_all('p.flush_caches'), core);
   for table in cache_tables:
     cache_clear_all('*', table, True);
 
@@ -3077,8 +3079,8 @@ def _drupal_flush_css_js():
   string_history = variable_get('css_js_query_string', '00000000000000000000');
   new_character = string_history[0];
   characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  while (strpos(string_history, new_character) != False):
-    new_character = characters[mt_rand(0, strlen(characters) - 1)];
-  variable_set('css_js_query_string', new_character + substr(string_history, 0, 19));
+  while (p.strpos(string_history, new_character) != False):
+    new_character = characters[p.mt_rand(0, p.strlen(characters) - 1)];
+  variable_set('css_js_query_string', new_character + p.substr(string_history, 0, 19));
 
 

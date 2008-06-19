@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # $Id: cache.inc,v 1.18 2008/04/14 17:48:33 dries Exp $
 
 
@@ -29,7 +31,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-from lib.drupy.DrupyPHP import *
+from lib.drupy import DrupyPHP as p
 import bootstrap as inc_bootstrap
 import database as inc_database
 
@@ -49,16 +51,16 @@ def cache_get(cid, table = 'cache'):
   if (cache_flush and (cache_flush + variable_get('cache_lifetime', 0) <= time())):
     # Reset the variable immediately to prevent a meltdown in heavy load situations.
     variable_set('cache_flush', 0);
-    # Time to flush old cache data
+    # Time to p.flush old cache data
     inc_database.db_query("DELETE FROM {" + table + "} WHERE expire != %d AND expire <= %d", CACHE_PERMANENT, cache_flush);
   cache = inc_database.db_fetch_object(inc_database.db_query("SELECT data, created, headers, expire, serialized FROM {" + table + "} WHERE cid = '%s'", cid));
-  if (isset(cache, 'data')):
+  if (p.isset(cache, 'data')):
     # If the data is permanent or we're not enforcing a minimum cache lifetime
     # always return the cached data.
     if (cache.expire == CACHE_PERMANENT or not variable_get('cache_lifetime', 0)):
       cache.data = db_decode_blob(cache.data);
       if (cache.serialized):
-        cache.data = unserialize(cache.data);
+        cache.data = p.unserialize(cache.data);
     # If enforcing a minimum cache lifetime, validate that the data is
     # currently valid for this user before we return it by making sure the
     # cache entry was created before the timestamp in the current session's
@@ -71,7 +73,7 @@ def cache_get(cid, table = 'cache'):
       else:
         cache.data = db_decode_blob(cache.data);
         if (cache.serialized):
-          cache.data = unserialize(cache.data);
+          cache.data = p.unserialize(cache.data);
     return cache;
   return 0;
 
@@ -119,16 +121,16 @@ def cache_get(cid, table = 'cache'):
 #   - A Unix timestamp: Indicates that the item should be kept at least until
 #     the given time, after which it behaves like CACHE_TEMPORARY.
 # @param headers
-#   A string containing HTTP header information for cached pages.
+#   A string containing HTTP p.header information for cached pages.
 #
 def cache_set(cid, data, table = 'cache', expire = None, headers = None):
   if expire is None:
     expire = inc_bootstrap.CACHE_PERMANENT
   serialized = 0;
-  if (is_object(data) or is_array(data)):
-    data = serialize(data);
+  if (p.is_object(data) or p.is_array(data)):
+    data = p.serialize(data);
     serialized = 1;
-  created = time_();
+  created = p.time_();
   inc_database.db_query("UPDATE {" + table + "} SET data = %b, created = %d, expire = %d, headers = '%s', serialized = %d WHERE cid = '%s'", data, created, expire, headers, serialized, cid);
   #if (not db_affected_rows()):
     #db_query("INSERT INTO {" + table + "} (cid, data, created, expire, headers, serialized) VALUES ('%s', %b, %d, %d, '%s', %d)", cid, data, created, expire, headers, serialized);
@@ -179,7 +181,7 @@ def cache_clear_all(cid = None, table = None, wildcard = False):
         db_query("DELETE FROM {" + table + "} WHERE expire != %d AND expire < %d", CACHE_PERMANENT, thisTime);
         variable_set('cache_flush', 0);
     else:
-      # No minimum cache lifetime, flush all temporary cache entries now.
+      # No minimum cache lifetime, p.flush all temporary cache entries now.
       db_query("DELETE FROM {" + table + "} WHERE expire != %d AND expire < %d", CACHE_PERMANENT, thisTime);
   else:
     if (wildcard):
