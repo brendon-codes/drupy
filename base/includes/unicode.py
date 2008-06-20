@@ -119,7 +119,7 @@ def unicode_requirements():
 #   An XML parser object.
 #
 def drupal_xml_parser_create(data):
-  DrupyHelper.Reference.check(data);
+  p.Reference.check(data);
   # Default XML encoding is UTF-8
   encoding = 'utf-8';
   data.val = unicode(data.val, encoding);

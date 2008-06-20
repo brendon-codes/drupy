@@ -40,7 +40,6 @@
 # Includes
 #
 from lib.drupy import DrupyPHP as p
-from lib.drupy import DrupyHelper
 import urllib2
 import bootstrap as inc_bootstrap
 import theme as inc_theme
@@ -657,7 +656,7 @@ def valid_email_address(mail):
     ipv4 : '[0-9]{1,3}(\.[0-9]{1,3}){3}',
     ipv6 : '[0-9a-fA-F]{1,4}(\:[0-9a-fA-F]{1,4}){7}'
   };
-  mail = DrupyHelper.Reference();
+  mail = p.Reference();
   cnt = p.preg_match("/^%(user)s@(%(domain)s|(\[(%(ipv4)s|%(ipv6)s)\]))$/" % items, mail);
   return (cnt > 0);
 
@@ -679,11 +678,11 @@ def valid_email_address(mail):
 def valid_url(url, absolute = False):
   allowed_characters = '[a-z0-9\/:_\-_\.\?\$,;~=#&%\+]';
   if (absolute):
-    url = DrupyHelper.Reference();
+    url = p.Reference();
     cnt = p.preg_match("/^(http|https|ftp):\/\/" + allowed_characters + "+$/i", url);
     return (cnt > 0);
   else:
-    url = DrupyHelper.Reference();
+    url = p.Reference();
     cnt = p.preg_match("/^" + allowed_characters + "+$/i", url);
     return (cnt > 0);
 
@@ -891,7 +890,7 @@ def parse_size(size):
     'm' : 1048576, # 1024 * 1024
     'g' : 1073741824, # 1024 * 1024 * 1024
   };
-  match = DrupyHelper.Reference()
+  match = p.Reference()
   if (p.preg_match('/([0-9]+)\s*(k|m|g)?(b?(ytes?)?)/i', size, match) > 0):
     return match.val[1] * suffixes[drupal_strtolower(match.val[2])];
 
@@ -1518,7 +1517,7 @@ def drupal_build_css_cache(types, filename):
     # Per the W3C specification at http://www.w3.org/TR/REC-CSS2/cascade.html#at-import,
     # @import rules must proceed any other style, so we move those to the top.
     regexp = '/@import[^;]+;/i';
-    matches = DrupyHelper.Reference()
+    matches = p.Reference()
     p.preg_match_all(regexp, data, matches);
     data = p.preg_replace(regexp, '', data);
     data = p.implode('', matches.val[0]) . data;
@@ -2291,7 +2290,7 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
 #   hook_type_alter functions.
 #
 def drupal_alter(type_, data, *additional_args_):
-  DrupyHelper.Reference.check(data);
+  p.Reference.check(data);
   # PHP's func_get_args() always returns copies of params, not references, so
   # drupal_alter() can only manipulate data that comes in via the required first
   # param. For the edge case functions that must pass in an arbitrary number of
@@ -2335,7 +2334,7 @@ def drupal_alter(type_, data, *additional_args_):
 #   The rendered HTML.
 #
 def drupal_render(elements):
-  DrupyHelper.Reference.check(elements);
+  p.Reference.check(elements);
   if (elements.val == None or (p.isset(elements.val, '#access') and not elements.val['#access'])):
     return None;
   # If the default values for this element haven't been loaded yet, populate
@@ -2784,7 +2783,7 @@ def drupal_get_schema_unprocessed(module_, table = None):
 # Drupy(BC): schema is a reference
 
 def _drupal_initialize_schema(module, schema):
-  DrupyHelper.Reference.check(schema);
+  p.Reference.check(schema);
   # Set the name and module key for all tables.
   for name,table in schema.val.items():
     if (p.empty(table['module'])):
@@ -2842,7 +2841,7 @@ def drupal_schema_fields_sql(table, prefix = None):
 #
 #
 def drupal_write_record(table, object_, update = []):
-  DrupyHelper.Reference.check(object_);
+  p.Reference.check(object_);
   # Standardize update to an array.
   if (is_string(update)):
     update = [update];
@@ -3012,7 +3011,7 @@ def drupal_explode_tags(tags):
   # This regexp allows the following types of user input:
   # this, "somecompany, llc", "and ""this"" w,o.rks", foo bar
   regexp = '%(?:^|,\ *)("(?>[^"]*)(?>""[^"]* )*"|(?: [^",]*))%x';
-  matches = DrupyHelper.Reference()
+  matches = p.Reference()
   p.preg_match_all(regexp, tags, matches);
   typed_tags = array_unique(matches.val[1]);
   tags = [];

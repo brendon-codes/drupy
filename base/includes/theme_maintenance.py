@@ -214,7 +214,7 @@ def theme_update_page(content, show_messages = True):
 # @see maintenance-page.tpl.php
 #
 def template_preprocess_maintenance_page(variables):
-  DrupyHelper.Reference.check(variables)
+  p.Reference.check(variables)
   global theme_
   # Add favicon
   if (theme_get_setting('toggle_favicon')):

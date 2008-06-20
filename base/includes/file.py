@@ -156,7 +156,7 @@ def file_create_path(dest = 0):
 # @return False when directory not found, or True when directory exists.
 #
 def file_check_directory(directory, mode = 0, form_item = None):
-  DrupyHelper.Reference.check(directory);
+  p.Reference.check(directory);
   directory.val = p.rtrim(directory.val, '/\\')
   # Check if directory exists.
   if (not p.is_dir(directory.val)):
@@ -198,7 +198,7 @@ def file_check_directory(directory, mode = 0, form_item = None):
 #   returned + Otherwise, the base name of the path is returned.
 #
 def file_check_path(path):
-  DrupyHelper.Reference.check(path)
+  p.Reference.check(path)
   # Check if path is a directory.
   if (file_check_directory(path)):
     return ''
@@ -259,7 +259,7 @@ def file_check_location(source, directory = ''):
 # @return True for success, False for failure.
 #
 def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
-  DrupyHelper.Reference.check(source)
+  p.Reference.check(source)
   dest = file_create_path(dest)
   directory = dest
   basename = file_check_path(directory)
@@ -651,7 +651,7 @@ def file_validate_size(file, file_limit = 0, user_limit = 0):
 #   An array + If the file is not an image, it will contain an error message.
 #
 def file_validate_is_image(file):
-  DrupyHelper.Reference.check(file)
+  p.Reference.check(file)
   errors = []
   info = image_get_info(file.val.filepath)
   if (not info or not p.isset(info, 'extension') or p.empty(info['extension'])):
@@ -680,7 +680,7 @@ def file_validate_is_image(file):
 #   will contain an error message.
 #
 def file_validate_image_resolution(file, maximum_dimensions = 0, minimum_dimensions = 0):
-  DrupyHelper.Reference.check(file)
+  p.Reference.check(file)
   errors = []
   # Check first that the file is an image.
   info = image_get_info(file.val.filepath)
@@ -744,7 +744,7 @@ def file_save_data(data, dest, replace = FILE_EXISTS_RENAME):
 #     status.
 #
 def file_set_status(file, status):
-  DrupyHelper.Reference.check(file)
+  p.Reference.check(file)
   if (db_query('UPDATE {files} SET status = %d WHERE fid = %d', status, file.val.fid)):
     file.val.status = status
     return True
