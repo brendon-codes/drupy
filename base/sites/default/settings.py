@@ -174,7 +174,10 @@ update_free_access = False;
 # shared base domain. Doing so assures that users remain logged in as they
 # cross between your various domains.
 #
-# $cookie_domain = 'example.com';
+cookie_domain = None;
+
+# Conf defaults
+conf = None
 
 #
 # Variable overrides:

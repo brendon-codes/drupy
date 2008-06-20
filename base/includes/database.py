@@ -36,7 +36,7 @@
 # Includes
 #
 from lib.drupy import DrupyPHP as p
-from sites.default.settings import *
+from sites.default import settings
 from lib.drupy.DrupyMySQL import *
 import bootstrap as inc_bootstrap
 import database_mysqli as db
@@ -120,20 +120,19 @@ def update_sql(sql):
 #   The properly-prefixed string.
 #
 def db_prefix_tables(sql):
-  global db_prefix;
-  if (p.is_array(db_prefix)):
-    if (p.array_key_exists('default', db_prefix)):
-      tmp = db_prefix;
+  if (p.is_array(settings.db_prefix)):
+    if (p.array_key_exists('default', settings.db_prefix)):
+      tmp = settings.db_prefix;
       del(tmp['default']);
       for key,val in tmp.items():
         sql = p.strtr(sql, {('{' + key + '}') : (val + key)});
-      return p.strtr(sql, {'{' : db_prefix['default'], '}' : ''});
+      return p.strtr(sql, {'{' : settings.db_prefix['default'], '}' : ''});
     else:
-      for key,val in db_prefix.items():
+      for key,val in settings.db_prefix.items():
         sql = p.strtr(sql, {('{' + key + '}') : (val + key)});
       return p.strtr(sql, {'{' : '', '}' : ''});
   else:
-    return p.strtr(sql, {'{' : db_prefix, '}' : ''});
+    return p.strtr(sql, {'{' : settings.db_prefix, '}' : ''});
 
 
 
@@ -163,15 +162,15 @@ def db_set_active(name = 'default'):
   global db_url, db_type, active_db, db_prefix;
   p.static(db_set_active, 'db_conns', {})
   p.static(db_set_active, 'active_name', False)
-  if (db_url == None):
+  if (settings.db_url == None):
     p.include_once('includes/install.py');
     install_goto('install.py');
   if (not p.isset(db_set_active.db_conns, name)):
     # Initiate a new connection, using the named DB URL specified.
-    if (isinstance(db_url, dict)):
-      connect_url = (db_url[name] if p.array_key_exists(name, db_url) else db_url['default']);
+    if (isinstance(settings.db_url, dict)):
+      connect_url = (settings.db_url[name] if p.array_key_exists(name, settings.db_url) else settings.db_url['default']);
     else:
-      connect_url = db_url;
+      connect_url = settings.db_url;
     db_type = p.substr(connect_url, 0, p.strpos(connect_url, '://'));
     #handler = "includes/database_%(db_type)s.py" % {'db_type' : db_type};
     #try:
