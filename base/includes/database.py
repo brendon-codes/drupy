@@ -37,7 +37,6 @@
 #
 from lib.drupy import DrupyPHP as p
 from sites.default.settings import *
-from lib.drupy import DrupyHelper
 from lib.drupy.DrupyMySQL import *
 import bootstrap as inc_bootstrap
 import database_mysqli as db

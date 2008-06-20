@@ -134,7 +134,30 @@ class stdClass:
 
   def __init__(self): pass
 
-# end stdClass
+#
+# Reference class
+#
+class Reference:
+
+  #
+  # Wrapper to setup a reference object
+  #
+  def __init__(self, item = None):
+    self.val = item
+  
+  #
+  # Enforces a reference
+  # @param Object data
+  # @raise Exception 
+  # @return Bool
+  #
+  @staticmethod
+  def check(data):
+    if not isinstance(data, Reference) or not hasattr(data, 'val'):
+      raise Exception, "Argument must be an object and must contain a 'val' property."
+    else:
+      return True
+
 
 
 #

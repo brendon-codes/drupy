@@ -71,25 +71,6 @@ def modules():
       out[k] = v
   return out
 
-#
-# Reference class
-#
-class Reference:
-  def __init__(self):
-    self.val = None
-  #
-  # Enforces a reference
-  # @param Object data
-  # @raise Exception 
-  # @return Bool
-  #
-  @staticmethod
-  def check(data):
-    if not isinstance(data, Reference) or not hasattr(data, 'val'):
-      raise Exception, "Argument must be an object and must contain a 'val' property."
-    else:
-      return True
-
 
 
 

@@ -34,7 +34,6 @@
 #
 
 
-from lib.drupy import DrupyHelper
 from lib.drupy import DrupyPHP as p
 
 
@@ -265,7 +264,7 @@ def drupal_rebuild_theme_registry():
 # over how and when the preprocess functions are run.
 #
 def _theme_process_registry(cache, name, type_, theme_, path):
-  drupy.helper.Reference.check(cache);
+  p.Reference.check(cache);
   function = name + '_theme';
   if (p.function_exists(function)):
     result = function(cache.val, type_, theme_, path);
@@ -565,7 +564,7 @@ def theme():
     if (p.isset(info, 'preprocess functions') and p.is_array(info['preprocess functions'])):
       # This construct ensures that we can keep a reference through
       # call_user_func_array.
-      variables_ = drupy.helper.Reference(variables);
+      variables_ = p.Reference(variables);
       args = (variables_, hook);
       for preprocess_function in info['preprocess functions']:
         if (drupal_function_exists(preprocess_function)):
@@ -1414,7 +1413,7 @@ def _theme_table_cell(cell, header_ = False):
 def template_preprocess(variables_, hook):
   global user;
   p.static(template_preprocess, 'count', {})
-  DrupyHelper.Reference.check(variables_);
+  p.Reference.check(variables_);
   # Track run count for each hook to provide zebra striping+
   # See "template_preprocess_block()" which provides the same feature specific to blocks+
   template_preprocess.count[hook] = \
@@ -1463,7 +1462,7 @@ def template_preprocess(variables_, hook):
 def template_preprocess_page(variables_):
   global theme_;
   global language;
-  DrupyHelper.Reference.check(variables_);
+  p.Reference.check(variables_);
   # Add favicon
   if (theme_get_setting('toggle_favicon')):
     drupal_set_html_head('<link rel="shortcut icon" href="'+ check_url(theme_get_setting('favicon')) +'" type="image/x-icon" />');
@@ -1595,7 +1594,7 @@ def template_preprocess_page(variables_):
 # @see node.tpl.php
 #
 def template_preprocess_node(variables_):
-  DrupyHelper.Reference.check(variables);
+  p.Reference.check(variables);
   node = variables_.val['node'];
   if (module_exists('taxonomy')):
     variables_.val['taxonomy'] = taxonomy_link('taxonomy terms', node);
@@ -1645,7 +1644,7 @@ def template_preprocess_node(variables_):
 #
 def template_preprocess_block(variables_):
   p.static(template_preprocess_block, 'block_counter', {})
-  DrupyHelper.Reference.check(variables_);
+  p.Reference.check(variables_);
   # All blocks get an independent counter for each region+
   if (not p.isset(template_preprocess_block.block_counter, variables_.val['block'].region)):
     template_preprocess_block.block_counter[variables_.val['block'].region] = 1;
