@@ -43,7 +43,7 @@
 #
 
 from lib.drupy import DrupyPHP as p
-from lib.drupy.DrupyMySQL import *
+from lib.drupy import DrupyMySQL
 import bootstrap as inc_bootstrap
 import database as inc_database
 
@@ -71,7 +71,7 @@ def db_status_report(phase):
 #
 def db_version():
   global active_db
-  version = p.explode('-', mysqli_get_server_info(active_db))
+  version = p.explode('-', DrupyMySQL.mysqli_get_server_info(active_db))
   return version
 
 
@@ -92,13 +92,13 @@ def db_connect(url):
   url['path'] = p.urldecode(url['path'])
   if (not p.isset(url, 'port')):
     url['port'] = None
-  connection  = mysqli_real_connect(url['host'], url['user'], url['pass'], p.substr(url['path'], 1), url['port'], '', MYSQLI_CLIENT_FOUND_ROWS)
-  if (mysqli_connect_errno() > 0):
-    _db_error_page(mysqli_connect_error())
+  connection  = DrupyMySQL.mysqli_real_connect(url['host'], url['user'], url['pass'], p.substr(url['path'], 1), url['port'], '', DrupyMySQL.MYSQLI_CLIENT_FOUND_ROWS)
+  if (DrupyMySQL.mysqli_connect_errno() > 0):
+    _db_error_page(DrupyMySQL.mysqli_connect_error())
   # Force UTF-8.
-  mysqli_query(connection, 'SET NAMES "utf8"')
+  DrupyMySQL.mysqli_query(connection, 'SET NAMES "utf8"')
   # Require ANSI mode to improve SQL portability.
-  mysqli_query(connection, "SET p.SESSION sql_mode='ANSI'")
+  DrupyMySQL.mysqli_query(connection, "SET p.SESSION sql_mode='ANSI'")
   return connection
 
 
@@ -120,7 +120,7 @@ def _db_query(query, debug = 0):
     # p.str_replace() to prevent SQL injection via username or anonymous name.
     name = p.str_replace(['*', '/'], '', name)
     query = '/* ' +  name  + ' : ' . bt[2]['function'] + ' */ ' + query
-  result = mysqli_query(inc_database.active_db, query)
+  result = DrupyMySQL.mysqli_query(inc_database.active_db, query)
   if (inc_bootstrap.variable_get('dev_query', 0)):
     query = bt[2]['function'] +  "\n"  + query
     usec,sec = p.explode(' ', p.microtime())
@@ -128,13 +128,13 @@ def _db_query(query, debug = 0):
     diff = stop - timer
     queries.append( [query, diff] )
   if (debug):
-    print '<p>query: ' +  query  + '<br />error:' + mysqli_error(active_db) + '</p>'
-  if (not mysqli_errno(inc_database.active_db)):
+    print '<p>query: ' +  query  + '<br />error:' + DrupyMySQL.mysqli_error(active_db) + '</p>'
+  if (not DrupyMySQL.mysqli_errno(inc_database.active_db)):
     return result
   else:
     # Indicate to drupal_error_handler that this is a database error.
     DB_ERROR = True
-    p.trigger_error(inc_bootstrap.check_plain(mysqli_error(inc_database.active_db) +  "\nquery: "  + query), p.E_USER_WARNING)
+    p.trigger_error(inc_bootstrap.check_plain(DrupyMySQL.mysqli_error(inc_database.active_db) +  "\nquery: "  + query), p.E_USER_WARNING)
     return False
 
 
@@ -150,7 +150,7 @@ def _db_query(query, debug = 0):
 #
 def db_fetch_object(result):
   if (result):
-    object_ = mysqli_fetch_object(result)
+    object_ = DrupyMySQL.mysqli_fetch_object(result)
     return (object_ if (object_ != None) else False)
 
 
@@ -168,7 +168,7 @@ def db_fetch_object(result):
 #
 def db_fetch_array(result):
   if (result):
-    array_ = mysqli_fetch_array(result, MYSQLI_ASSOC)
+    array_ = DrupyMySQL.mysqli_fetch_array(result, DrupyMySQL.MYSQLI_ASSOC)
     return (array_ if (array_ != None) else False)
 
 
@@ -185,10 +185,10 @@ def db_fetch_array(result):
 #   The resulting field or False.
 #
 def db_result(result):
-  if (result and mysqli_num_rows(result) > 0):
-    # The mysqli_fetch_row function has an optional second parameter row
+  if (result and DrupyMySQL.mysqli_num_rows(result) > 0):
+    # The DrupyMySQL.mysqli_fetch_row function has an optional second parameter row
     # but that can't be used for compatibility with Oracle, DB2, etc.
-    array_ = mysqli_fetch_row(result)
+    array_ = DrupyMySQL.mysqli_fetch_row(result)
     return array_[0]
   return False
 
@@ -200,7 +200,7 @@ def db_result(result):
 #
 def db_error():
   global active_db
-  return mysqli_errno(active_db)
+  return DrupyMySQL.mysqli_errno(active_db)
 
 
 
@@ -210,7 +210,7 @@ def db_error():
 #
 def db_affected_rows():
   global active_db # mysqli connection resource
-  return mysqli_affected_rows(active_db)
+  return DrupyMySQL.mysqli_affected_rows(active_db)
 
 
 
@@ -313,7 +313,7 @@ def db_query_temporary(query):
 #
 def db_encode_blob(data):
   global active_db
-  return "'" +  mysqli_real_escape_string(inc_database.active_db, data)  + "'"
+  return "'" +  DrupyMySQL.mysqli_real_escape_string(inc_database.active_db, data)  + "'"
 
 
 
@@ -334,7 +334,7 @@ def db_decode_blob(data):
 # Prepare user input for use in a database query, preventing SQL injection attacks.
 #
 def db_escape_string(text):
-  return mysqli_real_escape_string(inc_database.active_db, text)
+  return DrupyMySQL.mysqli_real_escape_string(inc_database.active_db, text)
 
 
 
@@ -907,7 +907,7 @@ def db_last_insert_id(table, field):
 # Wrapper to escape a string
 #
 def db_escape_string(data):
-  return mysqli_real_escape_string(inc_database.active_db, data)
+  return DrupyMySQL.mysqli_real_escape_string(inc_database.active_db, data)
 
 
 #
