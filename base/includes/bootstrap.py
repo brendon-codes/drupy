@@ -35,7 +35,7 @@
 # INcludes
 #
 from lib.drupy import DrupyPHP as p
-from sites.default.settings import *
+from sites.default import settings
 import cache as inc_cache
 import database as inc_database
 import session as inc_session
@@ -50,17 +50,11 @@ import language as inc_language
 # Global variables
 #
 user = None
-base_url = None
 base_path_ = None
 base_root = None
-db_url = None
-db_prefix = None
-cookie_domain = None
-installed_profile = None
-update_free_access = None
+base_url = None
 language_ = None
 timers = None
-conf = None
 
 
 
@@ -348,11 +342,9 @@ def drupal_unset_globals():
 # session name correctly.
 #
 def conf_init():
-  global base_url, base_path_, \
-    base_root, db_url, db_prefix, \
-    cookie_domain, installed_profile, \
-    update_free_access, conf;
-  conf = {};
+  global base_path_, base_root, base_url;
+  # These will come from settings
+  # db_url, db_prefix, cookie_domain, conf, installed_profile, update_free_access
   if (base_url != None):
     # Parse fixed base URL from settings.php.
     parts = p.parse_url(base_url);
@@ -377,26 +369,26 @@ def conf_init():
       base_path_ += '/';
     else:
       base_path_ = '/';
-  if (cookie_domain != None):
+  if (settings.cookie_domain != None):
     # If the user specifies the cookie domain, also use it for session name.
-    session_name_ = cookie_domain;
+    session_name_ = settings.cookie_domain;
   else:
     # Otherwise use base_url as session name, without the protocol
     # to use the same session identifiers across http and https.
     (dummy_, session_name_) = p.explode('://', base_url, 2);
     # We escape the hostname because it can be modified by a visitor.
     if (not p.empty(p.SERVER['HTTP_HOST'])):
-      cookie_domain = check_plain(p.SERVER['HTTP_HOST']);
+      settings.cookie_domain = check_plain(p.SERVER['HTTP_HOST']);
   # Strip leading periods, www., and port numbers from cookie domain.
-  cookie_domain = p.ltrim(cookie_domain, '.');
-  if (p.strpos(cookie_domain, 'www.') == 0):
-    cookie_domain = p.substr(cookie_domain, 4);
-  cookie_domain = p.explode(':', cookie_domain);
-  cookie_domain = '.' + cookie_domain[0];
+  settings.cookie_domain = p.ltrim(settings.cookie_domain, '.');
+  if (p.strpos(settings.cookie_domain, 'www.') == 0):
+    settings.cookie_domain = p.substr(settings.cookie_domain, 4);
+  settings.cookie_domain = p.explode(':', settings.cookie_domain);
+  settings.cookie_domain = '.' + settings.cookie_domain[0];
   # Per RFC 2109, cookie domains must contain at least one dot other than the
   # first. For hosts such as 'localhost' or IP Addresses we don't set a cookie domain.
-  if (p.count(p.explode('.', cookie_domain)) > 2 and not p.is_numeric(p.str_replace('.', '', cookie_domain))):
-    p.ini_set('session.cookie_domain', cookie_domain);
+  if (p.count(p.explode('.', settings.cookie_domain)) > 2 and not p.is_numeric(p.str_replace('.', '', settings.cookie_domain))):
+    p.ini_set('session.cookie_domain', settings.cookie_domain);
   #print session_name;
   inc_session.sess_name('SESS' + p.md5(session_name_));
 
@@ -507,8 +499,7 @@ def variable_init(conf_ = {}):
 #   The value of the variable.
 #
 def variable_get(name, default_):
-  global conf;
-  return  (conf[name] if p.isset(conf, name) else default_);
+  return  (settings.conf[name] if p.isset(settings.conf, name) else default_);
 
 
 #
@@ -521,13 +512,12 @@ def variable_get(name, default_):
 #   of serialization as necessary.
 #
 def variable_set(name, value):
-  global conf;
   serialized_value = p.serialize(value);
   db_query("UPDATE {variable} SET value = '%s' WHERE name = '%s'", serialized_value, name);
   if (db_affected_rows() == 0):
     db_query("INSERT INTO {variable} (name, value) VALUES ('%s', '%s')", name, serialized_value);
   cache_clear_all('variables', 'cache');
-  conf[name] = value;
+  settings.conf[name] = value;
 
 
 
@@ -538,10 +528,9 @@ def variable_set(name, value):
 #   The name of the variable to undefine.
 #
 def variable_del(name):
-  global conf;
   db_query("DELETE FROM {variable} WHERE name = '%s'", name);
   cache_clear_all('variables', 'cache');
-  del(conf[name]);
+  del(settings.conf[name]);
 
 
 #
@@ -978,7 +967,7 @@ def _drupal_bootstrap(phase):
     p.session_start();
   elif phase == DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
     # Initialize configuration variables, using values from settings.php if available.
-    conf = variable_init( ({} if (conf == None) else conf) );
+    settings.conf = variable_init( ({} if (settings.conf == None) else settings.conf) );
     # Load module handling.
     cache_mode = variable_get('cache', CACHE_DISABLED);
     # Get the page from the cache.
