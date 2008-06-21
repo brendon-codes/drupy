@@ -1,39 +1,38 @@
 #!/usr/bin/env python
 
+"""
+ @package Drupy
+ @see http://drupy.net
+ @note Drupy is a port of the Drupal project.
+  The Drupal project can be found at http://drupal.org
+ @file DrupyHelper.py
+  A PHP abstraction layer for Python
+  This file currently is built to working only with CGI.
+  Eventually it will be constructed to work with WSGI
+ @author Brendon Crawford
+ @copyright 2008 Brendon Crawford
+ @contact message144 at users dot sourceforge dot net
+ @created 2008-02-05
+ @version 0.1
+ @depends Image (http://www.pythonware.com/products/pil/)
+ @depends Hashlib (http://code.krypto.org/python/hashlib/)
+ @depends Zlib (http://linux.maruhn.com/sec/python-zlib.html)
+ @license: 
 
-#
-# @package Drupy
-# @see http://drupy.net
-# @note Drupy is a port of the Drupal project.
-#  The Drupal project can be found at http://drupal.org
-# @file DrupyHelper.py
-#  A PHP abstraction layer for Python
-#  This file currently is built to working only with CGI.
-#  Eventually it will be constructed to work with WSGI
-# @author Brendon Crawford
-# @copyright 2008 Brendon Crawford
-# @contact message144 at users dot sourceforge dot net
-# @created 2008-02-05
-# @version 0.1
-# @depends Image (http://www.pythonware.com/products/pil/)
-# @depends Hashlib (http://code.krypto.org/python/hashlib/)
-# @depends Zlib (http://linux.maruhn.com/sec/python-zlib.html)
-# @license: 
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
 
 #
 # Imports
@@ -95,10 +94,10 @@ is_writeable = None
 header = None
 flush = None
 
-#
-# Initiate superglobals and set output buffering
-#
 def __init():
+  """
+   Initiate superglobals and set output buffering
+  """
   global SERVER, GET, POST, REQUEST, SESSION, OUTPUT
   global __DRUPY_OUTPUT
   global header, flush
@@ -127,30 +126,30 @@ def __init():
   return
 
 
-#
-# Std class
-#
 class stdClass:
-
+  """
+   Std class
+  """
   def __init__(self): pass
 
-#
-# Reference class
-#
-class Reference:
 
-  #
-  # Wrapper to setup a reference object
-  #
+class Reference:
+  """
+   Reference class
+  """
+
+  """
+   Wrapper to setup a reference object
+  """
   def __init__(self, item = None):
     self.val = item
   
-  #
-  # Enforces a reference
-  # @param Object data
-  # @raise Exception 
-  # @return Bool
-  #
+  """
+   Enforces a reference
+   @param Object data
+   @raise Exception 
+   @return Bool
+  """
   @staticmethod
   def check(data):
     if not isinstance(data, Reference) or not hasattr(data, 'val'):
@@ -158,21 +157,19 @@ class Reference:
     else:
       return True
 
-
-
-#
-# Class to handle super globals
-#
-class __SuperGlobals:
+class __SuperGlobals:  
+  """
+   Class to handle super globals
+  """
   
-  #
-  # _SERVER vars
-  # If this is not being run from a webserver, we will simulate
-  # the web server vars for CLI testing.
-  # @return Dict
-  #
   @staticmethod
   def getSERVER():
+    """
+     _SERVER vars
+     If this is not being run from a webserver, we will simulate
+     the web server vars for CLI testing.
+     @return Dict
+    """
     env = dict(os.environ)
     if not env.has_key('DOCUMENT_ROOT'):
       out = {
@@ -209,20 +206,20 @@ class __SuperGlobals:
       env['WEB'] = True
       return env
   
-  #
-  # _GET vars
-  # @return Dict
-  #
   @staticmethod
   def getGET():
+    """
+     _GET vars
+     @return Dict
+    """
     return cgi.parse()
   
-  #
-  # _POST vars
-  # @return Dict
-  #
   @staticmethod
   def getPOST():
+    """
+     _POST vars
+     @return Dict
+    """
     a = {}
     f = cgi.FieldStorage()
     for i in f:
@@ -234,34 +231,34 @@ class __SuperGlobals:
         a[i] = f[i].value
     return a
 
-  #
-  # _REQUEST vars
-  # @return Dict
-  #
   @staticmethod
   def getREQUEST(get, post):
+    """
+     _REQUEST vars
+     @return Dict
+    """
     return array_merge(get, post)
   
-  #
-  # _SESSION vars
-  # @return Dict
-  #
   @staticmethod
   def getSESSION():
+    """
+     _SESSION vars
+     @return Dict
+    """
     return None
 
 # end __SuperGlobals
 
 
-
-#
-# Handles drupy output functions
-#
 class __Output:
-  #
-  # init
-  #
+  """
+   Handles drupy output functions
+  """
+
   def __init__(self, usebuffer = True):
+    """
+     init
+    """
     self._usebuffer = usebuffer
     self._body = ""
     self._headers = {}
@@ -269,19 +266,19 @@ class __Output:
       cgitb.enable()
       sys.stdout = self
 
-  #
-  # Write body
-  # @param Str data
-  #
   def write(self, data):
+    """
+     Write body
+     @param Str data
+    """
     if self._usebuffer:
       self._body += data
   
-  #
-  # Write headers
-  # @param Str data
-  #
   def header(self, data, replace = True):
+    """
+     Write headers
+     @param Str data
+    """
     if self._usebuffer:
       parts = re.split('\s*:\s*', str(data), 1)
       parts_len = len(parts) 
@@ -294,11 +291,11 @@ class __Output:
           value = parts[1]
         self._headers[name] = value
 
-  #
-  # Get header string
-  # @param Str item 
-  #
   def _get_header(self, item, remove = True):
+    """
+     Get header string
+     @param Str item 
+    """
     if self._headers.has_key(item):
       if item == 'status':
         out = "%s%s" % (self._headers[item], CRLF)
@@ -310,25 +307,27 @@ class __Output:
       out = ''
     return out
   
-  #
-  # Set a header
-  # @param Str item
-  # @param Str val
-  # @param Bool check
-  # @return Bool
-  #
+
   def _set_header(self, item, val, check = False):
+    """
+     Set a header
+     @param Str item
+     @param Str val
+     @param Bool check
+     @return Bool
+    """
     if not check or not self._headers.has_key(item):
       self._headers[item] = val
       return True
     return False
     
-  #
-  # Flush buffer
-  # For now this is only constructed to work with CGI
-  # Eventually this will need to be modified to work with WSGI
-  #
+
   def flush(self):
+    """
+     Flush buffer
+     For now this is only constructed to work with CGI
+     Eventually this will need to be modified to work with WSGI
+    """
     if self._usebuffer:
       sys.stdout = sys.__stdout__
       #self._set_header('status', "HTTP/1.1 200 OK", True)
@@ -343,49 +342,48 @@ class __Output:
 # end __Output
 
 
-
-#
-# Sets user-level session storage functions
-# @param Func open_
-# @param Func close_
-# @param Func read_
-# @param Func write_
-# @param Func destroy_
-# @param Func gc_
-# @return Bool
-#
 def session_set_save_handler(open_, close_, read_, write_, destroy_, gc_):
+  """
+   Sets user-level session storage functions
+   @param Func open_
+   @param Func close_
+   @param Func read_
+   @param Func write_
+   @param Func destroy_
+   @param Func gc_
+   @return Bool
+  """
   pass
 
 
-#
-# Initialize session data
-# @return Bool
-#
 def session_start():
+  """
+   Initialize session data
+   @return Bool
+  """
   global SESSION
   SESSION = session.SessionObject(os.environ, type='file', data_dir='/tmp')._session()
   header(SESSION.cookie)
   return True
 
 
-#
-# Get and/or set the current session name
-# @param Str name
-# @return Str
-#
 def session_name(name = "DrupySession"):
+  """
+   Get and/or set the current session name
+   @param Str name
+   @return Str
+  """
   pass
 
 
-#
-# THIS FUNCTION SHOULD BE DEPRECATED EVENTUALLY
-# Sets globals variable
-# @param Str name
-# @param Number,Str val
-# @return Bool
-#
 def define(name, val = None):
+  """
+   THIS FUNCTION SHOULD BE DEPRECATED EVENTUALLY
+   Sets globals variable
+   @param Str name
+   @param Number,Str val
+   @return Bool
+  """
   v = {'name':name}
   if \
       isinstance(val, int) or \
@@ -402,34 +400,34 @@ def define(name, val = None):
   return True
     
 
-#
-# Base 64 encode
-#
 def base64_encode(data):
+  """
+   Base 64 encode
+  """
   return base64.encodestring(data);
 
-#
-# Base 64 encode
-#
+
 def base64_decode(data):
+  """
+   Base 64 encode
+  """
   return base64.decodestring(data);
 
 
-
-#
-# Gets error.
-# This does not mimic the exact behaviour of the
-# corresponding PHP function
-#
-# @return Tuple
-# @returnprop Int 0
-# @returnprop Str 1
-# @returnprop Str 2
-# @returnprop Int 3
-# @returnprop Dict 4
-# @returnprop Type 5
-#
 def error_get_last():
+  """
+   Gets error.
+   This does not mimic the exact behaviour of the
+   corresponding PHP function
+  
+   @return Tuple
+   @returnprop Int 0
+   @returnprop Str 1
+   @returnprop Str 2
+   @returnprop Int 3
+   @returnprop Dict 4
+   @returnprop Type 5
+  """
   err = sys.exc_info();
   return (
     E_ALL,            #errno
@@ -442,43 +440,44 @@ def error_get_last():
 
 
 
-#
-# Sort on func
-# @param Iterable item
-# @param Function func
-# @return Iterable
-#
 def uasort(item, func):
+  """
+   Sort on func
+   @param Iterable item
+   @param Function func
+   @return Iterable
+  """
   return sort(item, func)
 
 
-#
-# Call user func
-# @param Function func
-# @param Tuple,List args
-# @return Unknown
-#
+
 def call_user_func_array(func, args):
-  return (eval(func)(*tuple(args)))
+  """
+   Call user func
+   @param Function func
+   @param Tuple,List args
+   @return Unknown
+  """
+  return func(*tuple(args))
   
 
 
-#
-# Array filter
-# @param Iterable item
-# @param Function func
-# @return Iterable
-#
 def array_filter(item, func):
+  """
+   Array filter
+   @param Iterable item
+   @param Function func
+   @return Iterable
+  """
   return filter(func, item)
 
 
-#
-# GD image size
-# @param Str filename
-# @return 
-#
 def getimagesize(filename):
+  """
+   GD image size
+   @param Str filename
+   @return 
+  """
   img = Image.open(filename)
   (w,h) = img.size
   t = "IMAGETYPE_%S" % img.format
@@ -486,86 +485,85 @@ def getimagesize(filename):
   return (w,h,t,a)
 
 
-
-#
-# Splits string on delim
-# @param Str delim
-# @param Str val
-# @return Str
-#  
 def explode(delim, val, limit = None):
+  """
+   Splits string on delim
+   @param Str delim
+   @param Str val
+   @return Str
+  """  
   if limit != None:
     return val.split(delim, limit)
   else:
     return val.split(delim)
 
 
-#
-# Gets microtime
-# @return Str
-#
 def microtime():
+  """
+   Gets microtime
+   @return Str
+  """
   (sec, usec) = str(time.time()).split('.')
   return " ".join(['.' + usec, sec])
 
 
-#
-# CHecks file is writeable
-# @param Str filename
-# @return Bool
-# 
 def is_writable(filename):
+  """
+   CHecks file is writeable
+   @param Str filename
+   @return Bool
+  """ 
   return os.access(filename, os.W_OK)
 
 
-#
-# Checks file is directory
-# @param Str filename
-# @return Bool
-#
 def is_dir(filename):
+  """
+   Checks file is directory
+   @param Str filename
+   @return Bool
+  """
   return os.path.isdir(filename)
 
 
-#
-# Merges lists
-# @param Dict,List a1
-# @param Dict,List a2
-# @return Dict,List 
-# 
 def array_merge(a1, a2):
+  """
+   Merges lists
+   @param Dict,List a1
+   @param Dict,List a2
+   @return Dict,List 
+  """ 
   out = copy.deepcopy(a1)
   for k in a2:
     out[k] = a2[k]
   return out
 
 
-#
-# Get keys
-# @param Dict item
-# @return List
-#
 def array_keys(item):
+  """
+   Get keys
+   @param Dict item
+   @return List
+  """
   return item.keys()
 
 
-#
-# Has key
-# @param Str item
-# @param Dict item
-# @return Bool
-#
 def array_key_exists(name, item):
+  """
+   Has key
+   @param Str item
+   @param Dict item
+   @return Bool
+  """
   return item.has_key(name);
 
 
-#
-# Check variable existance
-# @param Dict,List,Object obj
-# @param Str,Int val
-# @param Bool searchGlobal
-#
 def isset(obj, val = None, searchGlobal = False, data = {}):
+  """
+   Check variable existance
+   @param Dict,List,Object obj
+   @param Str,Int val
+   @param Bool searchGlobal
+  """
   sVal = None
   # First check for single None value
   if val == None:
@@ -614,32 +612,32 @@ def isset(obj, val = None, searchGlobal = False, data = {}):
       return False
 
 
-#
-# Get time
-# @return Int
-#
 def time_():
+  """
+   Get time
+   @return Int
+  """
   return time.time()
 
 
-#
-# In array
-# @param Str,Int val
-# @param List,Dict,Object obj
-# @return Bool
-#
 def in_array(val, obj):
+  """
+   In array
+   @param Str,Int val
+   @param List,Dict,Object obj
+   @return Bool
+  """
   return (val in obj)
 
 
-#
-# Fills array
-# @param Int start
-# @param Int cnt
-# @param Str val
-# @return Dict
-#
 def array_fill(start, cnt, val):
+  """
+   Fills array
+   @param Int start
+   @param Int cnt
+   @param Str val
+   @return Dict
+  """
   r = {}
   i = start
   while i <= (start + cnt):
@@ -648,12 +646,12 @@ def array_fill(start, cnt, val):
   return r
 
 
-#
-# Shifts array
-# @param List,Dict,Tuple item
-# @return Mixed
-#
 def array_shift(item):
+  """
+   Shifts array
+   @param List,Dict,Tuple item
+   @return Mixed
+  """
   if isinstance(item, list):
     if len(item) > 0:
       return item.pop(0)
@@ -669,31 +667,33 @@ def array_shift(item):
     return None
 
 
-#
-# Triggers error
-#
-# @param Str data
 def trigger_error(data, errno):
+  """
+   Triggers error
+  
+   @param Str data
+  """
   print data
   flush()
   exit
 
-#
-# Function exists
-# @param Dict,List,Object obj
-# @param Str val
-# @return Bool
-#
+
 def function_exists(val, scope = globals()):
+  """
+   Function exists
+   @param Dict,List,Object obj
+   @param Str val
+   @return Bool
+  """
   return (isset(scope, val) and callable(scope[val]))
 
 
-#
-# html special chars
-# @param Str val
-# @return Str
-#
 def htmlspecialchars(val, flags = None):
+  """
+   html special chars
+   @param Str val
+   @return Str
+  """
   out = ""
   for i in range(0, len(val)):
     num = ord(unicode(val[i]))
@@ -705,14 +705,14 @@ def htmlspecialchars(val, flags = None):
 
 
 
-#
-# Checks for empty
-# @param Any obj
-# @param Str val
-# @param Bool searchGlobal
-# @return Bool
-#
 def empty(val):
+  """
+   Checks for empty
+   @param Any obj
+   @param Bool searchGlobal
+   @param Str val
+   @return Bool
+  """
   # Boolean
   if \
       isinstance(val, bool) and \
@@ -743,100 +743,100 @@ def empty(val):
 
 
 
-#
-# Translate characters
-# Inspired by snippet from Xavier Defrang
-# @see http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81330
-#
 def strtr(text, items):
+  """
+   Translate characters
+   Inspired by snippet from Xavier Defrang
+   @see http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/81330
+  """
   regex = re.compile("(%s)" % "|".join(map(re.escape, items.keys())))
   out = regex.sub(lambda mo: items[mo.string[mo.start():mo.end()]], text)
   return out
 
 
-#
-# Check if uploaded file
-# @param Str filename
-# @return Bool
-#
 def is_uploaded_file(filename):
+  """
+   Check if uploaded file
+   @param Str filename
+   @return Bool
+  """
   return True
 
 
 
-#
-# Implodes
-# @param Str delim
-# @param List items
-# @return Str
-#
 def implode(delim, items):
+  """
+   Implodes
+   @param Str delim
+   @param List items
+   @return Str
+  """
   return delim.join(items)
 
 
-#
-# Array slice
-# @param List,Dict items
-# @param Int a1
-# @param Int a2
-# @return Mixed
-#
 def array_slice(items, a1, a2 = None):
+  """
+   Array slice
+   @param List,Dict items
+   @param Int a1
+   @param Int a2
+   @return Mixed
+  """
   if (a2 == None):
     return items[a1:]
   else:
     return items[a1:a2]
 
 
-#
-# R Trim
-# @param Str val
-# @return Str
-#
 def rtrim(val, chars = None):
+  """
+   R Trim
+   @param Str val
+   @return Str
+  """
   if chars != None:
     return val.rstrip(chars)
   else:
     return val.rstrip()
 
 
-#
-# L trim
-# @param Str val
-# @return Str
-#
 def ltrim(val, chars = None):
+  """
+   L trim
+   @param Str val
+   @return Str
+  """
   if chars != None:
     return val.lstrip(chars)
   else:
     return val.lstrip()
 
 
-#
-# Check regular file
-# @param String filename
-# @return Bool
-#
 def is_file(filename):
+  """
+   Check regular file
+   @param String filename
+   @return Bool
+  """
   return os.path.isfile(filename)
 
 
-#
-# Check file exists
-# @param Str filename
-# @return Bool
-#
 def file_exists(filename):
+  """
+   Check file exists
+   @param Str filename
+   @return Bool
+  """
   return os.path.exists(filename)
 
 
-#
-# Includes file
-# @param Str filename
-# @param Dict scope
-# @return Bool
-# 
 def include(filename, scope = None):
+  """
+   Includes file
+   @param Str filename
+   @param Dict scope
+   @return Bool
+  """
   if (scope != None):
     execfile(filename, scope)
   else:
@@ -844,24 +844,23 @@ def include(filename, scope = None):
   return True
 
 
-#
-# Url decoder
-# @param Str val
-# @return Str
-#
 def urldecode(val):
+  """
+   Url decoder
+   @param Str val
+   @return Str
+  """
   return urllib.unquote_plus(val)
 
 
-
-#
-# Parse url
-# Urlparse doesnt support 'mysql' or 'mysqli' schemes
-# so, we need to add a fix for this.
-# @param url
-# @return Dict
-#
 def parse_url(url, port = 80):
+  """
+   Parse url
+   Urlparse doesnt support 'mysql' or 'mysqli' schemes
+   so, we need to add a fix for this.
+   @param url
+   @return Dict
+  """
   scheme = url[0:url.find("://")]
   if scheme not in ( \
     'file', 'ftp', 'gopher', 'hd1', 'http', 'https', 'imap', 'mailto', 'mms', \
@@ -887,13 +886,13 @@ def parse_url(url, port = 80):
   return d
 
 
-#
-# Recursive pretty printer
-# @param Any data
-# @param Bool ret
-# @return Bool,Str
-#
 def print_r(data, ret = False):
+  """
+   Recursive pretty printer
+   @param Any data
+   @param Bool ret
+   @return Bool,Str
+  """
   try:
     d = dict(data)
   except:
@@ -910,25 +909,23 @@ def print_r(data, ret = False):
     pprint.PrettyPrinter().pprint(d)
     return True
 
-
-
-#
-# Cast to object
-# @param Dict dic
-# @return Object
-#
 def object_(dic):
+  """
+   Cast to object
+   @param Dict dic
+   @return Object
+  """
   out = stdClass()
   for i in dic:
     setattr(out, i, dic[i])
   return out
 
-#
-# Cast to array
-# @param Object obj
-# @return Dict
-#
 def array_(obj):
+  """
+   Cast to array
+   @param Object obj
+   @return Dict
+  """
   out = {}
   mag = '__'
   for i in dir(obj):
@@ -937,48 +934,49 @@ def array_(obj):
   return out;
 
 
-#
-# Get strlen
-# @param Str val
-# @return Int
-# 
 def strlen(val):
+  """
+   Get strlen
+   @param Str val
+   @return Int
+  """ 
   return len(val)
 
 
-#
-# Reverses list
-# @param List items
-# @return List
-#
 def array_reverse(items):
+  """
+   Reverses list
+   @param List items
+   @return List
+  """
   rItems = copy.deepcopy(items)
   rItems.reverse()
   return rItems
 
 
-#
-# Escapes regular expression
-# @param Str val
-# @param Any delim
-#    Not used
-# @return Str
-#
+
 def preg_quote(val, delim = None):
+  """
+   Escapes regular expression
+   @param Str val
+   @param Any delim
+      Not used
+   @return Str
+  """
   return re.escape(val)
 
 
-#
-# Convert PHP preg_match to Python matcher
-# @param Str pat
-# @param Str subject
-# @param Dict match
-# @return Dict
-# @returnprop List match
-#
 def preg_match(pat, subject, match = None):
+  """
+   Convert PHP preg_match to Python matcher
+   @param Str pat
+   @param Str subject
+   @param Dict match
+   @return Dict
+   @returnprop List match
+  """
   if match != None:
-    DrupyHelper.Reference.check(match)
+    Reference.check(match)
   reg = __preg_setup(pat)
   searcher = reg.search(subject)
   if searcher == None:
@@ -993,17 +991,16 @@ def preg_match(pat, subject, match = None):
     return len(g)
 
 
-
-#
-# Preg Match all
-# @param Str pat
-# @param Str subject
-# @param Reference &matches
-# @return Int
-#
 def preg_match_all(pat, subject, matches = None):
+  """
+   Preg Match all
+   @param Str pat
+   @param Str subject
+   @param Reference &matches
+   @return Int
+  """
   if matches != None:
-    DrupyHelper.Reference.check(matches)
+    Reference.check(matches)
   reg = __preg_setup(pat)
   g = list( reg.finditer(subject) )
   if len(g) > 0:
@@ -1020,15 +1017,13 @@ def preg_match_all(pat, subject, matches = None):
     return 0
     
 
-
-
-#
-# Returns unique id
-# @param Str prefix
-# @param Bool more_entropy
-# @return Str
-#
 def uniqid(prefix = None, more_entropy = False):
+  """
+   Returns unique id
+   @param Str prefix
+   @param Bool more_entropy
+   @return Str
+  """
   out = ''
   num = (23 if more_entropy else 13)
   if prefix != None:
@@ -1038,24 +1033,23 @@ def uniqid(prefix = None, more_entropy = False):
   return out
 
 
-
-#
-# Random
-# @param Int min
-# @param Int max
-# @return Int
-#
 def mt_rand(min = 0, max = sys.maxint):
+  """
+   Random
+   @param Int min
+   @param Int max
+   @return Int
+  """
   return random.randint(min, max)
 
 
-#
-# str replace wrapper
-# @param Str pat
-# @param Str rep
-# @param Str subject
-# @return Str
-#
+"""
+ str replace wrapper
+ @param Str pat
+ @param Str rep
+ @param Str subject
+ @return Str
+"""
 def str_replace(pat, rep, subject):
   out = subject
   if isinstance(pat, list):
@@ -1072,17 +1066,14 @@ def str_replace(pat, rep, subject):
   
 
 
-
-
-
-#
-# preg_replace wrapper
-# @param Str pat
-# @param Str replace
-# @param Str subject
-# @return Str
-#
 def preg_replace(pat, rep, subject):
+  """
+   preg_replace wrapper
+   @param Str pat
+   @param Str replace
+   @param Str subject
+   @return Str
+  """
   out = subject
   if isinstance(pat, list):
     repIsStr = isinstance(rep, list)
@@ -1097,40 +1088,39 @@ def preg_replace(pat, rep, subject):
   return out
 
 
-#
-# dir name
-# @param Str path
-# @return Str
-#
 def dirname(path):
+  """
+   dir name
+   @param Str path
+   @return Str
+  """
   return os.path.dirname(path)
 
 
-#
-# trim whitespace
-# @param Str val
-# @return Str
-#
 def trim(val, chars = None):
+  """
+   trim whitespace
+   @param Str val
+   @return Str
+  """
   if chars != None:
     return val.strip(chars)
   else:
     return val.strip()
 
 
-#
-# Gets array count
-# @param List,Dict item
-# @return Int
-#
 def count(item):
+  """
+   Gets array count
+   @param List,Dict item
+   @return Int
+  """
   return len(item)
 
-
-#
-# Sets a static var
-#
 def static(func, prop, val = None):
+  """
+   Sets a static var
+  """
   if not hasattr(func, prop):
     setattr(func, prop, val)
     return False
@@ -1138,12 +1128,12 @@ def static(func, prop, val = None):
     return True
 
 
-#
-# Determines whether or not is numeric
-# @param Any val
-# @return Bool
-#
 def is_numeric(val):
+  """
+   Determines whether or not is numeric
+   @param Any val
+   @return Bool
+  """
   if \
       isinstance(val, int) or \
       isinstance(val, float):
@@ -1156,40 +1146,40 @@ def is_numeric(val):
     return False
 
 
-#
-# Determines if "array"
-# @param Any
-# @return Bool
-#
 def is_array(val):
+  """
+   Determines if "array"
+   @param Any
+   @return Bool
+  """
   return (
     isinstance(val, tuple) or \
     isinstance(val, dict) or \
     isinstance(val, list)
   )
 
-#
-# Determnes if object
-#
 def is_object(val):
+  """
+   Determnes if object
+  """
   return isinstance(val, object)
 
 
-#
-# Is null
-# @param Any val
-#
 def is_null(val):
+  """
+   Is null
+   @param Any val
+  """
   return (val == None)
 
 
-#
-# Gets str pos
-# @param Str haystack
-# @param Str needle
-# @return Int,Bool
-#
 def strpos(haystack, needle):
+  """
+   Gets str pos
+   @param Str haystack
+   @param Str needle
+   @return Int,Bool
+  """
   pos = haystack.find(needle)
   if pos < 0:
     return False
@@ -1197,117 +1187,118 @@ def strpos(haystack, needle):
     return pos
 
 
-#
-# Pretends to set an ini
-# Actually just sets a global
-# @param Str name
-# @param Str,Number,None,Bool val
-# @return Bool
-#
 def ini_set(name, val):
+  """
+   Pretends to set an ini
+   Actually just sets a global
+   @param Str name
+   @param Str,Number,None,Bool val
+   @return Bool
+  """
   define(name.replace('.', '_'), val)
   return True
 
 
-#
-# serializer
-# @param Any obj
-# @return Str
-#
 def serialize(obj):
+  """
+   serializer
+   @param Any obj
+   @return Str
+  """
   return pickle.dumps(obj)
 
 
-#
-# unserializer
-# @param Str val
-# @return Obj
-#
 def unserialize(val):
+  """
+   unserializer
+   @param Str val
+   @return Obj
+  """
   return pickle.loads(val)
 
 
-#
-# Checks for defined var
-#
 def defined(val, scope = globals()):
+  """
+   Checks for defined var
+  """
   return isset(scope, val)
 
 
-#
-# GMT date
-# @param Str format
-# @param Int stamp
-# @return Str
-#
 def gmdate(format, stamp = None):
+  """
+   GMT date
+   @param Str format
+   @param Int stamp
+   @return Str
+  """
   if stamp == None:
     stamp = time.time()
   dt = datetime.datetime.utcfromtimestamp(stamp)
   return dt.strftime(format)
 
 
-#
-# Strip slashes
-# @param Str val
-# @retun Str
-#
 def stripslashes(val):
+  """
+   Strip slashes
+   @param Str val
+   @retun Str
+  """
   return val.replace('\\', '')
 
 
-#
-# Add slashes
-# @param Str val
-# @return Str
-#
 def addslashes(val):
+  """
+   Add slashes
+   @param Str val
+   @return Str
+  """
   return re.escape(val)
   
 
-#
-# md5
-# @param Str val
-# @return Str
-#
 def md5(val):
+  """
+   md5
+   @param Str val
+   @return Str
+  """
   return hashlib.md5(val).hexdigest()
 
-
-#
-# decompress
-# @param Str val
-# @return Str
-#
 def gzinflate(val):
+  """
+   decompress
+   @param Str val
+   @return Str
+  """
   return zlib.decompress(val)
 
 
-#
-# compress
-# @param Str val
-# @return Str
-#
 def gzdeflate():
+  """
+   compress
+   @param Str val
+   @return Str
+  """
   return zlib.compress(val)
 
-#
-# Pops item
-# @param item
-# @return Mixed
-#
+
+
 def array_pop(item):
+  """
+   Pops item
+   @param item
+   @return Mixed
+  """
   return item.pop()
 
 
 
-#
-# prepares pattern for python regex
-# @param Str pat
-# @return _sre.SRE_Pattern
-#    Regular Expression object
-#
 def __preg_setup(pat):
+  """
+   prepares pattern for python regex
+   @param Str pat
+   @return _sre.SRE_Pattern
+      Regular Expression object
+  """
   delim = pat[0]
   flg = 0
   pat = pat.lstrip(delim)
@@ -1326,24 +1317,26 @@ def __preg_setup(pat):
   return re.compile(pat, flg)
 
 
-#
-# str replace real
-# @param Str pat
-# @param Str rep
-# @param Str subject
-# @return Str
-#
 def __str_replace_str(pat, rep, subject):
+  """
+   str replace real
+   @param Str pat
+   @param Str rep
+   @param Str subject
+   @return Str
+  """
   return subject.replace(pat, rep)
 
-#
-# Real preg replace
-# @param Str pat
-# @param Str replace
-# @param Str subject
-# @return Str
-#
+
+
 def __preg_replace_str(pat, rep, subject):
+  """
+   Real preg replace
+   @param Str pat
+   @param Str replace
+   @param Str subject
+   @return Str
+  """
   reg = __preg_setup(pat)
   # function call
   if callable(rep):
