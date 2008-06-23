@@ -22,10 +22,7 @@
       return False
 
 
-
 	but the following is NOT valid:
-
-
 
 
 		def foo():
@@ -179,7 +176,7 @@ space between code.
 
 		Comments: as you can see, one can not perform a expression within the condition area with python.
 		So in this case we turn it into a for loop that performs the decrementation and give the tree
-		variable a if not clause.
+		variable a *IF NOT* clause.
 
 	(5.2) for
 
@@ -279,3 +276,18 @@ space between code.
  Comments: Python does have a method that can typecast a var to a bool...bool(myvar)
  But that is only typecasting (temporary conversion). drupy_bool converts the variabel
  to a bool permanantly.
+
+(13) Emulating PHP
+
+Drupy emulates the functionality of several PHP functions. When you porting such a function,
+it's important to remember to make the callee and a child of the p class.
+
+Drupal: empty(item['access_callback'])
+
+Drupy: p.empty(item.val['access_callback']
+
+Comments: The p may not be obvious before you read the import declaration in the beginning of the file:
+
+from lib.drupy import DrupyPHP as p
+
+
