@@ -280,14 +280,16 @@ space between code.
 (13) Emulating PHP
 
 Drupy emulates the functionality of several PHP functions. When you porting such a function,
-it's important to remember to make the callee a child of the p class.
+it's important to remember to make the callee a child of the phplib class.
 
 Drupal: empty(item['access_callback'])
 
-Drupy: p.empty(item.val['access_callback']
+Drupy: phplib.empty(item.val['access_callback']
 
-Comments: The p may not be obvious before you read the import declaration in the beginning of the file:
+Comments: The phplib may not be obvious before you read the import declaration in the beginning of the file:
 
 from lib.drupy import DrupyPHP as phplib
+
+See DrupyPHP.py for how this functions is constructed.
 
 
