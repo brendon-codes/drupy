@@ -141,7 +141,7 @@ space between code.
 
         Drupal: $names = array()
         Drupy:  names = []
-				
+
         Drupal: $foo[] = $bar;
         Drupy:  foo.append( bar )
 
@@ -258,14 +258,14 @@ space between code.
 (11) If statements
 
  Sometime drupal (php) assign variables values within the the condition, like this:
- 
+
  Drupal: if ($data = unserialize($data))
- 
+
  In Drupy, we do the assignment outside of the if statement. Like this:
- 
+
  Drupy:  data = unserialize(data)
 				 if (data):
- 
+
  Comments: Be very careful about this, as assigning(=) and comparing(==) are very different things, and can get mixed up easily.
 
 (12) Bool
@@ -280,7 +280,7 @@ space between code.
 (13) Emulating PHP
 
 Drupy emulates the functionality of several PHP functions. When you porting such a function,
-it's important to remember to make the callee and a child of the p class.
+it's important to remember to make the callee a child of the p class.
 
 Drupal: empty(item['access_callback'])
 
@@ -288,6 +288,6 @@ Drupy: p.empty(item.val['access_callback']
 
 Comments: The p may not be obvious before you read the import declaration in the beginning of the file:
 
-from lib.drupy import DrupyPHP as p
+from lib.drupy import DrupyPHP as phplib
 
 
