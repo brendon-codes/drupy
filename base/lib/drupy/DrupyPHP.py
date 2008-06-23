@@ -157,11 +157,18 @@ class Reference:
     else:
       return True
 
-class __SuperGlobals:  
-  """
-   Class to handle super globals
-  """
   
+#
+# Class to handle super globals
+#
+class __SuperGlobals:
+
+  #
+  # _SERVER vars
+  # If this is not being run from a webserver, we will simulate
+  # the web server vars for CLI testing.
+  # @return Dict
+  #
   @staticmethod
   def getSERVER():
     """
@@ -206,6 +213,11 @@ class __SuperGlobals:
       env['WEB'] = True
       return env
   
+
+  #
+  # _GET vars
+  # @return Dict
+  #
   @staticmethod
   def getGET():
     """
@@ -214,6 +226,11 @@ class __SuperGlobals:
     """
     return cgi.parse()
   
+
+  #
+  # _POST vars
+  # @return Dict
+  #
   @staticmethod
   def getPOST():
     """
@@ -239,6 +256,11 @@ class __SuperGlobals:
     """
     return array_merge(get, post)
   
+
+  #
+  # _SESSION vars
+  # @return Dict
+  #
   @staticmethod
   def getSESSION():
     """
@@ -274,6 +296,11 @@ class __Output:
     if self._usebuffer:
       self._body += data
   
+
+  #
+  # Write headers
+  # @param Str data
+  #
   def header(self, data, replace = True):
     """
      Write headers
@@ -281,7 +308,7 @@ class __Output:
     """
     if self._usebuffer:
       parts = re.split('\s*:\s*', str(data), 1)
-      parts_len = len(parts) 
+      parts_len = len(parts)
       if parts_len > 0:
         if parts_len == 1:
           name = 'status'
@@ -291,6 +318,10 @@ class __Output:
           value = parts[1]
         self._headers[name] = value
 
+  #
+  # Get header string
+  # @param Str item
+  #
   def _get_header(self, item, remove = True):
     """
      Get header string
@@ -308,6 +339,14 @@ class __Output:
     return out
   
 
+
+  #
+  # Set a header
+  # @param Str item
+  # @param Str val
+  # @param Bool check
+  # @return Bool
+  #
   def _set_header(self, item, val, check = False):
     """
      Set a header
@@ -322,6 +361,12 @@ class __Output:
     return False
     
 
+
+  #
+  # Flush buffer
+  # For now this is only constructed to work with CGI
+  # Eventually this will need to be modified to work with WSGI
+  #
   def flush(self):
     """
      Flush buffer
@@ -338,7 +383,7 @@ class __Output:
         sys.stdout.write( self._get_header(k) )
       sys.stdout.write( CRLF )
       sys.stdout.write( self._body )
-    
+
 # end __Output
 
 
@@ -398,7 +443,7 @@ def define(name, val = None):
   out = ("%(name)s = %(val)s") % v
   exec(out, globals())
   return True
-    
+
 
 def base64_encode(data):
   """
@@ -459,7 +504,6 @@ def call_user_func_array(func, args):
    @return Unknown
   """
   return func(*tuple(args))
-  
 
 
 def array_filter(item, func):
@@ -472,6 +516,11 @@ def array_filter(item, func):
   return filter(func, item)
 
 
+#
+# GD image size
+# @param Str filename
+# @return
+#
 def getimagesize(filename):
   """
    GD image size
@@ -485,6 +534,13 @@ def getimagesize(filename):
   return (w,h,t,a)
 
 
+
+#
+# Splits string on delim
+# @param Str delim
+# @param Str val
+# @return Str
+#
 def explode(delim, val, limit = None):
   """
    Splits string on delim
@@ -507,6 +563,11 @@ def microtime():
   return " ".join(['.' + usec, sec])
 
 
+#
+# CHecks file is writeable
+# @param Str filename
+# @return Bool
+#
 def is_writable(filename):
   """
    CHecks file is writeable
@@ -525,6 +586,12 @@ def is_dir(filename):
   return os.path.isdir(filename)
 
 
+#
+# Merges lists
+# @param Dict,List a1
+# @param Dict,List a2
+# @return Dict,List
+#
 def array_merge(a1, a2):
   """
    Merges lists
@@ -557,6 +624,12 @@ def array_key_exists(name, item):
   return item.has_key(name);
 
 
+#
+# @param Dict,List,Object obj
+# Check variable existance
+# @param Str,Int val
+# @param Bool searchGlobal
+#
 def isset(obj, val = None, searchGlobal = False, data = {}):
   """
    Check variable existance
@@ -830,6 +903,12 @@ def file_exists(filename):
   return os.path.exists(filename)
 
 
+#
+# Includes file
+# @param Str filename
+# @param Dict scope
+# @return Bool
+#
 def include(filename, scope = None):
   """
    Includes file
@@ -934,6 +1013,11 @@ def array_(obj):
   return out;
 
 
+#
+# Get strlen
+# @param Str val
+# @return Int
+#
 def strlen(val):
   """
    Get strlen
@@ -1015,7 +1099,7 @@ def preg_match_all(pat, subject, matches = None):
     out = [[]]
     matches.val = out
     return 0
-    
+
 
 def uniqid(prefix = None, more_entropy = False):
   """
@@ -1063,7 +1147,7 @@ def str_replace(pat, rep, subject):
   else:
     out = __str_replace_str(pat, rep, subject)
   return out
-  
+
 
 
 def preg_replace(pat, rep, subject):
@@ -1253,7 +1337,7 @@ def addslashes(val):
    @return Str
   """
   return re.escape(val)
-  
+
 
 def md5(val):
   """
