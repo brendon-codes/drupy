@@ -33,3 +33,6 @@ git checkout master
 
 MERGE MYNEWBRANCH WITH MASTER:
 git merge mynewbranch
+
+REMEMBER YOU CAN AT ANYTIME CHECK STATUS QUO ON YOUR BRANCH BY ISSUING:
+git status
