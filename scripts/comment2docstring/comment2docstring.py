@@ -35,15 +35,49 @@
 import sys
 import tokenize
 
+def addBuffer(buf1, buf2):
+  for b in buf2:
+    buf1.append(b)
+  return buf1
+
 f = open(sys.argv[1], 'r')
 t = tokenize.generate_tokens(f.readline)
+flag_comment = False
+flag_def_1 = False
+flag_def_2 = False
+buffer_comment = []
+buffer_all = []
 
 for toknum, tokval, _, _, _  in t:
-  val = tokval.rstrip()
-  if toknum == tokenize.COMMENT:
-    print "COMMENT: %s" % val
-  elif toknum == tokenize.NAME:
-    print "FUNC: %s" % val
+  val_debug = tokval.rstrip()
+  #print "%s >> %d" % (val_debug, toknum)
+  if not flag_comment and toknum == tokenize.COMMENT:
+    flag_comment = True
+  if flag_comment:
+    if toknum == tokenize.COMMENT:
+      buffer_comment.append( (toknum, tokval) )
+    elif toknum == tokenize.NAME and tokval == 'def':
+      flag_comment = False
+      flag_def_1 = True
+    elif toknum != tokenize.NL:
+      flag_comment = False
+      addBuffer(buffer_all, buffer_comment)
+      buffer_comment = []
+  if flag_def_1:
+    if toknum == tokenize.OP and tokval == ':':
+      flag_def_1 = False
+      flag_def_2 = True
+  elif flag_def_2:
+    if toknum == tokenize.NEWLINE:
+      addBuffer(buffer_all, buffer_comment)
+      buffer_comment = []
+      flag_def_2 = False
+  if not flag_comment:
+    buffer_all.append( (toknum, tokval) )
+
+
+print tokenize.untokenize(buffer_all)
+
 
 
 #f.truncate(0)
@@ -52,5 +86,4 @@ for toknum, tokval, _, _, _  in t:
 f.close()
 
 print "Success"
-
 

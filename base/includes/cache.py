@@ -2,50 +2,49 @@
 
 # $Id: cache.inc,v 1.18 2008/04/14 17:48:33 dries Exp $
 
+"""
+ @package Drupy
+ @see http://drupy.net
+ @note Drupy is a port of the Drupal project.
+  The drupal project can be found at http://drupal.org
+ @file cache.py (ported from Drupal's cache.inc)
+ @author Brendon Crawford
+ @copyright 2008 Brendon Crawford
+ @contact message144 at users dot sourceforge dot net
+ @created 2008-01-10
+ @version 0.1
+ @license: 
 
-#
-# @package Drupy
-# @see http://drupy.net
-# @note Drupy is a port of the Drupal project.
-#  The drupal project can be found at http://drupal.org
-# @file cache.py (ported from Drupal's cache.inc)
-# @author Brendon Crawford
-# @copyright 2008 Brendon Crawford
-# @contact message144 at users dot sourceforge dot net
-# @created 2008-01-10
-# @version 0.1
-# @license: 
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
 
 from lib.drupy import DrupyPHP as p
 import bootstrap as inc_bootstrap
 import database as inc_database
 
-#
-# Return data from the persistent cache. Data may be stored as either plain text or as serialized data.
-# cache_get will automatically return unserialized objects and arrays.
-#
-# @param cid
-#   The cache ID of the data to retrieve.
-# @param table
-#   The table table to store the data in. Valid core values are 'cache_filter',
-#   'cache_menu', 'cache_page', or 'cache' for the default cache.
-#
 def cache_get(cid, table = 'cache'):
+  """
+   Return data from the persistent cache. Data may be stored as either plain text or as serialized data.
+   cache_get will automatically return unserialized objects and arrays.
+  
+   @param cid
+     The cache ID of the data to retrieve.
+   @param table
+     The table table to store the data in. Valid core values are 'cache_filter',
+     'cache_menu', 'cache_page', or 'cache' for the default cache.
+  """
   # Garbage collection necessary when enforcing a minimum cache lifetime
   cache_flush = inc_bootstrap.variable_get('cache_flush', 0);
   if (cache_flush and (cache_flush + variable_get('cache_lifetime', 0) <= time())):
@@ -79,51 +78,51 @@ def cache_get(cid, table = 'cache'):
 
 
 
-#
-# Store data in the persistent cache.
-#
-# The persistent cache is split up into four database
-# tables. Contributed modules can add additional tables.
-#
-# 'cache_page': This table stores generated pages for anonymous
-# users. This is the only table affected by the page cache setting on
-# the administrator panel.
-#
-# 'cache_menu': Stores the cachable part of the users' menus.
-#
-# 'cache_filter': Stores filtered pieces of content. This table is
-# periodically cleared of stale entries by cron.
-#
-# 'cache': Generic cache storage table.
-#
-# The reasons for having several tables are as follows:
-#
-# - smaller tables allow for faster selects and inserts
-# - we try to put fast changing cache items and rather static
-#   ones into different tables. The effect is that only the fast
-#   changing tables will need a lot of writes to disk. The more
-#   static tables will also be better cachable with MySQL's query cache
-#
-# @param cid
-#   The cache ID of the data to store.
-# @param data
-#   The data to store in the cache. Complex data types will be automatically serialized before insertion.
-#   Strings will be stored as plain text and not serialized.
-# @param table
-#   The table table to store the data in. Valid core values are 'cache_filter',
-#   'cache_menu', 'cache_page', or 'cache'.
-# @param expire
-#   One of the following values:
-#   - CACHE_PERMANENT: Indicates that the item should never be removed unless
-#     explicitly told to using cache_clear_all() with a cache ID.
-#   - CACHE_TEMPORARY: Indicates that the item should be removed at the next
-#     general cache wipe.
-#   - A Unix timestamp: Indicates that the item should be kept at least until
-#     the given time, after which it behaves like CACHE_TEMPORARY.
-# @param headers
-#   A string containing HTTP p.header information for cached pages.
-#
 def cache_set(cid, data, table = 'cache', expire = None, headers = None):
+  """
+   Store data in the persistent cache.
+  
+   The persistent cache is split up into four database
+   tables. Contributed modules can add additional tables.
+  
+   'cache_page': This table stores generated pages for anonymous
+   users. This is the only table affected by the page cache setting on
+   the administrator panel.
+  
+   'cache_menu': Stores the cachable part of the users' menus.
+  
+   'cache_filter': Stores filtered pieces of content. This table is
+   periodically cleared of stale entries by cron.
+  
+   'cache': Generic cache storage table.
+  
+   The reasons for having several tables are as follows:
+  
+   - smaller tables allow for faster selects and inserts
+   - we try to put fast changing cache items and rather static
+     ones into different tables. The effect is that only the fast
+     changing tables will need a lot of writes to disk. The more
+     static tables will also be better cachable with MySQL's query cache
+  
+   @param cid
+     The cache ID of the data to store.
+   @param data
+     The data to store in the cache. Complex data types will be automatically serialized before insertion.
+     Strings will be stored as plain text and not serialized.
+   @param table
+     The table table to store the data in. Valid core values are 'cache_filter',
+     'cache_menu', 'cache_page', or 'cache'.
+   @param expire
+     One of the following values:
+     - CACHE_PERMANENT: Indicates that the item should never be removed unless
+       explicitly told to using cache_clear_all() with a cache ID.
+     - CACHE_TEMPORARY: Indicates that the item should be removed at the next
+       general cache wipe.
+     - A Unix timestamp: Indicates that the item should be kept at least until
+       the given time, after which it behaves like CACHE_TEMPORARY.
+   @param headers
+     A string containing HTTP p.header information for cached pages.
+  """
   if expire is None:
     expire = inc_bootstrap.CACHE_PERMANENT
   serialized = 0;
@@ -137,25 +136,25 @@ def cache_set(cid, data, table = 'cache', expire = None, headers = None):
 
 
 
-#
-#
-# Expire data from the cache. If called without arguments, expirable
-# entries will be cleared from the cache_page and cache_block tables.
-#
-# @param cid
-#   If set, the cache ID to delete. Otherwise, all cache entries that can
-#   expire are deleted.
-#
-# @param table
-#   If set, the table table to delete from. Mandatory
-#   argument if cid is set.
-#
-# @param wildcard
-#   If set to TRUE, the cid is treated as a substring
-#   to match rather than a complete ID. The match is a right hand
-#   match. If '*' is given as cid, the table table will be emptied.
-#
+
 def cache_clear_all(cid = None, table = None, wildcard = False):
+  """
+   Expire data from the cache. If called without arguments, expirable
+   entries will be cleared from the cache_page and cache_block tables.
+  
+   @param cid
+     If set, the cache ID to delete. Otherwise, all cache entries that can
+     expire are deleted.
+  
+   @param table
+     If set, the table table to delete from. Mandatory
+     argument if cid is set.
+  
+   @param wildcard
+     If set to TRUE, the cid is treated as a substring
+     to match rather than a complete ID. The match is a right hand
+     match. If '*' is given as cid, the table table will be emptied.
+  """
   global user;
   thisTime = drupy_time();
   if (cid == None and table == None):
