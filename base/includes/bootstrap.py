@@ -249,6 +249,15 @@ def timer_start(name):
   timers[name]['count'] = ((timers[name]['count'] + 1) if p.isset(timers[name],'count') else 1);
 
 
+
+#
+# Read the current timer value without stopping the timer.
+#
+# @param name
+#   The name of the timer.
+# @return
+#   The current timer value in ms.
+#
 def timer_read(name):
   """
    Read the current timer value without stopping the timer.
@@ -268,6 +277,17 @@ def timer_read(name):
     return diff;
 
 
+
+#
+# Stop the timer with the specified name.
+#
+# @param name
+#   The name of the timer.
+# @return
+#   A timer array. The array contains the number of times the
+#   timer has been started and stopped (count) and the accumulated
+#   timer value in ms (time).
+#
 def timer_stop(name):
   """
    Stop the timer with the specified name.
@@ -285,6 +305,47 @@ def timer_stop(name):
   return timers[name];
 
 
+
+#
+# Find the appropriate configuration directory.
+#
+# Try finding a matching configuration directory by stripping the website's
+# hostname from left to right and pathname from right to left. The first
+# configuration file found will be used; the remaining will ignored. If no
+# configuration file is found, return a default value 'confdir/default'.
+#
+# Example for a fictitious site installed at
+# http://www.drupal.org:8080/mysite/test/ the 'settings.php' is searched in
+# the following directories:
+#
+#  1. confdir/8080.www.drupal.org.mysite.test
+#  2. confdir/www.drupal.org.mysite.test
+#  3. confdir/drupal.org.mysite.test
+#  4. confdir/org.mysite.test
+#
+#  5. confdir/8080.www.drupal.org.mysite
+#  6. confdir/www.drupal.org.mysite
+#  7. confdir/drupal.org.mysite
+#  8. confdir/org.mysite
+#
+#  9. confdir/8080.www.drupal.org
+# 10. confdir/www.drupal.org
+# 11. confdir/drupal.org
+# 12. confdir/org
+#
+# 13. confdir/default
+#
+# @param require_settings
+#   Only configuration directories with an existing settings.php file
+#   will be recognized. Defaults to TRUE. During initial installation,
+#   this is set to FALSE so that Drupal can detect a matching directory,
+#   then create a new settings.php file in it.
+# @param reset
+#   Force a full search for matching directories even if one had been
+#   found previously.
+# @return
+#   The path of the matching directory.
+#
 def conf_path(require_settings = True, reset = False):
   """
    Find the appropriate configuration directory.
@@ -329,6 +390,10 @@ def conf_path(require_settings = True, reset = False):
   pass
 
 
+
+#
+# Unsets all disallowed global variables. See allowed for what's allowed.
+#
 def drupal_unset_globals():
   """
    Unsets all disallowed global variables. See allowed for what's allowed.
@@ -337,6 +402,11 @@ def drupal_unset_globals():
   pass;
 
 
+
+#
+# Loads the configuration and sets the base URL, cookie domain, and
+# session name correctly.
+#
 def conf_init():
   """
    Loads the configuration and sets the base URL, cookie domain, and
@@ -346,7 +416,7 @@ def conf_init():
   # These will come from settings
   # db_url, db_prefix, cookie_domain, conf, installed_profile, update_free_access
   if (base_url != None):
-    # Parse fixed base URL from settings.php.
+    # Parse fixed base URL from settings.p.
     parts = p.parse_url(base_url);
     if (not p.isset(parts, 'path')):
       parts['path'] = '';
@@ -487,6 +557,16 @@ def variable_init(conf_ = {}):
 
 
 
+#
+# Return a persistent variable.
+#
+# @param name
+#   The name of the variable to return.
+# @param default
+#   The default value to use if this variable has never been set.
+# @return
+#   The value of the variable.
+#
 def variable_get(name, default_):
   """
    Return a persistent variable.
@@ -501,6 +581,16 @@ def variable_get(name, default_):
   return  (settings.conf[name] if p.isset(settings.conf, name) else default_);
 
 
+
+#
+# Set a persistent variable.
+#
+# @param name
+#   The name of the variable to set.
+# @param value
+#   The value to set. This can be any PHP data type; these functions take care
+#   of serialization as necessary.
+#
 def variable_set(name, value):
   """
    Set a persistent variable.
@@ -532,6 +622,17 @@ def variable_del(name):
 
 
 
+
+#
+# Retrieve the current page from the cache.
+#
+# Note: we do not serve cached pages when status messages are waiting (from
+# a redirected form submission which was completed).
+#
+# @param status_only
+#   When set to TRUE, retrieve the status of the page cache only
+#   (whether it was started in this request or not).
+#
 def page_get_cache():
   """
    Retrieve the current page from the cache.
@@ -552,6 +653,12 @@ def page_get_cache():
 
 
 
+#
+# Call all init or exit hooks without including all modules.
+#
+# @param hook
+#   The name of the bootstrap hook we wish to invoke.
+#
 def bootstrap_invoke_all(hook):
   """
    Call all init or exit hooks without including all modules.
@@ -563,6 +670,19 @@ def bootstrap_invoke_all(hook):
     inc_module.module_invoke(module_, hook);
 
 
+
+#
+# Includes a file with the provided type and name. This prevents
+# including a theme, engine, module, etc., more than once.
+#
+# @param type
+#   The type of item to load (i.e. theme, theme_engine, module).
+# @param name
+#   The name of the item to load.
+#
+# @return
+#   TRUE if the item is loaded or has already been loaded.
+#
 def drupal_load(type_, name):
   """
    Includes a file with the provided type and name. This prevents
@@ -591,6 +711,16 @@ def drupal_load(type_, name):
       return False;
 
 
+
+#
+# Set HTTP headers in preparation for a page response.
+#
+# Authenticated users are always given a 'no-cache' p.header, and will
+# fetch a fresh page on every request.  This prevents authenticated
+# users seeing locally cached pages that show them as logged out.
+#
+# @see page_set_cache()
+#
 def drupal_page_header():
   """
    Set HTTP headers in preparation for a page response.
@@ -622,7 +752,7 @@ def drupal_page_cache_header(cache):
   etag = '"' + drupy_md5(last_modified) + '"';
   # See if the client has provided the required HTTP headers:
   if_modified_since =  (p.stripslashes(p.SERVER['HTTP_IF_MODIFIED_SINCE']) \
-    if p.isset(p.SERVER, 'HTTP_IF_MODIFIED_SINCE') else False);
+    if p.isset(ph.SERVER, 'HTTP_IF_MODIFIED_SINCE') else False);
   if_none_match = (p.stripslashes(p.SERVER['HTTP_IF_NONE_MATCH']) \
     if p.isset(p.SERVER, 'HTTP_IF_NONE_MATCH') else False);
   if (if_modified_since and if_none_match
@@ -654,6 +784,10 @@ def drupal_page_cache_header(cache):
   print cache.data;
 
 
+
+#
+# Define the critical hooks that force modules to always be loaded.
+#
 def bootstrap_hooks():
   """
    Define the critical hooks that force modules to always be loaded.
@@ -696,6 +830,36 @@ def check_plain(text):
   return (p.htmlspecialchars(text, p.ENT_QUOTES) if drupal_validate_utf8(text) else '');
 
 
+
+#
+# Checks whether a string is valid UTF-8.
+#
+# All functions designed to filter input should use drupal_validate_utf8
+# to ensure they operate on valid UTF-8 strings to prevent bypass of the
+# filter.
+#
+# When text containing an invalid UTF-8 lead byte (0xC0 - 0xFF) is presented
+# as UTF-8 to Internet Explorer 6, the program may misinterpret subsequent
+# bytes. When these subsequent bytes are HTML control characters such as
+# quotes or angle brackets, parts of the text that were deemed safe by filters
+# end up in locations that are potentially unsafe; An onerror attribute that
+# is outside of a tag, and thus deemed safe by a filter, can be interpreted
+# by the browser as if it were inside the tag.
+#
+# This def exploits preg_match behaviour (since PHP 4.3.5) when used
+# with the u modifier, as a fast way to find invalid UTF-8. When the matched
+# string contains an invalid byte sequence, it will fail silently.
+#
+# preg_match may not fail on 4 and 5 octet sequences, even though they
+# are not supported by the specification.
+#
+# The specific preg_match behaviour is present since PHP 4.3.5.
+#
+# @param text
+#   The text to check.
+# @return
+#   TRUE if the text is valid UTF-8, FALSE if not.
+#
 def drupal_validate_utf8(text):
   """
    Checks whether a string is valid UTF-8.
@@ -846,6 +1010,20 @@ def drupal_get_messages(type = None, clear_queue = True):
   return {};
 
 
+
+#
+# Check to see if an IP address has been blocked.
+#
+# Blocked IP addresses are stored in the database by default. However for
+# performance reasons we allow an override in settings.p. This allows us
+# to avoid querying the database at this critical stage of the bootstrap if
+# an administrative interface for IP address blocking is not required.
+#
+# @param $ip string
+#   IP address to check.
+# @return bool
+#   TRUE if access is denied, FALSE if access is allowed.
+#
 def drupal_is_denied(ip):
   """
    Check to see if an IP address has been blocked.
@@ -871,6 +1049,12 @@ def drupal_is_denied(ip):
     return (inc_database.db_result(inc_database.db_query(sql, ip)) != False)
 
 
+
+#
+# Generates a default anonymous user object.
+#
+# @return Object - the user object.
+#
 def drupal_anonymous_user(session = ''):
   """
    Generates a default anonymous user object.
@@ -983,6 +1167,15 @@ def _drupal_bootstrap(phase):
     inc_common._drupal_bootstrap_full();
 
 
+
+#
+# Enables use of the theme system without requiring database access.
+#
+# Loads and initializes the theme system for site installs, updates and when
+# the site is in off-line mode. This also applies when the database fails.
+#
+# @see _drupal_maintenance_theme()
+#
 def drupal_maintenance_theme():
   """
    Enables use of the theme system without requiring database access.
@@ -1020,6 +1213,13 @@ def drupal_init_language():
     language_ = inc_language.language_initialize();
 
 
+
+#
+# Get a list of languages set up indexed by the specified key
+#
+# @param field The field to index the list with.
+# @param reset Boolean to request a reset of the list.
+#
 def language_list(field = 'language', reset = False):
   """
    Get a list of languages set up indexed by the specified key
@@ -1080,6 +1280,15 @@ def language_default(property = None):
   return (getattr(language_local, property) if (property != None) else language_local);
 
 
+
+#
+# If Drupal is behind a reverse proxy, we use the X-Forwarded-For p.header
+# instead of p.SERVER['REMOTE_ADDR'], which would be the IP address
+# of the proxy server, and not the client's.
+#
+# @return
+#   IP address of client machine, adjusted for reverse proxy.
+#
 def ip_address():
   """
    If Drupal is behind a reverse proxy, we use the X-Forwarded-For p.header
@@ -1104,6 +1313,24 @@ def ip_address():
   return ip_address.ip_address;
 
 
+
+#
+# @ingroup registry
+# @{
+#
+#
+# Confirm that a function is available.
+#
+# If the function is already available, this function does nothing.
+# If the function is not available, it tries to load the file where the
+# function lives. If the file is not available, it returns False, so that it
+# can be used as a drop-in replacement for p.function_exists().
+#
+# @param function
+#   The name of the function to check or load.
+# @return
+#   True if the function is now available, False otherwise.
+#
 def drupal_function_exists(function):
   """
    @ingroup registry
@@ -1185,6 +1412,17 @@ def _registry_check_code(type_, name):
     return True
 
 
+
+#
+# Collect the resources used for this request.
+#
+# @param type
+#   The type of resource.
+# @param name
+#   The name of the resource.
+# @param return
+#   Boolean flag to indicate whether to return the resources.
+#
 def registry_mark_code(type_, name, return_ = False):
   """
    Collect the resources used for this request.
@@ -1207,6 +1445,12 @@ def registry_mark_code(type_, name, return_ = False):
 
 
 
+#
+# Rescan all enabled modules and rebuild the registry.
+#
+# Rescans all code in modules or includes directory, storing a mapping of
+# each function, file, and hook implementation in the database.
+#
 def drupal_rebuild_code_registry():
   """
    Rescan all enabled modules and rebuild the registry.
@@ -1239,6 +1483,10 @@ def registry_cache_hook_implementations(hook, write_to_persistent_cache = False)
       cache_set('hooks', implementations, 'cache_registry');
 
 
+
+#
+# Save the files required by the registry for this path.
+#
 def registry_cache_path_files():
   """
    Save the files required by the registry for this path.
@@ -1267,6 +1515,10 @@ def registry_cache_path_files():
         cache_set('registry:' + menu['path'], p.implode(';', files), 'cache_registry');
 
 
+
+#
+# registry_load_path_files
+#
 def registry_load_path_files(return_ = False):
   """
    registry_load_path_files
