@@ -2,43 +2,43 @@
 
 # Id: language.inc,v 1.16 2008/04/14 17:48:33 dries Exp $
 
-#
-# @package Drupy
-# @see http://drupy.net
-# @note Drupy is a port of the Drupal project.
-#  The Drupal project can be found at http://drupal.org
-# @file language.py (ported from Drupal's language.inc)
-#  Multiple language handling functionality.
-# @author Brendon Crawford
-# @copyright 2008 Brendon Crawford
-# @contact message144 at users dot sourceforge dot net
-# @created 2008-06-17
-# @version 0.1
-# @license: 
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+"""
+ @package Drupy
+ @see http://drupy.net
+ @note Drupy is a port of the Drupal project.
+  The Drupal project can be found at http://drupal.org
+ @file language.py (ported from Drupal's language.inc)
+  Multiple language handling functionality.
+ @author Brendon Crawford
+ @copyright 2008 Brendon Crawford
+ @contact message144 at users dot sourceforge dot net
+ @created 2008-06-17
+ @version 0.1
+ @license: 
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
 
 from lib.drupy import DrupyPHP as p
 import bootstrap as inc_bootstrap
 
 
-
-#  Choose a language for the page, based on language negotiation settings.
-#
 def language_initialize():
+  """
+    Choose a language for the page, based on language negotiation settings.
+  """
   # Configured presentation language mode.
   mode = variable_get('language_negotiation', inc_bootstrap.LANGUAGE_NEGOTIATION_NONE)
   # Get a list of enabled languages.
@@ -79,10 +79,10 @@ def language_initialize():
 
 
 
-#
-# Identify language from the Accept-language HTTP p.header we got.
-#
 def language_from_browser():
+  """
+   Identify language from the Accept-language HTTP p.header we got.
+  """
   # Specified by the user via the browser's Accept Language setting
   # Samples: "hu, en-us;q=0.66, en;q=0.33", "hu,en-us;q=0.5"
   browser_langs = []
@@ -104,11 +104,11 @@ def language_from_browser():
 
 
 
-#
-# Rewrite URL's with language based prefix. Parameters are the same
-# as those of the url() function.
-#
 def language_url_rewrite(path, options):
+  """
+   Rewrite URL's with language based prefix. Parameters are the same
+   as those of the url() function.
+  """
   # Only modify relative (insite) URLs.
   if (not options['external']):
     # Language can be passed as an option, or we go for current language.

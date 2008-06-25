@@ -2,34 +2,34 @@
 
 # $Id: file.inc,v 1.125 2008/05/26 17:12:54 dries Exp $
 
-#
-# @package Drupy
-# @see http://drupy.net
-# @note Drupy is a port of the Drupal project.
-#  The Drupal project can be found at http://drupal.org
-# @file file.py (ported from Drupal's file.inc)
-#  API for handling file uploads and server file management.
-# @author Brendon Crawford
-# @copyright 2008 Brendon Crawford
-# @contact message144 at users dot sourceforge dot net
-# @created 2008-01-10
-# @version 0.1
-# @license: 
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+"""
+ @package Drupy
+ @see http://drupy.net
+ @note Drupy is a port of the Drupal project.
+  The Drupal project can be found at http://drupal.org
+ @file file.py (ported from Drupal's file.inc)
+  API for handling file uploads and server file management.
+ @author Brendon Crawford
+ @copyright 2008 Brendon Crawford
+ @contact message144 at users dot sourceforge dot net
+ @created 2008-01-10
+ @version 0.1
+ @license: 
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
 
 from lib.drupy import DrupyPHP as p
 
@@ -97,13 +97,13 @@ FILE_STATUS_TEMPORARY = 0
 #
 FILE_STATUS_PERMANENT = 1
 
-#
-# Create the download path to a file.
-#
-# @param path A string containing the path of the file to generate URL for.
-# @return A string containing a URL that can be used to download the file.
-#
 def file_create_url(path):
+  """
+   Create the download path to a file.
+  
+   @param path A string containing the path of the file to generate URL for.
+   @return A string containing a URL that can be used to download the file.
+  """
   # Strip file_directory_path from path + We only include relative paths in urls.
   if (p.strpos(path, file_directory_path() + '/') == 0):
     path = p.trim(p.substr(path, p.strlen(file_directory_path())), '\\/')
@@ -115,17 +115,17 @@ def file_create_url(path):
 
 
 
-#
-# Make sure the destination is a complete path and resides in the file system
-# directory, if it is not prepend the file system directory.
-#
-# @param dest A string containing the path to verify + If this value is
-#   omitted, Drupal's 'files' directory will be used.
-# @return A string containing the path to file, with file system directory
-#   appended if necessary, or False if the path is invalid (i.e + outside the
-#   configured 'files' or temp directories).
-#
 def file_create_path(dest = 0):
+  """
+   Make sure the destination is a complete path and resides in the file system
+   directory, if it is not prepend the file system directory.
+  
+   @param dest A string containing the path to verify + If this value is
+     omitted, Drupal's 'files' directory will be used.
+   @return A string containing the path to file, with file system directory
+     appended if necessary, or False if the path is invalid (i.e + outside the
+     configured 'files' or temp directories).
+  """
   file_path = file_directory_path()
   if (dest == 0):
     return file_path
@@ -142,20 +142,20 @@ def file_create_path(dest = 0):
   return False
 
 
-#
-# Check that the directory exists and is writable + Directories need to
-# have execute permissions to be considered a directory by FTP servers, etc.
-#
-# @param directory A string containing the name of a directory path.
-# @param mode A Boolean value to indicate if the directory should be created
-#   if it does not exist or made writable if it is read-only.
-# @param form_item An optional string containing the name of a form item that
-#   any errors will be attached to + This is useful for settings forms that
-#   require the user to specify a writable directory + If it can't be made to
-#   work, a form error will be set preventing them from saving the settings.
-# @return False when directory not found, or True when directory exists.
-#
 def file_check_directory(directory, mode = 0, form_item = None):
+  """
+   Check that the directory exists and is writable + Directories need to
+   have execute permissions to be considered a directory by FTP servers, etc.
+  
+   @param directory A string containing the name of a directory path.
+   @param mode A Boolean value to indicate if the directory should be created
+     if it does not exist or made writable if it is read-only.
+   @param form_item An optional string containing the name of a form item that
+     any errors will be attached to + This is useful for settings forms that
+     require the user to specify a writable directory + If it can't be made to
+     work, a form error will be set preventing them from saving the settings.
+   @return False when directory not found, or True when directory exists.
+  """
   p.Reference.check(directory);
   directory.val = p.rtrim(directory.val, '/\\')
   # Check if directory exists.
@@ -189,15 +189,15 @@ def file_check_directory(directory, mode = 0, form_item = None):
 
 
 
-#
-# Checks path to see if it is a directory, or a dir/file.
-#
-# @param path A string containing a file path + This will be set to the
-#   directory's path.
-# @return If the directory is not in a Drupal writable directory, False is
-#   returned + Otherwise, the base name of the path is returned.
-#
 def file_check_path(path):
+  """
+   Checks path to see if it is a directory, or a dir/file.
+  
+   @param path A string containing a file path + This will be set to the
+     directory's path.
+   @return If the directory is not in a Drupal writable directory, False is
+     returned + Otherwise, the base name of the path is returned.
+  """
   p.Reference.check(path)
   # Check if path is a directory.
   if (file_check_directory(path)):
@@ -211,21 +211,21 @@ def file_check_path(path):
 
 
 
-#
-# Check if a file is really located inside directory + Should be used to make
-# sure a file specified is really located within the directory to prevent
-# exploits.
-#
-# @code
-#   // Returns False:
-#   file_check_location('/www/example.com/files/../../../etc/passwd', '/www/example.com/files')
-# @endcode
-#
-# @param source A string set to the file to check.
-# @param directory A string where the file should be located.
-# @return 0 for invalid path or the real path of the source.
-#
 def file_check_location(source, directory = ''):
+  """
+   Check if a file is really located inside directory + Should be used to make
+   sure a file specified is really located within the directory to prevent
+   exploits.
+  
+   @code
+     // Returns False:
+     file_check_location('/www/example.com/files/../../../etc/passwd', '/www/example.com/files')
+   @endcode
+  
+   @param source A string set to the file to check.
+   @param directory A string where the file should be located.
+   @return 0 for invalid path or the real path of the source.
+  """
   check = realpath(source)
   if (check):
     source = check
@@ -239,26 +239,26 @@ def file_check_location(source, directory = ''):
 
 
 
-#
-# Copies a file to a new location + This is a powerful function that in many ways
-# performs like an advanced version of copy().
-# - Checks if source and dest are valid and readable/writable.
-# - Performs a file copy if source is not equal to dest.
-# - If file already exists in dest either the call will error out, replace the
-#   file or rename the file based on the replace parameter.
-#
-# @param source A string specifying the file location of the original file.
-#   This parameter will contain the resulting destination filename in case of
-#   success.
-# @param dest A string containing the directory source should be copied to.
-#   If this value is omitted, Drupal's 'files' directory will be used.
-# @param replace Replace behavior when the destination file already exists.
-#   - FILE_EXISTS_REPLACE - Replace the existing file
-#   - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is unique
-#   - FILE_EXISTS_ERROR - Do nothing and return False.
-# @return True for success, False for failure.
-#
 def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
+  """
+   Copies a file to a new location + This is a powerful function that in many ways
+   performs like an advanced version of copy().
+   - Checks if source and dest are valid and readable/writable.
+   - Performs a file copy if source is not equal to dest.
+   - If file already exists in dest either the call will error out, replace the
+     file or rename the file based on the replace parameter.
+  
+   @param source A string specifying the file location of the original file.
+     This parameter will contain the resulting destination filename in case of
+     success.
+   @param dest A string containing the directory source should be copied to.
+     If this value is omitted, Drupal's 'files' directory will be used.
+   @param replace Replace behavior when the destination file already exists.
+     - FILE_EXISTS_REPLACE - Replace the existing file
+     - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is unique
+     - FILE_EXISTS_ERROR - Do nothing and return False.
+   @return True for success, False for failure.
+  """
   p.Reference.check(source)
   dest = file_create_path(dest)
   directory = dest
@@ -308,21 +308,20 @@ def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
 
 
 
-
-#
-# Determines the destination path for a file depending on how replacement of
-# existing files should be handled.
-#
-# @param destination A string specifying the desired path.
-# @param replace Replace behavior when the destination file already exists.
-#   - FILE_EXISTS_REPLACE - Replace the existing file
-#   - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is
-#     unique
-#   - FILE_EXISTS_ERROR - Do nothing and return False.
-# @return The destination file path or False if the file already exists and
-#   FILE_EXISTS_ERROR was specified.
-#
 def file_destination(destination, replace):
+  """
+   Determines the destination path for a file depending on how replacement of
+   existing files should be handled.
+  
+   @param destination A string specifying the desired path.
+   @param replace Replace behavior when the destination file already exists.
+     - FILE_EXISTS_REPLACE - Replace the existing file
+     - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is
+       unique
+     - FILE_EXISTS_ERROR - Do nothing and return False.
+   @return The destination file path or False if the file already exists and
+     FILE_EXISTS_ERROR was specified.
+  """
   if (p.file_exists(destination)):
     if replace == FILE_EXISTS_RENAME:
       basename = basename(destination)
@@ -334,26 +333,26 @@ def file_destination(destination, replace):
   return destination
 
 
-#
-# Moves a file to a new location.
-# - Checks if source and dest are valid and readable/writable.
-# - Performs a file move if source is not equal to dest.
-# - If file already exists in dest either the call will error out, replace the
-#   file or rename the file based on the replace parameter.
-#
-# @param source A string specifying the file location of the original file.
-#   This parameter will contain the resulting destination filename in case of
-#   success.
-# @param dest A string containing the directory source should be copied to.
-#   If this value is omitted, Drupal's 'files' directory will be used.
-# @param replace Replace behavior when the destination file already exists.
-#   - FILE_EXISTS_REPLACE - Replace the existing file
-#   - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is unique
-#   - FILE_EXISTS_ERROR - Do nothing and return False.
-# @return True for success, False for failure.
-#
 def file_move(source, dest = 0, replace = FILE_EXISTS_RENAME):
-  DrupyHelper.reference.check(source)
+  """
+   Moves a file to a new location.
+   - Checks if source and dest are valid and readable/writable.
+   - Performs a file move if source is not equal to dest.
+   - If file already exists in dest either the call will error out, replace the
+     file or rename the file based on the replace parameter.
+  
+   @param source A string specifying the file location of the original file.
+     This parameter will contain the resulting destination filename in case of
+     success.
+   @param dest A string containing the directory source should be copied to.
+     If this value is omitted, Drupal's 'files' directory will be used.
+   @param replace Replace behavior when the destination file already exists.
+     - FILE_EXISTS_REPLACE - Replace the existing file
+     - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is unique
+     - FILE_EXISTS_ERROR - Do nothing and return False.
+   @return True for success, False for failure.
+  """
+  p.Reference.check(source)
   path_original = (source.val.filepath if p.is_object(source.val) else source.val)
   if (file_copy(source.val, dest, replace)):
     path_current = (source.val.filepath if p.is_object(source.val) else source.val)
@@ -364,18 +363,18 @@ def file_move(source, dest = 0, replace = FILE_EXISTS_RENAME):
 
 
 
-#
-# Munge the filename as needed for security purposes + For instance the file
-# name "exploit.php.pps" would become "exploit.php_.pps".
-#
-# @param filename The name of a file to modify.
-# @param extensions A space separated list of extensions that should not
-#   be altered.
-# @param alerts Whether alerts (watchdog, drupal_set_message()) should be
-#   displayed.
-# @return filename The potentially modified filename.
-#
 def file_munge_filename(filename, extensions, alerts = True):
+  """
+   Munge the filename as needed for security purposes + For instance the file
+   name "exploit.php.pps" would become "exploit.php_.pps".
+  
+   @param filename The name of a file to modify.
+   @param extensions A space separated list of extensions that should not
+     be altered.
+   @param alerts Whether alerts (watchdog, drupal_set_message()) should be
+     displayed.
+   @return filename The potentially modified filename.
+  """
   original = filename
   # Allow potentially insecure uploads for very savvy users and admin
   if (not variable_get('allow_insecure_uploads', 0)):
@@ -399,26 +398,26 @@ def file_munge_filename(filename, extensions, alerts = True):
 
 
 
-#
-# Undo the effect of upload_munge_filename().
-#
-# @param filename string filename
-# @return string
-#
 def file_unmunge_filename(filename):
+  """
+   Undo the effect of upload_munge_filename().
+  
+   @param filename string filename
+   @return string
+  """
   return p.str_replace('_.', '.', filename)
 
 
 
-#
-# Create a full file path from a directory and filename + If a file with the
-# specified name already exists, an alternative will be used.
-#
-# @param basename string filename
-# @param directory string directory
-# @return
-#
 def file_create_filename(basename, directory):
+  """
+   Create a full file path from a directory and filename + If a file with the
+   specified name already exists, an alternative will be used.
+  
+   @param basename string filename
+   @param directory string directory
+   @return
+  """
   dest = directory + '/' + basename
   if (p.file_exists(dest)):
     # Destination file already exists, generate an alternative.
@@ -438,59 +437,58 @@ def file_create_filename(basename, directory):
 
 
 
-#
-# Delete a file.
-#
-# @param path A string containing a file path.
-# @return True for success, False for failure.
-#
 def file_delete(path):
+  """
+   Delete a file.
+  
+   @param path A string containing a file path.
+   @return True for success, False for failure.
+  """
   if (p.is_file(path)):
-    return unlink(path)
+    return p.unlink(path)
 
 
-#
-# Determine total disk space used by a single user or the whole filesystem.
-#
-# @param uid
-#   An optional user id + A None value returns the total space used
-#   by all files.
-#
 def file_space_used(uid = None):
+  """
+   Determine total disk space used by a single user or the whole filesystem.
+  
+   @param uid
+     An optional user id + A None value returns the total space used
+     by all files.
+  """
   if (uid != None):
     return drupy_int(db_result(db_query('SELECT SUM(filesize) FROM {files} WHERE uid = %d', uid)))
   return drupy_int(db_result(db_query('SELECT SUM(filesize) FROM {files}')))
 
 
-#
-# Saves a file upload to a new location + The source file is validated as a
-# proper upload and handled as such.
-#
-# The file will be added to the files table as a temporary file + Temporary files
-# are periodically cleaned + To make the file permanent file call
-# file_set_status() to change its status.
-#
-# @param source
-#   A string specifying the name of the upload field to save.
-# @param validators
-#   An optional, associative array of callback functions used to validate the
-#   file + The keys are function names and the values arrays of callback
-#   parameters which will be passed in after the user and file objects + The
-#   functions should return an array of error messages, an empty array
-#   indicates that the file passed validation + The functions will be called in
-#   the order specified.
-# @param dest
-#   A string containing the directory source should be copied to + If this is
-#   not provided or is not writable, the temporary directory will be used.
-# @param replace
-#   A boolean indicating whether an existing file of the same name in the
-#   destination directory should overwritten + A False value will generate a
-#   new, unique filename in the destination directory.
-# @return
-#   An object containing the file information, or 0 in the event of an error.
-#
 def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXISTS_RENAME):
-  global user
+  """
+   Saves a file upload to a new location + The source file is validated as a
+   proper upload and handled as such.
+  
+   The file will be added to the files table as a temporary file + Temporary files
+   are periodically cleaned + To make the file permanent file call
+   file_set_status() to change its status.
+  
+   @param source
+     A string specifying the name of the upload field to save.
+   @param validators
+     An optional, associative array of callback functions used to validate the
+     file + The keys are function names and the values arrays of callback
+     parameters which will be passed in after the user and file objects + The
+     functions should return an array of error messages, an empty array
+     indicates that the file passed validation + The functions will be called in
+     the order specified.
+   @param dest
+     A string containing the directory source should be copied to + If this is
+     not provided or is not writable, the temporary directory will be used.
+   @param replace
+     A boolean indicating whether an existing file of the same name in the
+     destination directory should overwritten + A False value will generate a
+     new, unique filename in the destination directory.
+   @return
+     An object containing the file information, or 0 in the event of an error.
+  """
   p.static(file_save_upload, 'upload_cache', {})
   # Add in our check of the the file name length.
   validators['file_validate_name_length'] = {}
@@ -499,18 +497,22 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
   if (p.isset(file_save_upload.uploadcache, source)):
     return file_save_upload.uploadcache[source]
   # If a file was uploaded, process it.
-  if (p.isset(FILES, 'files') and FILES['files']['name'][source] and p.is_uploaded_file(FILES['files']['tmp_name'][source])):
+  if (p.isset(p.FILES, 'files') and p.FILES['files']['name'][source] and \
+      p.is_uploaded_file(p.FILES['files']['tmp_name'][source])):
     # Check for file upload errors and return False if a
     # lower level system error occurred.
     # @see http://php.net/manual/en/features.file-upload.errors.php
-    if FILES['files']['error'][source] == UPLOAD_ERR_OK:
+    if p.FILES['files']['error'][source] == UPLOAD_ERR_OK:
       pass
-    elif FILES['files']['error'][source] == UPLOAD_ERR_INI_SIZE or \
-        FILES['files']['error'][source] == UPLOAD_ERR_FORM_SIZE:
-      drupal_set_message(t('The file %file could not be saved, because it exceeds %maxsize, the maximum allowed size for uploads.', {'%file' : source, '%maxsize' : format_size(file_upload_max_size())}), 'error')
+    elif p.FILES['files']['error'][source] == UPLOAD_ERR_INI_SIZE or \
+        p.FILES['files']['error'][source] == UPLOAD_ERR_FORM_SIZE:
+      drupal_set_message(t(\
+        'The file %file could not be saved, because it exceeds %maxsize, ' +
+        'the maximum allowed size for uploads.', \
+        {'%file' : source, '%maxsize' : format_size(file_upload_max_size())}), 'error')
       return 0
-    elif FILES['files']['error'][source] == UPLOAD_ERR_PARTIAL or \
-        FILES['files']['error'][source] == UPLOAD_ERR_NO_FILE:
+    elif p.FILES['files']['error'][source] == UPLOAD_ERR_PARTIAL or \
+        p.FILES['files']['error'][source] == UPLOAD_ERR_NO_FILE:
       drupal_set_message(t('The file %file could not be saved, because the upload did not complete.', {'%file' : source}), 'error')
       return 0
     # Unknown error
@@ -526,8 +528,8 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
     # Begin building file object.
     file = p.stdClass()
     file.filename = file_munge_filename(p.trim(basename(FILES['files']['name'][source]), '.'), extensions)
-    file.filepath = FILES['files']['tmp_name'][source]
-    file.filemime = FILES['files']['type'][source]
+    file.filepath = p.FILES['files']['tmp_name'][source]
+    file.filemime = p.FILES['files']['type'][source]
     # Rename potentially executable files, to help prevent exploits.
     if (p.preg_match('/\.(php|pl|py|cgi|asp|js)$/i', file.filename) and (p.substr(file.filename, -4) != '.txt')):
       file.filemime = 'text/plain'
@@ -557,7 +559,7 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
     # Move uploaded files from PHP's upload_tmp_dir to Drupal's temporary directory.
     # This overcomes open_basedir restrictions for future file operations.
     file.filepath = file.destination
-    if (not move_uploaded_file(FILES['files']['tmp_name'][source], file.filepath)):
+    if (not move_uploaded_file(p.FILES['files']['tmp_name'][source], file.filepath)):
       form_set_error(source, t('File upload error + Could not move uploaded file.'))
       watchdog('file', 'Upload error + Could not move uploaded file %file to destination %destination.', {'%file' : file.filename, '%destination' : file.filepath})
       return 0
@@ -573,15 +575,15 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
 
 
 
-#
-# Check for files with names longer than we can store in the database.
-#
-# @param file
-#   A Drupal file object.
-# @return
-#   An array + If the file name is too long, it will contain an error message.
-#
 def file_validate_name_length(file):
+  """
+   Check for files with names longer than we can store in the database.
+  
+   @param file
+     A Drupal file object.
+   @return
+     An array + If the file name is too long, it will contain an error message.
+  """
   errors = []
   if (p.strlen(file.filename) > 255):
     errors.append( t('Its name exceeds the 255 characters limit + Please rename the file and try again.') )
@@ -589,22 +591,21 @@ def file_validate_name_length(file):
 
 
 
-#
-# Check that the filename ends with an allowed extension + This check is not
-# enforced for the user #1.
-#
-# @param file
-#   A Drupal file object.
-# @param extensions
-#   A string with a space separated
-# @return
-#   An array + If the file extension is not allowed, it will contain an error message.
-#
 def file_validate_extensions(file, extensions):
-  global user
+  """
+   Check that the filename ends with an allowed extension + This check is not
+   enforced for the user #1.
+  
+   @param file
+     A Drupal file object.
+   @param extensions
+     A string with a space separated
+   @return
+     An array + If the file extension is not allowed, it will contain an error message.
+  """
   errors = []
   # Bypass validation for uid  = 1.
-  if (user.uid != 1):
+  if (inc_bootstrap.user.uid != 1):
     regex = '/\.(' + ereg_replace(' +', '|', p.preg_quote(extensions)) + ')$/i'
     if (not p.preg_match(regex, file.filename)):
       errors.append( t('Only files with the following extensions are allowed: %files-allowed.', {'%files-allowed' : extensions}) )
@@ -612,26 +613,25 @@ def file_validate_extensions(file, extensions):
 
 
 
-#
-# Check that the file's size is below certain limits + This check is not
-# enforced for the user #1.
-#
-# @param file
-#   A Drupal file object.
-# @param file_limit
-#   An integer specifying the maximum file size in bytes + Zero indicates that
-#   no limit should be enforced.
-# @param $user_limit
-#   An integer specifying the maximum number of bytes the user is allowed + Zero
-#   indicates that no limit should be enforced.
-# @return
-#   An array + If the file size exceeds limits, it will contain an error message.
-#
 def file_validate_size(file, file_limit = 0, user_limit = 0):
-  global user
+  """
+   Check that the file's size is below certain limits + This check is not
+   enforced for the user #1.
+  
+   @param file
+     A Drupal file object.
+   @param file_limit
+     An integer specifying the maximum file size in bytes + Zero indicates that
+     no limit should be enforced.
+   @param $user_limit
+     An integer specifying the maximum number of bytes the user is allowed + Zero
+     indicates that no limit should be enforced.
+   @return
+     An array + If the file size exceeds limits, it will contain an error message.
+  """
   errors = []
   # Bypass validation for uid  = 1.
-  if (user.uid != 1):
+  if (inc_bootstrap.user.uid != 1):
     if (file_limit and file.filesize > file_limit):
       errors.append( t('The file is %filesize exceeding the maximum file size of %maxsize.', {'%filesize' : format_size(file.filesize), '%maxsize' : format_size(file_limit)}) )
     total_size = file_space_used(user.uid) + file.filesize
@@ -642,15 +642,15 @@ def file_validate_size(file, file_limit = 0, user_limit = 0):
 
 
 
-#
-# Check that the file is recognized by image_get_info() as an image.
-#
-# @param file
-#   A Drupal file object.
-# @return
-#   An array + If the file is not an image, it will contain an error message.
-#
 def file_validate_is_image(file):
+  """
+   Check that the file is recognized by image_get_info() as an image.
+  
+   @param file
+     A Drupal file object.
+   @return
+     An array + If the file is not an image, it will contain an error message.
+  """
   p.Reference.check(file)
   errors = []
   info = image_get_info(file.val.filepath)
@@ -661,25 +661,25 @@ def file_validate_is_image(file):
 
 
 
-#
-# If the file is an image verify that its dimensions are within the specified
-# maximum and minimum dimensions + Non-image files will be ignored.
-#
-# @param file
-#   A Drupal file object + This function may resize the file affecting its size.
-# @param maximum_dimensions
-#   An optional string in the form WIDTHxHEIGHT e.g + '640x480' or '85x85'. If
-#   an image toolkit is installed the image will be resized down to these
-#   dimensions + A value of 0 indicates no restriction on size, so resizing
-#   will be attempted.
-# @param minimum_dimensions
-#   An optional string in the form WIDTHxHEIGHT + This will check that the image
-#   meets a minimum size + A value of 0 indicates no restriction.
-# @return
-#   An array + If the file is an image and did not meet the requirements, it
-#   will contain an error message.
-#
 def file_validate_image_resolution(file, maximum_dimensions = 0, minimum_dimensions = 0):
+  """
+   If the file is an image verify that its dimensions are within the specified
+   maximum and minimum dimensions + Non-image files will be ignored.
+  
+   @param file
+     A Drupal file object + This function may resize the file affecting its size.
+   @param maximum_dimensions
+     An optional string in the form WIDTHxHEIGHT e.g + '640x480' or '85x85'. If
+     an image toolkit is installed the image will be resized down to these
+     dimensions + A value of 0 indicates no restriction on size, so resizing
+     will be attempted.
+   @param minimum_dimensions
+     An optional string in the form WIDTHxHEIGHT + This will check that the image
+     meets a minimum size + A value of 0 indicates no restriction.
+   @return
+     An array + If the file is an image and did not meet the requirements, it
+     will contain an error message.
+  """
   p.Reference.check(file)
   errors = []
   # Check first that the file is an image.
@@ -707,43 +707,43 @@ def file_validate_image_resolution(file, maximum_dimensions = 0, minimum_dimensi
 
 
 
-#
-# Save a string to the specified destination.
-#
-# @param data A string containing the contents of the file.
-# @param dest A string containing the destination location.
-# @param replace Replace behavior when the destination file already exists.
-#   - FILE_EXISTS_REPLACE - Replace the existing file
-#   - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is unique
-#   - FILE_EXISTS_ERROR - Do nothing and return False.
-#
-# @return A string containing the resulting filename or 0 on error
-#
 def file_save_data(data, dest, replace = FILE_EXISTS_RENAME):
+  """
+   Save a string to the specified destination.
+  
+   @param data A string containing the contents of the file.
+   @param dest A string containing the destination location.
+   @param replace Replace behavior when the destination file already exists.
+     - FILE_EXISTS_REPLACE - Replace the existing file
+     - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is unique
+     - FILE_EXISTS_ERROR - Do nothing and return False.
+  
+   @return A string containing the resulting filename or 0 on error
+  """
   temp = file_directory_temp()
   # On Windows, tempnam() requires an absolute path, so we use realpath().
   file = tempnam(realpath(temp), 'file')
-  fp = fopen(file, 'wb')
+  fp = p.fopen(file, 'wb')
   if (not fp):
     drupal_set_message(t('The file could not be created.'), 'error')
     return 0
-  fwrite(fp, data)
-  fclose(fp)
+  p.fwrite(fp, data)
+  p.fclose(fp)
   if (not file_move(file, dest, replace)):
     return 0
   return file
 
 
 
-#
-# Set the status of a file.
-#
-# @param file A Drupal file object
-# @param status A status value to set the file to.
-# @return False on failure, True on success and file.status will contain the
-#     status.
-#
 def file_set_status(file, status):
+  """
+   Set the status of a file.
+  
+   @param file A Drupal file object
+   @param status A status value to set the file to.
+   @return False on failure, True on success and file.status will contain the
+       status.
+  """
   p.Reference.check(file)
   if (db_query('UPDATE {files} SET status = %d WHERE fid = %d', status, file.val.fid)):
     file.val.status = status
@@ -751,14 +751,14 @@ def file_set_status(file, status):
   return False
 
 
-#
-# Transfer file using http to client + Pipes a file through Drupal to the
-# client.
-#
-# @param source File to transfer.
-# @param headers An array of http headers to send along with file.
-#
 def file_transfer(source, headers):
+  """
+   Transfer file using http to client + Pipes a file through Drupal to the
+   client.
+  
+   @param source File to transfer.
+   @param headers An array of http headers to send along with file.
+  """
   ob_end_clean()
   for p.header in headers:
     # To prevent HTTP p.header injection, we delete new lines that are
@@ -779,14 +779,14 @@ def file_transfer(source, headers):
 
 
 
-#
-# Call modules that implement hook_file_download() to find out if a file is
-# accessible and what headers it should be transferred with + If a module
-# returns -1 drupal_access_denied() will be returned + If one or more modules
-# returned headers the download will start with the returned headers + If no
-# modules respond drupal_not_found() will be returned.
-#
 def file_download():
+  """
+   Call modules that implement hook_file_download() to find out if a file is
+   accessible and what headers it should be transferred with + If a module
+   returns -1 drupal_access_denied() will be returned + If one or more modules
+   returned headers the download will start with the returned headers + If no
+   modules respond drupal_not_found() will be returned.
+  """
   # Merge remainder of arguments from p.GET['q'], into relative file path.
   args = func_get_args()
   filepath = p.implode('/', args)
@@ -803,39 +803,39 @@ def file_download():
 
 
 
-#
-# Finds all files that match a given mask in a given directory.
-# Directories and files beginning with a period are excluded; this
-# prevents hidden files and directories (such as SVN working directories)
-# from being scanned.
-#
-# @param dir
-#   The base directory for the scan, without trailing slash.
-# @param mask
-#   The regular expression of the files to find.
-# @param nomask
-#   An array of files/directories to ignore.
-# @param callback
-#   The callback function to call for each match.
-# @param recurse
-#   When True, the directory scan will recurse the entire tree
-#   starting at the provided directory.
-# @param key
-#   The key to be used for the returned array of files + Possible
-#   values are "filename", for the path starting with dir,
-#   "basename", for the basename of the file, and "name" for the name
-#   of the file without an extension.
-# @param min_depth
-#   Minimum depth of directories to return files from.
-# @param depth
-#   Current depth of recursion + This parameter is only used internally and should not be passed.
-#
-# @return
-#   An associative array (keyed on the provided key) of objects with
-#   "path", "basename", and "name" members corresponding to the
-#   matching files.
-#
 def file_scan_directory(dir, mask, nomask = ['.', '..', 'CVS'], callback = 0, recurse = True, key = 'filename', min_depth = 0, depth = 0):
+  """
+   Finds all files that match a given mask in a given directory.
+   Directories and files beginning with a period are excluded; this
+   prevents hidden files and directories (such as SVN working directories)
+   from being scanned.
+  
+   @param dir
+     The base directory for the scan, without trailing slash.
+   @param mask
+     The regular expression of the files to find.
+   @param nomask
+     An array of files/directories to ignore.
+   @param callback
+     The callback function to call for each match.
+   @param recurse
+     When True, the directory scan will recurse the entire tree
+     starting at the provided directory.
+   @param key
+     The key to be used for the returned array of files + Possible
+     values are "filename", for the path starting with dir,
+     "basename", for the basename of the file, and "name" for the name
+     of the file without an extension.
+   @param min_depth
+     Minimum depth of directories to return files from.
+   @param depth
+     Current depth of recursion + This parameter is only used internally and should not be passed.
+  
+   @return
+     An associative array (keyed on the provided key) of objects with
+     "path", "basename", and "name" members corresponding to the
+     matching files.
+  """
   key = (key if p.in_array(key, array('filename', 'basename', 'name')) else 'filename')
   files = []
   handle = opendir(dir)
@@ -864,12 +864,12 @@ def file_scan_directory(dir, mask, nomask = ['.', '..', 'CVS'], callback = 0, re
 
 
 
-#
-# Determine the default temporary directory.
-#
-# @return A string containing a temp directory.
-#
 def file_directory_temp():
+  """
+   Determine the default temporary directory.
+  
+   @return A string containing a temp directory.
+  """
   temporary_directory = variable_get('file_directory_temp', None)
   if (is_None(temporary_directory)):
     directories = []
@@ -894,22 +894,22 @@ def file_directory_temp():
 
 
 
-#
-# Determine the default 'files' directory.
-#
-# @return A string containing the path to Drupal's 'files' directory.
-#
 def file_directory_path():
+  """
+   Determine the default 'files' directory.
+  
+   @return A string containing the path to Drupal's 'files' directory.
+  """
   return variable_get('file_directory_path', conf_path() + '/files')
 
 
-#
-# Determine the maximum file upload size by querying the PHP settings.
-#
-# @return
-#   A file size limit in bytes based on the PHP upload_max_filesize and post_max_size
-#
 def file_upload_max_size():
+  """
+   Determine the maximum file upload size by querying the PHP settings.
+  
+   @return
+     A file size limit in bytes based on the PHP upload_max_filesize and post_max_size
+  """
   p.static(file_upload_max_size, 'max_size', -1)
   if (file_upload_max_size.max_size < 0):
     upload_max = parse_size(ini_get('upload_max_filesize'))
