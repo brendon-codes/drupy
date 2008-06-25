@@ -227,16 +227,16 @@ space between code.
   examples:
 
   Drupal: isset($var["index"])
-  Drupy:  isset(var, index)
+  Drupy:  php.isset(var, index)
 
   Drupal: isset($var["index1"]["index2"])
-  Drupy:  isset(var["index1"], "index2")
+  Drupy:  php.isset(var["index1"], "index2")
 
   Drupal: isset($var["index1"]["index2"]["index3"])
-  Drupy:  isset(var["index1"]["index2"], "index3")
+  Drupy:  php.isset(var["index1"]["index2"], "index3")
 
   Drupal: isset($options[$elements['#value']])
-  Drupal: isset(options, elements['#value'])
+  Drupal: php.isset(options, elements['#value'])
 
   Comments:
   Remember that currently there is only the isset() function that have this
@@ -257,39 +257,37 @@ space between code.
 
 (11) If statements
 
- Sometime drupal (php) assign variables values within the the condition, like this:
+  Sometime drupal (php) assign variables values within the the condition, like this:
 
- Drupal: if ($data = unserialize($data))
+  Drupal: if ($data = unserialize($data))
 
- In Drupy, we do the assignment outside of the if statement. Like this:
+  In Drupy, we do the assignment outside of the if statement. Like this:
 
- Drupy:  data = unserialize(data)
+  Drupy:  data = unserialize(data)
 				 if (data):
 
- Comments: Be very careful about this, as assigning(=) and comparing(==) are very different things, and can get mixed up easily.
+  Comments: Be very careful about this, as assigning(=) and comparing(==) are very different things, and can get mixed up easily.
 
 (12) Bool
 
- Drupal: $item['access'] = (bool)$callback;
- Drupy: item.val['access'] = drupy_bool(callback)
+  Drupal: $item['access'] = (bool)$callback;
+  Drupy: item.val['access'] = drupy_bool(callback)
 
- Comments: Python does have a method that can typecast a var to a bool...bool(myvar)
- But that is only typecasting (temporary conversion). drupy_bool converts the variabel
- to a bool permanantly.
+  Comments: Python does have a method that can typecast a var to a bool...bool(myvar)
+  But that is only typecasting (temporary conversion). drupy_bool converts the variabel
+  to a bool permanantly.
 
 (13) Emulating PHP
 
-Drupy emulates the functionality of several PHP functions. When you porting such a function,
-it's important to remember to make the callee a child of the phplib class.
+  Drupy emulates the functionality of several PHP functions. When you porting such a function,
+  it's important to remember to make the callee a child of the phplib class.
 
-Drupal: empty(item['access_callback'])
+  Drupal: empty(item['access_callback'])
 
-Drupy: phplib.empty(item.val['access_callback']
+  Drupy: php.empty(item.val['access_callback']
 
-Comments: The phplib may not be obvious before you read the import declaration in the beginning of the file:
+  Comments: The php may not be obvious before you read the import declaration in the beginning of the file:
 
-from lib.drupy import DrupyPHP as phplib
+  from lib.drupy import DrupyPHP as php
 
-See DrupyPHP.py for how this functions is constructed.
-
-
+  See DrupyPHP.py for how this functions is constructed.
