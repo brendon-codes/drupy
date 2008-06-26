@@ -2,40 +2,39 @@
 
 # $Id: theme.maintenance.inc,v 1.13 2008/04/28 09:25:26 dries Exp $
 
+"""
+ @package Drupy
+ @see http://drupy.net
+ @note Drupy is a port of the Drupal project.
+  The Drupal project can be found at http://drupal.org
+ @file theme_maintenance.py (ported from Drupal's theme.maintenance.inc)
+  Theming for maintenance pages.
+  Sets up the theming system for site installs, updates and when the site is
+  in off-line mode. It also applies when the database is unavailable.
+  Minnelli is always used for the initial install and update operations. In
+  other cases, "settings.php" must have a "maintenance_theme" key set for the
+  conf variable in order to change the maintenance theme.
+ @author Brendon Crawford
+ @copyright 2008 Brendon Crawford
+ @contact message144 at users dot sourceforge dot net
+ @created 2008-01-10
+ @version 0.1
+ @license: 
 
-#
-# @package Drupy
-# @see http://drupy.net
-# @note Drupy is a port of the Drupal project.
-#  The Drupal project can be found at http://drupal.org
-# @file theme_maintenance.py (ported from Drupal's theme.maintenance.inc)
-#  Theming for maintenance pages.
-#  Sets up the theming system for site installs, updates and when the site is
-#  in off-line mode. It also applies when the database is unavailable.
-#  Minnelli is always used for the initial install and update operations. In
-#  other cases, "settings.php" must have a "maintenance_theme" key set for the
-#  conf variable in order to change the maintenance theme.
-# @author Brendon Crawford
-# @copyright 2008 Brendon Crawford
-# @contact message144 at users dot sourceforge dot net
-# @created 2008-01-10
-# @version 0.1
-# @license: 
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
 
 
 #
@@ -101,12 +100,12 @@ def _theme_load_offline_registry(this_theme, base_theme = None, theme_engine = N
 
 
 
-#
-# Return a themed list of maintenance tasks to perform.
-#
-# @ingroup themeable
-#
 def theme_task_list(items_, active = None):
+  """
+   Return a themed list of maintenance tasks to perform.
+  
+   @ingroup themeable
+  """
   done = ((active == None) or (p.isset(items, active)))
   output = '<ol class="task-list">'
   for k,item in items_.items():
@@ -121,15 +120,15 @@ def theme_task_list(items_, active = None):
 
 
 
-#
-# Generate a themed installation page.
-#
-# Note: this function is not themeable.
-#
-# @param content
-#   The page content to show.
-#
 def theme_install_page(content):
+  """
+   Generate a themed installation page.
+  
+   Note: this function is not themeable.
+  
+   @param content
+     The page content to show.
+  """
   global theme_path
   drupal_set_header('Content-Type: text/html; charset=utf-8')
   # Assign content.
@@ -163,18 +162,18 @@ def theme_install_page(content):
 
 
 
-#
-# Generate a themed update page.
-#
-# Note: this function is not themeable.
-#
-# @param content
-#   The page content to show.
-# @param show_messages
-#   Whether to output status and error messages.
-#   False can be useful to postpone the messages to a subsequent page.
-#
 def theme_update_page(content, show_messages = True):
+  """
+   Generate a themed update page.
+  
+   Note: this function is not themeable.
+  
+   @param content
+     The page content to show.
+   @param show_messages
+     Whether to output status and error messages.
+     False can be useful to postpone the messages to a subsequent page.
+  """
   global theme_path
   # Set required headers.
   drupal_set_header('Content-Type: text/html; charset=utf-8')
@@ -197,23 +196,23 @@ def theme_update_page(content, show_messages = True):
 
 
 
-#
-# The variables generated here is a mirror of template_preprocess_page().
-# This preprocessor will run it's course when theme_maintenance_page() is
-# invoked. It is also used in theme_install_page() and theme_update_page() to
-# keep all the variables consistent.
-#
-# An alternate template file of "maintenance-page-offline.tpl.php" can be
-# used when the database is offline to hide errors and completely replace the
-# content.
-#
-# The variables array contains the following arguments:
-# - content
-# - show_blocks
-#
-# @see maintenance-page.tpl.php
-#
 def template_preprocess_maintenance_page(variables):
+  """
+   The variables generated here is a mirror of template_preprocess_page().
+   This preprocessor will run it's course when theme_maintenance_page() is
+   invoked. It is also used in theme_install_page() and theme_update_page() to
+   keep all the variables consistent.
+  
+   An alternate template file of "maintenance-page-offline.tpl.php" can be
+   used when the database is offline to hide errors and completely replace the
+   content.
+  
+   The variables array contains the following arguments:
+   - content
+   - show_blocks
+  
+   @see maintenance-page.tpl.php
+  """
   p.Reference.check(variables)
   global theme_
   # Add favicon

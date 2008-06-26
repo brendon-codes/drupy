@@ -3,34 +3,34 @@
 # Id: session.inc,v 1.48 2008/04/16 11:35:51 dries Exp $
 #
 
-#
-# @package Drupy
-# @see http://drupy.net
-# @note Drupy is a port of the Drupal project.
-#  The Drupal project can be found at http://drupal.org
-# @file session.py (ported from Drupal's session.inc)
-#  User session handling functions.
-# @author Brendon Crawford
-# @copyright 2008 Brendon Crawford
-# @contact message144 at users dot sourceforge dot net
-# @created 2008-05-25
-# @version 0.1
-# @license: 
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+"""
+ @package Drupy
+ @see http://drupy.net
+ @note Drupy is a port of the Drupal project.
+  The Drupal project can be found at http://drupal.org
+ @file session.py (ported from Drupal's session.inc)
+  User session handling functions.
+ @author Brendon Crawford
+ @copyright 2008 Brendon Crawford
+ @contact message144 at users dot sourceforge dot net
+ @created 2008-05-25
+ @version 0.1
+ @license: 
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
 
 from lib.drupy import DrupyPHP as p
 
@@ -97,51 +97,51 @@ def sess_write(key, value):
 
 
 
-#
-# Called when an anonymous user becomes authenticated or vice-versa.
-#
 def sess_regenerate():
+  """
+   Called when an anonymous user becomes authenticated or vice-versa.
+  """
   old_session_id = session_id()
   session_regenerate_id()
   db_query("UPDATE {sessions} SET sid = '%s' WHERE sid = '%s'", session_id(), old_session_id)
 
 
-#
-# Counts how many users have sessions. Can count either anonymous sessions, authenticated sessions, or both.
-#
-# @param int timestamp
-#   A Unix timestamp representing a point of time in the past.
-#   The default is 0, which counts all existing sessions.
-# @param int anonymous
-#   True counts only anonymous users.
-#   False counts only authenticated users.
-#   Any other value will return the count of both authenticated and anonymous users.
-# @return  int
-#   The number of users with sessions.
-#
 def sess_count(timestamp = 0, anonymous = True):
+  """
+   Counts how many users have sessions. Can count either anonymous sessions, authenticated sessions, or both.
+  
+   @param int timestamp
+     A Unix timestamp representing a point of time in the past.
+     The default is 0, which counts all existing sessions.
+   @param int anonymous
+     True counts only anonymous users.
+     False counts only authenticated users.
+     Any other value will return the count of both authenticated and anonymous users.
+   @return  int
+     The number of users with sessions.
+  """
   query = (' AND uid = 0' if anonymous else ' AND uid > 0')
   return db_result(db_query('SELECT COUNT(sid) AS count FROM {sessions} WHERE timestamp >= %d' +  query, timestamp))
 
 
-#
-# Called by PHP session handling with the PHP session ID to end a user's session.
-#
-# @param  string sid
-#   the session id
-#
 def sess_destroy_sid(sid):
+  """
+   Called by PHP session handling with the PHP session ID to end a user's session.
+  
+   @param  string sid
+     the session id
+  """
   db_query("DELETE FROM {sessions} WHERE sid = '%s'", sid)
 
 
 
-#
-# End a specific user's session
-#
-# @param  string uid
-#   the user id
-#
 def sess_destroy_uid(uid):
+  """
+   End a specific user's session
+  
+   @param  string uid
+     the user id
+  """
   db_query('DELETE FROM {sessions} WHERE uid = %d', uid)
 
 
@@ -158,19 +158,19 @@ def sess_gc(lifetime):
 
 
 
-#
-# Determine whether to save session data of the current request.
-#
-# This function allows the caller to temporarily disable writing of session data,
-# should the request end while performing potentially dangerous operations, such as
-# manipulating the global user object.  See http://drupal.org/node/218104 for usage
-#
-# @param status
-#   Disables writing of session data when False, (re-)enables writing when True.
-# @return
-#   False if writing session data has been disabled. Otherwise, True.
-#
 def session_save_session(status = None):
+  """
+   Determine whether to save session data of the current request.
+  
+   This function allows the caller to temporarily disable writing of session data,
+   should the request end while performing potentially dangerous operations, such as
+   manipulating the global user object.  See http://drupal.org/node/218104 for usage
+  
+   @param status
+     Disables writing of session data when False, (re-)enables writing when True.
+   @return
+     False if writing session data has been disabled. Otherwise, True.
+  """
   p.static(session_save_session, 'save_session', True)
   if status != None:
     session_save_session.save_session = status
