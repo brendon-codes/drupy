@@ -28,7 +28,7 @@ project="drupy"
 noisy=true
 
 # Addresses for the e-mail
-from="you@yourthing.com"
+from="message144@users.sourceforge.net"
 to="cia@cia.navi.cx"
 
 # SMTP client to use
