@@ -2,77 +2,78 @@
 
 # $Id: module.inc,v 1.120 2008/05/13 17:38:42 dries Exp $
 
-#
-# @package Drupy
-# @see http://drupy.net
-# @note Drupy is a port of the Drupal project.
-#  The Drupal project can be found at http://drupal.org
-# @file module.py (ported from Drupal's module.inc)
-#  API for loading and interacting with Drupal modules.
-# @author Brendon Crawford
-# @copyright 2008 Brendon Crawford
-# @contact message144 at users dot sourceforge dot net
-# @created 2008-01-10
-# @version 0.1
-# @license: 
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+"""
+ @package Drupy
+ @see http://drupy.net
+ @note Drupy is a port of the Drupal project.
+  The Drupal project can be found at http://drupal.org
+ @file module.py (ported from Drupal's module.inc)
+  API for loading and interacting with Drupal modules.
+ @author Brendon Crawford
+ @copyright 2008 Brendon Crawford
+ @contact message144 at users dot sourceforge dot net
+ @created 2008-01-10
+ @version 0.1
+ @license: 
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
 
 from lib.drupy import DrupyPHP as p
 import bootstrap as inc_bootstrap
 import database as inc_database
 import cache as inc_cache
+#import install as inc_install
 
-#
-# Load all the modules that have been enabled in the system table.
-#
 def module_load_all():
+  """
+   Load all the modules that have been enabled in the system table.
+  """
   for module_ in module_list(True, False):
     drupal_load('module', module_)
 
 
-#
-# Call a function repeatedly with each module in turn as an argument.
-#
 def module_iterate(function, argument = ''):
+  """
+   Call a function repeatedly with each module in turn as an argument.
+  """
   for name in module_list():
     function(name, argument)
 
 
-#
-# Collect a list of all loaded modules. During the bootstrap, return only
-# vital modules. See bootstrap.inc
-#
-# @param refresh
-#   Whether to force the module list to be regenerated (such as after the
-#   administrator has changed the system settings).
-# @param bootstrap
-#   Whether to return the reduced set of modules loaded in "bootstrap mode"
-#   for cached pages. See bootstrap.inc.
-# @param sort
-#   By default, modules are ordered by weight and filename, settings this option
-#   to True, module list will be ordered by module name.
-# @param fixed_list
-#   (Optional) Override the module list with the given modules. Stays until the
-#   next call with refresh = True.
-# @return
-#   An associative array whose keys and values are the names of all loaded
-#   modules.
-#
 def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = None):
+  """
+   Collect a list of all loaded modules. During the bootstrap, return only
+   vital modules. See bootstrap.inc
+  
+   @param refresh
+     Whether to force the module list to be regenerated (such as after the
+     administrator has changed the system settings).
+   @param bootstrap
+     Whether to return the reduced set of modules loaded in "bootstrap mode"
+     for cached pages. See bootstrap.inc.
+   @param sort
+     By default, modules are ordered by weight and filename, settings this option
+     to True, module list will be ordered by module name.
+   @param fixed_list
+     (Optional) Override the module list with the given modules. Stays until the
+     next call with refresh = True.
+   @return
+     An associative array whose keys and values are the names of all loaded
+     modules.
+  """
   p.static(module_list, 'list_', [])
   p.static(module_list, 'sorted_list')
   if (refresh or fixed_list):
@@ -103,13 +104,13 @@ def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = No
 
 
 
-#
-# Rebuild the database cache of module files.
-#
-# @return
-#   The array of filesystem objects used to rebuild the cache.
-#
 def module_rebuild_cache():
+  """
+   Rebuild the database cache of module files.
+  
+   @return
+     The array of filesystem objects used to rebuild the cache.
+  """
   # Get current list of modules
   files = drupal_system_listing('\.module$', 'modules', 'name', 0)
   # Extract current files from database.
@@ -153,25 +154,25 @@ def module_rebuild_cache():
 
 
 
-#
-# Find dependencies any level deep and fill in dependents information too.
-#
-# If module A depends on B which in turn depends on C then this function will
-# add C to the list of modules A depends on. This will be repeated until
-# module A has a list of all modules it depends on. If it depends on itself,
-# called a circular dependency, that's marked by adding a nonexistent module,
-# called -circular- to this list of modules. Because this does not exist,
-# it'll be impossible to switch module A on.
-#
-# Also we fill in a dependents array in file.info. Using the names above,
-# the dependents array of module B lists A.
-#
-# @param files
-#   The array of filesystem objects used to rebuild the cache.
-# @return
-#   The same array with dependencies and dependents added where applicable.
-#
 def _module_build_dependencies(files):
+  """
+   Find dependencies any level deep and fill in dependents information too.
+  
+   If module A depends on B which in turn depends on C then this function will
+   add C to the list of modules A depends on. This will be repeated until
+   module A has a list of all modules it depends on. If it depends on itself,
+   called a circular dependency, that's marked by adding a nonexistent module,
+   called -circular- to this list of modules. Because this does not exist,
+   it'll be impossible to switch module A on.
+  
+   Also we fill in a dependents array in file.info. Using the names above,
+   the dependents array of module B lists A.
+  
+   @param files
+     The array of filesystem objects used to rebuild the cache.
+   @return
+     The same array with dependencies and dependents added where applicable.
+  """
   while True:
     new_dependency = False
     for filename,file in files.items():
@@ -212,40 +213,39 @@ def _module_build_dependencies(files):
 
 
 
-#
-# Determine whether a given module exists.
-#
-# @param module
-#   The name of the module (without the .module extension).
-# @return
-#   True if the module is both installed and enabled.
-#
 def module_exists(module_):
+  """
+   Determine whether a given module exists.
+  
+   @param module
+     The name of the module (without the .module extension).
+   @return
+     True if the module is both installed and enabled.
+  """
   list_ = module_list()
   return p.isset(list_, module_)
 
 
-#
-# Load a module's installation hooks.
-#
 def module_load_install(module_):
+  """
+   Load a module's installation hooks.
+  """
   # Make sure the installation API is available
-  p.include_once( './includes/install.py' )
   module_load_include('install', module_)
 
 
 
-#
-# Load a module include file.
-#
-# @param type
-#   The include file's type (file extension).
-# @param module
-#   The module to which the include file belongs.
-# @param name
-#   Optionally, specify the file name. If not set, the module's name is used.
-#
 def module_load_include(type_, module_, name = None):
+  """
+   Load a module include file.
+  
+   @param type
+     The include file's type (file extension).
+   @param module
+     The module to which the include file belongs.
+   @param name
+     Optionally, specify the file name. If not set, the module's name is used.
+  """
   if (p.empty(name)):
     name = module_
   file = './' +  drupal_get_path('module', module)  + "/name.type"
@@ -257,24 +257,24 @@ def module_load_include(type_, module_, name = None):
 
 
 
-#
-# Load an include file for each of the modules that have been enabled in
-# the system table.
-#
 def module_load_all_includes(type_, name = None):
+  """
+   Load an include file for each of the modules that have been enabled in
+   the system table.
+  """
   modules = module_list()
   for module_ in modules:
     module_load_include(type_, module_, name)
 
 
 
-#
-# Enable a given list of modules.
-#
-# @param module_list
-#   An array of module names.
-#
 def module_enable(module_list_):
+  """
+   Enable a given list of modules.
+  
+   @param module_list
+     An array of module names.
+  """
   invoke_modules = []
   for module_ in module_list_:
     existing = db_fetch_object(db_query("SELECT status FROM {system} WHERE type = '%s' AND name = '%s'", 'module', module))
@@ -299,13 +299,13 @@ def module_enable(module_list_):
 
 
 
-#
-# Disable a given set of modules.
-#
-# @param module_list
-#   An array of module names.
-#
 def module_disable(module_list_):
+  """
+   Disable a given set of modules.
+  
+   @param module_list
+     An array of module names.
+  """
   invoke_modules = []
   for module_ in module_list_:
     if (module_exists(module_)):
@@ -331,35 +331,37 @@ def module_disable(module_list_):
 #
 # @defgroup hooks Hooks
 # @{
-# Allow modules to interact with the Drupal core.
-#
-# Drupal's module system is based on the concept of "hooks". A hook is a PHP
-# function that is named foo_bar(), where "foo" is the name of the module (whose
-# filename is thus foo.module) and "bar" is the name of the hook. Each hook has
-# a defined set of parameters and a specified result type.
-#
-# To extend Drupal, a module need simply implement a hook. When Drupal wishes to
-# allow intervention from modules, it determines which modules implement a hook
-# and call that hook in all enabled modules that implement it.
-#
-# The available hooks to implement are explained here in the Hooks section of
-# the developer documentation. The string "hook" is used as a placeholder for
-# the module name is the hook definitions. For example, if the module file is
-# called example.module, then hook_help() as implemented by that module would be
-# defined as example_help().
-#
-#
-# Determine whether a module implements a hook.
-#
-# @param module
-#   The name of the module (without the .module extension).
-# @param hook
-#   The name of the hook (e.g. "help" or "menu").
-# @return
-#   True if the module is both installed and enabled, and the hook is
-#   implemented in that module.
-#
+
 def module_hook(module_, hook):
+  """
+   Allow modules to interact with the Drupal core.
+  
+   Drupal's module system is based on the concept of "hooks". A hook is a PHP
+   function that is named foo_bar(), where "foo" is the name of the module (whose
+   filename is thus foo.module) and "bar" is the name of the hook. Each hook has
+   a defined set of parameters and a specified result type.
+  
+   To extend Drupal, a module need simply implement a hook. When Drupal wishes to
+   allow intervention from modules, it determines which modules implement a hook
+   and call that hook in all enabled modules that implement it.
+  
+   The available hooks to implement are explained here in the Hooks section of
+   the developer documentation. The string "hook" is used as a placeholder for
+   the module name is the hook definitions. For example, if the module file is
+   called example.module, then hook_help() as implemented by that module would be
+   defined as example_help().
+  
+  
+   Determine whether a module implements a hook.
+  
+   @param module
+     The name of the module (without the .module extension).
+   @param hook
+     The name of the hook (e.g. "help" or "menu").
+   @return
+     True if the module is both installed and enabled, and the hook is
+     implemented in that module.
+  """
   function = module_ + '_' + hook;
   if (p.defined('MAINTENANCE_MODE')):
     return p.function_exists(function);
@@ -368,22 +370,22 @@ def module_hook(module_, hook):
 
 
 
-#
-# Determine which modules are implementing a hook.
-#
-# @param hook
-#   The name of the hook (e.g. "help" or "menu").
-# @param sort
-#   By default, modules are ordered by weight and filename, settings this option
-#   to True, module list will be ordered by module name.
-# @param refresh
-#   For internal use only: Whether to force the stored list of hook
-#   implementations to be regenerated (such as after enabling a new module,
-#   before processing hook_enable).
-# @return
-#   An array with the names of the modules which are implementing this hook.
-#
 def module_implements(hook, sort = False, refresh = False):
+  """
+   Determine which modules are implementing a hook.
+  
+   @param hook
+     The name of the hook (e.g. "help" or "menu").
+   @param sort
+     By default, modules are ordered by weight and filename, settings this option
+     to True, module list will be ordered by module name.
+   @param refresh
+     For internal use only: Whether to force the stored list of hook
+     implementations to be regenerated (such as after enabling a new module,
+     before processing hook_enable).
+   @return
+     An array with the names of the modules which are implementing this hook.
+  """
   p.static(module_implements, 'implementations', {})
   if (refresh):
     module_implements.implementations = {}
@@ -408,19 +410,19 @@ def module_implements(hook, sort = False, refresh = False):
 
 
 
-#
-# Invoke a hook in a particular module.
-#
-# @param module
-#   The name of the module (without the .module extension).
-# @param hook
-#   The name of the hook to invoke.
-# @param ...
-#   Arguments to pass to the hook implementation.
-# @return
-#   The return value of the hook implementation.
-#
 def module_invoke(*args):
+  """
+   Invoke a hook in a particular module.
+  
+   @param module
+     The name of the module (without the .module extension).
+   @param hook
+     The name of the hook to invoke.
+   @param ...
+     Arguments to pass to the hook implementation.
+   @return
+     The return value of the hook implementation.
+  """
   module_ = args[0]
   hook = args[1]
   del(args[0], args[1])
@@ -430,18 +432,18 @@ def module_invoke(*args):
 
 
 
-#
-# Invoke a hook in all enabled modules that implement it.
-#
-# @param hook
-#   The name of the hook to invoke.
-# @param ...
-#   Arguments to pass to the hook.
-# @return
-#   An array of return values of the hook implementations. If modules return
-#   arrays from their implementations, those are merged into one array.
-#
 def module_invoke_all(*args):
+  """
+   Invoke a hook in all enabled modules that implement it.
+  
+   @param hook
+     The name of the hook to invoke.
+   @param ...
+     Arguments to pass to the hook.
+   @return
+     An array of return values of the hook implementations. If modules return
+     arrays from their implementations, those are merged into one array.
+  """
   hook = args[0]
   del(args[0])
   return_ = []
@@ -464,10 +466,11 @@ def module_invoke_all(*args):
 #
 # @} End of "defgroup hooks".
 #
-#
-# Array of modules required by core.
-#
+
 def drupal_required_modules():
+  """
+   Array of modules required by core.
+  """
   return ('block', 'filter', 'node', 'system', 'user')
 
 
