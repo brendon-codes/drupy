@@ -57,21 +57,25 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module database_mysqli</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.database_mysqli-pysrc.html">source&nbsp;code</a></span></p>
-<pre class="literalblock">
-
-@package Drupy
-@see http://drupy.net
-@note Drupy is a port of the Drupal project.
+<hr />
+<div class="fields">      <p><strong>See Also:</strong>
+        &nbsp;
+      </p>
+      <p><strong>Note:</strong>
+        Drupy is a port of the Drupal project.
  The drupal project can be found at http://drupal.org
-@file database_mysqli.py (ported from Drupal's database.mysqli.inc)
- Database interface code for MySQL database servers using the mysqli client
- libraries. mysqli is included in PHP 5 by default and allows developers to
- use the advanced features of MySQL 4.1.x, 5.0.x and beyond.
-@author Brendon Crawford
-@copyright 2008 Brendon Crawford
-@contact message144 at users dot sourceforge dot net
-@created 2008-01-10
-@version 0.1
+      </p>
+      <p><strong>Author:</strong>
+        Brendon Crawford
+      </p>
+      <p><strong>Copyright:</strong>
+        2008 Brendon Crawford
+      </p>
+      <p><strong>Contact:</strong>
+        message144 at users dot sourceforge dot net
+      </p>
+      <p><strong>Version:</strong>
+        0.1
 @license: 
 
  This program is free software; you can redistribute it and/or
@@ -87,10 +91,8 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-</pre>
-
-<!-- ==================== FUNCTIONS ==================== -->
+      </p>
+</div><!-- ==================== FUNCTIONS ==================== -->
 <a name="section-Functions"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
@@ -527,8 +529,8 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="db_type_map"></a><span class="summary-sig-name">db_type_map</span>()</span><br />
-      This maps a generic data type in combination with its data size to 
-      the engine-specific data type.</td>
+      This maps a generic data type in combination with its data size
+to the engine-specific data type.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_type_map">source&nbsp;code</a></span>
             
@@ -585,7 +587,7 @@
         <span class="summary-sig-arg">table</span>,
         <span class="summary-sig-arg">field</span>,
         <span class="summary-sig-arg">spec</span>,
-        <span class="summary-sig-arg">keys_new</span>=<span class="summary-sig-default">[]</span>)</span><br />
+        <span class="summary-sig-arg">keys_new</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span><br />
       Add a new field to a table.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_add_field">source&nbsp;code</a></span>
@@ -780,7 +782,7 @@
         <span class="summary-sig-arg">field</span>,
         <span class="summary-sig-arg">field_new</span>,
         <span class="summary-sig-arg">spec</span>,
-        <span class="summary-sig-arg">keys_new</span>=<span class="summary-sig-default">[]</span>)</span><br />
+        <span class="summary-sig-arg">keys_new</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span><br />
       Change a field definition.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_change_field">source&nbsp;code</a></span>
@@ -876,9 +878,10 @@
     </td>
   </tr></table>
   
-  <p>Returns the version of the database server currently in use.</p>
-  <p>@return Database server version</p>
+  Returns the version of the database server currently in use.
   <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>Database server version</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -896,8 +899,9 @@
     </td>
   </tr></table>
   
-  <p>Initialise a database connection.</p>
-  <p>Note that mysqli does not support persistent connections.</p>
+  Initialise a database connection.
+
+Note that mysqli does not support persistent connections.
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -916,18 +920,15 @@
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Fetch one result row from the previous query as an object.
-
-@param result
-  A database query result resource, as returned from db_query().
-@return
-  An object representing the next row of the result, or False. The attributes
-  of this object are the table fields selected by the query.
-
-</pre>
+  Fetch one result row from the previous query as an object.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>result</code></strong> - A database query result resource, as returned from db_query().</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An object representing the next row of the result, or False. The attributes
+  of this object are the table fields selected by the query.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -945,19 +946,16 @@ Fetch one result row from the previous query as an object.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Fetch one result row from the previous query as an array.
-
-@param result
-  A database query result resource, as returned from db_query().
-@return
-  An associative array representing the next row of the result, or False.
-  The keys of this object are the names of the table fields selected by the
-  query, and the values are the field values for this result row.
-
-</pre>
+  Fetch one result row from the previous query as an array.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>result</code></strong> - A database query result resource, as returned from db_query().</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An associative array representing the next row of the result, or False.
+  The keys of this object are the names of the table fields selected by the
+  query, and the values are the field values for this result row.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -975,20 +973,17 @@ Fetch one result row from the previous query as an array.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Return an individual result field from the previous query.
+  Return an individual result field from the previous query.
 
 Only use this function if exactly one field is being selected; otherwise,
 use db_fetch_object() or db_fetch_array().
-
-@param result
-  A database query result resource, as returned from db_query().
-@return
-  The resulting field or False.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>result</code></strong> - A database query result resource, as returned from db_query().</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The resulting field or False.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1006,35 +1001,29 @@ use db_fetch_object() or db_fetch_array().
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Runs a limited-range query in the active database.
+  Runs a limited-range query in the active database.
 
 Use this as a substitute for db_query() when a subset of the query is to be
 returned.
 User-supplied arguments to the query should be passed in as separate parameters
 so that they can be properly escaped to avoid SQL injection attacks.
-
-@param query
-  A string containing an SQL query.
-@param ...
-  A variable number of arguments which are substituted into the query
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>query</code></strong> - A string containing an SQL query.</li>
+        <li><strong class="pname"><code>...</code></strong> - A variable number of arguments which are substituted into the query
   using printf() syntax. The query arguments can be enclosed in one
   array instead.
   Valid %-modifiers are: %s, %d, %f, %b (binary data, do not enclose
   in '') and %%.
   NOTE: using this syntax will cast None and False values to decimal 0,
-  and True values to decimal 1.
-@param from
-  The first result row to return.
-@param count
-  The maximum number of result rows to return.
-@return
-  A database query result resource, or False if the query was not executed
-  correctly.
-
-</pre>
-  <dl class="fields">
+  and True values to decimal 1.</li>
+        <li><strong class="pname"><code>from</code></strong> - The first result row to return.</li>
+        <li><strong class="pname"><code>count</code></strong> - The maximum number of result rows to return.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>A database query result resource, or False if the query was not executed
+  correctly.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1052,9 +1041,7 @@ so that they can be properly escaped to avoid SQL injection attacks.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Runs a SELECT query and stores its results in a temporary table.
+  Runs a SELECT query and stores its results in a temporary table.
 
 Use this as a substitute for db_query() when the results need to stored
 in a temporary table. Temporary tables exist for the duration of the page
@@ -1065,28 +1052,24 @@ so that they can be properly escaped to avoid SQL injection attacks.
 Note that if you need to know how many results were returned, you should do
 a SELECT COUNT(*) on the temporary table afterwards. db_affected_rows() does
 not give consistent result across different database types in this case.
-
-@param query
-  A string containing a normal SELECT SQL query.
-@param ...
-  A variable number of arguments which are substituted into the query
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>query</code></strong> - A string containing a normal SELECT SQL query.</li>
+        <li><strong class="pname"><code>...</code></strong> - A variable number of arguments which are substituted into the query
   using printf() syntax. The query arguments can be enclosed in one
   array instead.
   Valid %-modifiers are: %s, %d, %f, %b (binary data, do not enclose
   in '') and %%.
 
   NOTE: using this syntax will cast None and False values to decimal 0,
-  and True values to decimal 1.
-
-@param table
-  The name of the temporary table to select into. This name will not be
-  prefixed as there is no risk of collision.
-@return
-  A database query result resource, or False if the query was not executed
-  correctly.
-
-</pre>
-  <dl class="fields">
+  and True values to decimal 1.</li>
+        <li><strong class="pname"><code>table</code></strong> - The name of the temporary table to select into. This name will not be
+  prefixed as there is no risk of collision.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>A database query result resource, or False if the query was not executed
+  correctly.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1104,17 +1087,14 @@ not give consistent result across different database types in this case.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Returns a properly formatted Binary Large Object value.
-
-@param data
-  Data to encode.
-@return
- Encoded data.
-
-</pre>
+  Returns a properly formatted Binary Large Object value.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>data</code></strong> - Data to encode.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Encoded data.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1132,17 +1112,14 @@ Returns a properly formatted Binary Large Object value.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Returns text from a Binary Large OBject value.
-
-@param data
-  Data to decode.
-@return
- Decoded data.
-
-</pre>
+  Returns text from a Binary Large OBject value.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>data</code></strong> - Data to decode.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Decoded data.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1162,15 +1139,19 @@ Returns text from a Binary Large OBject value.
     </td>
   </tr></table>
   
-  <p>Wraps the given table.field entry with a DISTINCT(). The wrapper is 
-  added to the SELECT list entry of the given query and the resulting query
-  is returned. This function only applies the wrapper if a DISTINCT doesn't
-  already exist in the query.</p>
-  <p>@param table Table containing the field to set as DISTINCT @param 
-  field Field to set as DISTINCT @param query Query to apply the wrapper to
-  @return SQL query with the DISTINCT wrapper surrounding the given 
-  table.field.</p>
+  Wraps the given table.field entry with a DISTINCT(). The wrapper is added to
+the SELECT list entry of the given query and the resulting query is returned.
+This function only applies the wrapper if a DISTINCT doesn't already exist in
+the query.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>table</code></strong> - Table containing the field to set as DISTINCT</li>
+        <li><strong class="pname"><code>field</code></strong> - Field to set as DISTINCT</li>
+        <li><strong class="pname"><code>query</code></strong> - Query to apply the wrapper to</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>SQL query with the DISTINCT wrapper surrounding the given table.field.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1189,18 +1170,16 @@ Returns text from a Binary Large OBject value.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Runs a basic query in the active database.
+  Runs a basic query in the active database.
 
 User-supplied arguments to the query should be passed in as separate
 parameters so that they can be properly escaped to avoid SQL injection
 attacks.
-
-@param query
-  A string containing an SQL query.
-@param ...
-  A variable number of arguments which are substituted into the query
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>query</code></strong> - A string containing an SQL query.</li>
+        <li><strong class="pname"><code>...</code></strong> - A variable number of arguments which are substituted into the query
   using printf() syntax. Instead of a variable number of query arguments,
   you may also pass a single array containing the query arguments.
 
@@ -1208,14 +1187,11 @@ attacks.
   in '') and %%.
 
   NOTE: using this syntax will cast None and False values to decimal 0,
- and True values to decimal 1.
-
-@return
-  A database query result resource, or False if the query was not
-  executed correctly.
-
-</pre>
-  <dl class="fields">
+ and True values to decimal 1.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>A database query result resource, or False if the query was not
+  executed correctly.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1234,19 +1210,15 @@ attacks.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Generate SQL to create a new table from a Drupal schema definition.
-
-@param name
-  The name of the table to create.
-@param table
-  A Schema API table definition array.
-@return
-  An array of SQL statements to create the table.
-
-</pre>
+  Generate SQL to create a new table from a Drupal schema definition.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - The name of the table to create.</li>
+        <li><strong class="pname"><code>table</code></strong> - A Schema API table definition array.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An array of SQL statements to create the table.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1264,15 +1236,12 @@ Generate SQL to create a new table from a Drupal schema definition.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Set database-engine specific properties for a field.
-
-@param field
-  A field description array, as specified in the schema documentation.
-
-</pre>
+  Set database-engine specific properties for a field.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>field</code></strong> - A field description array, as specified in the schema documentation.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1291,20 +1260,16 @@ Set database-engine specific properties for a field.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Create an SQL string for a field to be used in table creation or alteration.
+  Create an SQL string for a field to be used in table creation or alteration.
 
 Before passing a field out of a schema definition into this function it has
 to be processed by _db_process_field().
-
-@param name
-   Name of the field.
-@param spec
-   The field specification, as per the schema data structure format.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - Name of the field.</li>
+        <li><strong class="pname"><code>spec</code></strong> - The field specification, as per the schema data structure format.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1324,19 +1289,14 @@ to be processed by _db_process_field().
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Rename a table.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  The table to be renamed.
-@param new_name
-  The new name for the table.
-
-</pre>
+  Rename a table.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table to be renamed.</li>
+        <li><strong class="pname"><code>new_name</code></strong> - The new name for the table.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1355,17 +1315,13 @@ Rename a table.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Drop a table.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  The table to be dropped.
-
-</pre>
+  Drop a table.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table to be dropped.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1380,39 +1336,32 @@ Drop a table.
         <span class="sig-arg">table</span>,
         <span class="sig-arg">field</span>,
         <span class="sig-arg">spec</span>,
-        <span class="sig-arg">keys_new</span>=<span class="sig-default">[]</span>)</span>
+        <span class="sig-arg">keys_new</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_add_field">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Add a new field to a table.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  Name of the table to be altered.
-@param field
-  Name of the field to be added.
-@param spec
-  The field specification array, as taken from a schema definition.
+  Add a new field to a table.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - Name of the table to be altered.</li>
+        <li><strong class="pname"><code>field</code></strong> - Name of the field to be added.</li>
+        <li><strong class="pname"><code>spec</code></strong> - The field specification array, as taken from a schema definition.
   The specification may also contain the key 'initial', the newly
   created field will be set to the value of the key in all rows.
   This is most useful for creating NOT None columns with no default
-  value in existing tables.
-@param keys_new
-  Optional keys and indexes specification to be created on the
+  value in existing tables.</li>
+        <li><strong class="pname"><code>keys_new</code></strong> - Optional keys and indexes specification to be created on the
   table along with adding the field. The format is the same as a
   table specification but without the 'fields' element.  If you are
   adding a type 'serial' field, you MUST specify at least one key
   or index including it in this array. @see db_change_field for more
-  explanation why.
-
-</pre>
-  <dl class="fields">
+  explanation why.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1432,19 +1381,14 @@ Add a new field to a table.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Drop a field.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  The table to be altered.
-@param field
-  The field to be dropped.
-
-</pre>
+  Drop a field.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table to be altered.</li>
+        <li><strong class="pname"><code>field</code></strong> - The field to be dropped.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1465,21 +1409,15 @@ Drop a field.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Set the default value for a field.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  The table to be altered.
-@param field
-  The field to be altered.
-@param default
-  Default value to be set. None for 'default None'.
-
-</pre>
+  Set the default value for a field.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table to be altered.</li>
+        <li><strong class="pname"><code>field</code></strong> - The field to be altered.</li>
+        <li><strong class="pname"><code>default</code></strong> - Default value to be set. None for 'default None'.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1499,19 +1437,14 @@ Set the default value for a field.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Set a field to have no default value.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  The table to be altered.
-@param field
-  The field to be altered.
-
-</pre>
+  Set a field to have no default value.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table to be altered.</li>
+        <li><strong class="pname"><code>field</code></strong> - The field to be altered.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1531,19 +1464,14 @@ Set a field to have no default value.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Add a primary key.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  The table to be altered.
-@param fields
-  Fields for the primary key.
-
-</pre>
+  Add a primary key.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table to be altered.</li>
+        <li><strong class="pname"><code>fields</code></strong> - Fields for the primary key.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1562,17 +1490,13 @@ Add a primary key.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Drop the primary key.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  The table to be altered.
-
-</pre>
+  Drop the primary key.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table to be altered.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1593,21 +1517,15 @@ Drop the primary key.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Add a unique key.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  The table to be altered.
-@param name
-  The name of the key.
-@param fields
-  An array of field names.
-
-</pre>
+  Add a unique key.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table to be altered.</li>
+        <li><strong class="pname"><code>name</code></strong> - The name of the key.</li>
+        <li><strong class="pname"><code>fields</code></strong> - An array of field names.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1627,19 +1545,14 @@ Add a unique key.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Drop a unique key.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  The table to be altered.
-@param name
-  The name of the key.
-
-</pre>
+  Drop a unique key.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table to be altered.</li>
+        <li><strong class="pname"><code>name</code></strong> - The name of the key.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1660,21 +1573,15 @@ Drop a unique key.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Add an index.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  The table to be altered.
-@param name
-  The name of the index.
-@param fields
-  An array of field names.
-
-</pre>
+  Add an index.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table to be altered.</li>
+        <li><strong class="pname"><code>name</code></strong> - The name of the index.</li>
+        <li><strong class="pname"><code>fields</code></strong> - An array of field names.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1694,19 +1601,14 @@ Add an index.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Drop an index.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  The table to be altered.
-@param name
-  The name of the index.
-
-</pre>
+  Drop an index.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table to be altered.</li>
+        <li><strong class="pname"><code>name</code></strong> - The name of the index.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1722,16 +1624,14 @@ Drop an index.
         <span class="sig-arg">field</span>,
         <span class="sig-arg">field_new</span>,
         <span class="sig-arg">spec</span>,
-        <span class="sig-arg">keys_new</span>=<span class="sig-default">[]</span>)</span>
+        <span class="sig-arg">keys_new</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_change_field">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Change a field definition.
+  Change a field definition.
 
 IMPORTANT NOTE: To maintain database portability, you have to explicitly
 recreate all indices and primary keys that are using the changed field.
@@ -1742,58 +1642,18 @@ To recreate the keys and indices, pass the key definitions as the
 optional keys_new argument directly to db_change_field().
 
 For example, suppose you have:
-@code
-schema['foo'] = array(
-  'fields' : array(
-    'bar' : array('type' : 'int', 'not None' : True)
-  ),
-  'primary key' : array('bar')
-)
-@endcode
-and you want to change foo.bar to be type serial, leaving it as the
-primary key.  The correct sequence is:
-@code
-db_drop_primary_key(ret, 'foo')
-db_change_field(ret, 'foo', 'bar', 'bar',
-  array('type' : 'serial', 'not None' : True),
-  array('primary key' : array('bar')))
-@endcode
-
-The reasons for this are due to the different database engines:
-
-On PostgreSQL, changing a field definition involves adding a new field
-and dropping an old one which* causes any indices, primary keys and
-sequences (from serial-type fields) that use the changed field to be dropped.
-
-On MySQL, all type 'serial' fields must be part of at least one key
-or index as soon as they are created.  You cannot use
-db_add_{primary_key,unique_key,index}() for this purpose because
-the ALTER TABLE command will fail to add the column without a key
-or index specification.  The solution is to use the optional
-keys_new argument to create the key or index at the same time as
-field.
-
-You could use db_add_{primary_key,unique_key,index}() in all cases
-unless you are converting a field to be type serial. You can use
-the keys_new argument in all cases.
-
-@param ret
-  Array to which query results will be added.
-@param table
-  Name of the table.
-@param field
-  Name of the field to change.
-@param field_new
-  New name for the field (set to the same as field if you don't want to change the name).
-@param spec
-  The field specification for the new field.
-@param keys_new
-  Optional keys and indexes specification to be created on the
-  table along with changing the field. The format is the same as a
-  table specification but without the 'fields' element.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ret</code></strong> - Array to which query results will be added.</li>
+        <li><strong class="pname"><code>table</code></strong> - Name of the table.</li>
+        <li><strong class="pname"><code>field</code></strong> - Name of the field to change.</li>
+        <li><strong class="pname"><code>field_new</code></strong> - New name for the field (set to the same as field if you don't want to change the name).</li>
+        <li><strong class="pname"><code>spec</code></strong> - The field specification for the new field.</li>
+        <li><strong class="pname"><code>keys_new</code></strong> - Optional keys and indexes specification to be created on the
+  table along with changing the field. The format is the same as a
+  table specification but without the 'fields' element.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1812,17 +1672,13 @@ the keys_new argument in all cases.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Returns the last insert id.
-
-@param table
-  The name of the table you inserted into.
-@param field
-  The name of the autoincrement field.
-
-</pre>
+  Returns the last insert id.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>table</code></strong> - The name of the table you inserted into.</li>
+        <li><strong class="pname"><code>field</code></strong> - The name of the autoincrement field.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1840,19 +1696,16 @@ Returns the last insert id.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Fetch one result row from the previous query as an array.
-
-@param result
-  A database query result resource, as returned from db_query().
-@return
-  An associative array representing the next row of the result, or False.
-  The keys of this object are the names of the table fields selected by the
-  query, and the values are the field values for this result row.
-
-</pre>
+  Fetch one result row from the previous query as an array.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>result</code></strong> - A database query result resource, as returned from db_query().</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An associative array representing the next row of the result, or False.
+  The keys of this object are the names of the table fields selected by the
+  query, and the values are the field values for this result row.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1883,7 +1736,7 @@ Fetch one result row from the previous query as an array.
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:06 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:34 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

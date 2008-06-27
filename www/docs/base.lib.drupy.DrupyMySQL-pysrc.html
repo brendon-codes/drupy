@@ -127,14 +127,14 @@ base.lib.drupy" class="py-name" href="#" onclick="return doclink('link-4', 'drup
 </div><div id="mysqli_real_connect-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="mysqli_real_connect-expanded"><a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
 <a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line"><tt class="py-docstring">   Opens DB Connections</tt> </tt>
 <a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"><tt class="py-docstring">   </tt> </tt>
-<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"><tt class="py-docstring">   @param NoneType link</tt> </tt>
-<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line"><tt class="py-docstring">   @param Str host</tt> </tt>
-<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line"><tt class="py-docstring">   @param Str username</tt> </tt>
-<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"><tt class="py-docstring">   @param Str passwd</tt> </tt>
-<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"><tt class="py-docstring">   @param Str dbname</tt> </tt>
-<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"><tt class="py-docstring">   @param Int port</tt> </tt>
-<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-docstring">   @param Socket socket</tt> </tt>
-<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-docstring">   @param Int flags</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"><tt class="py-docstring">   @param link NoneType</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line"><tt class="py-docstring">   @param host Str</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line"><tt class="py-docstring">   @param username Str</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"><tt class="py-docstring">   @param passwd Str</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"><tt class="py-docstring">   @param dbname Str</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"><tt class="py-docstring">   @param port Int</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-docstring">   @param socket Socket</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-docstring">   @param flags Int</tt> </tt>
 <a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"><tt class="py-docstring">   @return Instance[MySQLdb.connect]</tt> </tt>
 <a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
 <a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">  <tt class="py-keyword">global</tt> <tt id="link-8" class="py-name" targets="Variable base.lib.drupy.DrupyMySQL.__DB_META=base.lib.drupy.DrupyMySQL-module.html#__DB_META"><a title="base.lib.drupy.DrupyMySQL.__DB_META" class="py-name" href="#" onclick="return doclink('link-8', '__DB_META', 'link-8');">__DB_META</a></tt> </tt>
@@ -169,7 +169,7 @@ base.lib.drupy" class="py-name" href="#" onclick="return doclink('link-4', 'drup
 <a name="mysqli_errno"></a><div id="mysqli_errno-def"><a name="L107"></a><tt class="py-lineno">107</tt> <a class="py-toggle" href="#" id="mysqli_errno-toggle" onclick="return toggle('mysqli_errno');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.lib.drupy.DrupyMySQL-module.html#mysqli_errno">mysqli_errno</a><tt class="py-op">(</tt><tt class="py-param">connection</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="mysqli_errno-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="mysqli_errno-expanded"><a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
 <a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line"><tt class="py-docstring">   Gets last db errno</tt> </tt>
-<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line"><tt class="py-docstring">   @param Instance[MySQLdb.connect] connection</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line"><tt class="py-docstring">   @param connection Instance[MySQLdb.connect]</tt> </tt>
 <a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line"><tt class="py-docstring">   @return Int</tt> </tt>
 <a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
 <a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">connection</tt><tt class="py-op">.</tt><tt class="py-name">errno</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
@@ -178,7 +178,7 @@ base.lib.drupy" class="py-name" href="#" onclick="return doclink('link-4', 'drup
 <a name="mysqli_error"></a><div id="mysqli_error-def"><a name="L116"></a><tt class="py-lineno">116</tt> <a class="py-toggle" href="#" id="mysqli_error-toggle" onclick="return toggle('mysqli_error');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.lib.drupy.DrupyMySQL-module.html#mysqli_error">mysqli_error</a><tt class="py-op">(</tt><tt class="py-param">connection</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="mysqli_error-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="mysqli_error-expanded"><a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
 <a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"><tt class="py-docstring">   Gets last db error</tt> </tt>
-<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line"><tt class="py-docstring">   @param Instance[MySQLdb.connect] connection</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line"><tt class="py-docstring">   @param connection Instance[MySQLdb.connect]</tt> </tt>
 <a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"><tt class="py-docstring">   @return Str</tt> </tt>
 <a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
 <a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">connection</tt><tt class="py-op">.</tt><tt class="py-name">error</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
@@ -189,9 +189,9 @@ base.lib.drupy" class="py-name" href="#" onclick="return doclink('link-4', 'drup
 </div><div id="mysqli_query-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="mysqli_query-expanded"><a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
 <a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line"><tt class="py-docstring">   Runs a query</tt> </tt>
 <a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line"><tt class="py-docstring">  </tt> </tt>
-<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line"><tt class="py-docstring">   @param Instance[MySQLdb.connect] connection</tt> </tt>
-<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"><tt class="py-docstring">   @param Str query</tt> </tt>
-<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line"><tt class="py-docstring">   @param Int resultmode</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line"><tt class="py-docstring">   @param connection Instance[MySQLdb.connect]</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"><tt class="py-docstring">   @param query Str</tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line"><tt class="py-docstring">   @param resultmode Int</tt> </tt>
 <a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line"><tt class="py-docstring">   @return ???</tt> </tt>
 <a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
 <a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line">  <tt class="py-comment">#DrupyHelper.output(True, type(connection))</tt> </tt>
@@ -207,7 +207,7 @@ base.lib.drupy" class="py-name" href="#" onclick="return doclink('link-4', 'drup
 </div><div id="mysqli_fetch_row-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="mysqli_fetch_row-expanded"><a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
 <a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line"><tt class="py-docstring">   Fetches one row</tt> </tt>
 <a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"><tt class="py-docstring">  </tt> </tt>
-<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"><tt class="py-docstring">   @param MySQLdb.cursors.DictCursor cursor</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"><tt class="py-docstring">   @param cursor MySQLdb.cursors.DictCursor</tt> </tt>
 <a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"><tt class="py-docstring">   @return Tuple</tt> </tt>
 <a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
 <a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">tuple</tt><tt class="py-op">(</tt><tt class="py-name">cursor</tt><tt class="py-op">.</tt><tt class="py-name">fetchone</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">values</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
@@ -217,7 +217,7 @@ base.lib.drupy" class="py-name" href="#" onclick="return doclink('link-4', 'drup
 </div><div id="mysqli_fetch_assoc-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="mysqli_fetch_assoc-expanded"><a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
 <a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line"><tt class="py-docstring">   Fetches row as dict</tt> </tt>
 <a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line"><tt class="py-docstring">  </tt> </tt>
-<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line"><tt class="py-docstring">   @param MySQLdb.cursors.DictCursor cursor</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line"><tt class="py-docstring">   @param cursor MySQLdb.cursors.DictCursor</tt> </tt>
 <a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line"><tt class="py-docstring">   @return Dict</tt> </tt>
 <a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
 <a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">cursor</tt><tt class="py-op">.</tt><tt class="py-name">fetchone</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
@@ -226,7 +226,7 @@ base.lib.drupy" class="py-name" href="#" onclick="return doclink('link-4', 'drup
 <a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line"><tt class="py-string">"""</tt> </tt>
 <a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line"><tt class="py-string"> Fetches row as object</tt> </tt>
 <a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line"><tt class="py-string"></tt> </tt>
-<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line"><tt class="py-string"> @param MySQLdb.cursors.DictCursor cursor</tt> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line"><tt class="py-string"> @param cursor MySQLdb.cursors.DictCursor</tt> </tt>
 <a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"><tt class="py-string"> @return Object[DrupyMySQL_row]</tt> </tt>
 <a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line"><tt class="py-string">"""</tt> </tt>
 <a name="mysqli_fetch_object"></a><div id="mysqli_fetch_object-def"><a name="L170"></a><tt class="py-lineno">170</tt> <a class="py-toggle" href="#" id="mysqli_fetch_object-toggle" onclick="return toggle('mysqli_fetch_object');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.lib.drupy.DrupyMySQL-module.html#mysqli_fetch_object">mysqli_fetch_object</a><tt class="py-op">(</tt><tt class="py-param">cursor</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
@@ -242,8 +242,8 @@ base.lib.drupy" class="py-name" href="#" onclick="return doclink('link-4', 'drup
 <a name="mysqli_real_escape_string"></a><div id="mysqli_real_escape_string-def"><a name="L180"></a><tt class="py-lineno">180</tt> <a class="py-toggle" href="#" id="mysqli_real_escape_string-toggle" onclick="return toggle('mysqli_real_escape_string');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.lib.drupy.DrupyMySQL-module.html#mysqli_real_escape_string">mysqli_real_escape_string</a><tt class="py-op">(</tt><tt class="py-param">connection</tt><tt class="py-op">,</tt> <tt class="py-param">text</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="mysqli_real_escape_string-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="mysqli_real_escape_string-expanded"><a name="L181"></a><tt class="py-lineno">181</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
 <a name="L182"></a><tt class="py-lineno">182</tt>  <tt class="py-line"><tt class="py-docstring">   Escapes string</tt> </tt>
-<a name="L183"></a><tt class="py-lineno">183</tt>  <tt class="py-line"><tt class="py-docstring">   @param MySQLdb.connection connection</tt> </tt>
-<a name="L184"></a><tt class="py-lineno">184</tt>  <tt class="py-line"><tt class="py-docstring">   @param Str text</tt> </tt>
+<a name="L183"></a><tt class="py-lineno">183</tt>  <tt class="py-line"><tt class="py-docstring">   @param connection MySQLdb.connection</tt> </tt>
+<a name="L184"></a><tt class="py-lineno">184</tt>  <tt class="py-line"><tt class="py-docstring">   @param text Str</tt> </tt>
 <a name="L185"></a><tt class="py-lineno">185</tt>  <tt class="py-line"><tt class="py-docstring">   @return Str</tt> </tt>
 <a name="L186"></a><tt class="py-lineno">186</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
 <a name="L187"></a><tt class="py-lineno">187</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">text</tt><tt class="py-op">,</tt> <tt class="py-name">str</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
@@ -255,7 +255,7 @@ base.lib.drupy" class="py-name" href="#" onclick="return doclink('link-4', 'drup
 <a name="mysqli_fetch_array"></a><div id="mysqli_fetch_array-def"><a name="L193"></a><tt class="py-lineno">193</tt> <a class="py-toggle" href="#" id="mysqli_fetch_array-toggle" onclick="return toggle('mysqli_fetch_array');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.lib.drupy.DrupyMySQL-module.html#mysqli_fetch_array">mysqli_fetch_array</a><tt class="py-op">(</tt><tt class="py-param">cursor</tt><tt class="py-op">,</tt> <tt class="py-param">w</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="mysqli_fetch_array-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="mysqli_fetch_array-expanded"><a name="L194"></a><tt class="py-lineno">194</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
 <a name="L195"></a><tt class="py-lineno">195</tt>  <tt class="py-line"><tt class="py-docstring">   Alias for other fetch functions</tt> </tt>
-<a name="L196"></a><tt class="py-lineno">196</tt>  <tt class="py-line"><tt class="py-docstring">   @param MySQLdb.cursors.DictCursor cursor</tt> </tt>
+<a name="L196"></a><tt class="py-lineno">196</tt>  <tt class="py-line"><tt class="py-docstring">   @param cursor MySQLdb.cursors.DictCursor</tt> </tt>
 <a name="L197"></a><tt class="py-lineno">197</tt>  <tt class="py-line"><tt class="py-docstring">   @return Object[DrupyMySQL_row] | Dict </tt> </tt>
 <a name="L198"></a><tt class="py-lineno">198</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
 <a name="L199"></a><tt class="py-lineno">199</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">w</tt> <tt class="py-op">==</tt> <tt id="link-18" class="py-name"><a title="base.lib.drupy.DrupyMySQL.MYSQLI_ASSOC" class="py-name" href="#" onclick="return doclink('link-18', 'MYSQLI_ASSOC', 'link-6');">MYSQLI_ASSOC</a></tt><tt class="py-op">:</tt> </tt>
@@ -267,7 +267,7 @@ base.lib.drupy" class="py-name" href="#" onclick="return doclink('link-4', 'drup
 <a name="mysqli_affected_rows"></a><div id="mysqli_affected_rows-def"><a name="L205"></a><tt class="py-lineno">205</tt> <a class="py-toggle" href="#" id="mysqli_affected_rows-toggle" onclick="return toggle('mysqli_affected_rows');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.lib.drupy.DrupyMySQL-module.html#mysqli_affected_rows">mysqli_affected_rows</a><tt class="py-op">(</tt><tt class="py-param">cursor</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="mysqli_affected_rows-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="mysqli_affected_rows-expanded"><a name="L206"></a><tt class="py-lineno">206</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
 <a name="L207"></a><tt class="py-lineno">207</tt>  <tt class="py-line"><tt class="py-docstring">   Gets affexted rows</tt> </tt>
-<a name="L208"></a><tt class="py-lineno">208</tt>  <tt class="py-line"><tt class="py-docstring">   @param MySQLdb.cursors.DictCursor cursor</tt> </tt>
+<a name="L208"></a><tt class="py-lineno">208</tt>  <tt class="py-line"><tt class="py-docstring">   @param cursor MySQLdb.cursors.DictCursor</tt> </tt>
 <a name="L209"></a><tt class="py-lineno">209</tt>  <tt class="py-line"><tt class="py-docstring">   @return Int</tt> </tt>
 <a name="L210"></a><tt class="py-lineno">210</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
 <a name="L211"></a><tt class="py-lineno">211</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">int</tt><tt class="py-op">(</tt><tt class="py-name">cursor</tt><tt class="py-op">.</tt><tt class="py-name">rowcount</tt><tt class="py-op">)</tt> </tt>
@@ -321,7 +321,7 @@ expandto(location.href);
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:07 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:37 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

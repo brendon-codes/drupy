@@ -58,18 +58,25 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module DrupyImport</h1><p class="nomargin-top"><span class="codelink"><a href="base.lib.drupy.DrupyImport-pysrc.html">source&nbsp;code</a></span></p>
-<pre class="literalblock">
-
-@package Drupy
-@see http://drupy.net
-@note Drupy is a port of the Drupal project.
+<hr />
+<div class="fields">      <p><strong>See Also:</strong>
+        &nbsp;
+      </p>
+      <p><strong>Note:</strong>
+        Drupy is a port of the Drupal project.
  The Drupal project can be found at http://drupal.org
-@file DrupyImport.py
-@author Brendon Crawford
-@copyright 2008 Brendon Crawford
-@contact message144 at users dot sourceforge dot net
-@created 2008-02-27
-@version 0.1
+      </p>
+      <p><strong>Author:</strong>
+        Brendon Crawford
+      </p>
+      <p><strong>Copyright:</strong>
+        2008 Brendon Crawford
+      </p>
+      <p><strong>Contact:</strong>
+        message144 at users dot sourceforge dot net
+      </p>
+      <p><strong>Version:</strong>
+        0.1
 @license: 
 
  This program is free software; you can redistribute it and/or
@@ -85,10 +92,8 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-</pre>
-
-<!-- ==================== FUNCTIONS ==================== -->
+      </p>
+</div><!-- ==================== FUNCTIONS ==================== -->
 <a name="section-Functions"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
@@ -111,8 +116,8 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="import_file"></a><span class="summary-sig-name">import_file</span>(<span class="summary-sig-arg">filename</span>)</span><br />
-      Converts a filename to import path @param filename @return Str</td>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyImport-module.html#import_file" class="summary-sig-name">import_file</a>(<span class="summary-sig-arg">filename</span>)</span><br />
+      Converts a filename to import path</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.lib.drupy.DrupyImport-pysrc.html#import_file">source&nbsp;code</a></span>
             
@@ -163,8 +168,8 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="modules"></a><span class="summary-sig-name">modules</span>()</span><br />
-      Get loaded modules @return List</td>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyImport-module.html#modules" class="summary-sig-name">modules</a>()</span><br />
+      Get loaded modules</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.lib.drupy.DrupyImport-pysrc.html#modules">source&nbsp;code</a></span>
             
@@ -193,6 +198,31 @@
   </td>
 </tr>
 </table>
+<a name="import_file"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">import_file</span>(<span class="sig-arg">filename</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyImport-pysrc.html#import_file">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Converts a filename to import path
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>filename</code></strong></li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Str</dd>
+  </dl>
+</td></tr></table>
+</div>
 <a name="getFunction"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -208,9 +238,15 @@
     </td>
   </tr></table>
   
-  <p>Gets fiunction object from module</p>
-  <p>@param Module module_ @param Str function_ @return Function</p>
+  Gets fiunction object from module
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>module_</code></strong> - Module</li>
+        <li><strong class="pname"><code>function_</code></strong> - Str</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Function</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -228,9 +264,35 @@
     </td>
   </tr></table>
   
-  <p>Checks for existance of drupy module</p>
-  <p>@param Str filename @return Bool</p>
+  Checks for existance of drupy module
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>filename</code></strong> - Str</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Bool</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="modules"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">modules</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyImport-pysrc.html#modules">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Get loaded modules
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>List</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -261,7 +323,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:07 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:34 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

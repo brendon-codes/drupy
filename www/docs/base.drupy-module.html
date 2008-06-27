@@ -56,19 +56,25 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module drupy</h1><p class="nomargin-top"><span class="codelink"><a href="base.drupy-pysrc.html">source&nbsp;code</a></span></p>
-<pre class="literalblock">
-
-@package Drupy
-@see http://drupy.net
-@note Drupy is a port of the Drupal project.
+<hr />
+<div class="fields">      <p><strong>See Also:</strong>
+        &nbsp;
+      </p>
+      <p><strong>Note:</strong>
+        Drupy is a port of the Drupal project.
  The Drupal project can be found at http://drupal.org
-@file drupy.py (ported from Drupal's drupal.inc)
- Test Execution script for drupy
-@author Brendon Crawford
-@copyright 2008 Brendon Crawford
-@contact message144 at users dot sourceforge dot net
-@created 2008-01-10
-@version 0.1
+      </p>
+      <p><strong>Author:</strong>
+        Brendon Crawford
+      </p>
+      <p><strong>Copyright:</strong>
+        2008 Brendon Crawford
+      </p>
+      <p><strong>Contact:</strong>
+        message144 at users dot sourceforge dot net
+      </p>
+      <p><strong>Version:</strong>
+        0.1
 @license: 
 
  This program is free software; you can redistribute it and/or
@@ -84,10 +90,8 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-</pre>
-
-<!-- ==================== VARIABLES ==================== -->
+      </p>
+</div><!-- ==================== VARIABLES ==================== -->
 <a name="section-Variables"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
@@ -108,50 +112,82 @@
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="base.drupy-module.html#phases" class="summary-name">phases</a> = <code title="inc_bootstrap.DRUPAL_BOOTSTRAP_CONFIGURATION, 'DRUPAL_BOOTSTRAP_CONFIG\
-URATION', (inc_bootstrap.DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE, 'DRUPAL_BO\
-OTSTRAP_EARLY_PAGE_CACHE'), (inc_bootstrap.DRUPAL_BOOTSTRAP_DATABASE, \
-'DRUPAL_BOOTSTRAP_DATABASE'), (inc_bootstrap.DRUPAL_BOOTSTRAP_ACCESS, \
-'DRUPAL_BOOTSTRAP_ACCESS'), (inc_bootstrap.DRUPAL_BOOTSTRAP_SESSION, '\
-DRUPAL_BOOTSTRAP_SESSION'), (inc_bootstrap.DRUPAL_BOOTSTRAP_LATE_PAGE_\
-CACHE, 'DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE'), (inc_bootstrap.DRUPAL_BOOT\
-STRAP_LANGUAGE, 'DRUPAL_BOOTSTRAP_LANGUAGE'), (inc_bootstrap.DRUPAL_BO\
-...">inc_bootstrap.DRUPAL_BOOTSTRAP_CONFIGURATION, 'DRUPAL<code class="variable-ellipsis">...</code></code>
+        <a href="base.drupy-module.html#phases" class="summary-name">phases</a> = <code title="((0, 'DRUPAL_BOOTSTRAP_CONFIGURATION'),
+ (1, 'DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE'),
+ (2, 'DRUPAL_BOOTSTRAP_DATABASE'),
+ (3, 'DRUPAL_BOOTSTRAP_ACCESS'),
+ (4, 'DRUPAL_BOOTSTRAP_SESSION'),
+ (5, 'DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE'),
+ (6, 'DRUPAL_BOOTSTRAP_LANGUAGE'),
+ (7, 'DRUPAL_BOOTSTRAP_PATH'),
+..."><code class="variable-group">(</code><code class="variable-group">(</code>0<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">DRUPAL_BOOTSTRAP_CONFIGURATION</code><code class="variable-quote">'</code><code class="variable-group">)</code><code class="variable-op">, </code><code class="variable-group">(</code>1<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">DRUPAL_B</code><code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="which_phase"></a><span class="summary-name">which_phase</span> = <code title="phases [8]">phases [8]</code>
+        <a name="which_phase"></a><span class="summary-name">which_phase</span> = <code title="(8, 'DRUPAL_BOOTSTRAP_FULL')"><code class="variable-group">(</code>8<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">DRUPAL_BOOTSTRAP_FULL</code><code class="variable-quote">'</code><code class="variable-group">)</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="out_plugins"></a><span class="summary-name">out_plugins</span> = <code title="p.print_r(inc_bootstrap.loaded_modules, True)">p.print_r(inc_bootstrap.loaded_modules, True)</code>
+        <a href="base.drupy-module.html#out_plugins" class="summary-name">out_plugins</a> = <code title="'{\'system\': &lt;module \'modules.system\' from \'/Users/brendon/work/pr\
+ojects/PythonDrupal/drupy/base/modules/system/__init__.pyc\'&gt;}'"><code class="variable-quote">'</code><code class="variable-string">{\'system\': &lt;module \'modules.system\' from \'</code><code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="out_plugins_html"></a><span class="summary-name">out_plugins_html</span> = <code title="p.htmlspecialchars(out_plugins)">p.htmlspecialchars(out_plugins)</code>
+        <a href="base.drupy-module.html#out_plugins_html" class="summary-name">out_plugins_html</a> = <code title="'{\'system\': &amp;lt;module \'modules.system\' from \'/Users/brendon/work\
+/projects/PythonDrupal/drupy/base/modules/system/__init__.pyc\'&amp;gt;}'"><code class="variable-quote">'</code><code class="variable-string">{\'system\': &amp;lt;module \'modules.system\'</code><code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="out_vars"></a><span class="summary-name">out_vars</span> = <code title="p.htmlspecialchars(out_vars)">p.htmlspecialchars(out_vars)</code>
+        <a href="base.drupy-module.html#out_vars" class="summary-name">out_vars</a> = <code title="'''{\'DrupyImport\': &amp;lt;module \'base.lib.drupy.DrupyImport\' from \'\
+/Users/brendon/work/projects/PythonDrupal/drupy/base/lib/drupy/DrupyIm\
+port.pyc\'&amp;gt;,
+ \'__builtins__\': {\'ArithmeticError\': &amp;lt;type \'exceptions.Arithme\
+ticError\'&amp;gt;,
+                  \'AssertionError\': &amp;lt;type \'exceptions.AssertionE\
+rror\'&amp;gt;,
+                  \'AttributeError\': &amp;lt;type \'exceptions.AttributeE\
+..."><code class="variable-quote">'</code><code class="variable-string">{\'DrupyImport\': &amp;lt;module \'base.lib.drupy.Drup</code><code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="out_mods"></a><span class="summary-name">out_mods</span> = <code title="p.htmlspecialchars(out_mods)">p.htmlspecialchars(out_mods)</code>
+        <a href="base.drupy-module.html#out_mods" class="summary-name">out_mods</a> = <code title="'''{\'ConfigParser\': &amp;lt;module \'ConfigParser\' from \'/opt/local/li\
+b/python2.5/ConfigParser.pyc\'&amp;gt;,
+ \'Cookie\': &amp;lt;module \'Cookie\' from \'/opt/local/lib/python2.5/Coo\
+kie.pyc\'&amp;gt;,
+ \'FixTk\': &amp;lt;module \'FixTk\' from \'/opt/local/lib/python2.5/lib-t\
+k/FixTk.pyc\'&amp;gt;,
+ \'MySQLdb\': &amp;lt;module \'MySQLdb\' from \'/opt/local/lib/python2.5/s\
+ite-packages/MySQLdb/__init__.pyc\'&amp;gt;,
+..."><code class="variable-quote">'</code><code class="variable-string">{\'ConfigParser\': &amp;lt;module \'ConfigParser\' fro</code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="revised"></a><span class="summary-name">revised</span> = <code title="'06/27/2008'"><code class="variable-quote">'</code><code class="variable-string">06/27/2008</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="stamp"></a><span class="summary-name">stamp</span> = <code title="'Fri Jun 27 23:07:30 2008 GMT'"><code class="variable-quote">'</code><code class="variable-string">Fri Jun 27 23:07:30 2008 GMT</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 </table>
@@ -185,14 +221,104 @@ STRAP_LANGUAGE, 'DRUPAL_BOOTSTRAP_LANGUAGE'), (inc_bootstrap.DRUPAL_BO\
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-inc_bootstrap.DRUPAL_BOOTSTRAP_CONFIGURATION, 'DRUPAL_BOOTSTRAP_CONFIG<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-URATION', (inc_bootstrap.DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE, 'DRUPAL_BO<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-OTSTRAP_EARLY_PAGE_CACHE'), (inc_bootstrap.DRUPAL_BOOTSTRAP_DATABASE, <span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-'DRUPAL_BOOTSTRAP_DATABASE'), (inc_bootstrap.DRUPAL_BOOTSTRAP_ACCESS, <span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-'DRUPAL_BOOTSTRAP_ACCESS'), (inc_bootstrap.DRUPAL_BOOTSTRAP_SESSION, '<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-DRUPAL_BOOTSTRAP_SESSION'), (inc_bootstrap.DRUPAL_BOOTSTRAP_LATE_PAGE_<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-CACHE, 'DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE'), (inc_bootstrap.DRUPAL_BOOT<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-STRAP_LANGUAGE, 'DRUPAL_BOOTSTRAP_LANGUAGE'), (inc_bootstrap.DRUPAL_BO<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-group">(</code><code class="variable-group">(</code>0<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">DRUPAL_BOOTSTRAP_CONFIGURATION</code><code class="variable-quote">'</code><code class="variable-group">)</code><code class="variable-op">,</code>
+ <code class="variable-group">(</code>1<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE</code><code class="variable-quote">'</code><code class="variable-group">)</code><code class="variable-op">,</code>
+ <code class="variable-group">(</code>2<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">DRUPAL_BOOTSTRAP_DATABASE</code><code class="variable-quote">'</code><code class="variable-group">)</code><code class="variable-op">,</code>
+ <code class="variable-group">(</code>3<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">DRUPAL_BOOTSTRAP_ACCESS</code><code class="variable-quote">'</code><code class="variable-group">)</code><code class="variable-op">,</code>
+ <code class="variable-group">(</code>4<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">DRUPAL_BOOTSTRAP_SESSION</code><code class="variable-quote">'</code><code class="variable-group">)</code><code class="variable-op">,</code>
+ <code class="variable-group">(</code>5<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE</code><code class="variable-quote">'</code><code class="variable-group">)</code><code class="variable-op">,</code>
+ <code class="variable-group">(</code>6<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">DRUPAL_BOOTSTRAP_LANGUAGE</code><code class="variable-quote">'</code><code class="variable-group">)</code><code class="variable-op">,</code>
+ <code class="variable-group">(</code>7<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">DRUPAL_BOOTSTRAP_PATH</code><code class="variable-quote">'</code><code class="variable-group">)</code><code class="variable-op">,</code>
+<code class="variable-ellipsis">...</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="out_plugins"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">out_plugins</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-quote">'</code><code class="variable-string">{\'system\': &lt;module \'modules.system\' from \'/Users/brendon/work/pr</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string">ojects/PythonDrupal/drupy/base/modules/system/__init__.pyc\'&gt;}</code><code class="variable-quote">'</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="out_plugins_html"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">out_plugins_html</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-quote">'</code><code class="variable-string">{\'system\': &amp;lt;module \'modules.system\' from \'/Users/brendon/work</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string">/projects/PythonDrupal/drupy/base/modules/system/__init__.pyc\'&amp;gt;}</code><code class="variable-quote">'</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="out_vars"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">out_vars</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-quote">'''</code><code class="variable-string">{\'DrupyImport\': &amp;lt;module \'base.lib.drupy.DrupyImport\' from \'</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string">/Users/brendon/work/projects/PythonDrupal/drupy/base/lib/drupy/DrupyIm</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string">port.pyc\'&amp;gt;,</code>
+<code class="variable-string"> \'__builtins__\': {\'ArithmeticError\': &amp;lt;type \'exceptions.Arithme</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string">ticError\'&amp;gt;,</code>
+<code class="variable-string">                  \'AssertionError\': &amp;lt;type \'exceptions.AssertionE</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string">rror\'&amp;gt;,</code>
+<code class="variable-string">                  \'AttributeError\': &amp;lt;type \'exceptions.AttributeE</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-ellipsis">...</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="out_mods"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">out_mods</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-quote">'''</code><code class="variable-string">{\'ConfigParser\': &amp;lt;module \'ConfigParser\' from \'/opt/local/li</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string">b/python2.5/ConfigParser.pyc\'&amp;gt;,</code>
+<code class="variable-string"> \'Cookie\': &amp;lt;module \'Cookie\' from \'/opt/local/lib/python2.5/Coo</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string">kie.pyc\'&amp;gt;,</code>
+<code class="variable-string"> \'FixTk\': &amp;lt;module \'FixTk\' from \'/opt/local/lib/python2.5/lib-t</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string">k/FixTk.pyc\'&amp;gt;,</code>
+<code class="variable-string"> \'MySQLdb\': &amp;lt;module \'MySQLdb\' from \'/opt/local/lib/python2.5/s</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string">ite-packages/MySQLdb/__init__.pyc\'&amp;gt;,</code>
 <code class="variable-ellipsis">...</code>
 </pre></td></tr></table>
 </dd>
@@ -226,7 +352,7 @@ STRAP_LANGUAGE, 'DRUPAL_BOOTSTRAP_LANGUAGE'), (inc_bootstrap.DRUPAL_BO<span clas
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:06 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:33 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

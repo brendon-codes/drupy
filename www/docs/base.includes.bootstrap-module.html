@@ -57,19 +57,25 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module bootstrap</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.bootstrap-pysrc.html">source&nbsp;code</a></span></p>
-<pre class="literalblock">
-
-@package Drupy
-@see http://drupy.net
-@note Drupy is a port of the Drupal project.
+<hr />
+<div class="fields">      <p><strong>See Also:</strong>
+        &nbsp;
+      </p>
+      <p><strong>Note:</strong>
+        Drupy is a port of the Drupal project.
  The drupal project can be found at http://drupal.org
-@file bootstrap.py (ported from Drupal's bootstrap.inc)
- Functions that need to be loaded on every Drupal request.
-@author Brendon Crawford
-@copyright 2008 Brendon Crawford
-@contact message144 at users dot sourceforge dot net
-@created 2008-01-10
-@version 0.1
+      </p>
+      <p><strong>Author:</strong>
+        Brendon Crawford
+      </p>
+      <p><strong>Copyright:</strong>
+        2008 Brendon Crawford
+      </p>
+      <p><strong>Contact:</strong>
+        message144 at users dot sourceforge dot net
+      </p>
+      <p><strong>Version:</strong>
+        0.1
 @license: 
 
  This program is free software; you can redistribute it and/or
@@ -85,10 +91,8 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-</pre>
-
-<!-- ==================== FUNCTIONS ==================== -->
+      </p>
+</div><!-- ==================== FUNCTIONS ==================== -->
 <a name="section-Functions"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
@@ -198,8 +202,8 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="conf_init"></a><span class="summary-sig-name">conf_init</span>()</span><br />
-      Loads the configuration and sets the base URL, cookie domain, and 
-      session name correctly.</td>
+      Loads the configuration and sets the base URL, cookie domain, and
+session name correctly.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.bootstrap-pysrc.html#conf_init">source&nbsp;code</a></span>
             
@@ -235,7 +239,7 @@ theme, etc.).</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#variable_init" class="summary-sig-name">variable_init</a>(<span class="summary-sig-arg">conf_</span>=<span class="summary-sig-default">{}</span>)</span><br />
+          <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#variable_init" class="summary-sig-name">variable_init</a>(<span class="summary-sig-arg">conf_</span>=<span class="summary-sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>)</span><br />
       Load the persistent variable table.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.bootstrap-pysrc.html#variable_init">source&nbsp;code</a></span>
@@ -409,7 +413,7 @@ theme, etc.).</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#drupal_unpack" class="summary-sig-name">drupal_unpack</a>(<span class="summary-sig-arg">obj</span>,
-        <span class="summary-sig-arg">field</span>=<span class="summary-sig-default">'data'</span>)</span><br />
+        <span class="summary-sig-arg">field</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">data</code><code class="variable-quote">'</code></span>)</span><br />
       Unserializes and appends elements from a serialized string.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.bootstrap-pysrc.html#drupal_unpack">source&nbsp;code</a></span>
@@ -478,8 +482,8 @@ theme, etc.).</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="request_uri"></a><span class="summary-sig-name">request_uri</span>()</span><br />
-      Since p.SERVER['p.REQUEST_URI'] is only available on Apache, we 
-      generate an equivalent using other environment variables.</td>
+      Since p.SERVER['p.REQUEST_URI'] is only available on Apache, we
+generate an equivalent using other environment variables.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.bootstrap-pysrc.html#request_uri">source&nbsp;code</a></span>
             
@@ -497,8 +501,8 @@ theme, etc.).</td>
         <tr>
           <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#watchdog" class="summary-sig-name">watchdog</a>(<span class="summary-sig-arg">type</span>,
         <span class="summary-sig-arg">message</span>,
-        <span class="summary-sig-arg">variables</span>=<span class="summary-sig-default">[]</span>,
-        <span class="summary-sig-arg">severity</span>=<span class="summary-sig-default">WATCHDOG_NOTICE</span>,
+        <span class="summary-sig-arg">variables</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
+        <span class="summary-sig-arg">severity</span>=<span class="summary-sig-default">5</span>,
         <span class="summary-sig-arg">link</span>=<span class="summary-sig-default">None</span>)</span><br />
       Log a system message.</td>
           <td align="right" valign="top">
@@ -517,7 +521,7 @@ theme, etc.).</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#drupal_set_message" class="summary-sig-name">drupal_set_message</a>(<span class="summary-sig-arg">message</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">type</span>=<span class="summary-sig-default">'status'</span>,
+        <span class="summary-sig-arg">type</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">status</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">repeat</span>=<span class="summary-sig-default">True</span>)</span><br />
       Set a message which reflects the status of the performed operation.</td>
           <td align="right" valign="top">
@@ -570,7 +574,7 @@ theme, etc.).</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#drupal_anonymous_user" class="summary-sig-name">drupal_anonymous_user</a>(<span class="summary-sig-arg">session</span>=<span class="summary-sig-default">''</span>)</span><br />
+          <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#drupal_anonymous_user" class="summary-sig-name">drupal_anonymous_user</a>(<span class="summary-sig-arg">session</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span><br />
       Generates a default anonymous user object.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.bootstrap-pysrc.html#drupal_anonymous_user">source&nbsp;code</a></span>
@@ -655,8 +659,7 @@ theme, etc.).</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="drupal_init_language"></a><span class="summary-sig-name">drupal_init_language</span>()</span><br />
-      Choose a language for the current page, based on site and user 
-      preferences.</td>
+      Choose a language for the current page, based on site and user preferences.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.bootstrap-pysrc.html#drupal_init_language">source&nbsp;code</a></span>
             
@@ -672,7 +675,7 @@ theme, etc.).</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#language_list" class="summary-sig-name">language_list</a>(<span class="summary-sig-arg">field</span>=<span class="summary-sig-default">'language'</span>,
+          <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#language_list" class="summary-sig-name">language_list</a>(<span class="summary-sig-arg">field</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">language</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">reset</span>=<span class="summary-sig-default">False</span>)</span><br />
       Get a list of languages set up indexed by the specified key</td>
           <td align="right" valign="top">
@@ -924,21 +927,21 @@ of the proxy server, and not the client's.</td>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="base_path_"></a><span class="summary-name">base_path_</span> = <code title="None">None</code>
+        <a name="base_path_"></a><span class="summary-name">base_path_</span> = <code title="'/'"><code class="variable-quote">'</code><code class="variable-string">/</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="base_root"></a><span class="summary-name">base_root</span> = <code title="None">None</code>
+        <a name="base_root"></a><span class="summary-name">base_root</span> = <code title="'http://localhost'"><code class="variable-quote">'</code><code class="variable-string">http://localhost</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="base_url"></a><span class="summary-name">base_url</span> = <code title="None">None</code>
+        <a name="base_url"></a><span class="summary-name">base_url</span> = <code title="'http://localhost'"><code class="variable-quote">'</code><code class="variable-string">http://localhost</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 <tr>
@@ -952,14 +955,15 @@ of the proxy server, and not the client's.</td>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="timers"></a><span class="summary-name">timers</span> = <code title="None">None</code>
+        <a name="timers"></a><span class="summary-name">timers</span> = <code title="{'page': {'count': 1, 'start': 1214608049.54}}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">page</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">count</code><code class="variable-quote">'</code><code class="variable-op">: </code>1<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">start</code><code class="variable-quote">'</code><code class="variable-op">: </code>1214608049.54<code class="variable-group">}</code><code class="variable-group">}</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="loaded_modules"></a><span class="summary-name">loaded_modules</span> = <code title="{}">{}</code>
+        <a href="base.includes.bootstrap-module.html#loaded_modules" class="summary-name">loaded_modules</a> = <code title="{'system': &lt;module 'modules.system' from '/Users/brendon/work/projects\
+/PythonDrupal/drupy/base/modules/system/__init__.pyc'&gt;}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">system</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;module 'modules.system' from '/Us<code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr>
@@ -1191,17 +1195,14 @@ of the proxy server, and not the client's.</td>
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Start the timer with the specified name. If you start and stop
+  Start the timer with the specified name. If you start and stop
 the same timer multiple times, the measured intervals will be
 accumulated.
-
-@param name
-  The name of the timer.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - The name of the timer.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1219,17 +1220,14 @@ accumulated.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Read the current timer value without stopping the timer.
-
-@param name
-  The name of the timer.
-@return
-  The current timer value in ms.
-
-</pre>
+  Read the current timer value without stopping the timer.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - The name of the timer.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The current timer value in ms.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1247,19 +1245,16 @@ Read the current timer value without stopping the timer.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Stop the timer with the specified name.
-
-@param name
-  The name of the timer.
-@return
-  A timer array. The array contains the number of times the
-  timer has been started and stopped (count) and the accumulated
-  timer value in ms (time).
-
-</pre>
+  Stop the timer with the specified name.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - The name of the timer.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>A timer array. The array contains the number of times the
+  timer has been started and stopped (count) and the accumulated
+  timer value in ms (time).</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1278,9 +1273,7 @@ Stop the timer with the specified name.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Find the appropriate configuration directory.
+  Find the appropriate configuration directory.
 
 Try finding a matching configuration directory by stripping the website's
 hostname from left to right and pathname from right to left. The first
@@ -1307,20 +1300,18 @@ the following directories:
 12. confdir/org
 
 13. confdir/default
-
-@param require_settings
-  Only configuration directories with an existing settings.php file
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>require_settings</code></strong> - Only configuration directories with an existing settings.php file
   will be recognized. Defaults to TRUE. During initial installation,
   this is set to FALSE so that Drupal can detect a matching directory,
-  then create a new settings.php file in it.
-@param reset
-  Force a full search for matching directories even if one had been
-  found previously.
-@return
-  The path of the matching directory.
-
-</pre>
-  <dl class="fields">
+  then create a new settings.php file in it.</li>
+        <li><strong class="pname"><code>reset</code></strong> - Force a full search for matching directories even if one had been
+  found previously.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The path of the matching directory.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1338,8 +1329,7 @@ the following directories:
     </td>
   </tr></table>
   
-  <p>Unsets all disallowed global variables. See allowed for what's 
-  allowed.</p>
+  Unsets all disallowed global variables. See allowed for what's allowed.
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -1360,9 +1350,7 @@ the following directories:
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Returns and optionally sets the filename for a system item (module,
+  Returns and optionally sets the filename for a system item (module,
 theme, etc.). The filename, whether provided, cached, or retrieved
 from the database, is only returned if the file exists.
 
@@ -1377,20 +1365,16 @@ sites/example.com/modules/foo/foo.module
 
 Calling drupal_get_filename('module', 'foo') will give you one of
 the above, depending on where the module is located.
-
-@param type
-  The type of the item (i.e. theme, theme_engine, module).
-@param name
-  The name of the item for which the filename is requested.
-@param filename
-  The filename of the item if it is to be set explicitly rather
-  than by consulting the database.
-
-@return
-  The filename of the requested item.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>type</code></strong> - The type of the item (i.e. theme, theme_engine, module).</li>
+        <li><strong class="pname"><code>name</code></strong> - The name of the item for which the filename is requested.</li>
+        <li><strong class="pname"><code>filename</code></strong> - The filename of the item if it is to be set explicitly rather
+  than by consulting the database.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The filename of the requested item.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1401,17 +1385,18 @@ the above, depending on where the module is located.
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">variable_init</span>(<span class="sig-arg">conf_</span>=<span class="sig-default">{}</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">variable_init</span>(<span class="sig-arg">conf_</span>=<span class="sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="base.includes.bootstrap-pysrc.html#variable_init">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Load the persistent variable table.</p>
-  <p>The variable table is composed of values that have been saved in the 
-  table with variable_set() as well as those explicitly specified in the 
-  configuration file.</p>
+  Load the persistent variable table.
+
+The variable table is composed of values that have been saved in the table
+with variable_set() as well as those explicitly specified in the configuration
+file.
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -1431,19 +1416,15 @@ the above, depending on where the module is located.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Return a persistent variable.
-
-@param name
-  The name of the variable to return.
-@param default
-  The default value to use if this variable has never been set.
-@return
-  The value of the variable.
-
-</pre>
+  Return a persistent variable.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - The name of the variable to return.</li>
+        <li><strong class="pname"><code>default</code></strong> - The default value to use if this variable has never been set.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The value of the variable.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1462,18 +1443,14 @@ Return a persistent variable.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Set a persistent variable.
-
-@param name
-  The name of the variable to set.
-@param value
-  The value to set. This can be any PHP data type; these functions take care
-  of serialization as necessary.
-
-</pre>
+  Set a persistent variable.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - The name of the variable to set.</li>
+        <li><strong class="pname"><code>value</code></strong> - The value to set. This can be any PHP data type; these functions take care
+  of serialization as necessary.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1491,15 +1468,12 @@ Set a persistent variable.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Unset a persistent variable.
-
-@param name
-  The name of the variable to undefine.
-
-</pre>
+  Unset a persistent variable.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - The name of the variable to undefine.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1517,19 +1491,16 @@ Unset a persistent variable.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Retrieve the current page from the cache.
+  Retrieve the current page from the cache.
 
 Note: we do not serve cached pages when status messages are waiting (from
 a redirected form submission which was completed).
-
-@param status_only
-  When set to TRUE, retrieve the status of the page cache only
-  (whether it was started in this request or not).
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>status_only</code></strong> - When set to TRUE, retrieve the status of the page cache only
+  (whether it was started in this request or not).</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1547,15 +1518,12 @@ a redirected form submission which was completed).
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Call all init or exit hooks without including all modules.
-
-@param hook
-  The name of the bootstrap hook we wish to invoke.
-
-</pre>
+  Call all init or exit hooks without including all modules.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>hook</code></strong> - The name of the bootstrap hook we wish to invoke.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1574,21 +1542,16 @@ Call all init or exit hooks without including all modules.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Includes a file with the provided type and name. This prevents
+  Includes a file with the provided type and name. This prevents
 including a theme, engine, module, etc., more than once.
-
-@param type
-  The type of item to load (i.e. theme, theme_engine, module).
-@param name
-  The name of the item to load.
-
-@return
-  TRUE if the item is loaded or has already been loaded.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>type</code></strong> - The type of item to load (i.e. theme, theme_engine, module).</li>
+        <li><strong class="pname"><code>name</code></strong> - The name of the item to load.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>TRUE if the item is loaded or has already been loaded.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1606,14 +1569,17 @@ including a theme, engine, module, etc., more than once.
     </td>
   </tr></table>
   
-  <p>Set HTTP headers in preparation for a page response.</p>
-  <p>Authenticated users are always given a 'no-cache' p.header, and will 
-  fetch a fresh page on every request.  This prevents authenticated users 
-  seeing locally cached pages that show them as logged out.</p>
-  <p>@see page_set_cache()</p>
+  Set HTTP headers in preparation for a page response.
+
+Authenticated users are always given a 'no-cache' p.header, and will
+fetch a fresh page on every request.  This prevents authenticated
+users seeing locally cached pages that show them as logged out.
   <dl class="fields">
   </dl>
-</td></tr></table>
+<div class="fields">      <p><strong>See Also:</strong>
+        <code class="link">page_set_cache</code>
+      </p>
+</div></td></tr></table>
 </div>
 <a name="drupal_page_cache_header"></a>
 <div>
@@ -1629,11 +1595,12 @@ including a theme, engine, module, etc., more than once.
     </td>
   </tr></table>
   
-  <p>Set HTTP headers in preparation for a cached page response.</p>
-  <p>The general approach here is that anonymous users can keep a local 
-  cache of the page, but must revalidate it on every request.  Then, they 
-  are given a '304 Not Modified' response as long as they stay logged out 
-  and the page has not been modified.</p>
+  Set HTTP headers in preparation for a cached page response.
+
+The general approach here is that anonymous users can keep a local
+cache of the page, but must revalidate it on every request.  Then,
+they are given a '304 Not Modified' response as long as they stay
+logged out and the page has not been modified.
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -1646,24 +1613,20 @@ including a theme, engine, module, etc., more than once.
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">drupal_unpack</span>(<span class="sig-arg">obj</span>,
-        <span class="sig-arg">field</span>=<span class="sig-default">'data'</span>)</span>
+        <span class="sig-arg">field</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">data</code><code class="variable-quote">'</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="base.includes.bootstrap-pysrc.html#drupal_unpack">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Unserializes and appends elements from a serialized string.
-
-@param obj
-  The object to which the elements are appended.
-@param field
-  The attribute of obj whose value should be unserialized.
-
-</pre>
+  Unserializes and appends elements from a serialized string.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>obj</code></strong> - The object to which the elements are appended.</li>
+        <li><strong class="pname"><code>field</code></strong> - The attribute of obj whose value should be unserialized.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1681,10 +1644,10 @@ Unserializes and appends elements from a serialized string.
     </td>
   </tr></table>
   
-  <p>Encode special characters in a plain-text string for display as 
-  HTML.</p>
-  <p>Uses drupal_validate_utf8 to prevent cross site scripting attacks on 
-  Internet Explorer 6.</p>
+  Encode special characters in a plain-text string for display as HTML.
+
+Uses drupal_validate_utf8 to prevent cross site scripting attacks on
+Internet Explorer 6.
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -1703,9 +1666,7 @@ Unserializes and appends elements from a serialized string.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Checks whether a string is valid UTF-8.
+  Checks whether a string is valid UTF-8.
 
 All functions designed to filter input should use drupal_validate_utf8
 to ensure they operate on valid UTF-8 strings to prevent bypass of the
@@ -1727,14 +1688,13 @@ preg_match may not fail on 4 and 5 octet sequences, even though they
 are not supported by the specification.
 
 The specific preg_match behaviour is present since PHP 4.3.5.
-
-@param text
-  The text to check.
-@return
-  TRUE if the text is valid UTF-8, FALSE if not.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>text</code></strong> - The text to check.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>TRUE if the text is valid UTF-8, FALSE if not.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1747,8 +1707,8 @@ The specific preg_match behaviour is present since PHP 4.3.5.
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">watchdog</span>(<span class="sig-arg">type</span>,
         <span class="sig-arg">message</span>,
-        <span class="sig-arg">variables</span>=<span class="sig-default">[]</span>,
-        <span class="sig-arg">severity</span>=<span class="sig-default">WATCHDOG_NOTICE</span>,
+        <span class="sig-arg">variables</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
+        <span class="sig-arg">severity</span>=<span class="sig-default">5</span>,
         <span class="sig-arg">link</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
@@ -1756,31 +1716,25 @@ The specific preg_match behaviour is present since PHP 4.3.5.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Log a system message.
-
-@param type
-  The category to which this message belongs.
-@param message
-  The message to store in the log. See t() for documentation
-  on how message and variables interact. Keep message
-  translatable by not concatenating dynamic values into it!
-@param variables
-  Array of variables to replace in the message on display or
-  NULL if message is already translated or not possible to
-  translate.
-@param severity
-  The severity of the message, as per RFC 3164
-@param link
-  A link to associate with the message.
-
-@see watchdog_severity_levels()
-
-</pre>
+  Log a system message.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>type</code></strong> - The category to which this message belongs.</li>
+        <li><strong class="pname"><code>message</code></strong> - The message to store in the log. See t() for documentation
+  on how message and variables interact. Keep message
+  translatable by not concatenating dynamic values into it!</li>
+        <li><strong class="pname"><code>variables</code></strong> - Array of variables to replace in the message on display or
+  NULL if message is already translated or not possible to
+  translate.</li>
+        <li><strong class="pname"><code>severity</code></strong> - The severity of the message, as per RFC 3164</li>
+        <li><strong class="pname"><code>link</code></strong> - A link to associate with the message.</li>
+    </ul></dd>
   </dl>
-</td></tr></table>
+<div class="fields">      <p><strong>See Also:</strong>
+        <code class="link">watchdog_severity_levels</code>
+      </p>
+</div></td></tr></table>
 </div>
 <a name="drupal_set_message"></a>
 <div>
@@ -1790,7 +1744,7 @@ Log a system message.
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">drupal_set_message</span>(<span class="sig-arg">message</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">type</span>=<span class="sig-default">'status'</span>,
+        <span class="sig-arg">type</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">status</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">repeat</span>=<span class="sig-default">True</span>)</span>
   </h3>
   </td><td align="right" valign="top"
@@ -1798,27 +1752,22 @@ Log a system message.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Set a message which reflects the status of the performed operation.
+  Set a message which reflects the status of the performed operation.
 
 If the def is called with no arguments, this def returns all set
 messages without clearing them.
-
-@param message
-  The message should begin with a capital letter and always ends with a
-  period '.'.
-@param type
-  The type of the message. One of the following values are possible:
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>message</code></strong> - The message should begin with a capital letter and always ends with a
+  period '.'.</li>
+        <li><strong class="pname"><code>type</code></strong> - The type of the message. One of the following values are possible:
   - 'status'
   - 'warning'
-  - 'error'
-@param repeat
-  If this is FALSE and the message is already set, then the message won't
-  be repeated.
-
-</pre>
-  <dl class="fields">
+  - 'error'</li>
+        <li><strong class="pname"><code>repeat</code></strong> - If this is FALSE and the message is already set, then the message won't
+  be repeated.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1837,22 +1786,18 @@ messages without clearing them.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Return all messages that have been set.
-
-@param type
-  (optional) Only return messages of this type.
-@param clear_queue
-  (optional) Set to FALSE if you do not want to clear the messages queue
-@return
-  An associative array, the key is the message type, the value an array
+  Return all messages that have been set.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>type</code></strong> - (optional) Only return messages of this type.</li>
+        <li><strong class="pname"><code>clear_queue</code></strong> - (optional) Set to FALSE if you do not want to clear the messages queue</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An associative array, the key is the message type, the value an array
   of messages. If the type parameter is passed, you get only that type,
   or an empty array if there are no such messages. If type is not passed,
-  all message types are returned, or an empty array if none exist.
-
-</pre>
-  <dl class="fields">
+  all message types are returned, or an empty array if none exist.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1870,22 +1815,21 @@ Return all messages that have been set.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Check to see if an IP address has been blocked.
+  Check to see if an IP address has been blocked.
 
 Blocked IP addresses are stored in the database by default. However for
 performance reasons we allow an override in settings.php. This allows us
 to avoid querying the database at this critical stage of the bootstrap if
 an administrative interface for IP address blocking is not required.
-
-@param $ip string
-  IP address to check.
-@return bool
-  TRUE if access is denied, FALSE if access is allowed.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>$ip</code></strong> - string
+  IP address to check.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>bool
+  TRUE if access is denied, FALSE if access is allowed.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1896,16 +1840,17 @@ an administrative interface for IP address blocking is not required.
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">drupal_anonymous_user</span>(<span class="sig-arg">session</span>=<span class="sig-default">''</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">drupal_anonymous_user</span>(<span class="sig-arg">session</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="base.includes.bootstrap-pysrc.html#drupal_anonymous_user">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Generates a default anonymous user object.</p>
-  <p>@return Object - the user object.</p>
+  Generates a default anonymous user object.
   <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>Object - the user object.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1923,16 +1868,15 @@ an administrative interface for IP address blocking is not required.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-A string describing a phase of Drupal to load. Each phase adds to the
+  A string describing a phase of Drupal to load. Each phase adds to the
 previous one, so invoking a later phase automatically runs the earlier
 phases too. The most important usage is that if you want to access the
 Drupal database from a script without loading anything else, you can
 include bootstrap.inc, and call drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE).
-
-@param phase
-  A constant. Allowed values are:
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>phase</code></strong> - A constant. Allowed values are:
     DRUPAL_BOOTSTRAP_CONFIGURATION: initialize configuration.
     DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE: try to call a non-database cache fetch routine.
     DRUPAL_BOOTSTRAP_DATABASE: initialize database layer.
@@ -1942,10 +1886,8 @@ include bootstrap.inc, and call drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE).
       the variable system and try to serve a page from the cache.
     DRUPAL_BOOTSTRAP_LANGUAGE: identify the language used on the page.
     DRUPAL_BOOTSTRAP_PATH: set p.GET['q'] to Drupal path of request.
-    DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix input data.
-
-</pre>
-  <dl class="fields">
+    DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix input data.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1963,14 +1905,16 @@ include bootstrap.inc, and call drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE).
     </td>
   </tr></table>
   
-  <p>Enables use of the theme system without requiring database access.</p>
-  <p>Loads and initializes the theme system for site installs, updates and 
-  when the site is in off-line mode. This also applies when the database 
-  fails.</p>
-  <p>@see _drupal_maintenance_theme()</p>
+  Enables use of the theme system without requiring database access.
+
+Loads and initializes the theme system for site installs, updates and when
+the site is in off-line mode. This also applies when the database fails.
   <dl class="fields">
   </dl>
-</td></tr></table>
+<div class="fields">      <p><strong>See Also:</strong>
+        <code class="link">_drupal_maintenance_theme</code>
+      </p>
+</div></td></tr></table>
 </div>
 <a name="get_t"></a>
 <div>
@@ -1986,8 +1930,8 @@ include bootstrap.inc, and call drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE).
     </td>
   </tr></table>
   
-  <p>Return the name of the localisation function. Use in code that needs 
-  to run both during installation and normal operation.</p>
+  Return the name of the localisation function. Use in code that needs to
+run both during installation and normal operation.
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -1999,7 +1943,7 @@ include bootstrap.inc, and call drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE).
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">language_list</span>(<span class="sig-arg">field</span>=<span class="sig-default">'language'</span>,
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">language_list</span>(<span class="sig-arg">field</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">language</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">reset</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
@@ -2007,10 +1951,13 @@ include bootstrap.inc, and call drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE).
     </td>
   </tr></table>
   
-  <p>Get a list of languages set up indexed by the specified key</p>
-  <p>@param field The field to index the list with. @param reset Boolean to
-  request a reset of the list.</p>
+  Get a list of languages set up indexed by the specified key
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>field</code></strong> - The field to index the list with.</li>
+        <li><strong class="pname"><code>reset</code></strong> - Boolean to request a reset of the list.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2028,15 +1975,12 @@ include bootstrap.inc, and call drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE).
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Default language used on the site
-
-@param property
-  Optional property of the language object to return
-
-</pre>
+  Default language used on the site
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>property</code></strong> - Optional property of the language object to return</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2054,17 +1998,12 @@ Default language used on the site
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-If Drupal is behind a reverse proxy, we use the X-Forwarded-For p.header
+  If Drupal is behind a reverse proxy, we use the X-Forwarded-For p.header
 instead of p.SERVER['REMOTE_ADDR'], which would be the IP address
 of the proxy server, and not the client's.
-
-@return
-  IP address of client machine, adjusted for reverse proxy.
-
-</pre>
   <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>IP address of client machine, adjusted for reverse proxy.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2083,9 +2022,7 @@ of the proxy server, and not the client's.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Confirm that a function is available.
+  Confirm that a function is available.
 
 If the function is already available, this function does nothing.
 If the function is not available, it tries to load the file where the
@@ -2093,16 +2030,14 @@ function lives. If the file is not available, it returns False, so that it
 can be used as a drop-in replacement for p.function_exists().
 
 DRUPY(BC): This function needs to be heavily modified
-
-@param function
-  The name of the function to check or load.
-@param scope
-  Scope to check
-@return
-  True if the function is now available, False otherwise.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>function</code></strong> - The name of the function to check or load.</li>
+        <li><strong class="pname"><code>scope</code></strong> - Scope to check</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>True if the function is now available, False otherwise.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2120,21 +2055,18 @@ DRUPY(BC): This function needs to be heavily modified
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Confirm that an interface is available.
+  Confirm that an interface is available.
 
 This function parallels drupal_function_exists(), but is rarely
 called directly. Instead, it is registered as an spl_autoload()
 handler, and PHP calls it for us when necessary.
-
-@param interface
-  The name of the interface to check or load.
-@return
-  True if the interface is currently available, False otherwise.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>interface</code></strong> - The name of the interface to check or load.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>True if the interface is currently available, False otherwise.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2152,21 +2084,18 @@ handler, and PHP calls it for us when necessary.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Confirm that a class is available.
+  Confirm that a class is available.
 
 This function parallels drupal_function_exists(), but is rarely
 called directly. Instead, it is registered as an spl_autoload()
 handler, and PHP calls it for us when necessary.
-
-@param class
-  The name of the class to check or load.
-@return
-  True if the class is currently available, False otherwise.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>class</code></strong> - The name of the class to check or load.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>True if the class is currently available, False otherwise.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2186,19 +2115,14 @@ handler, and PHP calls it for us when necessary.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Collect the resources used for this request.
-
-@param type
-  The type of resource.
-@param name
-  The name of the resource.
-@param return
-  Boolean flag to indicate whether to return the resources.
-
-</pre>
+  Collect the resources used for this request.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>type</code></strong> - The type of resource.</li>
+        <li><strong class="pname"><code>name</code></strong> - The name of the resource.</li>
+        <li><strong class="pname"><code>return</code></strong> - Boolean flag to indicate whether to return the resources.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2216,9 +2140,10 @@ Collect the resources used for this request.
     </td>
   </tr></table>
   
-  <p>Rescan all enabled modules and rebuild the registry.</p>
-  <p>Rescans all code in modules or includes directory, storing a mapping 
-  of each function, file, and hook implementation in the database.</p>
+  Rescan all enabled modules and rebuild the registry.
+
+Rescans all code in modules or includes directory, storing a mapping of
+each function, file, and hook implementation in the database.
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -2238,17 +2163,51 @@ Collect the resources used for this request.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Save hook implementations cache.
-
-@param hook
-  Array with the hook name and list of modules that implement it.
-@param write_to_persistent_cache
-  Whether to write to the persistent cache.
-
-</pre>
+  Save hook implementations cache.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>hook</code></strong> - Array with the hook name and list of modules that implement it.</li>
+        <li><strong class="pname"><code>write_to_persistent_cache</code></strong> - Whether to write to the persistent cache.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== VARIABLES DETAILS ==================== -->
+<a name="section-VariablesDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-VariablesDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="loaded_modules"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">loaded_modules</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">system</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;module 'modules.system' from '/Users/brendon/work/projects<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+/PythonDrupal/drupy/base/modules/system/__init__.pyc'&gt;<code class="variable-group">}</code>
+</pre></td></tr></table>
+</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2279,7 +2238,7 @@ Save hook implementations cache.
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:06 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:33 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

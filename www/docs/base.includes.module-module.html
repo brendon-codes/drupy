@@ -57,19 +57,25 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module module</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.module-pysrc.html">source&nbsp;code</a></span></p>
-<pre class="literalblock">
-
-@package Drupy
-@see http://drupy.net
-@note Drupy is a port of the Drupal project.
+<hr />
+<div class="fields">      <p><strong>See Also:</strong>
+        &nbsp;
+      </p>
+      <p><strong>Note:</strong>
+        Drupy is a port of the Drupal project.
  The Drupal project can be found at http://drupal.org
-@file module.py (ported from Drupal's module.inc)
- API for loading and interacting with Drupal modules.
-@author Brendon Crawford
-@copyright 2008 Brendon Crawford
-@contact message144 at users dot sourceforge dot net
-@created 2008-01-10
-@version 0.1
+      </p>
+      <p><strong>Author:</strong>
+        Brendon Crawford
+      </p>
+      <p><strong>Copyright:</strong>
+        2008 Brendon Crawford
+      </p>
+      <p><strong>Contact:</strong>
+        message144 at users dot sourceforge dot net
+      </p>
+      <p><strong>Version:</strong>
+        0.1
 @license: 
 
  This program is free software; you can redistribute it and/or
@@ -85,10 +91,8 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-</pre>
-
-<!-- ==================== FUNCTIONS ==================== -->
+      </p>
+</div><!-- ==================== FUNCTIONS ==================== -->
 <a name="section-Functions"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
@@ -129,7 +133,7 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="module_iterate"></a><span class="summary-sig-name">module_iterate</span>(<span class="summary-sig-arg">function</span>,
-        <span class="summary-sig-arg">argument</span>=<span class="summary-sig-default">''</span>)</span><br />
+        <span class="summary-sig-arg">argument</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span><br />
       Call a function repeatedly with each module in turn as an argument.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.module-pysrc.html#module_iterate">source&nbsp;code</a></span>
@@ -255,8 +259,8 @@
         <tr>
           <td><span class="summary-sig"><a name="module_load_all_includes"></a><span class="summary-sig-name">module_load_all_includes</span>(<span class="summary-sig-arg">type_</span>,
         <span class="summary-sig-arg">name</span>=<span class="summary-sig-default">None</span>)</span><br />
-      Load an include file for each of the modules that have been enabled 
-      in the system table.</td>
+      Load an include file for each of the modules that have been enabled in
+the system table.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.module-pysrc.html#module_load_all_includes">source&nbsp;code</a></span>
             
@@ -424,29 +428,23 @@
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Collect a list of all loaded modules. During the bootstrap, return only
+  Collect a list of all loaded modules. During the bootstrap, return only
 vital modules. See bootstrap.inc
-
-@param refresh
-  Whether to force the module list to be regenerated (such as after the
-  administrator has changed the system settings).
-@param bootstrap
-  Whether to return the reduced set of modules loaded in &quot;bootstrap mode&quot;
-  for cached pages. See bootstrap.inc.
-@param sort
-  By default, modules are ordered by weight and filename, settings this option
-  to True, module list will be ordered by module name.
-@param fixed_list
-  (Optional) Override the module list with the given modules. Stays until the
-  next call with refresh = True.
-@return
-  An associative array whose keys and values are the names of all loaded
-  modules.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>refresh</code></strong> - Whether to force the module list to be regenerated (such as after the
+  administrator has changed the system settings).</li>
+        <li><strong class="pname"><code>bootstrap</code></strong> - Whether to return the reduced set of modules loaded in "bootstrap mode"
+  for cached pages. See bootstrap.inc.</li>
+        <li><strong class="pname"><code>sort</code></strong> - By default, modules are ordered by weight and filename, settings this option
+  to True, module list will be ordered by module name.</li>
+        <li><strong class="pname"><code>fixed_list</code></strong> - (Optional) Override the module list with the given modules. Stays until the
+  next call with refresh = True.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An associative array whose keys and values are the names of all loaded
+  modules.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -464,15 +462,10 @@ vital modules. See bootstrap.inc
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Rebuild the database cache of module files.
-
-@return
-  The array of filesystem objects used to rebuild the cache.
-
-</pre>
+  Rebuild the database cache of module files.
   <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>The array of filesystem objects used to rebuild the cache.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -490,9 +483,7 @@ Rebuild the database cache of module files.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Find dependencies any level deep and fill in dependents information too.
+  Find dependencies any level deep and fill in dependents information too.
 
 If module A depends on B which in turn depends on C then this function will
 add C to the list of modules A depends on. This will be repeated until
@@ -503,14 +494,13 @@ it'll be impossible to switch module A on.
 
 Also we fill in a dependents array in file.info. Using the names above,
 the dependents array of module B lists A.
-
-@param files
-  The array of filesystem objects used to rebuild the cache.
-@return
-  The same array with dependencies and dependents added where applicable.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>files</code></strong> - The array of filesystem objects used to rebuild the cache.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The same array with dependencies and dependents added where applicable.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -528,17 +518,14 @@ the dependents array of module B lists A.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Determine whether a given module exists.
-
-@param module
-  The name of the module (without the .module extension).
-@return
-  True if the module is both installed and enabled.
-
-</pre>
+  Determine whether a given module exists.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>module</code></strong> - The name of the module (without the .module extension).</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>True if the module is both installed and enabled.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -558,19 +545,14 @@ Determine whether a given module exists.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Load a module include file.
-
-@param type
-  The include file's type (file extension).
-@param module
-  The module to which the include file belongs.
-@param name
-  Optionally, specify the file name. If not set, the module's name is used.
-
-</pre>
+  Load a module include file.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>type</code></strong> - The include file's type (file extension).</li>
+        <li><strong class="pname"><code>module</code></strong> - The module to which the include file belongs.</li>
+        <li><strong class="pname"><code>name</code></strong> - Optionally, specify the file name. If not set, the module's name is used.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -588,15 +570,12 @@ Load a module include file.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Enable a given list of modules.
-
-@param module_list
-  An array of module names.
-
-</pre>
+  Enable a given list of modules.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>module_list</code></strong> - An array of module names.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -614,15 +593,12 @@ Enable a given list of modules.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Disable a given set of modules.
-
-@param module_list
-  An array of module names.
-
-</pre>
+  Disable a given set of modules.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>module_list</code></strong> - An array of module names.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -641,20 +617,16 @@ Disable a given set of modules.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Determine whether a module implements a hook.
-
-@param module
-  The name of the module (without the .module extension).
-@param hook
-  The name of the hook (e.g. &quot;help&quot; or &quot;menu&quot;).
-@return
-  True if the module is both installed and enabled, and the hook is
-  implemented in that module.
-
-</pre>
+  Determine whether a module implements a hook.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>module</code></strong> - The name of the module (without the .module extension).</li>
+        <li><strong class="pname"><code>hook</code></strong> - The name of the hook (e.g. "help" or "menu").</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>True if the module is both installed and enabled, and the hook is
+  implemented in that module.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -674,24 +646,19 @@ Determine whether a module implements a hook.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Determine which modules are implementing a hook.
-
-@param hook
-  The name of the hook (e.g. &quot;help&quot; or &quot;menu&quot;).
-@param sort
-  By default, modules are ordered by weight and filename, settings this option
-  to True, module list will be ordered by module name.
-@param refresh
-  For internal use only: Whether to force the stored list of hook
-  implementations to be regenerated (such as after enabling a new module,
-  before processing hook_enable).
-@return
-  An array with the names of the modules which are implementing this hook.
-
-</pre>
+  Determine which modules are implementing a hook.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>hook</code></strong> - The name of the hook (e.g. "help" or "menu").</li>
+        <li><strong class="pname"><code>sort</code></strong> - By default, modules are ordered by weight and filename, settings this option
+  to True, module list will be ordered by module name.</li>
+        <li><strong class="pname"><code>refresh</code></strong> - For internal use only: Whether to force the stored list of hook
+  implementations to be regenerated (such as after enabling a new module,
+  before processing hook_enable).</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An array with the names of the modules which are implementing this hook.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -709,21 +676,16 @@ Determine which modules are implementing a hook.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Invoke a hook in a particular module.
-
-@param module
-  The name of the module (without the .module extension).
-@param hook
-  The name of the hook to invoke.
-@param ...
-  Arguments to pass to the hook implementation.
-@return
-  The return value of the hook implementation.
-
-</pre>
+  Invoke a hook in a particular module.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>module</code></strong> - The name of the module (without the .module extension).</li>
+        <li><strong class="pname"><code>hook</code></strong> - The name of the hook to invoke.</li>
+        <li><strong class="pname"><code>...</code></strong> - Arguments to pass to the hook implementation.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The return value of the hook implementation.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -741,20 +703,16 @@ Invoke a hook in a particular module.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Invoke a hook in all enabled modules that implement it.
-
-@param hook
-  The name of the hook to invoke.
-@param ...
-  Arguments to pass to the hook.
-@return
-  An array of return values of the hook implementations. If modules return
-  arrays from their implementations, those are merged into one array.
-
-</pre>
+  Invoke a hook in all enabled modules that implement it.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>hook</code></strong> - The name of the hook to invoke.</li>
+        <li><strong class="pname"><code>...</code></strong> - Arguments to pass to the hook.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An array of return values of the hook implementations. If modules return
+  arrays from their implementations, those are merged into one array.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -785,7 +743,7 @@ Invoke a hook in all enabled modules that implement it.
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:06 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:34 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

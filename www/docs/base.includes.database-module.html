@@ -57,19 +57,25 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module database</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.database-pysrc.html">source&nbsp;code</a></span></p>
-<pre class="literalblock">
-
-@package Drupy
-@see http://drupy.net
-@note Drupy is a port of the Drupal project.
+<hr />
+<div class="fields">      <p><strong>See Also:</strong>
+        &nbsp;
+      </p>
+      <p><strong>Note:</strong>
+        Drupy is a port of the Drupal project.
  The Drupal project can be found at http://drupal.org
-@file database.py (ported from Drupal's database.inc)
- Wrapper for database interface code.
-@author Brendon Crawford
-@copyright 2008 Brendon Crawford
-@contact message144 at users dot sourceforge dot net
-@created 2008-01-10
-@version 0.1
+      </p>
+      <p><strong>Author:</strong>
+        Brendon Crawford
+      </p>
+      <p><strong>Copyright:</strong>
+        2008 Brendon Crawford
+      </p>
+      <p><strong>Contact:</strong>
+        message144 at users dot sourceforge dot net
+      </p>
+      <p><strong>Version:</strong>
+        0.1
 @license: 
 
  This program is free software; you can redistribute it and/or
@@ -85,10 +91,8 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-</pre>
-
-<!-- ==================== FUNCTIONS ==================== -->
+      </p>
+</div><!-- ==================== FUNCTIONS ==================== -->
 <a name="section-Functions"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
@@ -145,7 +149,7 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="base.includes.database-module.html#db_set_active" class="summary-sig-name">db_set_active</a>(<span class="summary-sig-arg">name</span>=<span class="summary-sig-default">'default'</span>)</span><br />
+          <td><span class="summary-sig"><a href="base.includes.database-module.html#db_set_active" class="summary-sig-name">db_set_active</a>(<span class="summary-sig-arg">name</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">default</code><code class="variable-quote">'</code></span>)</span><br />
       Activate a database for future queries.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.database-pysrc.html#db_set_active">source&nbsp;code</a></span>
@@ -162,7 +166,7 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="base.includes.database-module.html#_db_error_page" class="summary-sig-name" onclick="show_private();">_db_error_page</a>(<span class="summary-sig-arg">error</span>=<span class="summary-sig-default">''</span>)</span><br />
+          <td><span class="summary-sig"><a href="base.includes.database-module.html#_db_error_page" class="summary-sig-name" onclick="show_private();">_db_error_page</a>(<span class="summary-sig-arg">error</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span><br />
       Helper function to show fatal database errors.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.database-pysrc.html#_db_error_page">source&nbsp;code</a></span>
@@ -215,96 +219,10 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="base.includes.database-module.html#db_placeholders" class="summary-sig-name">db_placeholders</a>(<span class="summary-sig-arg">arguments</span>,
-        <span class="summary-sig-arg">type</span>=<span class="summary-sig-default">'int'</span>)</span><br />
+        <span class="summary-sig-arg">type</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">int</code><code class="variable-quote">'</code></span>)</span><br />
       Generate placeholders for an array of query arguments of a single type.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.database-pysrc.html#db_placeholders">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="base.includes.database-module.html#db_result" class="summary-sig-name">db_result</a>(<span class="summary-sig-arg">result</span>)</span><br />
-      Return an individual result field from the previous query.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_result">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="base.includes.database-module.html#db_query" class="summary-sig-name">db_query</a>(<span class="summary-sig-arg">query</span>,
-        <span class="summary-sig-arg">*args</span>)</span><br />
-      Runs a basic query in the active database.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_query">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="base.includes.database-module.html#db_fetch_object" class="summary-sig-name">db_fetch_object</a>(<span class="summary-sig-arg">result</span>)</span><br />
-      Fetch one result row from the previous query as an object.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_fetch_object">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="base.includes.database-module.html#db_fetch_assoc" class="summary-sig-name">db_fetch_assoc</a>(<span class="summary-sig-arg">result</span>)</span><br />
-      Fetch one result row from the previous query as an array.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_fetch_array">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="db_escape_string"></a><span class="summary-sig-name">db_escape_string</span>(<span class="summary-sig-arg">data</span>)</span><br />
-      Wrapper to escape a string</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_escape_string">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -334,21 +252,21 @@
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="active_db"></a><span class="summary-name">active_db</span> = <code title="None">None</code>
+        <a name="active_db"></a><span class="summary-name">active_db</span> = <code title="&lt;_mysql.connection open to 'localhost' at 965410&gt;">&lt;_mysql.connection open to 'localhost' at 965410&gt;</code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="DB_ERROR"></a><span class="summary-name">DB_ERROR</span> = <code title="'a515ac9c2796ca0e23adbe92c68fc9fc'">'a515ac9c2796ca0e23adbe92c68fc9fc'</code>
+        <a name="DB_ERROR"></a><span class="summary-name">DB_ERROR</span> = <code title="'a515ac9c2796ca0e23adbe92c68fc9fc'"><code class="variable-quote">'</code><code class="variable-string">a515ac9c2796ca0e23adbe92c68fc9fc</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="DB_QUERY_REGEXP"></a><span class="summary-name">DB_QUERY_REGEXP</span> = <code title="'/(%d|%s|%%|%f|%b)/'">'/(%d|%s|%%|%f|%b)/'</code>
+        <a name="DB_QUERY_REGEXP"></a><span class="summary-name">DB_QUERY_REGEXP</span> = <code title="'/(%d|%s|%%|%f|%b)/'"><code class="variable-quote">'</code><code class="variable-string">/(%d|%s|%%|%f|%b)/</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 </table>
@@ -384,9 +302,7 @@
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Allow the use of different database servers using the same code base.
+  Allow the use of different database servers using the same code base.
 
 Drupal provides a slim database abstraction layer to provide developers with
 the ability to support multiple database servers easily. The intent of this
@@ -401,36 +317,16 @@ tablesort_sql() for generating appropriate queries for sortable tables.
 
 For example, one might wish to return a list of the most recent 10 nodes
 authored by a given user. Instead of directly issuing the SQL query
-@code
-  SELECT n.title, n.body, n.created FROM node n WHERE n.uid = uid LIMIT 0, 10;
-@endcode
-one would instead call the Drupal functions:
-@code
-  result = db_query_range('SELECT n.title, n.body, n.created
-    FROM {node} n WHERE n.uid = %d', uid, 0, 10);
-  while (node = db_fetch_object(result)) {
-    // Perform operations on node-&gt;body, etc. here.
-  }
-@endcode
-Curly braces are used around &quot;node&quot; to provide table prefixing via
-db_prefix_tables(). The explicit use of a user ID is pulled out into an
-argument passed to db_query() so that SQL injection attacks from user input
-can be caught and nullified. The LIMIT syntax varies between database servers,
-so that is abstracted into db_query_range() arguments. Finally, note the
-common pattern of iterating over the result set using db_fetch_object().
-
-Perform an SQL query and return success or failure.
-
-@param sql
-  A string containing a complete SQL query.  %-substitution
-  parameters are not supported.
-@return
-  An array containing the keys:
-     success: a boolean indicating whether the query succeeded
-     query: the SQL query executed, passed through check_plain()
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>sql</code></strong> - A string containing a complete SQL query.  %-substitution
+  parameters are not supported.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An array containing the keys:
+     success: a boolean indicating whether the query succeeded
+     query: the SQL query executed, passed through check_plain()</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -448,22 +344,19 @@ Perform an SQL query and return success or failure.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Append a database prefix to all tables in a query.
+  Append a database prefix to all tables in a query.
 
 Queries sent to Drupal should wrap all table names in curly brackets. This
 function searches for this syntax and adds Drupal's table prefix to all
 tables, allowing Drupal to coexist with other systems in the same database if
 necessary.
-
-@param sql
-  A string containing a partial or entire SQL query.
-@return
-  The properly-prefixed string.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>sql</code></strong> - A string containing a partial or entire SQL query.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The properly-prefixed string.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -474,16 +367,14 @@ necessary.
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">db_set_active</span>(<span class="sig-arg">name</span>=<span class="sig-default">'default'</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">db_set_active</span>(<span class="sig-arg">name</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">default</code><code class="variable-quote">'</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="base.includes.database-pysrc.html#db_set_active">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Activate a database for future queries.
+  Activate a database for future queries.
 
 If it is necessary to use external databases in a project, this function can
 be used to change where database queries are sent. If the database has not
@@ -493,21 +384,21 @@ default connection is made instead.
 
 Be sure to change the connection back to the default when done with custom
 code.
-
-@param name
-  The name assigned to the newly active database connection. If omitted, the
-  default connection will be made active.
-
-@return the name of the previously active database or FALSE if non was found.
-
-@todo BC: Need to eventually resolve the database importing mechanism here
-right now we are statically loading mysql at the top, but eventually we need
-to get this figured out 
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>name</code></strong> - The name assigned to the newly active database connection. If omitted, the
+  default connection will be made active.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>the name of the previously active database or FALSE if non was found.</dd>
   </dl>
-</td></tr></table>
+<div class="fields">      <p><strong>To Do:</strong>
+        BC: Need to eventually resolve the database importing mechanism here
+right now we are statically loading mysql at the top, but eventually we need
+to get this figured out
+      </p>
+</div></td></tr></table>
 </div>
 <a name="_db_error_page"></a>
 <div class="private">
@@ -516,26 +407,23 @@ to get this figured out
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">_db_error_page</span>(<span class="sig-arg">error</span>=<span class="sig-default">''</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_db_error_page</span>(<span class="sig-arg">error</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="base.includes.database-pysrc.html#_db_error_page">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Helper function to show fatal database errors.
+  Helper function to show fatal database errors.
 
 Prints a themed maintenance page with the 'Site off-line' text,
 adding the provided error message in the case of 'display_errors'
 set to on. Ends the page request; no return.
-
-@param error
-  The error message to be appended if 'display_errors' is on.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>error</code></strong> - The error message to be appended if 'display_errors' is on.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -547,162 +435,23 @@ set to on. Ends the page request; no return.
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">db_placeholders</span>(<span class="sig-arg">arguments</span>,
-        <span class="sig-arg">type</span>=<span class="sig-default">'int'</span>)</span>
+        <span class="sig-arg">type</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">int</code><code class="variable-quote">'</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="base.includes.database-pysrc.html#db_placeholders">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Generate placeholders for an array of query arguments of a single type.
+  Generate placeholders for an array of query arguments of a single type.
 
 Given a Schema API field type, return correct %-placeholders to
 embed in a query
-
-@param arguments
- An array with at least one element.
-@param type
-  The Schema API type of a field (e.g. 'int', 'text', or 'varchar').
-
-</pre>
   <dl class="fields">
-  </dl>
-</td></tr></table>
-</div>
-<a name="db_result"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">db_result</span>(<span class="sig-arg">result</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_result">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <pre class="literalblock">
-
-Return an individual result field from the previous query.
-
-Only use this function if exactly one field is being selected; otherwise,
-use db_fetch_object() or db_fetch_array().
-
-@param result
-  A database query result resource, as returned from db_query().
-@return
-  The resulting field or False.
-
-</pre>
-  <dl class="fields">
-  </dl>
-</td></tr></table>
-</div>
-<a name="db_query"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">db_query</span>(<span class="sig-arg">query</span>,
-        <span class="sig-arg">*args</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_query">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <pre class="literalblock">
-
-Runs a basic query in the active database.
-
-User-supplied arguments to the query should be passed in as separate
-parameters so that they can be properly escaped to avoid SQL injection
-attacks.
-
-@param query
-  A string containing an SQL query.
-@param ...
-  A variable number of arguments which are substituted into the query
-  using printf() syntax. Instead of a variable number of query arguments,
-  you may also pass a single array containing the query arguments.
-
-  Valid %-modifiers are: %s, %d, %f, %b (binary data, do not enclose
-  in '') and %%.
-
-  NOTE: using this syntax will cast None and False values to decimal 0,
- and True values to decimal 1.
-
-@return
-  A database query result resource, or False if the query was not
-  executed correctly.
-
-</pre>
-  <dl class="fields">
-  </dl>
-</td></tr></table>
-</div>
-<a name="db_fetch_object"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">db_fetch_object</span>(<span class="sig-arg">result</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_fetch_object">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <pre class="literalblock">
-
-Fetch one result row from the previous query as an object.
-
-@param result
-  A database query result resource, as returned from db_query().
-@return
-  An object representing the next row of the result, or False. The attributes
-  of this object are the table fields selected by the query.
-
-</pre>
-  <dl class="fields">
-  </dl>
-</td></tr></table>
-</div>
-<a name="db_fetch_assoc"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">db_fetch_assoc</span>(<span class="sig-arg">result</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.database_mysqli-pysrc.html#db_fetch_array">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <pre class="literalblock">
-
-Fetch one result row from the previous query as an array.
-
-@param result
-  A database query result resource, as returned from db_query().
-@return
-  An associative array representing the next row of the result, or False.
-  The keys of this object are the names of the table fields selected by the
-  query, and the values are the field values for this result row.
-
-</pre>
-  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>arguments</code></strong> - An array with at least one element.</li>
+        <li><strong class="pname"><code>type</code></strong> - The Schema API type of a field (e.g. 'int', 'text', or 'varchar').</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -733,7 +482,7 @@ Fetch one result row from the previous query as an array.
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:06 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:34 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

@@ -58,39 +58,27 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module DrupyMySQL</h1><p class="nomargin-top"><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html">source&nbsp;code</a></span></p>
-<pre class="literalblock">
-
-@package Drupy
-@see http://drupy.net
-@note Drupy is a port of the Drupal project.
+<hr />
+<div class="fields">      <p><strong>See Also:</strong>
+        &nbsp;
+      </p>
+      <p><strong>Note:</strong>
+        Drupy is a port of the Drupal project.
  The Drupal project can be found at http://drupal.org
-@file DrupyHelper.py
- A PHP/MySQL abstraction layer for Python
-@author Brendon Crawford
-@copyright 2008 Brendon Crawford
-@contact message144 at users dot sourceforge dot net
-@created 2008-05-10
-@version 0.1
-@depends MySQLdb
-@license: 
-
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- as published by the Free Software Foundation; either version 2
- of the License, or (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-</pre>
-
-<!-- ==================== CLASSES ==================== -->
+      </p>
+      <p><strong>Author:</strong>
+        Brendon Crawford
+      </p>
+      <p><strong>Copyright:</strong>
+        2008 Brendon Crawford
+      </p>
+      <p><strong>Contact:</strong>
+        message144 at users dot sourceforge dot net
+      </p>
+      <p><strong>Version:</strong>
+        0.1
+      </p>
+</div><!-- ==================== CLASSES ==================== -->
 <a name="section-Classes"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
@@ -152,7 +140,7 @@
         <span class="summary-sig-arg">passwd</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">dbname</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">port</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">socket</span>=<span class="summary-sig-default">''</span>,
+        <span class="summary-sig-arg">socket</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">flags</span>=<span class="summary-sig-default">None</span>)</span><br />
       Opens DB Connections</td>
           <td align="right" valign="top">
@@ -204,9 +192,8 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="mysqli_errno"></a><span class="summary-sig-name">mysqli_errno</span>(<span class="summary-sig-arg">connection</span>)</span><br />
-      Gets last db errno @param Instance[MySQLdb.connect] connection 
-      @return Int</td>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_errno" class="summary-sig-name">mysqli_errno</a>(<span class="summary-sig-arg">connection</span>)</span><br />
+      Gets last db errno</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_errno">source&nbsp;code</a></span>
             
@@ -222,9 +209,8 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="mysqli_error"></a><span class="summary-sig-name">mysqli_error</span>(<span class="summary-sig-arg">connection</span>)</span><br />
-      Gets last db error @param Instance[MySQLdb.connect] connection 
-      @return Str</td>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_error" class="summary-sig-name">mysqli_error</a>(<span class="summary-sig-arg">connection</span>)</span><br />
+      Gets last db error</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_error">source&nbsp;code</a></span>
             
@@ -309,10 +295,9 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="mysqli_real_escape_string"></a><span class="summary-sig-name">mysqli_real_escape_string</span>(<span class="summary-sig-arg">connection</span>,
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_real_escape_string" class="summary-sig-name">mysqli_real_escape_string</a>(<span class="summary-sig-arg">connection</span>,
         <span class="summary-sig-arg">text</span>)</span><br />
-      Escapes string @param MySQLdb.connection connection @param Str text 
-      @return Str</td>
+      Escapes string</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_real_escape_string">source&nbsp;code</a></span>
             
@@ -328,10 +313,9 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="mysqli_fetch_array"></a><span class="summary-sig-name">mysqli_fetch_array</span>(<span class="summary-sig-arg">cursor</span>,
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_fetch_array" class="summary-sig-name">mysqli_fetch_array</a>(<span class="summary-sig-arg">cursor</span>,
         <span class="summary-sig-arg">w</span>=<span class="summary-sig-default">None</span>)</span><br />
-      Alias for other fetch functions @param MySQLdb.cursors.DictCursor 
-      cursor @return Object[DrupyMySQL_row] | Dict</td>
+      Alias for other fetch functions</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_fetch_array">source&nbsp;code</a></span>
             
@@ -347,9 +331,8 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="mysqli_affected_rows"></a><span class="summary-sig-name">mysqli_affected_rows</span>(<span class="summary-sig-arg">cursor</span>)</span><br />
-      Gets affexted rows @param MySQLdb.cursors.DictCursor cursor @return 
-      Int</td>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_affected_rows" class="summary-sig-name">mysqli_affected_rows</a>(<span class="summary-sig-arg">cursor</span>)</span><br />
+      Gets affexted rows</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_affected_rows">source&nbsp;code</a></span>
             
@@ -365,8 +348,8 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="mysqli_init"></a><span class="summary-sig-name">mysqli_init</span>()</span><br />
-      Dummy function @return None</td>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_init" class="summary-sig-name">mysqli_init</a>()</span><br />
+      Dummy function</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_init">source&nbsp;code</a></span>
             
@@ -382,9 +365,8 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="mysqli_num_rows"></a><span class="summary-sig-name">mysqli_num_rows</span>(<span class="summary-sig-arg">cursor</span>)</span><br />
-      Gets affexted rows @param MySQLdb.cursors.DictCursor cursor @return 
-      Int</td>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_num_rows" class="summary-sig-name">mysqli_num_rows</a>(<span class="summary-sig-arg">cursor</span>)</span><br />
+      Gets affexted rows</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_affected_rows">source&nbsp;code</a></span>
             
@@ -464,7 +446,7 @@
         <span class="sig-arg">passwd</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">dbname</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">port</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">socket</span>=<span class="sig-default">''</span>,
+        <span class="sig-arg">socket</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">flags</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
@@ -472,11 +454,21 @@
     </td>
   </tr></table>
   
-  <p>Opens DB Connections</p>
-  <p>@param NoneType link @param Str host @param Str username @param Str 
-  passwd @param Str dbname @param Int port @param Socket socket @param Int 
-  flags @return Instance[MySQLdb.connect]</p>
+  Opens DB Connections
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>link</code></strong> - NoneType</li>
+        <li><strong class="pname"><code>host</code></strong> - Str</li>
+        <li><strong class="pname"><code>username</code></strong> - Str</li>
+        <li><strong class="pname"><code>passwd</code></strong> - Str</li>
+        <li><strong class="pname"><code>dbname</code></strong> - Str</li>
+        <li><strong class="pname"><code>port</code></strong> - Int</li>
+        <li><strong class="pname"><code>socket</code></strong> - Socket</li>
+        <li><strong class="pname"><code>flags</code></strong> - Int</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Instance[MySQLdb.connect]</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -494,9 +486,10 @@
     </td>
   </tr></table>
   
-  <p>Gets last connect errno</p>
-  <p>@return Int</p>
+  Gets last connect errno
   <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>Int</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -514,9 +507,60 @@
     </td>
   </tr></table>
   
-  <p>Gets last connect error</p>
-  <p>@return Str</p>
+  Gets last connect error
   <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>Str</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="mysqli_errno"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_errno</span>(<span class="sig-arg">connection</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_errno">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Gets last db errno
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>connection</code></strong> - Instance[MySQLdb.connect]</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Int</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="mysqli_error"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_error</span>(<span class="sig-arg">connection</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_error">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Gets last db error
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>connection</code></strong> - Instance[MySQLdb.connect]</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Str</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -536,10 +580,16 @@
     </td>
   </tr></table>
   
-  <p>Runs a query</p>
-  <p>@param Instance[MySQLdb.connect] connection @param Str query @param 
-  Int resultmode @return ???</p>
+  Runs a query
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>connection</code></strong> - Instance[MySQLdb.connect]</li>
+        <li><strong class="pname"><code>query</code></strong> - Str</li>
+        <li><strong class="pname"><code>resultmode</code></strong> - Int</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>???</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -557,9 +607,14 @@
     </td>
   </tr></table>
   
-  <p>Fetches one row</p>
-  <p>@param MySQLdb.cursors.DictCursor cursor @return Tuple</p>
+  Fetches one row
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>cursor</code></strong> - MySQLdb.cursors.DictCursor</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Tuple</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -577,9 +632,138 @@
     </td>
   </tr></table>
   
-  <p>Fetches row as dict</p>
-  <p>@param MySQLdb.cursors.DictCursor cursor @return Dict</p>
+  Fetches row as dict
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>cursor</code></strong> - MySQLdb.cursors.DictCursor</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Dict</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="mysqli_real_escape_string"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_real_escape_string</span>(<span class="sig-arg">connection</span>,
+        <span class="sig-arg">text</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_real_escape_string">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Escapes string
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>connection</code></strong> - MySQLdb.connection</li>
+        <li><strong class="pname"><code>text</code></strong> - Str</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Str</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="mysqli_fetch_array"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_fetch_array</span>(<span class="sig-arg">cursor</span>,
+        <span class="sig-arg">w</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_fetch_array">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Alias for other fetch functions
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>cursor</code></strong> - MySQLdb.cursors.DictCursor</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Object[DrupyMySQL_row] | Dict</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="mysqli_affected_rows"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_affected_rows</span>(<span class="sig-arg">cursor</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_affected_rows">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Gets affexted rows
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>cursor</code></strong> - MySQLdb.cursors.DictCursor</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Int</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="mysqli_init"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_init</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_init">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Dummy function
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>None</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="mysqli_num_rows"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_num_rows</span>(<span class="sig-arg">cursor</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_affected_rows">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Gets affexted rows
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>cursor</code></strong> - MySQLdb.cursors.DictCursor</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Int</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -610,7 +794,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:07 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:34 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

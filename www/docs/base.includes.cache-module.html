@@ -57,18 +57,25 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module cache</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.cache-pysrc.html">source&nbsp;code</a></span></p>
-<pre class="literalblock">
-
-@package Drupy
-@see http://drupy.net
-@note Drupy is a port of the Drupal project.
+<hr />
+<div class="fields">      <p><strong>See Also:</strong>
+        &nbsp;
+      </p>
+      <p><strong>Note:</strong>
+        Drupy is a port of the Drupal project.
  The drupal project can be found at http://drupal.org
-@file cache.py (ported from Drupal's cache.inc)
-@author Brendon Crawford
-@copyright 2008 Brendon Crawford
-@contact message144 at users dot sourceforge dot net
-@created 2008-01-10
-@version 0.1
+      </p>
+      <p><strong>Author:</strong>
+        Brendon Crawford
+      </p>
+      <p><strong>Copyright:</strong>
+        2008 Brendon Crawford
+      </p>
+      <p><strong>Contact:</strong>
+        message144 at users dot sourceforge dot net
+      </p>
+      <p><strong>Version:</strong>
+        0.1
 @license: 
 
  This program is free software; you can redistribute it and/or
@@ -84,10 +91,8 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-</pre>
-
-<!-- ==================== FUNCTIONS ==================== -->
+      </p>
+</div><!-- ==================== FUNCTIONS ==================== -->
 <a name="section-Functions"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
@@ -111,7 +116,7 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="base.includes.cache-module.html#cache_get" class="summary-sig-name">cache_get</a>(<span class="summary-sig-arg">cid</span>,
-        <span class="summary-sig-arg">table</span>=<span class="summary-sig-default">'cache'</span>)</span><br />
+        <span class="summary-sig-arg">table</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">cache</code><code class="variable-quote">'</code></span>)</span><br />
       Return data from the persistent cache.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.cache-pysrc.html#cache_get">source&nbsp;code</a></span>
@@ -130,7 +135,7 @@
         <tr>
           <td><span class="summary-sig"><a href="base.includes.cache-module.html#cache_set" class="summary-sig-name">cache_set</a>(<span class="summary-sig-arg">cid</span>,
         <span class="summary-sig-arg">data</span>,
-        <span class="summary-sig-arg">table</span>=<span class="summary-sig-default">'cache'</span>,
+        <span class="summary-sig-arg">table</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">cache</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">expire</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">headers</span>=<span class="summary-sig-default">None</span>)</span><br />
       Store data in the persistent cache.</td>
@@ -189,26 +194,22 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">cache_get</span>(<span class="sig-arg">cid</span>,
-        <span class="sig-arg">table</span>=<span class="sig-default">'cache'</span>)</span>
+        <span class="sig-arg">table</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">cache</code><code class="variable-quote">'</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="base.includes.cache-pysrc.html#cache_get">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Return data from the persistent cache. Data may be stored as either plain text or as serialized data.
+  Return data from the persistent cache. Data may be stored as either plain text or as serialized data.
 cache_get will automatically return unserialized objects and arrays.
-
-@param cid
-  The cache ID of the data to retrieve.
-@param table
-  The table table to store the data in. Valid core values are 'cache_filter',
-  'cache_menu', 'cache_page', or 'cache' for the default cache.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>cid</code></strong> - The cache ID of the data to retrieve.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table table to store the data in. Valid core values are 'cache_filter',
+  'cache_menu', 'cache_page', or 'cache' for the default cache.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -221,7 +222,7 @@ cache_get will automatically return unserialized objects and arrays.
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">cache_set</span>(<span class="sig-arg">cid</span>,
         <span class="sig-arg">data</span>,
-        <span class="sig-arg">table</span>=<span class="sig-default">'cache'</span>,
+        <span class="sig-arg">table</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">cache</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">expire</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">headers</span>=<span class="sig-default">None</span>)</span>
   </h3>
@@ -230,9 +231,7 @@ cache_get will automatically return unserialized objects and arrays.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Store data in the persistent cache.
+  Store data in the persistent cache.
 
 The persistent cache is split up into four database
 tables. Contributed modules can add additional tables.
@@ -255,28 +254,23 @@ The reasons for having several tables are as follows:
   ones into different tables. The effect is that only the fast
   changing tables will need a lot of writes to disk. The more
   static tables will also be better cachable with MySQL's query cache
-
-@param cid
-  The cache ID of the data to store.
-@param data
-  The data to store in the cache. Complex data types will be automatically serialized before insertion.
-  Strings will be stored as plain text and not serialized.
-@param table
-  The table table to store the data in. Valid core values are 'cache_filter',
-  'cache_menu', 'cache_page', or 'cache'.
-@param expire
-  One of the following values:
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>cid</code></strong> - The cache ID of the data to store.</li>
+        <li><strong class="pname"><code>data</code></strong> - The data to store in the cache. Complex data types will be automatically serialized before insertion.
+  Strings will be stored as plain text and not serialized.</li>
+        <li><strong class="pname"><code>table</code></strong> - The table table to store the data in. Valid core values are 'cache_filter',
+  'cache_menu', 'cache_page', or 'cache'.</li>
+        <li><strong class="pname"><code>expire</code></strong> - One of the following values:
   - CACHE_PERMANENT: Indicates that the item should never be removed unless
     explicitly told to using cache_clear_all() with a cache ID.
   - CACHE_TEMPORARY: Indicates that the item should be removed at the next
     general cache wipe.
   - A Unix timestamp: Indicates that the item should be kept at least until
-    the given time, after which it behaves like CACHE_TEMPORARY.
-@param headers
-  A string containing HTTP p.header information for cached pages.
-
-</pre>
-  <dl class="fields">
+    the given time, after which it behaves like CACHE_TEMPORARY.</li>
+        <li><strong class="pname"><code>headers</code></strong> - A string containing HTTP p.header information for cached pages.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -296,26 +290,19 @@ The reasons for having several tables are as follows:
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Expire data from the cache. If called without arguments, expirable
+  Expire data from the cache. If called without arguments, expirable
 entries will be cleared from the cache_page and cache_block tables.
-
-@param cid
-  If set, the cache ID to delete. Otherwise, all cache entries that can
-  expire are deleted.
-
-@param table
-  If set, the table table to delete from. Mandatory
-  argument if cid is set.
-
-@param wildcard
-  If set to TRUE, the cid is treated as a substring
-  to match rather than a complete ID. The match is a right hand
-  match. If '*' is given as cid, the table table will be emptied.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>cid</code></strong> - If set, the cache ID to delete. Otherwise, all cache entries that can
+  expire are deleted.</li>
+        <li><strong class="pname"><code>table</code></strong> - If set, the table table to delete from. Mandatory
+  argument if cid is set.</li>
+        <li><strong class="pname"><code>wildcard</code></strong> - If set to TRUE, the cid is treated as a substring
+  to match rather than a complete ID. The match is a right hand
+  match. If '*' is given as cid, the table table will be emptied.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -346,7 +333,7 @@ entries will be cleared from the cache_page and cache_block tables.
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:06 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:33 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

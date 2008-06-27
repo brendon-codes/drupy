@@ -57,18 +57,25 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module unicode</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.unicode-pysrc.html">source&nbsp;code</a></span></p>
-<pre class="literalblock">
-
-@package Drupy
-@see http://drupy.net
-@note Drupy is a port of the Drupal project.
+<hr />
+<div class="fields">      <p><strong>See Also:</strong>
+        &nbsp;
+      </p>
+      <p><strong>Note:</strong>
+        Drupy is a port of the Drupal project.
  The Drupal project can be found at http://drupal.org
-@file unicode.py (ported from Drupal's unicode.inc)
-@author Brendon Crawford
-@copyright 2008 Brendon Crawford
-@contact message144 at users dot sourceforge dot net
-@created 2008-01-10
-@version 0.1
+      </p>
+      <p><strong>Author:</strong>
+        Brendon Crawford
+      </p>
+      <p><strong>Copyright:</strong>
+        2008 Brendon Crawford
+      </p>
+      <p><strong>Contact:</strong>
+        message144 at users dot sourceforge dot net
+      </p>
+      <p><strong>Version:</strong>
+        0.1
 @license: 
 
  This program is free software; you can redistribute it and/or
@@ -84,10 +91,8 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-</pre>
-
-<!-- ==================== FUNCTIONS ==================== -->
+      </p>
+</div><!-- ==================== FUNCTIONS ==================== -->
 <a name="section-Functions"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
@@ -180,7 +185,9 @@ needed.</td>
         <tr>
           <td><span class="summary-sig"><a href="base.includes.unicode-module.html#drupal_convert_to_utf8" class="summary-sig-name">drupal_convert_to_utf8</a>(<span class="summary-sig-arg">data</span>,
         <span class="summary-sig-arg">encoding</span>)</span><br />
-      Convert data to UTF-8</td>
+      Convert data to UTF-8
+
+Requires the iconv, GNU recode or mbstring PHP extension.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.unicode-pysrc.html#drupal_convert_to_utf8">source&nbsp;code</a></span>
             
@@ -287,7 +294,7 @@ needed.</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="base.includes.unicode-module.html#decode_entities" class="summary-sig-name">decode_entities</a>(<span class="summary-sig-arg">text</span>,
-        <span class="summary-sig-arg">exclude</span>=<span class="summary-sig-default">[]</span>)</span><br />
+        <span class="summary-sig-arg">exclude</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span><br />
       Decode all HTML entities (including numerical ones) to regular UTF-8 bytes.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.unicode-pysrc.html#decode_entities">source&nbsp;code</a></span>
@@ -309,7 +316,7 @@ needed.</td>
         <span class="summary-sig-arg">original</span>,
         <span class="summary-sig-arg">table</span>,
         <span class="summary-sig-arg">exclude</span>)</span><br />
-      Helper function for decode_entities</td>
+      Helper function for decode_entities...</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.unicode-pysrc.html#_decode_entities">source&nbsp;code</a></span>
             
@@ -326,8 +333,8 @@ needed.</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="drupal_strlen"></a><span class="summary-sig-name">drupal_strlen</span>(<span class="summary-sig-arg">text</span>)</span><br />
-      Count the amount of characters in a UTF-8 string+ This is less than 
-      or equal to the byte count.</td>
+      Count the amount of characters in a UTF-8 string+ This is less than or
+equal to the byte count.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.unicode-pysrc.html#drupal_strlen">source&nbsp;code</a></span>
             
@@ -414,8 +421,8 @@ needed.</td>
           <td><span class="summary-sig"><a href="base.includes.unicode-module.html#drupal_substr" class="summary-sig-name">drupal_substr</a>(<span class="summary-sig-arg">text</span>,
         <span class="summary-sig-arg">start</span>,
         <span class="summary-sig-arg">length</span>=<span class="summary-sig-default">None</span>)</span><br />
-      Cut off a piece of a string based on character indices and counts+ 
-      Follows the same behavior as PHP's own substr() function.</td>
+      Cut off a piece of a string based on character indices and counts+ Follows
+the same behavior as PHP's own substr() function.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.unicode-pysrc.html#drupal_substr">source&nbsp;code</a></span>
             
@@ -447,7 +454,7 @@ needed.</td>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="multibyte"></a><span class="summary-name">multibyte</span> = <code title="None">None</code>
+        <a name="multibyte"></a><span class="summary-name">multibyte</span> = <code title="1">1</code>
     </td>
   </tr>
 <tr>
@@ -505,20 +512,17 @@ needed.</td>
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Perform checks about Unicode support in PHP, and set the right settings if
+  Perform checks about Unicode support in PHP, and set the right settings if
 needed.
 
 Because Drupal needs to be able to handle text in various encodings, we do
 not support mbstring function overloading+ HTTP input/output conversion must
 be disabled for similar reasons.
-
-@param errors
-  Whether to report any fatal errors with form_set_error().
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>errors</code></strong> - Whether to report any fatal errors with form_set_error().</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -536,27 +540,24 @@ be disabled for similar reasons.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Prepare a new XML parser.
+  Prepare a new XML parser.
 
 This is a wrapper around xml_parser_create() which extracts the encoding from
 the XML data first and sets the output encoding to UTF-8+ This function should
 be used instead of xml_parser_create(), because PHP 4's XML parser doesn't
-check the input encoding itself+ &quot;Starting from PHP 5, the input encoding is
+check the input encoding itself+ "Starting from PHP 5, the input encoding is
 automatically detected, so that the encoding parameter specifies only the
-output encoding.&quot;
+output encoding."
 
 This is also where unsupported encodings will be converted+ Callers should
 take this into account: data might have been changed after the call.
-
-@param &amp;data
-  The XML data which will be parsed later.
-@return
-  An XML parser object.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>&data</code></strong> - The XML data which will be parsed later.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An XML parser object.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -575,21 +576,17 @@ take this into account: data might have been changed after the call.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Convert data to UTF-8
+  Convert data to UTF-8
 
 Requires the iconv, GNU recode or mbstring PHP extension.
-
-@param data
-  The data to be converted.
-@param encoding
-  The encoding that the data is in
-@return
-  Converted data or False.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>data</code></strong> - The data to be converted.</li>
+        <li><strong class="pname"><code>encoding</code></strong> - The encoding that the data is in</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Converted data or False.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -608,9 +605,7 @@ Requires the iconv, GNU recode or mbstring PHP extension.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Truncate a UTF-8-encoded string safely to a number of bytes.
+  Truncate a UTF-8-encoded string safely to a number of bytes.
 
 If the end position is in the middle of a UTF-8 sequence, it scans backwards
 until the beginning of the byte sequence.
@@ -619,16 +614,14 @@ Use this function whenever you want to chop off a string at an unsure
 location+ On the other hand, if you're sure that you're splitting on a
 character boundary (e.g+ after using strpos() or similar), you can safely use
 substr() instead.
-
-@param string
-  The string to truncate.
-@param len
-  An upper limit on the returned string length.
-@return
-  The truncated string.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>string</code></strong> - The string to truncate.</li>
+        <li><strong class="pname"><code>len</code></strong> - An upper limit on the returned string length.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The truncated string.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -649,23 +642,17 @@ substr() instead.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Truncate a UTF-8-encoded string safely to a number of characters.
-
-@param string
-  The string to truncate.
-@param len
-  An upper limit on the returned string length.
-@param wordsafe
-  Flag to truncate at last space within the upper limit+ Defaults to False.
-@param dots
-  Flag to add trailing dots+ Defaults to False.
-@return
-  The truncated string.
-
-</pre>
+  Truncate a UTF-8-encoded string safely to a number of characters.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>string</code></strong> - The string to truncate.</li>
+        <li><strong class="pname"><code>len</code></strong> - An upper limit on the returned string length.</li>
+        <li><strong class="pname"><code>wordsafe</code></strong> - Flag to truncate at last space within the upper limit+ Defaults to False.</li>
+        <li><strong class="pname"><code>dots</code></strong> - Flag to add trailing dots+ Defaults to False.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The truncated string.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -683,12 +670,10 @@ Truncate a UTF-8-encoded string safely to a number of characters.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
   Encodes MIME/HTTP header values that contain non-ASCII, UTF-8 encoded
   characters.
  
-  For example, mime_header_encode('test.txt') returns &quot;=?UTF-8?B?dMOpc3QudHh0?=&quot;. (where the 'e' is acute)
+  For example, mime_header_encode('test.txt') returns "=?UTF-8?B?dMOpc3QudHh0?=". (where the 'e' is acute)
  
   See http://www.rfc-editor.org/rfc/rfc2047.txt for more information.
  
@@ -700,9 +685,6 @@ Truncate a UTF-8-encoded string safely to a number of characters.
 as the chunk separator may cause problems on some systems and may
     have to be changed to 
 or .
- 
-
-</pre>
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -715,28 +697,24 @@ or .
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">decode_entities</span>(<span class="sig-arg">text</span>,
-        <span class="sig-arg">exclude</span>=<span class="sig-default">[]</span>)</span>
+        <span class="sig-arg">exclude</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="base.includes.unicode-pysrc.html#decode_entities">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Decode all HTML entities (including numerical ones) to regular UTF-8 bytes.
-Double-escaped entities will only be decoded once (&quot;&amp;amp;lt;&quot; becomes &quot;&amp;lt;&quot;, not &quot;&lt;&quot;).
-
-@param text
-  The text to decode entities in.
-@param exclude
-  An array of characters which should not be decoded+ For example,
-  array('&lt;', '&amp;', '&quot;')+ This affects both named and numerical entities.
-
-DRUPY(BC): This function heavily modified
-
-</pre>
+  Decode all HTML entities (including numerical ones) to regular UTF-8 bytes.
+Double-escaped entities will only be decoded once ("&amp;lt;" becomes "&lt;", not "<").
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>text</code></strong> - The text to decode entities in.</li>
+        <li><strong class="pname"><code>exclude</code></strong> - An array of characters which should not be decoded+ For example,
+  array('<', '&', '"')+ This affects both named and numerical entities.
+
+DRUPY(BC): This function heavily modified</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -758,8 +736,9 @@ DRUPY(BC): This function heavily modified
     </td>
   </tr></table>
   
-  <p>Helper function for decode_entities</p>
-  <p>DRUPY(BC): This function heavily modified</p>
+  Helper function for decode_entities
+
+DRUPY(BC): This function heavily modified
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -778,8 +757,8 @@ DRUPY(BC): This function heavily modified
     </td>
   </tr></table>
   
-  <p>Helper function for case conversion of Latin-1. Used for flipping 
-  U+C0-U+DE to U+E0-U+FD and back.</p>
+  Helper function for case conversion of Latin-1.
+Used for flipping U+C0-U+DE to U+E0-U+FD and back.
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -800,11 +779,12 @@ DRUPY(BC): This function heavily modified
     </td>
   </tr></table>
   
-  <p>Cut off a piece of a string based on character indices and counts+ 
-  Follows the same behavior as PHP's own substr() function.</p>
-  <p>Note that for cutting off a string at a known character/substring 
-  location, the usage of PHP's normal strpos/substr is safe and much 
-  faster.</p>
+  Cut off a piece of a string based on character indices and counts+ Follows
+the same behavior as PHP's own substr() function.
+
+Note that for cutting off a string at a known character/substring
+location, the usage of PHP's normal strpos/substr is safe and
+much faster.
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -836,7 +816,7 @@ DRUPY(BC): This function heavily modified
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:07 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:34 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

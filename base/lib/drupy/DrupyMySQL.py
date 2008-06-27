@@ -65,14 +65,14 @@ def mysqli_real_connect(host = None, username = None, passwd = None,
   """
    Opens DB Connections
    
-   @param NoneType link
-   @param Str host
-   @param Str username
-   @param Str passwd
-   @param Str dbname
-   @param Int port
-   @param Socket socket
-   @param Int flags
+   @param link NoneType
+   @param host Str
+   @param username Str
+   @param passwd Str
+   @param dbname Str
+   @param port Int
+   @param socket Socket
+   @param flags Int
    @return Instance[MySQLdb.connect]
   """
   global __DB_META
@@ -107,7 +107,7 @@ def mysqli_connect_error():
 def mysqli_errno(connection):
   """
    Gets last db errno
-   @param Instance[MySQLdb.connect] connection
+   @param connection Instance[MySQLdb.connect]
    @return Int
   """
   return connection.errno()
@@ -116,7 +116,7 @@ def mysqli_errno(connection):
 def mysqli_error(connection):
   """
    Gets last db error
-   @param Instance[MySQLdb.connect] connection
+   @param connection Instance[MySQLdb.connect]
    @return Str
   """
   return connection.error()
@@ -127,9 +127,9 @@ def mysqli_query(connection, query, resultmode = None):
   """
    Runs a query
   
-   @param Instance[MySQLdb.connect] connection
-   @param Str query
-   @param Int resultmode
+   @param connection Instance[MySQLdb.connect]
+   @param query Str
+   @param resultmode Int
    @return ???
   """
   #DrupyHelper.output(True, type(connection))
@@ -145,7 +145,7 @@ def mysqli_fetch_row(cursor):
   """
    Fetches one row
   
-   @param MySQLdb.cursors.DictCursor cursor
+   @param cursor MySQLdb.cursors.DictCursor
    @return Tuple
   """
   return tuple(cursor.fetchone().values())
@@ -155,7 +155,7 @@ def mysqli_fetch_assoc(cursor):
   """
    Fetches row as dict
   
-   @param MySQLdb.cursors.DictCursor cursor
+   @param cursor MySQLdb.cursors.DictCursor
    @return Dict
   """
   return cursor.fetchone()
@@ -164,7 +164,7 @@ def mysqli_fetch_assoc(cursor):
 """
  Fetches row as object
 
- @param MySQLdb.cursors.DictCursor cursor
+ @param cursor MySQLdb.cursors.DictCursor
  @return Object[DrupyMySQL_row]
 """
 def mysqli_fetch_object(cursor):
@@ -180,8 +180,8 @@ def mysqli_fetch_object(cursor):
 def mysqli_real_escape_string(connection, text):
   """
    Escapes string
-   @param MySQLdb.connection connection
-   @param Str text
+   @param connection MySQLdb.connection
+   @param text Str
    @return Str
   """
   if isinstance(text, str):
@@ -193,7 +193,7 @@ def mysqli_real_escape_string(connection, text):
 def mysqli_fetch_array(cursor, w = None):
   """
    Alias for other fetch functions
-   @param MySQLdb.cursors.DictCursor cursor
+   @param cursor MySQLdb.cursors.DictCursor
    @return Object[DrupyMySQL_row] | Dict 
   """
   if w == MYSQLI_ASSOC:
@@ -205,7 +205,7 @@ def mysqli_fetch_array(cursor, w = None):
 def mysqli_affected_rows(cursor):
   """
    Gets affexted rows
-   @param MySQLdb.cursors.DictCursor cursor
+   @param cursor MySQLdb.cursors.DictCursor
    @return Int
   """
   return int(cursor.rowcount)

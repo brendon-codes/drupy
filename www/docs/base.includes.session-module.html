@@ -57,19 +57,25 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module session</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.session-pysrc.html">source&nbsp;code</a></span></p>
-<pre class="literalblock">
-
-@package Drupy
-@see http://drupy.net
-@note Drupy is a port of the Drupal project.
+<hr />
+<div class="fields">      <p><strong>See Also:</strong>
+        &nbsp;
+      </p>
+      <p><strong>Note:</strong>
+        Drupy is a port of the Drupal project.
  The Drupal project can be found at http://drupal.org
-@file session.py (ported from Drupal's session.inc)
- User session handling functions.
-@author Brendon Crawford
-@copyright 2008 Brendon Crawford
-@contact message144 at users dot sourceforge dot net
-@created 2008-05-25
-@version 0.1
+      </p>
+      <p><strong>Author:</strong>
+        Brendon Crawford
+      </p>
+      <p><strong>Copyright:</strong>
+        2008 Brendon Crawford
+      </p>
+      <p><strong>Contact:</strong>
+        message144 at users dot sourceforge dot net
+      </p>
+      <p><strong>Version:</strong>
+        0.1
 @license: 
 
  This program is free software; you can redistribute it and/or
@@ -85,10 +91,8 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-</pre>
-
-<!-- ==================== FUNCTIONS ==================== -->
+      </p>
+</div><!-- ==================== FUNCTIONS ==================== -->
 <a name="section-Functions"></a>
 <table class="summary" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
@@ -273,23 +277,6 @@
       
     </td>
   </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="sess_name"></a><span class="summary-sig-name">sess_name</span>(<span class="summary-sig-arg">name</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">DrupySession</code><code class="variable-quote">'</code></span>)</span><br />
-      Get and/or set the current session name @param Str name @return Str</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#session_name">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
 </table>
 <!-- ==================== FUNCTION DETAILS ==================== -->
 <a name="section-FunctionDetails"></a>
@@ -324,22 +311,21 @@
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Counts how many users have sessions. Can count either anonymous sessions, authenticated sessions, or both.
-
-@param int timestamp
+  Counts how many users have sessions. Can count either anonymous sessions, authenticated sessions, or both.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>int</code></strong> - timestamp
   A Unix timestamp representing a point of time in the past.
-  The default is 0, which counts all existing sessions.
-@param int anonymous
+  The default is 0, which counts all existing sessions.</li>
+        <li><strong class="pname"><code>int</code></strong> - anonymous
   True counts only anonymous users.
   False counts only authenticated users.
-  Any other value will return the count of both authenticated and anonymous users.
-@return  int
-  The number of users with sessions.
-
-</pre>
-  <dl class="fields">
+  Any other value will return the count of both authenticated and anonymous users.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>int
+  The number of users with sessions.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -357,15 +343,13 @@ Counts how many users have sessions. Can count either anonymous sessions, authen
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Called by PHP session handling with the PHP session ID to end a user's session.
-
-@param  string sid
-  the session id
-
-</pre>
+  Called by PHP session handling with the PHP session ID to end a user's session.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>string</code></strong> - sid
+  the session id</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -383,15 +367,13 @@ Called by PHP session handling with the PHP session ID to end a user's session.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-End a specific user's session
-
-@param  string uid
-  the user id
-
-</pre>
+  End a specific user's session
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>string</code></strong> - uid
+  the user id</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -409,21 +391,18 @@ End a specific user's session
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-
-Determine whether to save session data of the current request.
+  Determine whether to save session data of the current request.
 
 This function allows the caller to temporarily disable writing of session data,
 should the request end while performing potentially dangerous operations, such as
 manipulating the global user object.  See http://drupal.org/node/218104 for usage
-
-@param status
-  Disables writing of session data when False, (re-)enables writing when True.
-@return
-  False if writing session data has been disabled. Otherwise, True.
-
-</pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>status</code></strong> - Disables writing of session data when False, (re-)enables writing when True.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>False if writing session data has been disabled. Otherwise, True.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -454,7 +433,7 @@ manipulating the global user object.  See http://drupal.org/node/218104 for usag
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:06 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:34 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

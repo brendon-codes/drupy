@@ -51,8 +51,8 @@ def getFunction(module_, function_):
   """
   Gets fiunction object from module
   
-  @param Module module_
-  @param Str function_
+  @param module_ Module
+  @param function_ Str
   @return Function
   """
   return getattr(module_, function_)
@@ -63,7 +63,7 @@ def exists(filename):
   """
     Checks for existance of drupy module
     
-    @param Str filename
+    @param filename Str
     @return Bool
   """
   return os.path.exists('%s/__init__.py' % filename)
