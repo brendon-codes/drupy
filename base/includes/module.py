@@ -366,7 +366,7 @@ def module_hook(module_, hook):
   if (p.defined('MAINTENANCE_MODE')):
     return p.function_exists(function);
   else:
-     return drupal_function_exists(function);
+     return inc_bootstrap.drupal_function_exists(function);
 
 
 
@@ -399,14 +399,14 @@ def module_implements(hook, sort = False, refresh = False):
     for module_ in module_list():
       if (module_hook(module_, hook)):
         module_implements.implementations[hook].append( module )
-  registry_cache_hook_implementations({'hook' : hook, 'modules' : module_implements.implementations[hook]});
+  inc_bootstrap.registry_cache_hook_implementations({'hook' : hook, 'modules' : module_implements.implementations[hook]});
   # The explicit cast forces a copy to be made. This is needed because
   # implementations[hook] is only a reference to an element of
   # implementations and if there are nested foreaches (due to nested node
   # API calls, for example), they would both manipulate the same array's
   # references, which causes some modules' hooks not to be called.
   # See also http://www.zend.com/zend/art/ref-count.php.
-  return drupy_array(module_implements.implementations[hook])
+  return p.array_(module_implements.implementations[hook])
 
 
 
@@ -423,6 +423,7 @@ def module_invoke(*args):
    @return
      The return value of the hook implementation.
   """
+  args = list(args)
   module_ = args[0]
   hook = args[1]
   del(args[0], args[1])
