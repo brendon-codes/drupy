@@ -57,6 +57,9 @@
 		<div id="main">
 			<h1>Drupy</h1>
 			<h2>Drupal&#8230; in Python</h2>
+			<p class="status-title">
+			  Updated 06/27/2008
+			</p>
 			<p>
 				Drupy is a Python port of the <a href="http://drupal.org/" title="Drupal: Community Plumbing">Drupal</a> content management system, which until now was only available in PHP.
 			</p>
@@ -69,10 +72,11 @@
 			<p>
 				The latest Drupy codebase is available via GIT at <a href="http://gitorious.org/projects/drupy/repos/mainline">Gitorious</a>.
 			</p>
-			<h3>Current Status</h3>
-			<p class="status-title">
-			  Updated 06/27/2008
+			<h3>API Documentation</h3>
+			<p>
+				If you want to see whats under the hood, have a look at the <a href='/docs'>Drupy API Documentation</a>.
 			</p>
+			<h3>Current Status</h3>
 			<p>
 				Currently, Drupy can load core modules/plugins and execute the core init hook. The core system plugin (Drupal's system.module) is almost complete. For more details, check the <a href="/status/current.html">Drupy diagnostic page</a>, which is updated regularily.
 			</p>
