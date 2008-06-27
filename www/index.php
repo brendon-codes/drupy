@@ -14,6 +14,10 @@
 		<meta name="revised" content="Drupy, 06/27/2008" />
 		<meta name="verify-v1" content="jEk8c88dgEev9x3hfBbvxz3n0pqB+LtEM0PHhK4nYxo=" />
 		<style type="text/css" media="screen">
+			p
+			{
+				font-size : 85%;
+			}
 			body
 			{
 				text-align : center;
@@ -44,6 +48,10 @@
 			{
 			  margin : 0px;
 			}
+			a
+			{
+				color : #933;
+			}
 			.status-title
 			{
 			  color : #F00;
@@ -72,7 +80,7 @@
 			</p>
 			<h3>Getting the Code</h3>
 			<p>
-				The latest Drupy codebase is available via GIT at <a href="http://gitorious.org/projects/drupy/repos/mainline">Gitorious</a>.
+				The latest Drupy codebase is available via GIT at <a href="http://gitorious.org/projects/drupy">Gitorious</a>.
 			</p>
 			<h3>API Documentation</h3>
 			<p>
@@ -81,6 +89,10 @@
 			<h3>Current Status</h3>
 			<p>
 				Currently, Drupy can load core modules/plugins and execute the core init hook. The core system plugin (Drupal's system.module) is almost complete. For more details, check the <a href="/status/current.html">Drupy diagnostic page</a>, which is updated regularily.
+			</p>
+			<h3>Special Thanks</h3>
+			<p>
+				The name "Drupy" was kindly transferred to us by <a href='http://kzo.net/'>Keizo Gates</a>. Keizo Gates is not affiliated with the Drupy project, so please do not contact him with Drupy questions.
 			</p>
 		</div>
 		<script type="text/javascript">
