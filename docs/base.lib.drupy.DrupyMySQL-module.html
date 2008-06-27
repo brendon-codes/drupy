@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>base.lib.drupy.DrupyMySQL</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="base-module.html">Package&nbsp;base</a> ::
+        <a href="base.lib-module.html">Package&nbsp;lib</a> ::
+        <a href="base.lib.drupy-module.html">Package&nbsp;drupy</a> ::
+        Module&nbsp;DrupyMySQL
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="base.lib.drupy.DrupyMySQL-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module DrupyMySQL</h1><p class="nomargin-top"><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html">source&nbsp;code</a></span></p>
+<pre class="literalblock">
+
+@package Drupy
+@see http://drupy.net
+@note Drupy is a port of the Drupal project.
+ The Drupal project can be found at http://drupal.org
+@file DrupyHelper.py
+ A PHP/MySQL abstraction layer for Python
+@author Brendon Crawford
+@copyright 2008 Brendon Crawford
+@contact message144 at users dot sourceforge dot net
+@created 2008-05-10
+@version 0.1
+@depends MySQLdb
+@license: 
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+</pre>
+
+<!-- ==================== CLASSES ==================== -->
+<a name="section-Classes"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Classes</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Classes"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="base.lib.drupy.DrupyMySQL.__DrupyMySQLMeta-class.html" class="summary-name" onclick="show_private();">__DrupyMySQLMeta</a><br />
+      Stores error information
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="base.lib.drupy.DrupyMySQL.__DrupyMySQLRow-class.html" class="summary-name" onclick="show_private();">__DrupyMySQLRow</a><br />
+      Stores row information
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Functions</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Functions"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_real_connect" class="summary-sig-name">mysqli_real_connect</a>(<span class="summary-sig-arg">host</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">username</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">passwd</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">dbname</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">port</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">socket</span>=<span class="summary-sig-default">''</span>,
+        <span class="summary-sig-arg">flags</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Opens DB Connections</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_real_connect">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_connect_errno" class="summary-sig-name">mysqli_connect_errno</a>()</span><br />
+      Gets last connect errno</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_connect_errno">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_connect_error" class="summary-sig-name">mysqli_connect_error</a>()</span><br />
+      Gets last connect error</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_connect_error">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="mysqli_errno"></a><span class="summary-sig-name">mysqli_errno</span>(<span class="summary-sig-arg">connection</span>)</span><br />
+      Gets last db errno @param Instance[MySQLdb.connect] connection 
+      @return Int</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_errno">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="mysqli_error"></a><span class="summary-sig-name">mysqli_error</span>(<span class="summary-sig-arg">connection</span>)</span><br />
+      Gets last db error @param Instance[MySQLdb.connect] connection 
+      @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_error">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_query" class="summary-sig-name">mysqli_query</a>(<span class="summary-sig-arg">connection</span>,
+        <span class="summary-sig-arg">query</span>,
+        <span class="summary-sig-arg">resultmode</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Runs a query</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_query">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_fetch_row" class="summary-sig-name">mysqli_fetch_row</a>(<span class="summary-sig-arg">cursor</span>)</span><br />
+      Fetches one row</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_fetch_row">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyMySQL-module.html#mysqli_fetch_assoc" class="summary-sig-name">mysqli_fetch_assoc</a>(<span class="summary-sig-arg">cursor</span>)</span><br />
+      Fetches row as dict</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_fetch_assoc">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="mysqli_fetch_object"></a><span class="summary-sig-name">mysqli_fetch_object</span>(<span class="summary-sig-arg">cursor</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_fetch_object">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="mysqli_real_escape_string"></a><span class="summary-sig-name">mysqli_real_escape_string</span>(<span class="summary-sig-arg">connection</span>,
+        <span class="summary-sig-arg">text</span>)</span><br />
+      Escapes string @param MySQLdb.connection connection @param Str text 
+      @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_real_escape_string">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="mysqli_fetch_array"></a><span class="summary-sig-name">mysqli_fetch_array</span>(<span class="summary-sig-arg">cursor</span>,
+        <span class="summary-sig-arg">w</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Alias for other fetch functions @param MySQLdb.cursors.DictCursor 
+      cursor @return Object[DrupyMySQL_row] | Dict</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_fetch_array">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="mysqli_affected_rows"></a><span class="summary-sig-name">mysqli_affected_rows</span>(<span class="summary-sig-arg">cursor</span>)</span><br />
+      Gets affexted rows @param MySQLdb.cursors.DictCursor cursor @return 
+      Int</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_affected_rows">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="mysqli_init"></a><span class="summary-sig-name">mysqli_init</span>()</span><br />
+      Dummy function @return None</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_init">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="mysqli_num_rows"></a><span class="summary-sig-name">mysqli_num_rows</span>(<span class="summary-sig-arg">cursor</span>)</span><br />
+      Gets affexted rows @param MySQLdb.cursors.DictCursor cursor @return 
+      Int</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_affected_rows">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES ==================== -->
+<a name="section-Variables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Variables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="MYSQLI_ASSOC"></a><span class="summary-name">MYSQLI_ASSOC</span> = <code title="0">0</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="MYSQLI_CLIENT_FOUND_ROWS"></a><span class="summary-name">MYSQLI_CLIENT_FOUND_ROWS</span> = <code title="0">0</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="__DB_META"></a><span class="summary-name">__DB_META</span> = <code title="__DrupyMySQLMeta()">__DrupyMySQLMeta()</code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Function Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-FunctionDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="mysqli_real_connect"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_real_connect</span>(<span class="sig-arg">host</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">username</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">passwd</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">dbname</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">port</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">socket</span>=<span class="sig-default">''</span>,
+        <span class="sig-arg">flags</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_real_connect">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Opens DB Connections</p>
+  <p>@param NoneType link @param Str host @param Str username @param Str 
+  passwd @param Str dbname @param Int port @param Socket socket @param Int 
+  flags @return Instance[MySQLdb.connect]</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="mysqli_connect_errno"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_connect_errno</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_connect_errno">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Gets last connect errno</p>
+  <p>@return Int</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="mysqli_connect_error"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_connect_error</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_connect_error">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Gets last connect error</p>
+  <p>@return Str</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="mysqli_query"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_query</span>(<span class="sig-arg">connection</span>,
+        <span class="sig-arg">query</span>,
+        <span class="sig-arg">resultmode</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_query">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Runs a query</p>
+  <p>@param Instance[MySQLdb.connect] connection @param Str query @param 
+  Int resultmode @return ???</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="mysqli_fetch_row"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_fetch_row</span>(<span class="sig-arg">cursor</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_fetch_row">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Fetches one row</p>
+  <p>@param MySQLdb.cursors.DictCursor cursor @return Tuple</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="mysqli_fetch_assoc"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mysqli_fetch_assoc</span>(<span class="sig-arg">cursor</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyMySQL-pysrc.html#mysqli_fetch_assoc">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Fetches row as dict</p>
+  <p>@param MySQLdb.cursors.DictCursor cursor @return Dict</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:07 2008
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

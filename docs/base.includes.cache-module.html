@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>base.includes.cache</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="base-module.html">Package&nbsp;base</a> ::
+        <a href="base.includes-module.html">Package&nbsp;includes</a> ::
+        Module&nbsp;cache
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="base.includes.cache-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module cache</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.cache-pysrc.html">source&nbsp;code</a></span></p>
+<pre class="literalblock">
+
+@package Drupy
+@see http://drupy.net
+@note Drupy is a port of the Drupal project.
+ The drupal project can be found at http://drupal.org
+@file cache.py (ported from Drupal's cache.inc)
+@author Brendon Crawford
+@copyright 2008 Brendon Crawford
+@contact message144 at users dot sourceforge dot net
+@created 2008-01-10
+@version 0.1
+@license: 
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+</pre>
+
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Functions</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Functions"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.cache-module.html#cache_get" class="summary-sig-name">cache_get</a>(<span class="summary-sig-arg">cid</span>,
+        <span class="summary-sig-arg">table</span>=<span class="summary-sig-default">'cache'</span>)</span><br />
+      Return data from the persistent cache.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.cache-pysrc.html#cache_get">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.cache-module.html#cache_set" class="summary-sig-name">cache_set</a>(<span class="summary-sig-arg">cid</span>,
+        <span class="summary-sig-arg">data</span>,
+        <span class="summary-sig-arg">table</span>=<span class="summary-sig-default">'cache'</span>,
+        <span class="summary-sig-arg">expire</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">headers</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Store data in the persistent cache.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.cache-pysrc.html#cache_set">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.cache-module.html#cache_clear_all" class="summary-sig-name">cache_clear_all</a>(<span class="summary-sig-arg">cid</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">table</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">wildcard</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Expire data from the cache.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.cache-pysrc.html#cache_clear_all">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Function Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-FunctionDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="cache_get"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">cache_get</span>(<span class="sig-arg">cid</span>,
+        <span class="sig-arg">table</span>=<span class="sig-default">'cache'</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.cache-pysrc.html#cache_get">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return data from the persistent cache. Data may be stored as either plain text or as serialized data.
+cache_get will automatically return unserialized objects and arrays.
+
+@param cid
+  The cache ID of the data to retrieve.
+@param table
+  The table table to store the data in. Valid core values are 'cache_filter',
+  'cache_menu', 'cache_page', or 'cache' for the default cache.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="cache_set"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">cache_set</span>(<span class="sig-arg">cid</span>,
+        <span class="sig-arg">data</span>,
+        <span class="sig-arg">table</span>=<span class="sig-default">'cache'</span>,
+        <span class="sig-arg">expire</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">headers</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.cache-pysrc.html#cache_set">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Store data in the persistent cache.
+
+The persistent cache is split up into four database
+tables. Contributed modules can add additional tables.
+
+'cache_page': This table stores generated pages for anonymous
+users. This is the only table affected by the page cache setting on
+the administrator panel.
+
+'cache_menu': Stores the cachable part of the users' menus.
+
+'cache_filter': Stores filtered pieces of content. This table is
+periodically cleared of stale entries by cron.
+
+'cache': Generic cache storage table.
+
+The reasons for having several tables are as follows:
+
+- smaller tables allow for faster selects and inserts
+- we try to put fast changing cache items and rather static
+  ones into different tables. The effect is that only the fast
+  changing tables will need a lot of writes to disk. The more
+  static tables will also be better cachable with MySQL's query cache
+
+@param cid
+  The cache ID of the data to store.
+@param data
+  The data to store in the cache. Complex data types will be automatically serialized before insertion.
+  Strings will be stored as plain text and not serialized.
+@param table
+  The table table to store the data in. Valid core values are 'cache_filter',
+  'cache_menu', 'cache_page', or 'cache'.
+@param expire
+  One of the following values:
+  - CACHE_PERMANENT: Indicates that the item should never be removed unless
+    explicitly told to using cache_clear_all() with a cache ID.
+  - CACHE_TEMPORARY: Indicates that the item should be removed at the next
+    general cache wipe.
+  - A Unix timestamp: Indicates that the item should be kept at least until
+    the given time, after which it behaves like CACHE_TEMPORARY.
+@param headers
+  A string containing HTTP p.header information for cached pages.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="cache_clear_all"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">cache_clear_all</span>(<span class="sig-arg">cid</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">table</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">wildcard</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.cache-pysrc.html#cache_clear_all">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Expire data from the cache. If called without arguments, expirable
+entries will be cleared from the cache_page and cache_block tables.
+
+@param cid
+  If set, the cache ID to delete. Otherwise, all cache entries that can
+  expire are deleted.
+
+@param table
+  If set, the table table to delete from. Mandatory
+  argument if cid is set.
+
+@param wildcard
+  If set to TRUE, the cid is treated as a substring
+  to match rather than a complete ID. The match is a right hand
+  match. If '*' is given as cid, the table table will be emptied.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:06 2008
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

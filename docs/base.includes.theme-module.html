@@ -1,0 +1,2299 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>base.includes.theme</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="base-module.html">Package&nbsp;base</a> ::
+        <a href="base.includes-module.html">Package&nbsp;includes</a> ::
+        Module&nbsp;theme
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="base.includes.theme-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module theme</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.theme-pysrc.html">source&nbsp;code</a></span></p>
+<pre class="literalblock">
+
+@package Drupy
+@see http://drupy.net
+@note Drupy is a port of the Drupal project.
+ The Drupal project can be found at http://drupal.org
+@file theme.py (ported from Drupal's theme.inc)
+ The theme system, which controls the output of Drupal.
+ The theme system allows for nearly all output of the Drupy system to be
+ customized by user themes.
+@author Brendon Crawford
+@copyright 2008 Brendon Crawford
+@contact message144 at users dot sourceforge dot net
+@created 2008-01-10
+@version 0.1
+@license: 
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+</pre>
+
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Functions</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Functions"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="init_theme"></a><span class="summary-sig-name">init_theme</span>()</span><br />
+      Initialize the theme system by loading the theme.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#init_theme">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#_init_theme" class="summary-sig-name" onclick="show_private();">_init_theme</a>(<span class="summary-sig-arg">theme_</span>,
+        <span class="summary-sig-arg">base_theme</span>=<span class="summary-sig-default">[]</span>,
+        <span class="summary-sig-arg">registry_callback</span>=<span class="summary-sig-default">'_theme_load_registry'</span>)</span><br />
+      Initialize the theme system given already loaded information.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#_init_theme">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_get_registry" class="summary-sig-name">theme_get_registry</a>(<span class="summary-sig-arg">registry</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Retrieve the stored theme registry.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_get_registry">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_theme_set_registry"></a><span class="summary-sig-name">_theme_set_registry</span>(<span class="summary-sig-arg">registry</span>)</span><br />
+      Store the theme registry in memory.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#_theme_set_registry">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#_theme_load_registry" class="summary-sig-name" onclick="show_private();">_theme_load_registry</a>(<span class="summary-sig-arg">theme_</span>,
+        <span class="summary-sig-arg">base_theme</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">theme_engine</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Get the theme_registry cache from the database; if it doesn't exist, build
+it.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#_theme_load_registry">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_theme_save_registry"></a><span class="summary-sig-name">_theme_save_registry</span>(<span class="summary-sig-arg">theme_</span>,
+        <span class="summary-sig-arg">registry</span>)</span><br />
+      Write the theme_registry cache into the database.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#_theme_save_registry">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="drupal_rebuild_theme_registry"></a><span class="summary-sig-name">drupal_rebuild_theme_registry</span>()</span><br />
+      Force the system to rebuild the theme registry; this should be called
+      when modules are added to the system, or when a dynamic system needs 
+      to add more theme hooks.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#drupal_rebuild_theme_registry">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#_theme_process_registry" class="summary-sig-name" onclick="show_private();">_theme_process_registry</a>(<span class="summary-sig-arg">cache</span>,
+        <span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">type_</span>,
+        <span class="summary-sig-arg">theme_</span>,
+        <span class="summary-sig-arg">path</span>)</span><br />
+      Process a single invocation of the theme hook.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#_theme_process_registry">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#_theme_build_registry" class="summary-sig-name" onclick="show_private();">_theme_build_registry</a>(<span class="summary-sig-arg">theme_</span>,
+        <span class="summary-sig-arg">base_theme</span>,
+        <span class="summary-sig-arg">theme_engine</span>)</span><br />
+      Rebuild the hook theme_registry cache.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#_theme_build_registry">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#list_themes" class="summary-sig-name">list_themes</a>(<span class="summary-sig-arg">refresh</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Provides a list of currently available themes.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#list_themes">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme" class="summary-sig-name">theme</a>()</span><br />
+      Generate the themed output.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#drupal_discover_template" class="summary-sig-name">drupal_discover_template</a>(<span class="summary-sig-arg">paths</span>,
+        <span class="summary-sig-arg">suggestions</span>,
+        <span class="summary-sig-arg">extension</span>=<span class="summary-sig-default">'.tpl.php'</span>)</span><br />
+      Choose which template file to actually render.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#drupal_discover_template">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="path_to_theme"></a><span class="summary-sig-name">path_to_theme</span>()</span><br />
+      Return the path to the currently selected theme.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#path_to_theme">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#drupal_find_theme_functions" class="summary-sig-name">drupal_find_theme_functions</a>(<span class="summary-sig-arg">cache</span>,
+        <span class="summary-sig-arg">prefixes</span>)</span><br />
+      Find overridden theme functions.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#drupal_find_theme_functions">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#drupal_find_theme_templates" class="summary-sig-name">drupal_find_theme_templates</a>(<span class="summary-sig-arg">cache</span>,
+        <span class="summary-sig-arg">extension</span>,
+        <span class="summary-sig-arg">path</span>)</span><br />
+      Find overridden theme templates.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#drupal_find_theme_templates">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_get_settings" class="summary-sig-name">theme_get_settings</a>(<span class="summary-sig-arg">key</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Retrieve an associative array containing the settings for a theme+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_get_settings">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_get_setting" class="summary-sig-name">theme_get_setting</a>(<span class="summary-sig-arg">setting_name</span>,
+        <span class="summary-sig-arg">refresh</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Retrieve a setting for the current theme+ * This function is designed for use from within themes &amp; engines
+to determine theme settings made in the admin interface+ *
+Caches values for speed (use refresh = True to refresh cache)</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_get_setting">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_render_template" class="summary-sig-name">theme_render_template</a>(<span class="summary-sig-arg">file</span>,
+        <span class="summary-sig-arg">variables</span>)</span><br />
+      Render a system default template, which is essentially a PHP template+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_render_template">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_placeholder" class="summary-sig-name">theme_placeholder</a>(<span class="summary-sig-arg">text</span>)</span><br />
+      Functions and templates that present output to the user, and can be
+implemented by themes</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_placeholder">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_status_messages" class="summary-sig-name">theme_status_messages</a>(<span class="summary-sig-arg">display</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Return a themed set of status and/or error messages+ The messages are grouped
+by type</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_status_messages">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_links" class="summary-sig-name">theme_links</a>(<span class="summary-sig-arg">links</span>,
+        <span class="summary-sig-arg">attributes</span>=<span class="summary-sig-default">{'class': 'links'}</span>)</span><br />
+      Return a themed set of links+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_links">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_image" class="summary-sig-name">theme_image</a>(<span class="summary-sig-arg">path</span>,
+        <span class="summary-sig-arg">alt</span>=<span class="summary-sig-default">''</span>,
+        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default">''</span>,
+        <span class="summary-sig-arg">attributes</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">getsize</span>=<span class="summary-sig-default">True</span>)</span><br />
+      Return a themed image+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_image">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_breadcrumb" class="summary-sig-name">theme_breadcrumb</a>(<span class="summary-sig-arg">breadcrumb</span>)</span><br />
+      Return a themed breadcrumb trail+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_breadcrumb">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="theme_help"></a><span class="summary-sig-name">theme_help</span>()</span><br />
+      Return a themed help message+ * @return a string containing the 
+      helptext for the current page+</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_help">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_submenu" class="summary-sig-name">theme_submenu</a>(<span class="summary-sig-arg">links</span>)</span><br />
+      Return a themed submenu, typically displayed under the tabs+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_submenu">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_table" class="summary-sig-name">theme_table</a>(<span class="summary-sig-arg">header_</span>,
+        <span class="summary-sig-arg">rows</span>,
+        <span class="summary-sig-arg">attributes</span>=<span class="summary-sig-default">{}</span>,
+        <span class="summary-sig-arg">caption</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">colgroups</span>=<span class="summary-sig-default">{}</span>)</span><br />
+      Return a themed table.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_table">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="theme_table_select_header_cell"></a><span class="summary-sig-name">theme_table_select_header_cell</span>()</span><br />
+      Returns a p.header cell for tables that have a select all 
+      functionality+</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_table_select_header_cell">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_tablesort_indicator" class="summary-sig-name">theme_tablesort_indicator</a>(<span class="summary-sig-arg">style</span>)</span><br />
+      Return a themed sort icon+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_tablesort_indicator">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_box" class="summary-sig-name">theme_box</a>(<span class="summary-sig-arg">title</span>,
+        <span class="summary-sig-arg">content</span>,
+        <span class="summary-sig-arg">region</span>=<span class="summary-sig-default">'main'</span>)</span><br />
+      Return a themed box+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_box">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_mark" class="summary-sig-name">theme_mark</a>(<span class="summary-sig-arg">type</span>=<span class="summary-sig-default">MARK_NEW</span>)</span><br />
+      Return a themed marker, useful for marking new or updated...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_mark">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_item_list" class="summary-sig-name">theme_item_list</a>(<span class="summary-sig-arg">items</span>=<span class="summary-sig-default">[]</span>,
+        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">type</span>=<span class="summary-sig-default">'ul'</span>,
+        <span class="summary-sig-arg">attributes</span>=<span class="summary-sig-default">[]</span>)</span><br />
+      Return a themed list of items+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_item_list">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="theme_more_help_link"></a><span class="summary-sig-name">theme_more_help_link</span>(<span class="summary-sig-arg">url</span>)</span><br />
+      Returns code that emits the 'more help'-link+</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_more_help_link">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_xml_icon" class="summary-sig-name">theme_xml_icon</a>(<span class="summary-sig-arg">url</span>)</span><br />
+      Return code that emits an XML icon+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_xml_icon">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_feed_icon" class="summary-sig-name">theme_feed_icon</a>(<span class="summary-sig-arg">url</span>,
+        <span class="summary-sig-arg">title</span>)</span><br />
+      Return code that emits an feed icon+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_feed_icon">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_more_link" class="summary-sig-name">theme_more_link</a>(<span class="summary-sig-arg">url</span>,
+        <span class="summary-sig-arg">title</span>)</span><br />
+      Returns code that emits the 'more' link used on blocks+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_more_link">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_closure" class="summary-sig-name">theme_closure</a>(<span class="summary-sig-arg">main_</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Execute hook_footer() which is run at the end of the page right before the...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_closure">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_blocks" class="summary-sig-name">theme_blocks</a>(<span class="summary-sig-arg">region</span>)</span><br />
+      Return a set of blocks available for the current user+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_blocks">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_username" class="summary-sig-name">theme_username</a>(<span class="summary-sig-arg">object_</span>)</span><br />
+      Format a username+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_username">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_progress_bar" class="summary-sig-name">theme_progress_bar</a>(<span class="summary-sig-arg">percent</span>,
+        <span class="summary-sig-arg">message</span>)</span><br />
+      Return a themed progress bar+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_progress_bar">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#theme_indentation" class="summary-sig-name">theme_indentation</a>(<span class="summary-sig-arg">size</span>=<span class="summary-sig-default">1</span>)</span><br />
+      Create a standard indentation div+ Used for drag and drop tables+ *...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#theme_indentation">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_theme_table_cell"></a><span class="summary-sig-name">_theme_table_cell</span>(<span class="summary-sig-arg">cell</span>,
+        <span class="summary-sig-arg">header_</span>=<span class="summary-sig-default">False</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#_theme_table_cell">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="template_preprocess"></a><span class="summary-sig-name">template_preprocess</span>(<span class="summary-sig-arg">variables_</span>,
+        <span class="summary-sig-arg">hook</span>)</span><br />
+      Adds a default set of helper variables for preprocess functions and 
+      templates+ This comes in before any other preprocess function which 
+      makes it possible to be used in default theme implementations 
+      (non-overriden theme functions)+</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#template_preprocess">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#template_preprocess_page" class="summary-sig-name">template_preprocess_page</a>(<span class="summary-sig-arg">variables_</span>)</span><br />
+      Process variables for page.tpl.php</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#template_preprocess_page">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#template_preprocess_node" class="summary-sig-name">template_preprocess_node</a>(<span class="summary-sig-arg">variables_</span>)</span><br />
+      Process variables for node.tpl.php</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#template_preprocess_node">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.theme-module.html#template_preprocess_block" class="summary-sig-name">template_preprocess_block</a>(<span class="summary-sig-arg">variables_</span>)</span><br />
+      Process variables for block.tpl.php</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.theme-pysrc.html#template_preprocess_block">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES ==================== -->
+<a name="section-Variables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Variables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="MARK_READ"></a><span class="summary-name">MARK_READ</span> = <code title="0">0</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="MARK_NEW"></a><span class="summary-name">MARK_NEW</span> = <code title="1">1</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="MARK_UPDATED"></a><span class="summary-name">MARK_UPDATED</span> = <code title="2">2</code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Function Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-FunctionDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="_init_theme"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_init_theme</span>(<span class="sig-arg">theme_</span>,
+        <span class="sig-arg">base_theme</span>=<span class="sig-default">[]</span>,
+        <span class="sig-arg">registry_callback</span>=<span class="sig-default">'_theme_load_registry'</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#_init_theme">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Initialize the theme system given already loaded information. This
+function is useful to initialize a theme when no database is present.
+
+@param theme
+  An object with the following information:
+    filename
+      The .info file for this theme. The 'path' to
+      the theme will be in this file's directory. (Required)
+    owner
+      The path to the .theme file or the .engine file to load for
+      the theme. (Required)
+    stylesheet
+      The primary stylesheet for the theme. (Optional)
+    engine
+      The name of theme engine to use. (Optional)
+@param base_theme
+   An optional array of objects that represent the 'base theme' if the
+   theme is meant to be derivative of another theme. It requires
+   the same information as the theme object. It should be in
+   'oldest first' order, meaning the top level of the chain will
+   be first.
+@param registry_callback
+  The callback to invoke to set the theme registry.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_get_registry"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_get_registry</span>(<span class="sig-arg">registry</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_get_registry">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Retrieve the stored theme registry. If the theme registry is already 
+  in memory it will be returned; otherwise it will attempt to load the 
+  registry from cache. If this fails, it will construct the registry and 
+  cache it.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="_theme_load_registry"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_theme_load_registry</span>(<span class="sig-arg">theme_</span>,
+        <span class="sig-arg">base_theme</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">theme_engine</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#_theme_load_registry">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Get the theme_registry cache from the database; if it doesn't exist, build
+it.
+
+@param theme
+  The loaded theme object.
+@param base_theme
+  An array of loaded theme objects representing the ancestor themes in
+  oldest first order.
+@param theme_engine
+  The name of the theme engine.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="_theme_process_registry"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_theme_process_registry</span>(<span class="sig-arg">cache</span>,
+        <span class="sig-arg">name</span>,
+        <span class="sig-arg">type_</span>,
+        <span class="sig-arg">theme_</span>,
+        <span class="sig-arg">path</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#_theme_process_registry">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Process a single invocation of the theme hook. type will be one of 
+  'module', 'theme_engine' or 'theme' and it tells us some important 
+  information.</p>
+  <p>Because cache is a reference, the cache will be continually expanded 
+  upon; new entries will replace old entries in the array_merge, but we are
+  careful to ensure some data is carried forward, such as the arguments a 
+  theme hook needs.</p>
+  <p>An override flag can be set for preprocess functions. When detected 
+  the cached preprocessors for the hook will not be merged with the newly 
+  set. This can be useful to themes and theme engines by giving them more 
+  control over how and when the preprocess functions are run.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="_theme_build_registry"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_theme_build_registry</span>(<span class="sig-arg">theme_</span>,
+        <span class="sig-arg">base_theme</span>,
+        <span class="sig-arg">theme_engine</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#_theme_build_registry">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Rebuild the hook theme_registry cache.
+
+@param theme
+  The loaded theme object.
+@param base_theme
+  An array of loaded theme objects representing the ancestor themes in
+  oldest first order.
+@param theme_engine
+  The name of the theme engine.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="list_themes"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">list_themes</span>(<span class="sig-arg">refresh</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#list_themes">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Provides a list of currently available themes.
+
+If the database is active then it will be retrieved from the database.
+Otherwise it will retrieve a new list.
+
+@param refresh
+  Whether to reload the list of themes from the database.
+@return
+  An array of the currently available themes.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Generate the themed output.
+
+All requests for theme hooks must go through this function. It examines
+the request and routes it to the appropriate theme function. The theme
+registry is checked to determine which implementation to use, which may
+be a function or a template.
+
+If the implementation is a function, it is executed and its return value
+passed along.
+
+If the implementation is a template, the arguments are converted to a
+variables array. This array is then modified by the module implementing
+the hook, theme engine (if applicable) and the theme. The following
+functions may be used to modify the variables array. They are processed in
+this order when available:
+
+- template_preprocess(&amp;variables)
+  This sets a default set of variables for all template implementations.
+
+- template_preprocess_HOOK(&amp;variables)
+  This is the first preprocessor called specific to the hook; it should be
+  implemented by the module that registers it.
+
+- MODULE_preprocess(&amp;variables)
+  This will be called for all templates; it should only be used if there
+  is a real need. It's purpose is similar to template_preprocess().
+
+- MODULE_preprocess_HOOK(&amp;variables)
+  This is for modules that want to alter or provide extra variables for
+  theming hooks not registered to itself. For example, if a module named
+  &quot;foo&quot; wanted to alter the submitted variable for the hook &quot;node&quot; a
+  preprocess function of foo_preprocess_node() can be created to intercept
+  and alter the variable.
+
+- ENGINE_engine_preprocess(&amp;variables)
+  This function should only be implemented by theme engines and exists
+  so that it can set necessary variables for all hooks.
+
+- ENGINE_engine_preprocess_HOOK(&amp;variables)
+  This is the same as the previous function, but it is called for a single
+  theming hook.
+
+- ENGINE_preprocess(&amp;variables)
+  This is meant to be used by themes that utilize a theme engine. It is
+  provided so that the preprocessor is not locked into a specific theme.
+  This makes it easy to share and transport code but theme authors must be
+  careful to prevent fatal re-declaration errors when using sub-themes that
+  have their own preprocessor named exactly the same as its base theme. In
+  the default theme engine (PHPTemplate), sub-themes will load their own
+  template.php file in addition to the one used for its parent theme. This
+  increases the risk for these errors. A good practice is to use the engine
+  name for the base theme and the theme name for the sub-themes to minimize
+  this possibility.
+
+- ENGINE_preprocess_HOOK(&amp;variables)
+  The same applies from the previous function, but it is called for a
+  specific hook.
+
+- THEME_preprocess(&amp;variables)
+  These functions are based upon the raw theme; they should primarily be
+  used by themes that do not use an engine or by sub-themes. It serves the
+  same purpose as ENGINE_preprocess().
+
+- THEME_preprocess_HOOK(&amp;variables)
+  The same applies from the previous function, but it is called for a
+  specific hook.
+
+There are two special variables that these hooks can set:
+  'template_file' and 'template_files'. These will be merged together
+  to form a list of 'suggested' alternate template files to use, in
+  reverse order of priority. template_file will always be a higher
+  priority than items in template_files. theme() will then look for these
+  files, one at a time, and use the first one
+  that exists.
+@param hook
+  The name of the theme function to call. May be an array, in which
+  case the first hook that actually has an implementation registered
+  will be used. This can be used to choose 'fallback' theme implementations,
+  so that if the specific theme hook isn't implemented anywhere, a more
+  generic one will be used. This can allow themes to create specific theme
+  implementations for named objects.
+@param ...
+  Additional arguments to pass along to the theme function.
+@return
+  An HTML string that generates the themed output.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="drupal_discover_template"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">drupal_discover_template</span>(<span class="sig-arg">paths</span>,
+        <span class="sig-arg">suggestions</span>,
+        <span class="sig-arg">extension</span>=<span class="sig-default">'.tpl.php'</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#drupal_discover_template">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Choose which template file to actually render. These are all suggested
+  templates from themes and modules. Theming implementations can occur on 
+  multiple levels. All paths are checked to account for this.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="drupal_find_theme_functions"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">drupal_find_theme_functions</span>(<span class="sig-arg">cache</span>,
+        <span class="sig-arg">prefixes</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#drupal_find_theme_functions">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Find overridden theme functions. Called by themes and/or theme engines to
+easily discover theme functions.
+
+@param cache
+  The existing cache of theme hooks to test against.
+@param prefixes
+  An array of prefixes to test, in reverse order of importance.
+
+@return templates
+  The functions found, suitable for returning from hook_theme;
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="drupal_find_theme_templates"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">drupal_find_theme_templates</span>(<span class="sig-arg">cache</span>,
+        <span class="sig-arg">extension</span>,
+        <span class="sig-arg">path</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#drupal_find_theme_templates">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Find overridden theme templates. Called by themes and/or theme engines to
+easily discover templates.
+
+@param cache
+  The existing cache of theme hooks to test against.
+@param extension
+  The extension that these templates will have.
+@param path
+  The path to search.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_get_settings"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_get_settings</span>(<span class="sig-arg">key</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_get_settings">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Retrieve an associative array containing the settings for a theme+ *
+The final settings are arrived at by merging the default settings,
+the site-wide settings, and the settings defined for the specific theme+ * If no key was specified, only the site-wide theme defaults are retrieved+ *
+The default values for each of settings are also defined in this function+ * To add new settings, add their default values here, and then add form elements
+to system_theme_settings() in system.module+ *
+@param key
+ The template/style value for a given theme+ *
+@return
+  An associative array containing theme settings
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_get_setting"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_get_setting</span>(<span class="sig-arg">setting_name</span>,
+        <span class="sig-arg">refresh</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_get_setting">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Retrieve a setting for the current theme+ * This function is designed for use from within themes &amp; engines
+to determine theme settings made in the admin interface+ *
+Caches values for speed (use refresh = True to refresh cache)
+
+@param setting_name
+ The name of the setting to be retrieved+ *
+@param refresh
+ Whether to reload the cache of settings+ *
+@return
+  The value of the requested setting, None if the setting does not exist
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_render_template"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_render_template</span>(<span class="sig-arg">file</span>,
+        <span class="sig-arg">variables</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_render_template">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Render a system default template, which is essentially a PHP template+ *
+@param file
+  The filename of the template to render
+@param variables
+  A keyed array of variables that will appear in the output+ *
+@return
+  The output generated by the template
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_placeholder"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_placeholder</span>(<span class="sig-arg">text</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_placeholder">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Functions and templates that present output to the user, and can be
+implemented by themes
+
+Drupal's presentation layer is a pluggable system known as the theme
+layer+ Each theme can take control over most of Drupal's output, and
+has complete control over the CSS
+
+Inside Drupal, the theme layer is utilized by the use of the theme()
+function, which is passed the name of a component (the theme hook)
+and several arguments+ For example, theme('table', p.header, rows);
+Additionally, the theme() function can take an array of theme
+hooks, which can be used to provide 'fallback' implementations to
+allow for more specific control of output+ For example, the function:
+theme(array('table__foo', 'table'), p.header, rows) would look to see if
+'table__foo' is registered anywhere; if it is not, it would 'fall back'
+to the generic 'table' implementation+ This can be used to attach specific
+theme functions to named objects, allowing the themer more control over
+specific types of output
+
+As of Drupal 6, every theme hook is required to be registered by the
+module that owns it, so that Drupal can tell what to do with it and
+to make it simple for themes to identify and override the behavior
+for these calls
+
+The theme hooks are registered via hook_theme(), which returns an
+array of arrays with information about the hook+ It describes the
+arguments the function or template will need, and provides
+defaults for the template in case they are not filled in+ If the default
+implementation is a function, by convention it is named theme_HOOK()
+
+Each module should provide a default implementation for theme_hooks that
+it registers
+
+This implementation may be either a function or a template;
+if it is a function it must be specified via hook_theme()+ By convention,
+default implementations of theme hooks are named theme_HOOK+ Default
+template implementations are stored in the module directory+ *
+Drupal's default template renderer is a simple PHP parsing engine that
+includes the template and stores the output+ Drupal's theme engines
+can provide alternate template engines, such as XTemplate, Smarty and
+PHPTal+ The most common template engine is PHPTemplate (included with
+Drupal and implemented in phptemplate.engine, which uses Drupal's default
+template renderer
+
+In order to create theme-specific implementations of these hooks,
+themes can implement their own version of theme hooks, either as functions
+or templates+ These implementations will be used instead of the default
+implementation+ If using a pure +theme without an engine, the +theme is
+required to implement its own version of hook_theme() to tell Drupal what
+it is implementing; themes utilizing an engine will have their well-named
+theming functions automatically registered for them+ While this can vary
+based upon the theme engine, the standard set by phptemplate is that theme
+functions should be named either phptemplate_HOOK or THEMENAME_HOOK+ For
+example, for Drupal's default theme (Garland) to implement the 'table' hook,
+the phptemplate.engine would find phptemplate_table() or garland_table()
+
+The ENGINE_HOOK() syntax is preferred, as this can be used by sub-themes
+(which are themes that share code but use different stylesheets)
+The theme system is described and defined in theme.inc+ *
+@see theme()
+@see hook_theme()
+
+Formats text for emphasized display in a placeholder inside a sentence+ * Used automatically by t()+ *
+@param text
+  The text to format (plain-text)
+@return
+  The formatted text (html)
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_status_messages"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_status_messages</span>(<span class="sig-arg">display</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_status_messages">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return a themed set of status and/or error messages+ The messages are grouped
+by type
+
+@param display
+  (optional) Set to 'status' or 'error' to display only messages of that type+ *
+@return
+  A string containing the messages+
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_links"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_links</span>(<span class="sig-arg">links</span>,
+        <span class="sig-arg">attributes</span>=<span class="sig-default">{'class': 'links'}</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_links">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return a themed set of links+ *
+@param links
+  A keyed array of links to be themed+ * @param attributes
+  A keyed array of attributes
+@return
+  A string containing an unordered list of links+
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_image"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_image</span>(<span class="sig-arg">path</span>,
+        <span class="sig-arg">alt</span>=<span class="sig-default">''</span>,
+        <span class="sig-arg">title</span>=<span class="sig-default">''</span>,
+        <span class="sig-arg">attributes</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">getsize</span>=<span class="sig-default">True</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_image">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return a themed image+ *
+@param path
+  Either the path of the image file (relative to base_path()) or a full URL+ * @param alt
+  The alternative text for text-based browsers+ * @param title
+  The title text is displayed when the image is hovered in some popular browsers+ * @param attributes
+  Associative array of attributes to be placed in the img tag+ * @param getsize
+  If set to True, the image's dimension are fetched and added as width/height attributes+ * @return
+  A string containing the image tag+
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_breadcrumb"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_breadcrumb</span>(<span class="sig-arg">breadcrumb</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_breadcrumb">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return a themed breadcrumb trail+ *
+@param breadcrumb
+  An array containing the breadcrumb links+ * @return a string containing the breadcrumb output
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_submenu"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_submenu</span>(<span class="sig-arg">links</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_submenu">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return a themed submenu, typically displayed under the tabs+ *
+@param links
+  An array of links+
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_table"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_table</span>(<span class="sig-arg">header_</span>,
+        <span class="sig-arg">rows</span>,
+        <span class="sig-arg">attributes</span>=<span class="sig-default">{}</span>,
+        <span class="sig-arg">caption</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">colgroups</span>=<span class="sig-default">{}</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_table">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return a themed table.
+
+@param p.header
+  An array containing the table headers. Each element of the array can be
+  either a localized string or an associative array with the following keys:
+  - &quot;data&quot;: The localized title of the table column.
+  - &quot;field&quot;: The database field represented in the table column (required if
+    user is to be able to sort on this column).
+  - &quot;sort&quot;: A default sort order for this column (&quot;asc&quot; or &quot;desc&quot;).
+  - Any HTML attributes, such as &quot;colspan&quot;, to apply to the column p.header cell.
+@param rows
+  An array of table rows. Every row is an array of cells, or an associative
+  array with the following keys:
+  - &quot;data&quot;: an array of cells
+  - Any HTML attributes, such as &quot;class&quot;, to apply to the table row.
+
+  Each cell can be either a string or an associative array with the following keys:
+  - &quot;data&quot;: The string to display in the table cell.
+  - &quot;p.header&quot;: Indicates this cell is a p.header.
+  - Any HTML attributes, such as &quot;colspan&quot;, to apply to the table cell.
+
+  Here's an example for rows:
+  @verbatim
+  rows = array(
+    // Simple row
+    array(
+      'Cell 1', 'Cell 2', 'Cell 3'
+    ),
+    // Row with attributes on the row and some of its cells.
+    array(
+      'data' : array('Cell 1', array('data' : 'Cell 2', 'colspan' : 2)), 'class' : 'funky'
+    )
+  )
+  @endverbatim
+
+@param attributes
+  An array of HTML attributes to apply to the table tag.
+@param caption
+  A localized string to use for the &lt;caption&gt; tag.
+@param colgroups
+  An array of column groups. Each element of the array can be either:
+  - An array of columns, each of which is an associative array of HTML attributes
+    applied to the COL element.
+  - An array of attributes applied to the COLGROUP element, which must include a
+    &quot;data&quot; attribute. To add attributes to COL elements, set the &quot;data&quot; attribute
+    with an array of columns, each of which is an associative array of HTML attributes.
+  Here's an example for colgroup:
+  @verbatim
+  colgroup = array(
+    // COLGROUP with one COL element.
+    array(
+      array(
+        'class' : 'funky', // Attribute for the COL element.
+      ),
+    ),
+    // Colgroup with attributes and inner COL elements.
+    array(
+      'data' : array(
+        array(
+          'class' : 'funky', // Attribute for the COL element.
+        ),
+      ),
+      'class' : 'jazzy', // Attribute for the COLGROUP element.
+    ),
+  )
+  @endverbatim
+  These optional tags are used to group and set properties on columns
+  within a table. For example, one may easily group three columns and
+  apply same background style to all.
+@return
+  An HTML string representing the table.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_tablesort_indicator"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_tablesort_indicator</span>(<span class="sig-arg">style</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_tablesort_indicator">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return a themed sort icon+ *
+@param style
+  Set to either asc or desc+
+This sets which icon to show+
+ @return
+  A themed sort icon+
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_box"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_box</span>(<span class="sig-arg">title</span>,
+        <span class="sig-arg">content</span>,
+        <span class="sig-arg">region</span>=<span class="sig-default">'main'</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_box">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return a themed box+ *
+@param title
+  The subject of the box+
+@param content
+  The content of the box+
+@param region
+  The region in which the box is displayed+
+@return
+  A string containing the box output+
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_mark"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_mark</span>(<span class="sig-arg">type</span>=<span class="sig-default">MARK_NEW</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_mark">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return a themed marker, useful for marking new or updated
+content+ *
+@param type
+  Number representing the marker type to display
+@see MARK_NEW, MARK_UPDATED, MARK_READ
+@return
+  A string containing the marker+
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_item_list"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_item_list</span>(<span class="sig-arg">items</span>=<span class="sig-default">[]</span>,
+        <span class="sig-arg">title</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">type</span>=<span class="sig-default">'ul'</span>,
+        <span class="sig-arg">attributes</span>=<span class="sig-default">[]</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_item_list">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return a themed list of items+ *
+@param items
+  An array of items to be displayed in the list+ If an item is a string,
+  then it is used as is+ If an item is an array, then the &quot;data&quot; element of
+  the array is used as the contents of the list item+ If an item is an array
+  with a &quot;children&quot; element, those children are displayed in a nested list+ 
+  All other elements are treated as attributes of the list item element+
+@param title
+  The title of the list+
+@param attributes
+  The attributes applied to the list element+
+@param type
+  The type of list to return (e.g+ &quot;ul&quot;, &quot;ol&quot;)
+@return
+  A string containing the list output+
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_xml_icon"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_xml_icon</span>(<span class="sig-arg">url</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_xml_icon">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return code that emits an XML icon+ *
+For most use cases, this function has been superseded by theme_feed_icon()+ *
+@see theme_feed_icon()
+@param url
+  The url of the feed
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_feed_icon"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_feed_icon</span>(<span class="sig-arg">url</span>,
+        <span class="sig-arg">title</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_feed_icon">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return code that emits an feed icon+ *
+@param url
+  The url of the feed+ * @param title
+  A descriptive title of the feed+
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_more_link"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_more_link</span>(<span class="sig-arg">url</span>,
+        <span class="sig-arg">title</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_more_link">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Returns code that emits the 'more' link used on blocks+ *
+@param url
+  The url of the main page
+@param title
+  A descriptive verb for the link, like 'Read more'
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_closure"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_closure</span>(<span class="sig-arg">main_</span>=<span class="sig-default">0</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_closure">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Execute hook_footer() which is run at the end of the page right before the
+close of the body tag+ *
+@param main (optional)
+  Whether the current page is the front page of the site+ * @return
+  A string containing the results of the hook_footer() calls+
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_blocks"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_blocks</span>(<span class="sig-arg">region</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_blocks">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return a set of blocks available for the current user+ *
+@param region
+  Which set of blocks to retrieve+ * @return
+  A string containing the themed blocks for this region+
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_username"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_username</span>(<span class="sig-arg">object_</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_username">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Format a username+ *
+@param object
+  The user object to format, usually returned from user_load()+ * @return
+  A string containing an HTML link to the user's page if the passed object
+  suggests that this is a site user+
+Otherwise, only the username is returned
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_progress_bar"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_progress_bar</span>(<span class="sig-arg">percent</span>,
+        <span class="sig-arg">message</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_progress_bar">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Return a themed progress bar+ *
+@param percent
+  The percentage of the progress+
+@param message
+  A string containing information to be displayed+
+@return
+  A themed HTML string representing the progress bar
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_indentation"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_indentation</span>(<span class="sig-arg">size</span>=<span class="sig-default">1</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#theme_indentation">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Create a standard indentation div+ Used for drag and drop tables+ *
+@param size
+  Optional+ The number of indentations to create+
+@return
+  A string containing indentations+
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="template_preprocess_page"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">template_preprocess_page</span>(<span class="sig-arg">variables_</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#template_preprocess_page">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Process variables for page.tpl.php
+
+Most themes utilize their own copy of page.tpl.php+ The default is located
+inside &quot;modules/system/page.tpl.php&quot;+ Look in there for the full list of
+variables+ *
+Uses the arg() function to generate a series of page template suggestions
+based on the current path+ *
+Any changes to variables in this preprocessor should also be changed inside
+template_preprocess_maintenance_page() to keep all them consistent+ *
+The variables array contains the following arguments:
+- content
+- show_blocks
+
+@see page.tpl.php
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="template_preprocess_node"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">template_preprocess_node</span>(<span class="sig-arg">variables_</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#template_preprocess_node">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Process variables for node.tpl.php
+
+Most themes utilize their own copy of node.tpl.php+ The default is located
+inside &quot;modules/node/node.tpl.php&quot;+ Look in there for the full list of
+variables+ *
+The variables array contains the following arguments:
+- node
+- teaser
+- page
+
+@see node.tpl.php
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="template_preprocess_block"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">template_preprocess_block</span>(<span class="sig-arg">variables_</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.theme-pysrc.html#template_preprocess_block">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Process variables for block.tpl.php
+
+Prepare the values passed to the theme_block function to be passed
+into a pluggable template engine+ Uses block properties to generate a
+series of template file suggestions+ If none are found, the default
+block.tpl.php is used+ *
+Most themes utilize their own copy of block.tpl.php+ The default is located
+inside &quot;modules/system/block.tpl.php&quot;+ Look in there for the full list of
+variables+ *
+The variables array contains the following arguments:
+- block
+
+@see block.tpl.php
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:07 2008
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

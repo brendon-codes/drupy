@@ -1,0 +1,2011 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>base.lib.drupy.DrupyPHP</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="base-module.html">Package&nbsp;base</a> ::
+        <a href="base.lib-module.html">Package&nbsp;lib</a> ::
+        <a href="base.lib.drupy-module.html">Package&nbsp;drupy</a> ::
+        Module&nbsp;DrupyPHP
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="base.lib.drupy.DrupyPHP-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module DrupyPHP</h1><p class="nomargin-top"><span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html">source&nbsp;code</a></span></p>
+<pre class="literalblock">
+
+@package Drupy
+@see http://drupy.net
+@note Drupy is a port of the Drupal project.
+ The Drupal project can be found at http://drupal.org
+@file DrupyHelper.py
+ A PHP abstraction layer for Python
+ This file currently is built to working only with CGI.
+ Eventually it will be constructed to work with WSGI
+@author Brendon Crawford
+@copyright 2008 Brendon Crawford
+@contact message144 at users dot sourceforge dot net
+@created 2008-02-05
+@version 0.1
+@depends Image (http://www.pythonware.com/products/pil/)
+@depends Hashlib (http://code.krypto.org/python/hashlib/)
+@depends Zlib (http://linux.maruhn.com/sec/python-zlib.html)
+@license: 
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+</pre>
+
+<!-- ==================== CLASSES ==================== -->
+<a name="section-Classes"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Classes</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Classes"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="base.lib.drupy.DrupyPHP.stdClass-class.html" class="summary-name">stdClass</a><br />
+      Std class
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="base.lib.drupy.DrupyPHP.Reference-class.html" class="summary-name">Reference</a><br />
+      Reference class
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="base.lib.drupy.DrupyPHP.__SuperGlobals-class.html" class="summary-name" onclick="show_private();">__SuperGlobals</a><br />
+      Class to handle super globals
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="base.lib.drupy.DrupyPHP.__Output-class.html" class="summary-name" onclick="show_private();">__Output</a><br />
+      Handles drupy output functions
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Functions</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Functions"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="gzencode"></a><span class="summary-sig-name">gzencode</span>()</span><br />
+      compress @param Str val @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#gzdeflate">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="gzdecode"></a><span class="summary-sig-name">gzdecode</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      decompress @param Str val @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#gzinflate">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="sizeof"></a><span class="summary-sig-name">sizeof</span>(<span class="summary-sig-arg">item</span>)</span><br />
+      Gets array count @param List,Dict item @return Int</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#count">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="require_once"></a><span class="summary-sig-name">require_once</span>(<span class="summary-sig-arg">filename</span>,
+        <span class="summary-sig-arg">scope</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Includes file @param Str filename @param Dict scope @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#include">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="require"></a><span class="summary-sig-name">require</span>(<span class="summary-sig-arg">filename</span>,
+        <span class="summary-sig-arg">scope</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Includes file @param Str filename @param Dict scope @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#include">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="include_once"></a><span class="summary-sig-name">include_once</span>(<span class="summary-sig-arg">filename</span>,
+        <span class="summary-sig-arg">scope</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Includes file @param Str filename @param Dict scope @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#include">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="substr"></a><span class="summary-sig-name">substr</span>(<span class="summary-sig-arg">items</span>,
+        <span class="summary-sig-arg">a1</span>,
+        <span class="summary-sig-arg">a2</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Array slice @param List,Dict items @param Int a1 @param Int a2 
+      @return Mixed</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#array_slice">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="preg_replace_callback"></a><span class="summary-sig-name">preg_replace_callback</span>(<span class="summary-sig-arg">pat</span>,
+        <span class="summary-sig-arg">rep</span>,
+        <span class="summary-sig-arg">subject</span>)</span><br />
+      preg_replace wrapper @param Str pat @param Str replace @param Str 
+      subject @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#preg_replace">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_writeable"></a><span class="summary-sig-name">is_writeable</span>(<span class="summary-sig-arg">filename</span>)</span><br />
+      CHecks file is writeable @param Str filename @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#is_writable">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="header"></a><span class="summary-sig-name">header</span>(<span class="summary-sig-arg">data</span>,
+        <span class="summary-sig-arg">replace</span>=<span class="summary-sig-default">True</span>)</span><br />
+      Write headers @param Str data</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#header">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="flush"></a><span class="summary-sig-name">flush</span>()</span><br />
+      Flush buffer For now this is only constructed to work with CGI 
+      Eventually this will need to be modified to work with WSGI</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#flush">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__init"></a><span class="summary-sig-name">__init</span>()</span><br />
+      Initiate superglobals and set output buffering</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#__init">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="session_set_save_handler"></a><span class="summary-sig-name">session_set_save_handler</span>(<span class="summary-sig-arg">open_</span>,
+        <span class="summary-sig-arg">close_</span>,
+        <span class="summary-sig-arg">read_</span>,
+        <span class="summary-sig-arg">write_</span>,
+        <span class="summary-sig-arg">destroy_</span>,
+        <span class="summary-sig-arg">gc_</span>)</span><br />
+      Sets user-level session storage functions @param Func open_ @param 
+      Func close_ @param Func read_ @param Func write_ @param Func destroy_
+      @param Func gc_ @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#session_set_save_handler">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="session_start"></a><span class="summary-sig-name">session_start</span>()</span><br />
+      Initialize session data @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#session_start">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="session_name"></a><span class="summary-sig-name">session_name</span>(<span class="summary-sig-arg">name</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">DrupySession</code><code class="variable-quote">'</code></span>)</span><br />
+      Get and/or set the current session name @param Str name @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#session_name">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="define"></a><span class="summary-sig-name">define</span>(<span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">val</span>=<span class="summary-sig-default">None</span>)</span><br />
+      THIS FUNCTION SHOULD BE DEPRECATED EVENTUALLY Sets globals variable 
+      @param Str name @param Number,Str val @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#define">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="base64_encode"></a><span class="summary-sig-name">base64_encode</span>(<span class="summary-sig-arg">data</span>)</span><br />
+      Base 64 encode</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#base64_encode">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="base64_decode"></a><span class="summary-sig-name">base64_decode</span>(<span class="summary-sig-arg">data</span>)</span><br />
+      Base 64 encode</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#base64_decode">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyPHP-module.html#error_get_last" class="summary-sig-name">error_get_last</a>()</span><br />
+      Gets error.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#error_get_last">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="uasort"></a><span class="summary-sig-name">uasort</span>(<span class="summary-sig-arg">item</span>,
+        <span class="summary-sig-arg">func</span>)</span><br />
+      Sort on func @param Iterable item @param Function func @return 
+      Iterable</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#uasort">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="call_user_func_array"></a><span class="summary-sig-name">call_user_func_array</span>(<span class="summary-sig-arg">func</span>,
+        <span class="summary-sig-arg">args</span>)</span><br />
+      Call user func @param Function func @param Tuple,List args @return 
+      Unknown</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#call_user_func_array">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="array_filter"></a><span class="summary-sig-name">array_filter</span>(<span class="summary-sig-arg">item</span>,
+        <span class="summary-sig-arg">func</span>)</span><br />
+      Array filter @param Iterable item @param Function func @return 
+      Iterable</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#array_filter">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="getimagesize"></a><span class="summary-sig-name">getimagesize</span>(<span class="summary-sig-arg">filename</span>)</span><br />
+      GD image size @param Str filename @return</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#getimagesize">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="explode"></a><span class="summary-sig-name">explode</span>(<span class="summary-sig-arg">delim</span>,
+        <span class="summary-sig-arg">val</span>,
+        <span class="summary-sig-arg">limit</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Splits string on delim @param Str delim @param Str val @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#explode">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="microtime"></a><span class="summary-sig-name">microtime</span>()</span><br />
+      Gets microtime @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#microtime">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_writable"></a><span class="summary-sig-name">is_writable</span>(<span class="summary-sig-arg">filename</span>)</span><br />
+      CHecks file is writeable @param Str filename @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#is_writable">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_dir"></a><span class="summary-sig-name">is_dir</span>(<span class="summary-sig-arg">filename</span>)</span><br />
+      Checks file is directory @param Str filename @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#is_dir">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="array_merge"></a><span class="summary-sig-name">array_merge</span>(<span class="summary-sig-arg">a1</span>,
+        <span class="summary-sig-arg">a2</span>)</span><br />
+      Merges lists @param Dict,List a1 @param Dict,List a2 @return 
+      Dict,List</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#array_merge">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="array_keys"></a><span class="summary-sig-name">array_keys</span>(<span class="summary-sig-arg">item</span>)</span><br />
+      Get keys @param Dict item @return List</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#array_keys">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="array_key_exists"></a><span class="summary-sig-name">array_key_exists</span>(<span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">item</span>)</span><br />
+      Has key @param Str item @param Dict item @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#array_key_exists">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="isset"></a><span class="summary-sig-name">isset</span>(<span class="summary-sig-arg">obj</span>,
+        <span class="summary-sig-arg">val</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">searchGlobal</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">data</span>=<span class="summary-sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>)</span><br />
+      Check variable existance @param Dict,List,Object obj @param Str,Int 
+      val @param Bool searchGlobal</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#isset">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="time_"></a><span class="summary-sig-name">time_</span>()</span><br />
+      Get time @return Int</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#time_">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="in_array"></a><span class="summary-sig-name">in_array</span>(<span class="summary-sig-arg">val</span>,
+        <span class="summary-sig-arg">obj</span>)</span><br />
+      In array @param Str,Int val @param List,Dict,Object obj @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#in_array">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="array_fill"></a><span class="summary-sig-name">array_fill</span>(<span class="summary-sig-arg">start</span>,
+        <span class="summary-sig-arg">cnt</span>,
+        <span class="summary-sig-arg">val</span>)</span><br />
+      Fills array @param Int start @param Int cnt @param Str val @return 
+      Dict</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#array_fill">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="array_shift"></a><span class="summary-sig-name">array_shift</span>(<span class="summary-sig-arg">item</span>)</span><br />
+      Shifts array @param List,Dict,Tuple item @return Mixed</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#array_shift">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyPHP-module.html#trigger_error" class="summary-sig-name">trigger_error</a>(<span class="summary-sig-arg">data</span>,
+        <span class="summary-sig-arg">errno</span>)</span><br />
+      Triggers error</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#trigger_error">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="function_exists"></a><span class="summary-sig-name">function_exists</span>(<span class="summary-sig-arg">val</span>,
+        <span class="summary-sig-arg">scope</span>=<span class="summary-sig-default"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">CRLF</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">\r\n</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">ENT_QUOTES</code><code class="variable-quote">'</code><code class="variable-op">: </code>1<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">E_ALL</code><code class="variable-quote">'</code><code class="variable-op">: </code>6143<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">E_USER_WARNI</code><code class="variable-ellipsis">...</code></span>)</span><br />
+      Function exists @param Dict,List,Object obj @param Str val @return 
+      Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#function_exists">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="htmlspecialchars"></a><span class="summary-sig-name">htmlspecialchars</span>(<span class="summary-sig-arg">val</span>,
+        <span class="summary-sig-arg">flags</span>=<span class="summary-sig-default">None</span>)</span><br />
+      html special chars @param Str val @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#htmlspecialchars">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="empty"></a><span class="summary-sig-name">empty</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      Checks for empty @param Any obj @param Bool searchGlobal @param Str 
+      val @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#empty">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="strtr"></a><span class="summary-sig-name">strtr</span>(<span class="summary-sig-arg">text</span>,
+        <span class="summary-sig-arg">items</span>)</span><br />
+      Translate characters Inspired by snippet from Xavier Defrang</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#strtr">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_uploaded_file"></a><span class="summary-sig-name">is_uploaded_file</span>(<span class="summary-sig-arg">filename</span>)</span><br />
+      Check if uploaded file @param Str filename @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#is_uploaded_file">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="implode"></a><span class="summary-sig-name">implode</span>(<span class="summary-sig-arg">delim</span>,
+        <span class="summary-sig-arg">items</span>)</span><br />
+      Implodes @param Str delim @param List items @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#implode">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="array_slice"></a><span class="summary-sig-name">array_slice</span>(<span class="summary-sig-arg">items</span>,
+        <span class="summary-sig-arg">a1</span>,
+        <span class="summary-sig-arg">a2</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Array slice @param List,Dict items @param Int a1 @param Int a2 
+      @return Mixed</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#array_slice">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="rtrim"></a><span class="summary-sig-name">rtrim</span>(<span class="summary-sig-arg">val</span>,
+        <span class="summary-sig-arg">chars</span>=<span class="summary-sig-default">None</span>)</span><br />
+      R Trim @param Str val @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#rtrim">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="ltrim"></a><span class="summary-sig-name">ltrim</span>(<span class="summary-sig-arg">val</span>,
+        <span class="summary-sig-arg">chars</span>=<span class="summary-sig-default">None</span>)</span><br />
+      L trim @param Str val @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#ltrim">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_file"></a><span class="summary-sig-name">is_file</span>(<span class="summary-sig-arg">filename</span>)</span><br />
+      Check regular file @param String filename @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#is_file">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="file_exists"></a><span class="summary-sig-name">file_exists</span>(<span class="summary-sig-arg">filename</span>)</span><br />
+      Check file exists @param Str filename @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#file_exists">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="include"></a><span class="summary-sig-name">include</span>(<span class="summary-sig-arg">filename</span>,
+        <span class="summary-sig-arg">scope</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Includes file @param Str filename @param Dict scope @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#include">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="urldecode"></a><span class="summary-sig-name">urldecode</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      Url decoder @param Str val @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#urldecode">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyPHP-module.html#parse_url" class="summary-sig-name">parse_url</a>(<span class="summary-sig-arg">url</span>,
+        <span class="summary-sig-arg">port</span>=<span class="summary-sig-default">80</span>)</span><br />
+      Parse url Urlparse doesnt support 'mysql' or 'mysqli' schemes so, we 
+      need to add a fix for this.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#parse_url">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="print_r"></a><span class="summary-sig-name">print_r</span>(<span class="summary-sig-arg">data</span>,
+        <span class="summary-sig-arg">ret</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Recursive pretty printer @param Any data @param Bool ret @return 
+      Bool,Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#print_r">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="object_"></a><span class="summary-sig-name">object_</span>(<span class="summary-sig-arg">dic</span>)</span><br />
+      Cast to object @param Dict dic @return Object</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#object_">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="array_"></a><span class="summary-sig-name">array_</span>(<span class="summary-sig-arg">obj</span>)</span><br />
+      Cast to array @param Object obj @return Dict</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#array_">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="strlen"></a><span class="summary-sig-name">strlen</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      Get strlen @param Str val @return Int</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#strlen">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="array_reverse"></a><span class="summary-sig-name">array_reverse</span>(<span class="summary-sig-arg">items</span>)</span><br />
+      Reverses list @param List items @return List</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#array_reverse">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyPHP-module.html#preg_quote" class="summary-sig-name">preg_quote</a>(<span class="summary-sig-arg">val</span>,
+        <span class="summary-sig-arg">delim</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Escapes regular expression...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#preg_quote">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="preg_match"></a><span class="summary-sig-name">preg_match</span>(<span class="summary-sig-arg">pat</span>,
+        <span class="summary-sig-arg">subject</span>,
+        <span class="summary-sig-arg">match</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Convert PHP preg_match to Python matcher @param Str pat @param Str 
+      subject @param Dict match @return Dict @returnprop List match</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#preg_match">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="preg_match_all"></a><span class="summary-sig-name">preg_match_all</span>(<span class="summary-sig-arg">pat</span>,
+        <span class="summary-sig-arg">subject</span>,
+        <span class="summary-sig-arg">matches</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Preg Match all @param Str pat @param Str subject @param Reference 
+      &amp;matches @return Int</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#preg_match_all">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="uniqid"></a><span class="summary-sig-name">uniqid</span>(<span class="summary-sig-arg">prefix</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">more_entropy</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Returns unique id @param Str prefix @param Bool more_entropy @return 
+      Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#uniqid">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="mt_rand"></a><span class="summary-sig-name">mt_rand</span>(<span class="summary-sig-arg">min</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">max</span>=<span class="summary-sig-default">2147483647</span>)</span><br />
+      Random @param Int min @param Int max @return Int</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#mt_rand">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="str_replace"></a><span class="summary-sig-name">str_replace</span>(<span class="summary-sig-arg">pat</span>,
+        <span class="summary-sig-arg">rep</span>,
+        <span class="summary-sig-arg">subject</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#str_replace">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="preg_replace"></a><span class="summary-sig-name">preg_replace</span>(<span class="summary-sig-arg">pat</span>,
+        <span class="summary-sig-arg">rep</span>,
+        <span class="summary-sig-arg">subject</span>)</span><br />
+      preg_replace wrapper @param Str pat @param Str replace @param Str 
+      subject @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#preg_replace">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="dirname"></a><span class="summary-sig-name">dirname</span>(<span class="summary-sig-arg">path</span>)</span><br />
+      dir name @param Str path @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#dirname">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="trim"></a><span class="summary-sig-name">trim</span>(<span class="summary-sig-arg">val</span>,
+        <span class="summary-sig-arg">chars</span>=<span class="summary-sig-default">None</span>)</span><br />
+      trim whitespace @param Str val @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#trim">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="count"></a><span class="summary-sig-name">count</span>(<span class="summary-sig-arg">item</span>)</span><br />
+      Gets array count @param List,Dict item @return Int</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#count">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="static"></a><span class="summary-sig-name">static</span>(<span class="summary-sig-arg">func</span>,
+        <span class="summary-sig-arg">prop</span>,
+        <span class="summary-sig-arg">val</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Sets a static var</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#static">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_numeric"></a><span class="summary-sig-name">is_numeric</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      Determines whether or not is numeric @param Any val @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#is_numeric">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_array"></a><span class="summary-sig-name">is_array</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      Determines if &quot;array&quot; @param Any @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#is_array">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_object"></a><span class="summary-sig-name">is_object</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      Determnes if object</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#is_object">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_null"></a><span class="summary-sig-name">is_null</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      Is null @param Any val</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#is_null">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="strpos"></a><span class="summary-sig-name">strpos</span>(<span class="summary-sig-arg">haystack</span>,
+        <span class="summary-sig-arg">needle</span>)</span><br />
+      Gets str pos @param Str haystack @param Str needle @return Int,Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#strpos">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="ini_set"></a><span class="summary-sig-name">ini_set</span>(<span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">val</span>)</span><br />
+      Pretends to set an ini Actually just sets a global @param Str name 
+      @param Str,Number,None,Bool val @return Bool</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#ini_set">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="serialize"></a><span class="summary-sig-name">serialize</span>(<span class="summary-sig-arg">obj</span>)</span><br />
+      serializer @param Any obj @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#serialize">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="unserialize"></a><span class="summary-sig-name">unserialize</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      unserializer @param Str val @return Obj</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#unserialize">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="defined"></a><span class="summary-sig-name">defined</span>(<span class="summary-sig-arg">val</span>,
+        <span class="summary-sig-arg">scope</span>=<span class="summary-sig-default"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">CRLF</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">\r\n</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">ENT_QUOTES</code><code class="variable-quote">'</code><code class="variable-op">: </code>1<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">E_ALL</code><code class="variable-quote">'</code><code class="variable-op">: </code>6143<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">E_USER_WARNI</code><code class="variable-ellipsis">...</code></span>)</span><br />
+      Checks for defined var</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#defined">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="gmdate"></a><span class="summary-sig-name">gmdate</span>(<span class="summary-sig-arg">format</span>,
+        <span class="summary-sig-arg">stamp</span>=<span class="summary-sig-default">None</span>)</span><br />
+      GMT date @param Str format @param Int stamp @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#gmdate">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="stripslashes"></a><span class="summary-sig-name">stripslashes</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      Strip slashes @param Str val @retun Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#stripslashes">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="addslashes"></a><span class="summary-sig-name">addslashes</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      Add slashes @param Str val @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#addslashes">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="md5"></a><span class="summary-sig-name">md5</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      md5 @param Str val @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#md5">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="gzinflate"></a><span class="summary-sig-name">gzinflate</span>(<span class="summary-sig-arg">val</span>)</span><br />
+      decompress @param Str val @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#gzinflate">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="gzdeflate"></a><span class="summary-sig-name">gzdeflate</span>()</span><br />
+      compress @param Str val @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#gzdeflate">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="array_pop"></a><span class="summary-sig-name">array_pop</span>(<span class="summary-sig-arg">item</span>)</span><br />
+      Pops item @param item @return Mixed</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#array_pop">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.lib.drupy.DrupyPHP-module.html#__preg_setup" class="summary-sig-name" onclick="show_private();">__preg_setup</a>(<span class="summary-sig-arg">pat</span>)</span><br />
+      prepares pattern for python regex...</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#__preg_setup">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__str_replace_str"></a><span class="summary-sig-name">__str_replace_str</span>(<span class="summary-sig-arg">pat</span>,
+        <span class="summary-sig-arg">rep</span>,
+        <span class="summary-sig-arg">subject</span>)</span><br />
+      str replace real @param Str pat @param Str rep @param Str subject 
+      @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#__str_replace_str">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__preg_replace_str"></a><span class="summary-sig-name">__preg_replace_str</span>(<span class="summary-sig-arg">pat</span>,
+        <span class="summary-sig-arg">rep</span>,
+        <span class="summary-sig-arg">subject</span>)</span><br />
+      Real preg replace @param Str pat @param Str replace @param Str 
+      subject @return Str</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#__preg_replace_str">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES ==================== -->
+<a name="section-Variables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Variables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="base.lib.drupy.DrupyPHP-module.html#SERVER" class="summary-name">SERVER</a> = <code title="{'Apple_PubSub_Socket_Render': '/tmp/launch-TzOKTB/Render',
+ 'COMMAND_MODE': 'unix2003',
+ 'CVS_RSH': 'ssh',
+ 'DISPLAY': ':0.0',
+ 'DOCUMENT_ROOT': '/Users/brendon/work/projects/PythonDrupal/drupy',
+ 'EDITOR': '/usr/bin/emacs',
+ 'GATEWAY_INTERFACE': 'CGI/1.1',
+ 'HOME': '/Users/brendon',
+..."><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">Apple_PubSub_Socket_Render</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">/tmp/launch-TzOKTB/Re</code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="GET"></a><span class="summary-name">GET</span> = <code title="{}"><code class="variable-group">{</code><code class="variable-group">}</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="POST"></a><span class="summary-name">POST</span> = <code title="{}"><code class="variable-group">{</code><code class="variable-group">}</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="REQUEST"></a><span class="summary-name">REQUEST</span> = <code title="{}"><code class="variable-group">{</code><code class="variable-group">}</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="SESSION"></a><span class="summary-name">SESSION</span> = <code title="None">None</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="ENT_QUOTES"></a><span class="summary-name">ENT_QUOTES</span> = <code title="1">1</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="E_USER_WARNING"></a><span class="summary-name">E_USER_WARNING</span> = <code title="512">512</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="E_ALL"></a><span class="summary-name">E_ALL</span> = <code title="6143">6143</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="CRLF"></a><span class="summary-name">CRLF</span> = <code title="'''\r
+'''"><code class="variable-quote">'</code><code class="variable-string">\r\n</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Function Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-FunctionDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="error_get_last"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">error_get_last</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#error_get_last">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Gets error. This does not mimic the exact behaviour of the 
+  corresponding PHP function</p>
+  <p>@return Tuple @returnprop Int 0 @returnprop Str 1 @returnprop Str 2 
+  @returnprop Int 3 @returnprop Dict 4 @returnprop Type 5</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="trigger_error"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">trigger_error</span>(<span class="sig-arg">data</span>,
+        <span class="sig-arg">errno</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#trigger_error">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Triggers error</p>
+  <p>@param Str data</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="parse_url"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">parse_url</span>(<span class="sig-arg">url</span>,
+        <span class="sig-arg">port</span>=<span class="sig-default">80</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#parse_url">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Parse url Urlparse doesnt support 'mysql' or 'mysqli' schemes so, we 
+  need to add a fix for this. @param url @return Dict</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="preg_quote"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">preg_quote</span>(<span class="sig-arg">val</span>,
+        <span class="sig-arg">delim</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#preg_quote">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+Escapes regular expression
+@param Str val
+@param Any delim
+   Not used
+@return Str
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="__preg_setup"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__preg_setup</span>(<span class="sig-arg">pat</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.lib.drupy.DrupyPHP-pysrc.html#__preg_setup">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+
+prepares pattern for python regex
+@param Str pat
+@return _sre.SRE_Pattern
+   Regular Expression object
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== VARIABLES DETAILS ==================== -->
+<a name="section-VariablesDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-VariablesDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="SERVER"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">SERVER</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">Apple_PubSub_Socket_Render</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">/tmp/launch-TzOKTB/Render</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">COMMAND_MODE</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">unix2003</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">CVS_RSH</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">ssh</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">DISPLAY</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">:0.0</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">DOCUMENT_ROOT</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">/Users/brendon/work/projects/PythonDrupal/drupy</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">EDITOR</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">/usr/bin/emacs</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">GATEWAY_INTERFACE</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">CGI/1.1</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">HOME</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">/Users/brendon</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+<code class="variable-ellipsis">...</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Fri Jun 27 15:00:07 2008
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
