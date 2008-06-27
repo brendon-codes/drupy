@@ -66,9 +66,11 @@
 			<p>
 				Drupy is not yet production-ready, but the Drupy developers are working hard to put out a stable release. Python developers are strongly encouraged to contribute.
 			</p>
+			<h3>Contacting Us</h3>
 			<p>
-				Latest news and bug tracking can be found at the <a href="http://sourceforge.net/projects/drupy" title="Drupy: Drupal in Python">Drupy Sourceforge page</a>. The Drupy project can also be found on irc at <a href="irc://freenode.net/#drupy">Freenode.net&#47;&#35;drupy</a>
+				The Drupy developers can be contacted through the <a href="http://sourceforge.net/projects/drupy" title="Drupy: Drupal in Python">Drupy Sourceforge page</a>. The Drupy project can also be found on irc at <a href="irc://freenode.net/#drupy">Freenode.net&#47;&#35;drupy</a>
 			</p>
+			<h3>Getting the Code</h3>
 			<p>
 				The latest Drupy codebase is available via GIT at <a href="http://gitorious.org/projects/drupy/repos/mainline">Gitorious</a>.
 			</p>
