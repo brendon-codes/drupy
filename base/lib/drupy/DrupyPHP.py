@@ -57,7 +57,7 @@ import cgitb;
 import urllib
 from PIL import Image
 from beaker import session
-from lib.drupy import DrupyHelper
+
 
 #
 # Superglobals
@@ -758,7 +758,10 @@ def function_exists(val, scope = globals()):
    @param Str val
    @return Bool
   """
-  return (isset(scope, val) and callable(scope[val]))
+  if not isinstance(scope, dict):
+    return (hasattr(scope, val) and callable(getattr(scope, val)))
+  else:
+    return (scope.has_key(val) and callable(scope[val]))
 
 
 def htmlspecialchars(val, flags = None):

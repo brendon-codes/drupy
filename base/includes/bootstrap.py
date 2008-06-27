@@ -35,6 +35,7 @@
 # Includes
 #
 from lib.drupy import DrupyPHP as p
+from lib.drupy import DrupyImport
 from sites.default import settings
 import cache as inc_cache
 import database as inc_database
@@ -55,8 +56,12 @@ base_root = None
 base_url = None
 language_ = None
 timers = None
+loaded_modules = {}
 
-
+#
+# Maintenance Mode
+#
+MAINTENANCE_MODE = False
 
 #
 # Indicates that the item should never be removed unless explicitly told to
@@ -696,6 +701,7 @@ def drupal_load(type_, name):
    @return
      TRUE if the item is loaded or has already been loaded.
   """
+  global loaded_modules
   p.static(drupal_load, 'files', {})
   if (not p.isset(drupal_load.files, type)):
     drupal_load.files[type_] = {}
@@ -704,7 +710,7 @@ def drupal_load(type_, name):
   else:
     filename = drupal_get_filename(type_, name);
     if (filename != False):
-      p.include_once("./" + filename);
+      loaded_modules[name] = DrupyImport.import_file(filename)
       drupal_load.files[type_][name] = True;
       return True;
     else:
@@ -1335,7 +1341,7 @@ def ip_address():
 # @return
 #   True if the function is now available, False otherwise.
 #
-def drupal_function_exists(function):
+def drupal_function_exists(function, scope=None):
   """
    Confirm that a function is available.
   
@@ -1343,29 +1349,18 @@ def drupal_function_exists(function):
    If the function is not available, it tries to load the file where the
    function lives. If the file is not available, it returns False, so that it
    can be used as a drop-in replacement for p.function_exists().
+   
+   DRUPY(BC): This function needs to be heavily modified
   
    @param function
      The name of the function to check or load.
+   @param scope
+     Scope to check
    @return
      True if the function is now available, False otherwise.
   """
-  p.static(drupal_function_exists, 'checked', {})
-  if (p.defined('MAINTENANCE_MODE')):
-    return p.function_exists(function)
-  if (p.isset(drupal_function_exists.checked, function)):
-    return drupal_function_exists.checked[function]
-  drupal_function_exists.checked[function] = False
-  if (p.function_exists(function)):
-    registry_mark_code('function', function)
-    drupal_function_exists.checked[function] = True
-    return True
-  file = inc_database.db_result(inc_database.db_query("SELECT filename FROM {registry} WHERE name = '%s' AND type = '%s'", function, 'function'))
-  if (file):
-    p.require_once(file)
-    drupal_function_exists.checked[function] = p.function_exists(function)
-    if (drupal_function_exists.checked[function]):
-      registry_mark_code('function', function)
-  return drupal_function_exists.checked[function]
+  # We arent using the registry, so lets just return a simple function_exists
+  return p.function_exists(function, scope)
 
 
 
