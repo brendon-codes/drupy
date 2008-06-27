@@ -47,7 +47,7 @@ phases = (
   (inc_bootstrap.DRUPAL_BOOTSTRAP_FULL,             'DRUPAL_BOOTSTRAP_FULL')
 );
 
-which_phase = phases[7];
+which_phase = phases[8];
 inc_bootstrap.drupal_bootstrap(which_phase[0]);
 stamp, revised = time.strftime("%c GMT||%m/%d/%Y", time.gmtime()).split('||')
 

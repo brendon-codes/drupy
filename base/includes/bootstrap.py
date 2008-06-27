@@ -32,7 +32,7 @@
 """
 
 #
-# INcludes
+# Includes
 #
 from lib.drupy import DrupyPHP as p
 from sites.default import settings
@@ -948,8 +948,8 @@ def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, link = N
     'timestamp'   : p.time_(),
   }
   # Call the logging hooks to log/process the message
-  for module in inc_module.module_implements('watchdog', True):
-    module_invoke(module, 'watchdog', log_message);
+  for module_ in inc_module.module_implements('watchdog', True):
+    inc_module.module_invoke(module_, 'watchdog', log_message);
 
 
 def drupal_set_message(message = None, type = 'status', repeat = True):
@@ -1312,6 +1312,10 @@ def ip_address():
         ip_address.ip_address = p.array_pop(p.explode(',', p.SERVER['HTTP_X_FORWARDED_FOR']));
   return ip_address.ip_address;
 
+#
+# @ingroup registry
+# @{
+#  
 
 
 #
@@ -1333,10 +1337,6 @@ def ip_address():
 #
 def drupal_function_exists(function):
   """
-   @ingroup registry
-   @{
-  
-  
    Confirm that a function is available.
   
    If the function is already available, this function does nothing.
@@ -1349,7 +1349,7 @@ def drupal_function_exists(function):
    @return
      True if the function is now available, False otherwise.
   """
-  p.static(drupal_function_exists, 'checked', [])
+  p.static(drupal_function_exists, 'checked', {})
   if (p.defined('MAINTENANCE_MODE')):
     return p.function_exists(function)
   if (p.isset(drupal_function_exists.checked, function)):
@@ -1359,7 +1359,7 @@ def drupal_function_exists(function):
     registry_mark_code('function', function)
     drupal_function_exists.checked[function] = True
     return True
-  file = db_result(db_query("SELECT filename FROM {registry} WHERE name = '%s' AND type = '%s'", function, 'function'))
+  file = inc_database.db_result(inc_database.db_query("SELECT filename FROM {registry} WHERE name = '%s' AND type = '%s'", function, 'function'))
   if (file):
     p.require_once(file)
     drupal_function_exists.checked[function] = p.function_exists(function)
@@ -1472,7 +1472,7 @@ def registry_cache_hook_implementations(hook, write_to_persistent_cache = False)
    @param write_to_persistent_cache
      Whether to write to the persistent cache.
   """
-  p.static(registry_cache_hook_implementations, implementations, {})
+  p.static(registry_cache_hook_implementations, 'implementations', {})
   if (hook):
     # Newer is always better, so overwrite anything that's come before.
     registry_cache_hook_implementations.implementations[hook['hook']] = hook['modules']
@@ -1545,7 +1545,7 @@ def registry_get_hook_implementations_cache():
     if (cache):
       registry_get_hook_implementations_cache.implementations = cache.data;
     else:
-      registry_get_hook_implementations_cache.implementations = [];
+      registry_get_hook_implementations_cache.implementations = {};
   return registry_get_hook_implementations_cache.implementations;
 
 
