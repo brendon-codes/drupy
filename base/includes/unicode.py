@@ -3,33 +3,33 @@
 # $Id: unicode.inc,v 1.30 2008/04/14 17:48:33 dries Exp $
 
 
-#
-# @package Drupy
-# @see http://drupy.net
-# @note Drupy is a port of the Drupal project.
-#  The Drupal project can be found at http://drupal.org
-# @file unicode.py (ported from Drupal's unicode.inc)
-# @author Brendon Crawford
-# @copyright 2008 Brendon Crawford
-# @contact message144 at users dot sourceforge dot net
-# @created 2008-01-10
-# @version 0.1
-# @license: 
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+"""
+ @package Drupy
+ @see http://drupy.net
+ @note Drupy is a port of the Drupal project.
+  The Drupal project can be found at http://drupal.org
+ @file unicode.py (ported from Drupal's unicode.inc)
+ @author Brendon Crawford
+ @copyright 2008 Brendon Crawford
+ @contact message144 at users dot sourceforge dot net
+ @created 2008-01-10
+ @version 0.1
+ @license: 
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
 
 from lib.drupy import DrupyPHP as p
 from xml.dom import minidom
@@ -58,34 +58,34 @@ UNICODE_SINGLEBYTE = 0
 #
 UNICODE_MULTIBYTE = 1
 
-#
-# Wrapper around _unicode_check().
-#
+"""
+ Wrapper around _unicode_check().
+"""
 def unicode_check():
   global multibyte;
   multibyte = _unicode_check()[0];
 
 
 
-#
-# Perform checks about Unicode support in PHP, and set the right settings if
-# needed.
-#
-# Because Drupal needs to be able to handle text in various encodings, we do
-# not support mbstring function overloading+ HTTP input/output conversion must
-# be disabled for similar reasons.
-#
-# @param errors
-#   Whether to report any fatal errors with form_set_error().
-#
 def _unicode_check():
+  """
+   Perform checks about Unicode support in PHP, and set the right settings if
+   needed.
+  
+   Because Drupal needs to be able to handle text in various encodings, we do
+   not support mbstring function overloading+ HTTP input/output conversion must
+   be disabled for similar reasons.
+  
+   @param errors
+     Whether to report any fatal errors with form_set_error().
+  """
   return (UNICODE_MULTIBYTE, '');
 
 
-#
-# Return Unicode library status and errors.
-#
 def unicode_requirements():
+  """
+   Return Unicode library status and errors.
+  """
   # Ensure translations don't break at install time
   t = get_t();
   requirements = {
@@ -100,25 +100,25 @@ def unicode_requirements():
 
 
 
-#
-# Prepare a new XML parser.
-#
-# This is a wrapper around xml_parser_create() which extracts the encoding from
-# the XML data first and sets the output encoding to UTF-8+ This function should
-# be used instead of xml_parser_create(), because PHP 4's XML parser doesn't
-# check the input encoding itself+ "Starting from PHP 5, the input encoding is
-# automatically detected, so that the encoding parameter specifies only the
-# output encoding."
-#
-# This is also where unsupported encodings will be converted+ Callers should
-# take this into account: data might have been changed after the call.
-#
-# @param &data
-#   The XML data which will be parsed later.
-# @return
-#   An XML parser object.
-#
 def drupal_xml_parser_create(data):
+  """
+   Prepare a new XML parser.
+  
+   This is a wrapper around xml_parser_create() which extracts the encoding from
+   the XML data first and sets the output encoding to UTF-8+ This function should
+   be used instead of xml_parser_create(), because PHP 4's XML parser doesn't
+   check the input encoding itself+ "Starting from PHP 5, the input encoding is
+   automatically detected, so that the encoding parameter specifies only the
+   output encoding."
+  
+   This is also where unsupported encodings will be converted+ Callers should
+   take this into account: data might have been changed after the call.
+  
+   @param &data
+     The XML data which will be parsed later.
+   @return
+     An XML parser object.
+  """
   p.Reference.check(data);
   # Default XML encoding is UTF-8
   encoding = 'utf-8';
@@ -128,42 +128,42 @@ def drupal_xml_parser_create(data):
 
 
 
-#
-# Convert data to UTF-8
-#
-# Requires the iconv, GNU recode or mbstring PHP extension.
-#
-# @param data
-#   The data to be converted.
-# @param encoding
-#   The encoding that the data is in
-# @return
-#   Converted data or False.
-#
 def drupal_convert_to_utf8(data, encoding):
+  """
+   Convert data to UTF-8
+  
+   Requires the iconv, GNU recode or mbstring PHP extension.
+  
+   @param data
+     The data to be converted.
+   @param encoding
+     The encoding that the data is in
+   @return
+     Converted data or False.
+  """
   return unicode(data, encoding);
 
 
 
-#
-# Truncate a UTF-8-encoded string safely to a number of bytes.
-#
-# If the end position is in the middle of a UTF-8 sequence, it scans backwards
-# until the beginning of the byte sequence.
-#
-# Use this function whenever you want to chop off a string at an unsure
-# location+ On the other hand, if you're sure that you're splitting on a
-# character boundary (e.g+ after using strpos() or similar), you can safely use
-# substr() instead.
-#
-# @param string
-#   The string to truncate.
-# @param len
-#   An upper limit on the returned string length.
-# @return
-#   The truncated string.
-#
 def drupal_truncate_bytes(string_, len_):
+  """
+   Truncate a UTF-8-encoded string safely to a number of bytes.
+  
+   If the end position is in the middle of a UTF-8 sequence, it scans backwards
+   until the beginning of the byte sequence.
+  
+   Use this function whenever you want to chop off a string at an unsure
+   location+ On the other hand, if you're sure that you're splitting on a
+   character boundary (e.g+ after using strpos() or similar), you can safely use
+   substr() instead.
+  
+   @param string
+     The string to truncate.
+   @param len
+     An upper limit on the returned string length.
+   @return
+     The truncated string.
+  """
   if (strlen(string_) <= len_):
     return string_;
   if ((ord(string_[len_]) < 0x80) or (ord(string_[len_]) >= 0xC0)):
@@ -175,21 +175,21 @@ def drupal_truncate_bytes(string_, len_):
   return substr(string_, 0, len_);
 
 
-#
-# Truncate a UTF-8-encoded string safely to a number of characters.
-#
-# @param string
-#   The string to truncate.
-# @param len
-#   An upper limit on the returned string length.
-# @param wordsafe
-#   Flag to truncate at last space within the upper limit+ Defaults to False.
-# @param dots
-#   Flag to add trailing dots+ Defaults to False.
-# @return
-#   The truncated string.
-#
 def truncate_utf8(string_, len_, wordsafe = False, dots = False):
+  """
+   Truncate a UTF-8-encoded string safely to a number of characters.
+  
+   @param string
+     The string to truncate.
+   @param len
+     An upper limit on the returned string length.
+   @param wordsafe
+     Flag to truncate at last space within the upper limit+ Defaults to False.
+   @param dots
+     Flag to add trailing dots+ Defaults to False.
+   @return
+     The truncated string.
+  """
   if (drupal_strlen(string_) <= len_):
     return string_;
   if (dots):
@@ -208,22 +208,22 @@ def truncate_utf8(string_, len_, wordsafe = False, dots = False):
   return string_;
 
 
-#
-# Encodes MIME/HTTP header values that contain non-ASCII, UTF-8 encoded
-# characters.
-#
-# For example, mime_header_encode('test.txt') returns "=?UTF-8?B?dMOpc3QudHh0?=". (where the 'e' is acute)
-#
-# See http://www.rfc-editor.org/rfc/rfc2047.txt for more information.
-#
-# Notes:
-# - Only encode strings that contain non-ASCII characters.
-# - We progressively cut-off a chunk with truncate_utf8()+ This is to ensure
-#   each chunk starts and ends on a character boundary.
-# - Using \n as the chunk separator may cause problems on some systems and may
-#   have to be changed to \r\n or \r.
-#
 def mime_header_encode(string_):
+  """
+   Encodes MIME/HTTP header values that contain non-ASCII, UTF-8 encoded
+   characters.
+  
+   For example, mime_header_encode('test.txt') returns "=?UTF-8?B?dMOpc3QudHh0?=". (where the 'e' is acute)
+  
+   See http://www.rfc-editor.org/rfc/rfc2047.txt for more information.
+  
+   Notes:
+   - Only encode strings that contain non-ASCII characters.
+   - We progressively cut-off a chunk with truncate_utf8()+ This is to ensure
+     each chunk starts and ends on a character boundary.
+   - Using \n as the chunk separator may cause problems on some systems and may
+     have to be changed to \r\n or \r.
+  """
   if (preg_match('/[^\x20-\x7E]/', string_)):
     chunk_size = 47; # floor((75 - strlen("=?UTF-8?B??=")) * 0.75);
     len_ = strlen(string_);
@@ -238,10 +238,10 @@ def mime_header_encode(string_):
   return string_;
 
 
-#
-# Complement to mime_header_encode
-#
 def mime_header_decode(header):
+  """
+   Complement to mime_header_encode
+  """
   # First step: encoded chunks followed by other encoded chunks (need to collapse whitespace)
   header = preg_replace_callback('/=\?([^?]+)\?(Q|B)\?([^?]+|\?(?!=))\?=\s+(?==\?)/', '_mime_header_decode', header);
   # Second step: remaining chunks (do not collapse whitespace)
@@ -249,10 +249,10 @@ def mime_header_decode(header):
 
 
 
-#
-# Helper function to mime_header_decode
-#
 def _mime_header_decode(matches):
+  """
+   Helper function to mime_header_decode
+  """
   # Regexp groups:
   # 1: Character set name
   # 2: Escaping method (Q or B)
@@ -264,19 +264,19 @@ def _mime_header_decode(matches):
 
 
 
-#
-# Decode all HTML entities (including numerical ones) to regular UTF-8 bytes.
-# Double-escaped entities will only be decoded once ("&amp;lt;" becomes "&lt;", not "<").
-#
-# @param text
-#   The text to decode entities in.
-# @param exclude
-#   An array of characters which should not be decoded+ For example,
-#   array('<', '&', '"')+ This affects both named and numerical entities.
-#
-# DRUPY(BC): This function heavily modified
-#
 def decode_entities(text, exclude = []):
+  """
+   Decode all HTML entities (including numerical ones) to regular UTF-8 bytes.
+   Double-escaped entities will only be decoded once ("&amp;lt;" becomes "&lt;", not "<").
+  
+   @param text
+     The text to decode entities in.
+   @param exclude
+     An array of characters which should not be decoded+ For example,
+     array('<', '&', '"')+ This affects both named and numerical entities.
+  
+   DRUPY(BC): This function heavily modified
+  """
   static(decode_entities, 'table', {})
   if empty(decode_entities.table):
     for k,v in htmlentitydefs.name2codepoint.items():
@@ -289,13 +289,12 @@ def decode_entities(text, exclude = []):
   return pat.sub(_this_decode_entities, text);
 
 
-#
-# Helper function for decode_entities
-#
-# DRUPY(BC): This function heavily modified
-#
-#
 def _decode_entities(prefix, codepoint, original, table, exclude):
+  """
+   Helper function for decode_entities
+  
+   DRUPY(BC): This function heavily modified
+  """
   # Numeric
   if prefix != None:
     # Octal
@@ -316,11 +315,11 @@ def _decode_entities(prefix, codepoint, original, table, exclude):
 
 
 
-#
-# Count the amount of characters in a UTF-8 string+ This is less than or
-# equal to the byte count.
-#
 def drupal_strlen(text):
+  """
+   Count the amount of characters in a UTF-8 string+ This is less than or
+   equal to the byte count.
+  """
   global multibyte;
   if (multibyte == UNICODE_MULTIBYTE):
     return mb_strlen(text);
@@ -329,10 +328,10 @@ def drupal_strlen(text):
     return strlen(preg_replace("/[\x80-\xBF]/", '', text));
 
 
-#
-# Uppercase a UTF-8 string.
-#
 def drupal_strtoupper(text):
+  """
+   Uppercase a UTF-8 string.
+  """
   global multibyte;
   if (multibyte == UNICODE_MULTIBYTE):
     return mb_strtoupper(text);
@@ -346,10 +345,10 @@ def drupal_strtoupper(text):
 
 
 
-#
-# Lowercase a UTF-8 string.
-#
 def drupal_strtolower(text):
+  """
+   Lowercase a UTF-8 string.
+  """
   global multibyte;
   if (multibyte == UNICODE_MULTIBYTE):
     return mb_strtolower(text);
@@ -362,33 +361,33 @@ def drupal_strtolower(text):
 
 
 
-#
-# Helper function for case conversion of Latin-1.
-# Used for flipping U+C0-U+DE to U+E0-U+FD and back.
-#
 def _unicode_caseflip(matches):
+  """
+   Helper function for case conversion of Latin-1.
+   Used for flipping U+C0-U+DE to U+E0-U+FD and back.
+  """
   return matches[0][0] + chr(ord(matches[0][1]) ^ 32);
 
 
 
-#
-# Capitalize the first letter of a UTF-8 string.
-#
 def drupal_ucfirst(text):
+  """
+   Capitalize the first letter of a UTF-8 string.
+  """
   # Note: no mbstring equivalentnot 
   return drupal_strtoupper(drupal_substr(text, 0, 1)) + drupal_substr(text, 1);
 
 
 
-#
-# Cut off a piece of a string based on character indices and counts+ Follows
-# the same behavior as PHP's own substr() function.
-#
-# Note that for cutting off a string at a known character/substring
-# location, the usage of PHP's normal strpos/substr is safe and
-# much faster.
-#
 def drupal_substr(text, start, length = None):
+  """
+   Cut off a piece of a string based on character indices and counts+ Follows
+   the same behavior as PHP's own substr() function.
+  
+   Note that for cutting off a string at a known character/substring
+   location, the usage of PHP's normal strpos/substr is safe and
+   much faster.
+  """
   global multibyte;
   if (multibyte == UNICODE_MULTIBYTE):
     return (mb_substr(text, start) if (length == None) else mb_substr(text, start, length));
