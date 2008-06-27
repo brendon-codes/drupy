@@ -429,7 +429,7 @@ def module_invoke(*args):
   del(args[0], args[1])
   if (module_hook(module_, hook)):
     function = module_ + '_' + hook
-    return function( *args )
+    return p.call_user_func_array(function, args)
 
 
 
@@ -445,12 +445,13 @@ def module_invoke_all(*args):
      An array of return values of the hook implementations. If modules return
      arrays from their implementations, those are merged into one array.
   """
+  args = list(args)
   hook = args[0]
   del(args[0])
   return_ = []
   for module_ in module_implements(hook):
     function = module_ +  '_'  + hook
-    result = function( *args)
+    result = p.call_user_func_array(function, args)
     if (not p.empty(result) and p.is_array(result)):
       return_ = array_merge_recursive(return_, result)
     elif (not p.empty(result)):
