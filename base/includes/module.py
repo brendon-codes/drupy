@@ -42,7 +42,7 @@ def module_load_all():
    Load all the modules that have been enabled in the system table.
   """
   for module_ in module_list(True, False):
-    drupal_load('module', module_)
+    inc_bootstrap.drupal_load('module', module_)
 
 
 def module_iterate(function, argument = ''):
@@ -50,7 +50,7 @@ def module_iterate(function, argument = ''):
    Call a function repeatedly with each module in turn as an argument.
   """
   for name in module_list():
-    function(name, argument)
+    p.call_user_func(function, name, argument)
 
 
 def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = None):
@@ -74,11 +74,11 @@ def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = No
      An associative array whose keys and values are the names of all loaded
      modules.
   """
-  p.static(module_list, 'list_', [])
+  p.static(module_list, 'list_', {})
   p.static(module_list, 'sorted_list')
   if (refresh or fixed_list):
     module_list.sorted_list = None
-    module_list.list_ = []
+    module_list.list_ = {}
     if (fixed_list):
       for name,module in fixed_list.items():
         inc_bootstrap.drupal_get_filename('module', name, module['filename'])
@@ -92,13 +92,13 @@ def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = No
         module_ = inc_database.db_fetch_object(result)
         if (module_ == None or module_ == False):
           break
-        if (p.file_exists(module_.filename)):
-          drupal_get_filename('module', module_.name, module_.filename)
+        if (p.file_exists('%s/__init__.py' % module_.filename)):
+          inc_bootstrap.drupal_get_filename('module', module_.name, module_.filename)
           module_list.list_[module_.name] = module_.name
   if (sort):
     if (module_list.sorted_list == None):
       module_list.sorted_list = module_list.list_
-      ksort(module_list.sorted_list)
+      p.ksort(module_list.sorted_list)
     return module_list.sorted_list
   return module_list.list_
 
@@ -406,7 +406,7 @@ def module_implements(hook, sort = False, refresh = False):
   # API calls, for example), they would both manipulate the same array's
   # references, which causes some modules' hooks not to be called.
   # See also http://www.zend.com/zend/art/ref-count.php.
-  return p.array_(module_implements.implementations[hook])
+  return module_implements.implementations[hook]
 
 
 
