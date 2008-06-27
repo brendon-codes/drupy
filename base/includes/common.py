@@ -43,6 +43,7 @@ import urllib2
 import bootstrap as inc_bootstrap
 import theme as inc_theme
 #import pager as inc_pager
+import module as inc_module
 import menu as inc_menu
 #import tablesort as inc_tablesort
 import file as inc_file
@@ -2121,24 +2122,16 @@ def _drupal_bootstrap_full():
     return;
   else:
     _drupal_bootstrap_full.called = True;
-  # Set the Drupal custom error handler.
-  try:
-    # Emit the correct charset HTTP p.header.
-    drupal_set_header('Content-Type: text/html; charset=utf-8');
-    # Detect string handling method
-    unicode_check();
-    # Undo magic quotes
-    fix_gpc_magic();
-    # Load all enabled modules
-    module_load_all();
-    # Let all modules take action before menu system handles the request
-    # We do not want this while running update.php.
-    if (not p.defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'):
-      module_invoke_all('init');
-  except:
-    # DRUPY(BC): Args get expanded from tuple
-    drupal_error_handler(*p.error_get_last());
-
+  # Emit the correct charset HTTP p.header.
+  drupal_set_header('Content-Type: text/html; charset=utf-8');
+  # Detect string handling method
+  inc_unicode.unicode_check();
+  # Load all enabled modules
+  inc_module.module_load_all();
+  # Let all modules take action before menu system handles the request
+  # We do not want this while running update.php.
+  if (not p.defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'):
+    inc_module.module_invoke_all('init');
 
 
 
