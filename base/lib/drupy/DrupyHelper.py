@@ -36,7 +36,7 @@ import sys
 def output(should_die, *data):
   """
    Debug HTTP output message
-   @param Str data
+   @param data Str
   """
   print "Content-Type: text/plain; Charset=UTF-8;\r\n\r\n"
   print data

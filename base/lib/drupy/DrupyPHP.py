@@ -148,7 +148,7 @@ class Reference:
   def check(data):
     """
      Enforces a reference
-     @param Object data
+     @param data Object
      @raise Exception 
      @return Bool
     """
@@ -291,7 +291,7 @@ class __Output:
   def write(self, data):
     """
      Write body
-     @param Str data
+     @param data Str
     """
     if self._usebuffer:
       self._body += data
@@ -304,7 +304,7 @@ class __Output:
   def header(self, data, replace = True):
     """
      Write headers
-     @param Str data
+     @param data Str
     """
     if self._usebuffer:
       parts = re.split('\s*:\s*', str(data), 1)
@@ -325,7 +325,7 @@ class __Output:
   def _get_header(self, item, remove = True):
     """
      Get header string
-     @param Str item 
+     @param item  Str
     """
     if self._headers.has_key(item):
       if item == 'status':
@@ -350,9 +350,9 @@ class __Output:
   def _set_header(self, item, val, check = False):
     """
      Set a header
-     @param Str item
-     @param Str val
-     @param Bool check
+     @param item Str
+     @param val Str
+     @param check Bool
      @return Bool
     """
     if not check or not self._headers.has_key(item):
@@ -390,12 +390,12 @@ class __Output:
 def session_set_save_handler(open_, close_, read_, write_, destroy_, gc_):
   """
    Sets user-level session storage functions
-   @param Func open_
-   @param Func close_
-   @param Func read_
-   @param Func write_
-   @param Func destroy_
-   @param Func gc_
+   @param open_ Func
+   @param close_ Func
+   @param read_ Func
+   @param write_ Func
+   @param destroy_ Func
+   @param gc_ Func
    @return Bool
   """
   pass
@@ -415,7 +415,7 @@ def session_start():
 def session_name(name = "DrupySession"):
   """
    Get and/or set the current session name
-   @param Str name
+   @param name Str
    @return Str
   """
   pass
@@ -425,8 +425,8 @@ def define(name, val = None):
   """
    THIS FUNCTION SHOULD BE DEPRECATED EVENTUALLY
    Sets globals variable
-   @param Str name
-   @param Number,Str val
+   @param name Str
+   @param val Number,Str
    @return Bool
   """
   v = {'name':name}
@@ -488,8 +488,8 @@ def error_get_last():
 def uasort(item, func):
   """
    Sort on func
-   @param Iterable item
-   @param Function func
+   @param item Iterable
+   @param func Function
    @return Iterable
   """
   return sort(item, func)
@@ -499,8 +499,8 @@ def uasort(item, func):
 def call_user_func_array(func, args):
   """
    Call user func
-   @param Function func
-   @param Tuple,List args
+   @param func Function
+   @param args Tuple,List
    @return Unknown
   """
   return func(*tuple(args))
@@ -509,8 +509,8 @@ def call_user_func_array(func, args):
 def array_filter(item, func):
   """
    Array filter
-   @param Iterable item
-   @param Function func
+   @param item Iterable
+   @param func Function
    @return Iterable
   """
   return filter(func, item)
@@ -524,7 +524,7 @@ def array_filter(item, func):
 def getimagesize(filename):
   """
    GD image size
-   @param Str filename
+   @param filename Str
    @return 
   """
   img = Image.open(filename)
@@ -544,8 +544,8 @@ def getimagesize(filename):
 def explode(delim, val, limit = None):
   """
    Splits string on delim
-   @param Str delim
-   @param Str val
+   @param delim Str
+   @param val Str
    @return Str
   """  
   if limit != None:
@@ -571,7 +571,7 @@ def microtime():
 def is_writable(filename):
   """
    CHecks file is writeable
-   @param Str filename
+   @param filename Str
    @return Bool
   """ 
   return os.access(filename, os.W_OK)
@@ -580,7 +580,7 @@ def is_writable(filename):
 def is_dir(filename):
   """
    Checks file is directory
-   @param Str filename
+   @param filename Str
    @return Bool
   """
   return os.path.isdir(filename)
@@ -595,8 +595,8 @@ def is_dir(filename):
 def array_merge(a1, a2):
   """
    Merges lists
-   @param Dict,List a1
-   @param Dict,List a2
+   @param a1 Dict,List
+   @param a2 Dict,List
    @return Dict,List 
   """ 
   out = copy.deepcopy(a1)
@@ -608,7 +608,7 @@ def array_merge(a1, a2):
 def array_keys(item):
   """
    Get keys
-   @param Dict item
+   @param item Dict
    @return List
   """
   return item.keys()
@@ -617,8 +617,8 @@ def array_keys(item):
 def array_key_exists(name, item):
   """
    Has key
-   @param Str item
-   @param Dict item
+   @param item Str
+   @param item Dict
    @return Bool
   """
   return item.has_key(name);
@@ -633,9 +633,9 @@ def array_key_exists(name, item):
 def isset(obj, val = None, searchGlobal = False, data = {}):
   """
    Check variable existance
-   @param Dict,List,Object obj
-   @param Str,Int val
-   @param Bool searchGlobal
+   @param obj Dict,List,Object
+   @param val Str,Int
+   @param searchGlobal Bool
   """
   sVal = None
   # First check for single None value
@@ -696,8 +696,8 @@ def time_():
 def in_array(val, obj):
   """
    In array
-   @param Str,Int val
-   @param List,Dict,Object obj
+   @param val Str,Int
+   @param obj List,Dict,Object
    @return Bool
   """
   return (val in obj)
@@ -706,9 +706,9 @@ def in_array(val, obj):
 def array_fill(start, cnt, val):
   """
    Fills array
-   @param Int start
-   @param Int cnt
-   @param Str val
+   @param start Int
+   @param cnt Int
+   @param val Str
    @return Dict
   """
   r = {}
@@ -722,7 +722,7 @@ def array_fill(start, cnt, val):
 def array_shift(item):
   """
    Shifts array
-   @param List,Dict,Tuple item
+   @param item List,Dict,Tuple
    @return Mixed
   """
   if isinstance(item, list):
@@ -744,7 +744,7 @@ def trigger_error(data, errno):
   """
    Triggers error
   
-   @param Str data
+   @param data Str
   """
   print data
   flush()
@@ -754,8 +754,8 @@ def trigger_error(data, errno):
 def function_exists(val, scope = globals()):
   """
    Function exists
-   @param Dict,List,Object obj
-   @param Str val
+   @param obj Dict,List,Object
+   @param val Str
    @return Bool
   """
   if not isinstance(scope, dict):
@@ -767,7 +767,7 @@ def function_exists(val, scope = globals()):
 def htmlspecialchars(val, flags = None):
   """
    html special chars
-   @param Str val
+   @param val Str
    @return Str
   """
   out = ""
@@ -784,9 +784,9 @@ def htmlspecialchars(val, flags = None):
 def empty(val):
   """
    Checks for empty
-   @param Any obj
-   @param Bool searchGlobal
-   @param Str val
+   @param obj Any
+   @param searchGlobal Bool
+   @param val Str
    @return Bool
   """
   # Boolean
@@ -833,7 +833,7 @@ def strtr(text, items):
 def is_uploaded_file(filename):
   """
    Check if uploaded file
-   @param Str filename
+   @param filename Str
    @return Bool
   """
   return True
@@ -843,8 +843,8 @@ def is_uploaded_file(filename):
 def implode(delim, items):
   """
    Implodes
-   @param Str delim
-   @param List items
+   @param delim Str
+   @param items List
    @return Str
   """
   return delim.join(items)
@@ -853,9 +853,9 @@ def implode(delim, items):
 def array_slice(items, a1, a2 = None):
   """
    Array slice
-   @param List,Dict items
-   @param Int a1
-   @param Int a2
+   @param items List,Dict
+   @param a1 Int
+   @param a2 Int
    @return Mixed
   """
   if (a2 == None):
@@ -867,7 +867,7 @@ def array_slice(items, a1, a2 = None):
 def rtrim(val, chars = None):
   """
    R Trim
-   @param Str val
+   @param val Str
    @return Str
   """
   if chars != None:
@@ -879,7 +879,7 @@ def rtrim(val, chars = None):
 def ltrim(val, chars = None):
   """
    L trim
-   @param Str val
+   @param val Str
    @return Str
   """
   if chars != None:
@@ -891,7 +891,7 @@ def ltrim(val, chars = None):
 def is_file(filename):
   """
    Check regular file
-   @param String filename
+   @param filename String
    @return Bool
   """
   return os.path.isfile(filename)
@@ -900,7 +900,7 @@ def is_file(filename):
 def file_exists(filename):
   """
    Check file exists
-   @param Str filename
+   @param filename Str
    @return Bool
   """
   return os.path.exists(filename)
@@ -915,8 +915,8 @@ def file_exists(filename):
 def include(filename, scope = None):
   """
    Includes file
-   @param Str filename
-   @param Dict scope
+   @param filename Str
+   @param scope Dict
    @return Bool
   """
   if (scope != None):
@@ -929,7 +929,7 @@ def include(filename, scope = None):
 def urldecode(val):
   """
    Url decoder
-   @param Str val
+   @param val Str
    @return Str
   """
   return urllib.unquote_plus(val)
@@ -971,8 +971,8 @@ def parse_url(url, port = 80):
 def print_r(data, ret = False):
   """
    Recursive pretty printer
-   @param Any data
-   @param Bool ret
+   @param data Any
+   @param ret Bool
    @return Bool,Str
   """
   try:
@@ -994,7 +994,7 @@ def print_r(data, ret = False):
 def object_(dic):
   """
    Cast to object
-   @param Dict dic
+   @param dic Dict
    @return Object
   """
   out = stdClass()
@@ -1005,7 +1005,7 @@ def object_(dic):
 def array_(obj):
   """
    Cast to array
-   @param Object obj
+   @param obj Object
    @return Dict
   """
   out = {}
@@ -1024,7 +1024,7 @@ def array_(obj):
 def strlen(val):
   """
    Get strlen
-   @param Str val
+   @param val Str
    @return Int
   """ 
   return len(val)
@@ -1033,7 +1033,7 @@ def strlen(val):
 def array_reverse(items):
   """
    Reverses list
-   @param List items
+   @param items List
    @return List
   """
   rItems = copy.deepcopy(items)
@@ -1045,8 +1045,8 @@ def array_reverse(items):
 def preg_quote(val, delim = None):
   """
    Escapes regular expression
-   @param Str val
-   @param Any delim
+   @param val Str
+   @param delim Any
       Not used
    @return Str
   """
@@ -1056,9 +1056,9 @@ def preg_quote(val, delim = None):
 def preg_match(pat, subject, match = None):
   """
    Convert PHP preg_match to Python matcher
-   @param Str pat
-   @param Str subject
-   @param Dict match
+   @param pat Str
+   @param subject Str
+   @param match Dict
    @return Dict
    @returnprop List match
   """
@@ -1081,9 +1081,9 @@ def preg_match(pat, subject, match = None):
 def preg_match_all(pat, subject, matches = None):
   """
    Preg Match all
-   @param Str pat
-   @param Str subject
-   @param Reference &matches
+   @param pat Str
+   @param subject Str
+   @param &matches Reference
    @return Int
   """
   if matches != None:
@@ -1107,8 +1107,8 @@ def preg_match_all(pat, subject, matches = None):
 def uniqid(prefix = None, more_entropy = False):
   """
    Returns unique id
-   @param Str prefix
-   @param Bool more_entropy
+   @param prefix Str
+   @param more_entropy Bool
    @return Str
   """
   out = ''
@@ -1123,8 +1123,8 @@ def uniqid(prefix = None, more_entropy = False):
 def mt_rand(min = 0, max = sys.maxint):
   """
    Random
-   @param Int min
-   @param Int max
+   @param min Int
+   @param max Int
    @return Int
   """
   return random.randint(min, max)
@@ -1132,9 +1132,9 @@ def mt_rand(min = 0, max = sys.maxint):
 
 """
  str replace wrapper
- @param Str pat
- @param Str rep
- @param Str subject
+ @param pat Str
+ @param rep Str
+ @param subject Str
  @return Str
 """
 def str_replace(pat, rep, subject):
@@ -1156,9 +1156,9 @@ def str_replace(pat, rep, subject):
 def preg_replace(pat, rep, subject):
   """
    preg_replace wrapper
-   @param Str pat
-   @param Str replace
-   @param Str subject
+   @param pat Str
+   @param replace Str
+   @param subject Str
    @return Str
   """
   out = subject
@@ -1178,7 +1178,7 @@ def preg_replace(pat, rep, subject):
 def dirname(path):
   """
    dir name
-   @param Str path
+   @param path Str
    @return Str
   """
   return os.path.dirname(path)
@@ -1187,7 +1187,7 @@ def dirname(path):
 def trim(val, chars = None):
   """
    trim whitespace
-   @param Str val
+   @param val Str
    @return Str
   """
   if chars != None:
@@ -1199,7 +1199,7 @@ def trim(val, chars = None):
 def count(item):
   """
    Gets array count
-   @param List,Dict item
+   @param item List,Dict
    @return Int
   """
   return len(item)
@@ -1218,7 +1218,7 @@ def static(func, prop, val = None):
 def is_numeric(val):
   """
    Determines whether or not is numeric
-   @param Any val
+   @param val Any
    @return Bool
   """
   if \
@@ -1255,7 +1255,7 @@ def is_object(val):
 def is_null(val):
   """
    Is null
-   @param Any val
+   @param val Any
   """
   return (val == None)
 
@@ -1263,8 +1263,8 @@ def is_null(val):
 def strpos(haystack, needle):
   """
    Gets str pos
-   @param Str haystack
-   @param Str needle
+   @param haystack Str
+   @param needle Str
    @return Int,Bool
   """
   pos = haystack.find(needle)
@@ -1278,8 +1278,8 @@ def ini_set(name, val):
   """
    Pretends to set an ini
    Actually just sets a global
-   @param Str name
-   @param Str,Number,None,Bool val
+   @param name Str
+   @param val Str,Number,None,Bool
    @return Bool
   """
   define(name.replace('.', '_'), val)
@@ -1289,7 +1289,7 @@ def ini_set(name, val):
 def serialize(obj):
   """
    serializer
-   @param Any obj
+   @param obj Any
    @return Str
   """
   return pickle.dumps(obj)
@@ -1298,7 +1298,7 @@ def serialize(obj):
 def unserialize(val):
   """
    unserializer
-   @param Str val
+   @param val Str
    @return Obj
   """
   return pickle.loads(val)
@@ -1314,8 +1314,8 @@ def defined(val, scope = globals()):
 def gmdate(format, stamp = None):
   """
    GMT date
-   @param Str format
-   @param Int stamp
+   @param format Str
+   @param stamp Int
    @return Str
   """
   if stamp == None:
@@ -1327,7 +1327,7 @@ def gmdate(format, stamp = None):
 def stripslashes(val):
   """
    Strip slashes
-   @param Str val
+   @param val Str
    @retun Str
   """
   return val.replace('\\', '')
@@ -1336,7 +1336,7 @@ def stripslashes(val):
 def addslashes(val):
   """
    Add slashes
-   @param Str val
+   @param val Str
    @return Str
   """
   return re.escape(val)
@@ -1345,7 +1345,7 @@ def addslashes(val):
 def md5(val):
   """
    md5
-   @param Str val
+   @param val Str
    @return Str
   """
   return hashlib.md5(val).hexdigest()
@@ -1353,7 +1353,7 @@ def md5(val):
 def gzinflate(val):
   """
    decompress
-   @param Str val
+   @param val Str
    @return Str
   """
   return zlib.decompress(val)
@@ -1362,7 +1362,7 @@ def gzinflate(val):
 def gzdeflate():
   """
    compress
-   @param Str val
+   @param val Str
    @return Str
   """
   return zlib.compress(val)
@@ -1382,7 +1382,7 @@ def array_pop(item):
 def __preg_setup(pat):
   """
    prepares pattern for python regex
-   @param Str pat
+   @param pat Str
    @return _sre.SRE_Pattern
       Regular Expression object
   """
@@ -1407,9 +1407,9 @@ def __preg_setup(pat):
 def __str_replace_str(pat, rep, subject):
   """
    str replace real
-   @param Str pat
-   @param Str rep
-   @param Str subject
+   @param pat Str
+   @param rep Str
+   @param subject Str
    @return Str
   """
   return subject.replace(pat, rep)
@@ -1419,9 +1419,9 @@ def __str_replace_str(pat, rep, subject):
 def __preg_replace_str(pat, rep, subject):
   """
    Real preg replace
-   @param Str pat
-   @param Str replace
-   @param Str subject
+   @param pat Str
+   @param replace Str
+   @param subject Str
    @return Str
   """
   reg = __preg_setup(pat)

@@ -80,7 +80,7 @@
 			</p>
 			<h3>Getting the Code</h3>
 			<p>
-				The latest Drupy codebase is available via GIT at <a href="http://gitorious.org/projects/drupy">Gitorious</a>.
+				The latest Drupy codebase is available via GIT at <a href="http://gitorious.org/projects/drupy/repos/mainline">Gitorious</a>.
 			</p>
 			<h3>API Documentation</h3>
 			<p>
