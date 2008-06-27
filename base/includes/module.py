@@ -32,6 +32,7 @@
 """
 
 from lib.drupy import DrupyPHP as p
+from lib.drupy import DrupyImport
 import bootstrap as inc_bootstrap
 import database as inc_database
 import cache as inc_cache
@@ -92,7 +93,7 @@ def module_list(refresh = False, bootstrap = True, sort = False, fixed_list = No
         module_ = inc_database.db_fetch_object(result)
         if (module_ == None or module_ == False):
           break
-        if (p.file_exists('%s/__init__.py' % module_.filename)):
+        if (DrupyImport.exists(module_.filename)):
           inc_bootstrap.drupal_get_filename('module', module_.name, module_.filename)
           module_list.list_[module_.name] = module_.name
   if (sort):
@@ -331,27 +332,28 @@ def module_disable(module_list_):
 #
 # @defgroup hooks Hooks
 # @{
+#
+# Allow modules to interact with the Drupal core.
+#  
+# Drupal's module system is based on the concept of "hooks". A hook is a PHP
+# function that is named foo_bar(), where "foo" is the name of the module (whose
+# filename is thus foo.module) and "bar" is the name of the hook. Each hook has
+# a defined set of parameters and a specified result type.
+# 
+# To extend Drupal, a module need simply implement a hook. When Drupal wishes to
+# allow intervention from modules, it determines which modules implement a hook
+# and call that hook in all enabled modules that implement it.
+# 
+# The available hooks to implement are explained here in the Hooks section of
+# the developer documentation. The string "hook" is used as a placeholder for
+# the module name is the hook definitions. For example, if the module file is
+# called example.module, then hook_help() as implemented by that module would be
+# defined as example_help().
+#
+
 
 def module_hook(module_, hook):
   """
-   Allow modules to interact with the Drupal core.
-  
-   Drupal's module system is based on the concept of "hooks". A hook is a PHP
-   function that is named foo_bar(), where "foo" is the name of the module (whose
-   filename is thus foo.module) and "bar" is the name of the hook. Each hook has
-   a defined set of parameters and a specified result type.
-  
-   To extend Drupal, a module need simply implement a hook. When Drupal wishes to
-   allow intervention from modules, it determines which modules implement a hook
-   and call that hook in all enabled modules that implement it.
-  
-   The available hooks to implement are explained here in the Hooks section of
-   the developer documentation. The string "hook" is used as a placeholder for
-   the module name is the hook definitions. For example, if the module file is
-   called example.module, then hook_help() as implemented by that module would be
-   defined as example_help().
-  
-  
    Determine whether a module implements a hook.
   
    @param module
@@ -362,11 +364,12 @@ def module_hook(module_, hook):
      True if the module is both installed and enabled, and the hook is
      implemented in that module.
   """
-  function = module_ + '_' + hook;
-  if (p.defined('MAINTENANCE_MODE')):
-    return p.function_exists(function);
+  function = hook;
+  if (inc_bootstrap.MAINTENANCE_MODE is True):
+    return p.function_exists(function, inc_bootstrap.loaded_modules[module_]);
   else:
-     return inc_bootstrap.drupal_function_exists(function);
+    return inc_bootstrap.drupal_function_exists(function, \
+      inc_bootstrap.loaded_modules[module_]);
 
 
 
@@ -389,7 +392,7 @@ def module_implements(hook, sort = False, refresh = False):
   p.static(module_implements, 'implementations', {})
   if (refresh):
     module_implements.implementations = {}
-  elif (not p.defined('MAINTENANCE_MODE') and p.empty(module_implements.implementations)):
+  elif (inc_bootstrap.MAINTENANCE_MODE is False and p.empty(module_implements.implementations)):
     cache = inc_cache.cache_get('hooks', 'cache_registry')
     if (cache):
       module_implements.implementations = cache.data;
@@ -398,7 +401,7 @@ def module_implements(hook, sort = False, refresh = False):
     module_implements.implementations[hook] = []
     for module_ in module_list():
       if (module_hook(module_, hook)):
-        module_implements.implementations[hook].append( module )
+        module_implements.implementations[hook].append( module_ )
   inc_bootstrap.registry_cache_hook_implementations({'hook' : hook, 'modules' : module_implements.implementations[hook]});
   # The explicit cast forces a copy to be made. This is needed because
   # implementations[hook] is only a reference to an element of
@@ -450,17 +453,12 @@ def module_invoke_all(*args):
   del(args[0])
   return_ = []
   for module_ in module_implements(hook):
-    function = module_ +  '_'  + hook
-    result = p.call_user_func_array(function, args)
-    if (not p.empty(result) and p.is_array(result)):
-      return_ = array_merge_recursive(return_, result)
-    elif (not p.empty(result)):
-      return_.append( result )
-    if (drupal_function_exists(function)):
-      result = function(*args);
-      if (result != None and p.is_array(result)):
-        return_ = array_merge_recursive(return_, result);
-      elif (result != None):
+    if (inc_bootstrap.drupal_function_exists(hook, inc_bootstrap.loaded_modules[module_])):
+      function = DrupyImport.getFunction(inc_bootstrap.loaded_modules[module_], hook)
+      result = p.call_user_func_array(function, args);
+      if (result is not None and p.is_array(result)):
+        return_ = p.array_merge_recursive(return_, result);
+      elif (result is not None):
         return_.append( result );
   return return_
 

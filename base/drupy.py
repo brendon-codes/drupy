@@ -32,7 +32,7 @@ import time
 import re
 import sys
 from lib.drupy import DrupyPHP as p
-from lib.drupy import DrupyHelper
+from lib.drupy import DrupyImport
 from includes import bootstrap as inc_bootstrap
 
 phases = (
@@ -51,11 +51,13 @@ which_phase = phases[8];
 inc_bootstrap.drupal_bootstrap(which_phase[0]);
 stamp, revised = time.strftime("%c GMT||%m/%d/%Y", time.gmtime()).split('||')
 
+out_plugins = p.print_r(inc_bootstrap.loaded_modules, True)
+out_plugins_html = p.htmlspecialchars(out_plugins)
 out_vars = p.print_r(vars(), True)
 out_vars = re.sub('[a-zA-Z0-9_\.-]+@.+?\.[a-zA-Z]+', '********', out_vars)
 out_vars = re.sub('[a-zA-Z0-9]{32}', '********************************', out_vars)
 out_vars = p.htmlspecialchars(out_vars)
-out_mods = p.print_r(DrupyHelper.modules(), True)
+out_mods = p.print_r(DrupyImport.modules(), True)
 out_mods = p.htmlspecialchars(out_mods)
 
 #
@@ -75,9 +77,11 @@ if p.SERVER['WEB']:
   print "<h1>Drupy Bootstrap Diagnostic Status</h1>"
   print "<h2>Bootstrap: Completed Phase '%s' (%s)</h2>" % (which_phase[1],which_phase[0])
   print "<h3>Generated: %s</h3>" % stamp
-  print "<h4>Global Scope Objects</h4>"
+  print "<h4 style='color:blue;'>The following Drupy plugins are loaded. A Drupy plugin is the equivalent of a Drupal module.</h4>"
+  print "<pre style='background-color:yellow;'>%s</pre>" % out_plugins_html
+  print "<h4 style='color:blue;'>Global Scope Objects</h4>"
   print "<pre style='background-color:yellow;'>%s</pre>" % out_vars
-  print "<h4>Loaded Modules</h4>"
+  print "<h4 style='color:blue;'>Loaded Python Modules</h4>"
   print "<pre style='background-color:yellow;'>%s</pre>" % out_mods
   print "</body>"
   print "</html>"
@@ -88,7 +92,14 @@ else:
   print "Drupy Bootstrap Diagnostic Status"
   print "Bootstrap: Completed Phase '%s' (%s)" % (which_phase[1],which_phase[0])
   print "Generated: %s" % stamp
+  print
+  print "The following Drupy plugins are loaded."
+  print "A Drupy plugin is the equivalent of a Drupal module"
+  print
+  print out_plugins
+  print
   print "You may now query any Drupal Bootstrap object."
+  print
 
 #
 # Flush

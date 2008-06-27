@@ -1,5 +1,5 @@
 #!/usr/bin/env python
 
-print "SYSTEM MODULE"
-
+def init(*args):
+  return True
 
