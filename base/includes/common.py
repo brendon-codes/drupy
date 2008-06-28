@@ -46,7 +46,7 @@
 #
 import urllib2
 from lib.drupy import DrupyPHP as p
-from sites.all import settings
+from sites.default import settings
 import bootstrap as inc_bootstrap
 import theme as inc_theme
 #import pager as inc_pager
