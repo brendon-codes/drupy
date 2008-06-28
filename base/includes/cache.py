@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# $Id: cache.inc,v 1.18 2008/04/14 17:48:33 dries Exp $
+# $Id: cache.inc,v 1.19 2008/06/18 03:36:23 dries Exp $
 
 """
   Cache functions
@@ -51,6 +51,7 @@ def cache_get(cid, table = 'cache'):
    @param table
      The table table to store the data in. Valid core values are 'cache_filter',
      'cache_menu', 'cache_page', or 'cache' for the default cache.
+   @return The cache or FALSE on failure.
   """
   # Garbage collection necessary when enforcing a minimum cache lifetime
   cache_flush = inc_bootstrap.variable_get('cache_flush', 0);
@@ -75,13 +76,13 @@ def cache_get(cid, table = 'cache'):
     else:
       if (user.cache > cache.created):
         # This cache data is too old and thus not valid for us, ignore it.
-        return 0;
+        return False;
       else:
         cache.data = db_decode_blob(cache.data);
         if (cache.serialized):
           cache.data = p.unserialize(cache.data);
     return cache;
-  return 0;
+  return False;
 
 
 
