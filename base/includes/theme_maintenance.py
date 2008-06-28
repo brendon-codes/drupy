@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# $Id: theme.maintenance.inc,v 1.13 2008/04/28 09:25:26 dries Exp $
+# $Id: theme.maintenance.inc,v 1.14 2008/06/25 09:12:24 dries Exp $
 
 """
   Theming for maintenance pages.
@@ -263,8 +263,8 @@ def template_preprocess_maintenance_page(variables):
   variables.val['logo']              = theme_get_setting('logo');
   variables.val['messages']          = (theme('status_messages') if variables.val['show_messages'] else '')
   variables.val['mission']           = '';
-  variables.val['primary_links']     = [];
-  variables.val['secondary_links']   = [];
+  variables.val['main_menu']         = [];
+  variables.val['secondary_menu']    = [];
   variables.val['search_box']        = '';
   variables.val['site_name']         = (variable_get('site_name', 'Drupal') if theme_get_setting('toggle_name')  else '')
   variables.val['site_slogan']       = (variable_get('site_slogan', '') if theme_get_setting('toggle_slogan') else '')
