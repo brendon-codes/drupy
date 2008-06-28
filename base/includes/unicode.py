@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# $Id: unicode.inc,v 1.30 2008/04/14 17:48:33 dries Exp $
+# $Id: unicode.inc,v 1.31 2008/06/18 03:36:23 dries Exp $
 
 """
   Drupal Unicode helpers.
@@ -122,14 +122,16 @@ def drupal_xml_parser_create(data):
    @param &data
      The XML data which will be parsed later.
    @return
-     An XML parser object.
+     An XML parser object or FALSE on error.
   """
   p.Reference.check(data);
   # Default XML encoding is UTF-8
   encoding = 'utf-8';
   data.val = unicode(data.val, encoding);
-  xml_parser = minidom.parseString(data.val);
-  return xml_parser;
+  try:
+    return minidom.parseString(data.val);
+  except ExpatError, TypeError:
+    return False
 
 
 
