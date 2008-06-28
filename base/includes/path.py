@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# $Id: path.inc,v 1.22 2008/04/14 17:48:33 dries Exp $
+# $Id: path.inc,v 1.24 2008/06/24 22:12:15 dries Exp $
 
 
 """
@@ -58,7 +58,7 @@ def drupal_init_path():
     p.GET['q'] = drupal_get_normal_path(inc_bootstrap.variable_get('site_frontpage', 'node'))
 
 
-def drupal_lookup_path(action, path = '', path_language = ''):
+def drupal_lookup_path(action, path_ = '', path_language = ''):
   """
    Given an alias, return its Drupal system URL if one exists. Given a Drupal
    system URL return one of its aliases if such a one exists. Otherwise,
@@ -80,37 +80,41 @@ def drupal_lookup_path(action, path = '', path_language = ''):
      Either a Drupal system path, an aliased path, or FALSE if no path was
      found.
   """
-  p.static(drupal_lookup_path, '_map', {})
+  p.static(drupal_lookup_path, 'map_', {})
   p.static(drupal_lookup_path, 'no_src', {})
+  p.static(drupal_lookup_path, 'count', None)
   # map is an array with language keys, holding arrays of Drupal paths to alias relations
   path_language =  (path_language if (path_language != '') else inc_bootstrap.language_.language)
+  # Use $count to avoid looking up paths in subsequent calls if there simply are no aliases
+  if (drupal_lookup_path.count is None):
+    drupal_lookup_path.count = inc_database.db_result(inc_database.db_query('SELECT COUNT(pid) FROM {url_alias}'));
   if (action == 'wipe' ):
     drupal_lookup_path._map = {}
     drupal_lookup_path.no_src = {}
-  elif (inc_plugin.plugin_exists('path') and path != ''):
+  elif (drupal_lookup_path.count > 0 and path_ != ''):
     if (action == 'alias'):
-      if (p.isset(drupal_lookup_path._map[path_language], path)):
-        return drupal_lookup_path._map[path_language][path]
+      if (p.isset(drupal_lookup_path.map_[path_language], path_)):
+        return drupal_lookup_path.map_[path_language][path_]
       # Get the most fitting result falling back with alias without language
-      alias = db_result(db_query("SELECT dst FROM {url_alias} WHERE src = '%s' AND language IN('%s', '') ORDER BY language DESC", path, path_language));
-      drupal_lookup_path._map[path_language][path] = alias
+      alias = db_result(db_query("SELECT dst FROM {url_alias} WHERE src = '%s' AND language IN('%s', '') ORDER BY language DESC", path_, path_language));
+      drupal_lookup_path._map[path_language][path_] = alias
       return alias
     # Check no_src for this path in case we've already determined that there
     # isn't a path that has this alias
-    elif (action == 'source' and not p.isset(drupal_lookup_path.no_src[path_language], path)):
+    elif (action == 'source' and not p.isset(drupal_lookup_path.no_src[path_language], path_)):
       # Look for the value path within the cached map
       src = ''
-      src = array_search(path, drupal_lookup_path._map[path_language])
-      if (not p.isset(drupal_lookup_path._map, path_language) or not src):
+      src = array_search(path, drupal_lookup_path.map_[path_language])
+      if (not p.isset(drupal_lookup_path.map_, path_language) or not src):
         # Get the most fitting result falling back with alias without language
-        src = db_result(db_query("SELECT src FROM {url_alias} WHERE dst = '%s' AND language IN('%s', '') ORDER BY language DESC", path, path_language))
+        src = db_result(db_query("SELECT src FROM {url_alias} WHERE dst = '%s' AND language IN('%s', '') ORDER BY language DESC", path_, path_language))
         if (src):
-          drupal_lookup_path._map[path_language][src] = path
+          drupal_lookup_path.map_[path_language][src] = path_
         else:
           # We can't record anything into map because we do not have a valid
           # index and there is no need because we have not learned anything
           # about any Drupal path. Thus cache to no_src.
-          drupal_lookup_path.no_src[path_language][path] = True
+          drupal_lookup_path.no_src[path_language][path_] = True
       return src
   return False
 
@@ -236,26 +240,21 @@ def drupal_is_front_page():
   return (p.GET['q'] == drupal_get_normal_path(variable_get('site_frontpage', 'node')));
 
 
-def drupal_match_path(path, patterns):
+def drupal_match_path(path_, patterns):
   """
    Check if a path matches any pattern in a set of patterns.
   
+   @note DRUPY:
+     This function was substantially modified
    @param path
      The path to match.
    @param patterns
-     String containing a set of patterns separated by \n, \r or \r\n.
-  
+     String containing a set of patterns separated by \n, \r or \r\n.  
    @return
      Boolean value: TRUE if the path matches a pattern, FALSE otherwise.
   """
   p.static(drupal_match_path, 'regexps')
   if (not p.isset(drupal_match_path.regexps, patterns)):
-    #
-    # DRUPY(BC): This had to be severly modified due to some 
-    # hideous Drupalisms.
-    # @todo: Implement arrays for preg functions
-    # @todo: Implement preg_quote
-    #
     frnt = variable_get('site_frontpage', 'node');
     frnt_q = p.preg_quote(frnt, '/');
     frnt_p = '\1' + frnt_q + '\2';
@@ -265,7 +264,8 @@ def drupal_match_path(path, patterns):
     pat_prep = p.preg_replace(pra1, pra2, pat_q);
     pat_final = '/^(' + pat_prep + ')$/';
     drupal_match_path.regexps[patterns] = pat_final;
-    out = p.preg_match(drupal_match_path.regexps[patterns], path);
-  return out;
+    return (p.preg_match(drupal_match_path.regexps[patterns], path_) > 0)
+  else:
+    return False
 
 
