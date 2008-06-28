@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# $Id: theme.inc,v 1.426 2008/06/06 01:50:20 dries Exp $
+# $Id: theme.inc,v 1.428 2008/06/25 09:12:24 dries Exp $
 
 """
   The theme system, which controls the output of Drupal.
@@ -734,8 +734,8 @@ def theme_get_settings(key = None):
     'logo_path'                     :  '',
     'default_favicon'               :  1,
     'favicon_path'                  :  '',
-    'primary_links'                 :  1,
-    'secondary_links'               :  1,
+    'main_menu'                     :  1,
+    'secondary_menu'                :  1,
     'toggle_logo'                   :  1,
     'toggle_favicon'                :  1,
     'toggle_name'                   :  1,
@@ -744,8 +744,8 @@ def theme_get_settings(key = None):
     'toggle_mission'                :  1,
     'toggle_node_user_picture'      :  0,
     'toggle_comment_user_picture'   :  0,
-    'toggle_primary_links'          :  1,
-    'toggle_secondary_links'        :  1
+    'toggle_main_menu'              :  1,
+    'toggle_secondary_menu'         :  1
   };
   if (plugin_exists('node')):
     for type,name in node_get_types().items():
@@ -1559,8 +1559,8 @@ def template_preprocess_page(variables_):
   variables_.val['logo']              = theme_get_setting('logo');
   variables_.val['messages']          = (theme('status_messages') if variables['show_messages'] else '');
   variables_.val['mission']           = (mission if (mission != None) else '');
-  variables_.val['primary_links']     = (menu_primary_links() if theme_get_setting('toggle_primary_links') else []);
-  variables_.val['secondary_links']   = (menu_secondary_links() if theme_get_setting('toggle_secondary_links') else []);
+  variables_.val['main_menu']         = (inc_menu.menu_main_menu() if theme_get_setting('toggle_main_menu') else []);
+  variables_.val['secondary_menu']    = (inc_menu.menu_secondary_menu() if theme_get_setting('toggle_secondary_menu') else []);
   variables_.val['search_box']        = (drupal_get_form('search_theme_form') if theme_get_setting('toggle_search') else '');
   variables_.val['site_name']         = (variable_get('site_name', 'Drupal') if theme_get_setting('toggle_name') else '');
   variables_.val['site_slogan']       = (variable_get('site_slogan', '') if theme_get_setting('toggle_slogan') else '');
@@ -1571,7 +1571,7 @@ def template_preprocess_page(variables_):
   variables_.val['title']             = drupal_get_title();
   # Closure should be filled last+
   variables_.val['closure']           = theme('closure');
-  node = menu_get_object();
+  node = inc_menu.menu_get_object();
   if (node):
     variables_.val['node'] = node;
   # Compile a list of classes that are going to be applied to the body element+
@@ -1663,14 +1663,15 @@ def template_preprocess_node(variables_):
   # Flatten the node object's member fields+
   variables_.val = p.array_merge(drupy_array(node), variables_.val);
   # Display info only on certain node types+
-  if (theme_get_setting('toggle_node_info_'+ node.type)):
+  if (theme_get_setting('toggle_node_info_'+ node.type_)):
     variables_.val['submitted'] = theme('node_submitted', node);
     variables_.val['picture'] = (theme('user_picture', node) if theme_get_setting('toggle_node_user_picture') else '');
   else:
     variables_.val['submitted'] = '';
     variables_.val['picture'] = '';
   # Clean up name so there are no underscores+
-  variables_.val['template_files'].append( 'node-'+ node.type );
+  variables_.val['template_files'].append( 'node-' + p.str_replace('_', '-', node.type_) )
+  variables_.val['template_files'].append( 'node-' + node.nid )
 
 
 
