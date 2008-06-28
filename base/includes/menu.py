@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# $Id: menu.inc,v 1.275 2008/06/12 20:49:39 dries Exp $
+# $Id: menu.inc,v 1.278 2008/06/25 09:12:24 dries Exp $
 
 """
   API for the Drupal menu system.
@@ -1198,29 +1198,27 @@ def menu_list_system_menus():
   """
   Return an array containing the names of system-defined (default) menus.
   """
-  return ['navigation', 'primary-links', 'secondary-links']
+  return ('navigation', 'main-menu', 'secondary-menu')
 
 
-
-def menu_primary_links():
+def menu_main_menu():
   """
-  Return an array of links to be rendered as the Primary links.
+  Return an array of links to be rendered as the Main menu.
   """
-  return menu_navigation_links(variable_get('menu_primary_links_source', 'primary-links'))
+  return menu_navigation_links(variable_get('menu_main_menu_source', 'main-menu'))
 
 
-
-def menu_secondary_links():
+def menu_secondary_menu():
   """
   Return an array of links to be rendered as the Secondary links.
   """
   # If the secondary menu source is set as the primary menu, we display the
   # second level of the primary menu.
-  if (variable_get('menu_secondary_links_source', 'secondary-links') == variable_get('menu_primary_links_source', 'primary-links')):
-    return menu_navigation_links(variable_get('menu_primary_links_source', 'primary-links'), 1)
+  if (variable_get('menu_secondary_menu_source', 'secondary-menu') == \
+      variable_get('menu_main_menu_source', 'main-menu')):
+    return menu_navigation_links(variable_get('menu_main_menu_source', 'main-menu'), 1)
   else:
-    return menu_navigation_links(variable_get('menu_secondary_links_source', 'secondary-links'), 0)
-
+    return menu_navigation_links(variable_get('menu_secondary_menu_source', 'secondary-menu'), 0)
 
 
 def menu_navigation_links(menu_name, level = 0):
@@ -1495,11 +1493,11 @@ def menu_set_active_trail(new_trail = None):
         menu_set_active_trail.trail.append( curr['link'] )
         curr = False
       else:
-        # Move to the child link if it's in the active trail.
-        if (curr['below'] and curr['link']['in_active_trail']):
+        # Add the link if it's in the active trail, then move to the link below.
+        if (curr['link']['in_active_trail']):
           menu_set_active_trail.trail.append( curr['link'] )
-          tree = curr['below']
-        key,curr = each(tree)
+          tree = (curr['below'] if curr['below'] else []);
+        key,curr = p.each(tree)
     # Make sure the current page is in the trail (needed for the page title),
     # but exclude tabs and the front page.
     last = p.count(menu_set_active_trail.trail) - 1
