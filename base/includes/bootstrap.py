@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# $Id: bootstrap.inc,v 1.211 2008/05/26 17:12:54 dries Exp $
+# $Id: bootstrap.inc,v 1.212 2008/06/26 11:29:20 dries Exp $
 
 """
   Functions that need to be loaded on every Drupal requst
@@ -1300,17 +1300,21 @@ def language_default(property = None):
 # @return
 #   IP address of client machine, adjusted for reverse proxy.
 #
-def ip_address():
+def ip_address(reset=False):
   """
-   If Drupal is behind a reverse proxy, we use the X-Forwarded-For p.header
-   instead of p.SERVER['REMOTE_ADDR'], which would be the IP address
-   of the proxy server, and not the client's.
-  
+   If Drupal is behind a reverse proxy, we use the X-Forwarded-For header
+   instead of $_SERVER['REMOTE_ADDR'], which would be the IP address of 
+   the proxy server, and not the client's.  If Drupal is run in a cluster
+   we use the X-Cluster-Client-Ip header instead.
+
+   @param $reset
+     Reset the current IP address saved in static.
    @return
-     IP address of client machine, adjusted for reverse proxy.
+     IP address of client machine, adjusted for reverse proxy and/or cluster
+     environments.
   """
   p.static(ip_address, 'ip_address')
-  if (ip_address.ip_address == None):
+  if (ip_address.ip_address is None or reset):
     ip_address.ip_address = p.SERVER['REMOTE_ADDR'];
     if (variable_get('reverse_proxy', 0) and p.array_key_exists('HTTP_X_FORWARDED_FOR', p.SERVER)):
       # If an array of known reverse proxy IPs is provided, then trust
@@ -1321,6 +1325,11 @@ def ip_address():
         # If there are several arguments, we need to check the most
         # recently added one, i.e. the last one.
         ip_address.ip_address = p.array_pop(p.explode(',', p.SERVER['HTTP_X_FORWARDED_FOR']));
+      # When Drupal is run in a cluster environment, REMOTE_ADDR contains the IP
+      # address of a server in the cluster, while the IP address of the client is
+      # stored in HTTP_X_CLUSTER_CLIENT_IP.
+      if (array_key_exists('HTTP_X_CLUSTER_CLIENT_IP', p.SERVER)):
+        ip_address.ip_address = p.SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
   return ip_address.ip_address;
 
 #
