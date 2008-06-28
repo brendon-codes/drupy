@@ -3,34 +3,40 @@
 # $Id: common.inc,v 1.771 2008/06/09 08:11:44 dries Exp $
 
 """
- @package Drupy
- @see http://drupy.net
- @note Drupy is a port of the Drupal project.
-  The drupal project can be found at http://drupal.org
- @file common.py (ported from Drupal's common.inc)
-  Common functions that many Drupy modules will need to reference.
- @author Brendon Crawford
- @copyright 2008 Brendon Crawford
- @contact message144 at users dot sourceforge dot net
- @created 2008-01-10
- @version 0.1
- @license: 
+  Common functions that many Drupy plugins will need to reference.
 
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
+  @package includes
+  @see <a href='http://drupy.net'>Drupy Homepage</a>
+  @see <a href='http://drupal.org'>Drupal Homepage</a>
+  @note Drupy is a port of the Drupal project.
+  @note This file was ported from Drupal's includes/common.inc
+  @author Brendon Crawford
+  @copyright 2008 Brendon Crawford
+  @contact message144 at users dot sourceforge dot net
+  @created 2008-01-10
+  @version 0.1
+  @note License:
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to:
+    
+    The Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301,
+    USA
 """
 
+#
 # The functions that are critical and need to be available even when serving
 # a cached page are instead located in bootstrap.inc.
 #
@@ -43,7 +49,7 @@ import urllib2
 import bootstrap as inc_bootstrap
 import theme as inc_theme
 #import pager as inc_pager
-import module as inc_module
+import plugin as inc_plugin
 import menu as inc_menu
 #import tablesort as inc_tablesort
 import file as inc_file
@@ -321,10 +327,10 @@ def drupal_goto(path = '', query = None, fragment = None, http_response_code = 3
   url = url(path, {'query' : urlP['query'], 'fragment' : urlP['fragment'], 'absolute' : True});
   # Remove newlines from the URL to avoid p.header injection attacks.
   url = p.str_replace(["\n", "\r"], '', url);
-  # Allow modules to react to the end of the page request before redirecting.
+  # Allow plugins to react to the end of the page request before redirecting.
   # We do not want this while running update.php.
   if (not p.defined(locals(), 'MAINTENANCE_MODE', True) or MAINTENANCE_MODE != 'update'):
-    module_invoke_all('exit', url);
+    plugin_invoke_all('exit', url);
   # Even though session_write_close() is registered as a shutdown function, we
   # need all session data written to the database before redirecting.
   session_write_close();
@@ -615,10 +621,10 @@ def t(string, args = {}, langcode = None):
   # Cache the custom_strings variable to improve performance.
   if (not p.isset(t.custom_strings, langcode)):
     t.custom_strings[langcode] = variable_get('locale_custom_strings_' + langcode, {});
-  # Custom strings work for English too, even if locale module is disabled.
+  # Custom strings work for English too, even if locale plugin is disabled.
   if (p.isset(t.custom_strings[langcode], string)):
     string = t.custom_strings[langcode][string];
-  # Translate with locale module if enabled.
+  # Translate with locale plugin if enabled.
   elif (p.function_exists('locale') and langcode != 'en'):
     string = locale(string, langcode);
   if (p.empty(args)):
@@ -1071,7 +1077,7 @@ def url(path = None, options = {}):
    @return
      A string containing a URL to the given path.
   
-   When creating links in modules, consider whether l() could be a better
+   When creating links in plugins, consider whether l() could be a better
    alternative than url().
   """
   p.static(url, 'script')
@@ -1181,7 +1187,7 @@ def l(text, path, options = {}):
    Format an internal Drupal link.
   
    This function correctly handles aliased paths, and allows themes to highlight
-   links to the current page correctly, so all internal links output by modules
+   links to the current page correctly, so all internal links output by plugins
    should be generated by this function if possible.
   
    @param text
@@ -1243,12 +1249,12 @@ def drupal_page_footer():
   """
    Perform end-of-request tasks.
   
-   This function sets the page cache if appropriate, and allows modules to
+   This function sets the page cache if appropriate, and allows plugins to
    react to the closing of the page by calling hook_exit().
   """
   if (variable_get('cache', CACHE_DISABLED) != CACHE_DISABLED):
     page_set_cache();
-  module_invoke_all('exit');
+  plugin_invoke_all('exit');
   registry_cache_hook_implementations(False, True);
   registry_cache_path_files();
 
@@ -1306,7 +1312,7 @@ def drupal_eval(code):
   # Store current theme path.
   old_theme_path = theme_path;
   # Restore theme_path to the theme, as long as drupal_eval() executes,
-  # so code evaluted will not see the caller module as the current theme.
+  # so code evaluted will not see the caller plugin as the current theme.
   # If theme info is not initialized get the path from theme_default.
   if (not p.isset(locals(), theme_info, True)):
     theme_path = drupal_get_path('theme', settings.conf['theme_default']);
@@ -1323,10 +1329,10 @@ def drupal_eval(code):
 
 def drupal_get_path(type, name):
   """
-   Returns the path to a system item (module, theme, etc.).
+   Returns the path to a system item (plugin, theme, etc.).
   
    @param type
-     The type of the item (i.e. theme, theme_engine, module).
+     The type of the item (i.e. theme, theme_engine, plugin).
    @param name
      The name of the item for which the path is requested.
   
@@ -1353,17 +1359,17 @@ def drupal_add_link(attributes):
   drupal_set_html_head('<link' + drupal_attributes(attributes) + " />\n");
 
 
-def drupal_add_css(path = None, type = 'module', media = 'all', preprocess = True):
+def drupal_add_css(path = None, type = 'plugin', media = 'all', preprocess = True):
   """
    Adds a CSS file to the stylesheet queue.
   
    @param path
      (optional) The path to the CSS file relative to the base_path(), e.g.,
-     /modules/devel/devel.css.
+     /plugins/devel/devel.css.
   
-     Modules should always prefix the names of their CSS files with the module
+     Modules should always prefix the names of their CSS files with the plugin
      name, for example: system-menus.css rather than simply menus.css. Themes
-     can override module-supplied CSS files based on their filenames, and this
+     can override plugin-supplied CSS files based on their filenames, and this
      prefixing helps prevent confusing name collisions for theme developers.
      See drupal_get_css where the overrides are performed.
   
@@ -1375,7 +1381,7 @@ def drupal_add_css(path = None, type = 'module', media = 'all', preprocess = Tru
      should contain overrides for properties which should be reversed or
      otherwise different in a right-to-left display.
    @param type
-     (optional) The type of stylesheet that is being added. Types are: module
+     (optional) The type of stylesheet that is being added. Types are: plugin
      or theme.
    @param media
      (optional) The media type for the stylesheet, e.g., all, print, screen.
@@ -1412,7 +1418,7 @@ def drupal_add_css(path = None, type = 'module', media = 'all', preprocess = Tru
   if (path != None):
     # This check is necessary to ensure proper cascading of styles and is faster than an asort().
     if (not p.isset(drupal_add_css.css, media)):
-      drupal_add_css.css[media] = {'module' : {}, 'theme' : {}};
+      drupal_add_css.css[media] = {'plugin' : {}, 'theme' : {}};
     drupal_add_css.css[media][type][path] = preprocess;
     # If the current language is RTL, add the CSS file with RTL overrides.
     if (p.defined('LANGUAGE_RTL') and language.direction == LANGUAGE_RTL):
@@ -1427,18 +1433,18 @@ def drupal_get_css(css = None):
   """
    Returns a themed representation of all stylesheets that should be attached to the page.
   
-   It loads the CSS in order, with 'module' first, then 'theme' afterwards.
+   It loads the CSS in order, with 'plugin' first, then 'theme' afterwards.
    This ensures proper cascading of styles so themes can easily override
-   module styles through CSS selectors.
+   plugin styles through CSS selectors.
   
-   Themes may replace module-defined CSS files by adding a stylesheet with the
+   Themes may replace plugin-defined CSS files by adding a stylesheet with the
    same filename. For example, themes/garland/system-menus.css would replace
-   modules/system/system-menus.css. This allows themes to override complete
+   plugins/system/system-menus.css. This allows themes to override complete
    CSS files, rather than specific selectors, when necessary.
   
    If the original CSS file is being overridden by a theme, the theme is
    responsible for supplying an accompanying RTL CSS file to replace the
-   module's.
+   plugin's.
   
    @param css
      (optional) An array of CSS files. If no array is provided, the default
@@ -1449,7 +1455,7 @@ def drupal_get_css(css = None):
   output = '';
   if (css == None):
     css = drupal_add_css();
-  no_module_preprocess = '';
+  no_plugin_preprocess = '';
   no_theme_preprocess = '';
   preprocess_css = ((variable_get('preprocess_css', False) and (not p.defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update')));
   directory = file_directory_path();
@@ -1463,23 +1469,23 @@ def drupal_get_css(css = None):
     # If CSS preprocessing is off, we still need to output the styles.
     # Additionally, go through any remaining styles if CSS preprocessing is on and output the non-cached ones.
     for type_,files in types.items():
-      if (type_ == 'module'):
-        # Setup theme overrides for module styles.
+      if (type_ == 'plugin'):
+        # Setup theme overrides for plugin styles.
         theme_styles = [];
         for theme_style in p.array_keys(css[media]['theme']):
           theme_styles.append( basename(theme_style) );
       for file_,preprocess in types[type_].items():
-        # If the theme supplies its own style using the name of the module style, skip its inclusion.
+        # If the theme supplies its own style using the name of the plugin style, skip its inclusion.
         # This includes any RTL styles associated with its main LTR counterpart.
-        if (type_ == 'module' and p.in_array(p.str_replace('-rtl.css', '.css', basename(file)), theme_styles)):
+        if (type_ == 'plugin' and p.in_array(p.str_replace('-rtl.css', '.css', basename(file)), theme_styles)):
           # Unset the file to prevent its inclusion when CSS aggregation is enabled.
           del(types[type_][file]);
           continue;
         if (not preprocess or not(is_writable and preprocess_css)):
-          # If a CSS file is not to be preprocessed and it's a module CSS file, it needs to *always* appear at the *top*,
+          # If a CSS file is not to be preprocessed and it's a plugin CSS file, it needs to *always* appear at the *top*,
           # regardless of whether preprocessing is on or off.
-          if (not preprocess and type_ == 'module'):
-            no_module_preprocess += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + file_ + query_string + '" />' + "\n";
+          if (not preprocess and type_ == 'plugin'):
+            no_plugin_preprocess += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + file_ + query_string + '" />' + "\n";
           # If a CSS file is not to be preprocessed and it's a theme CSS file, it needs to *always* appear at the *bottom*,
           # regardless of whether preprocessing is on or off.
           elif (not preprocess and type_ == 'theme'):
@@ -1490,7 +1496,7 @@ def drupal_get_css(css = None):
       filename = p.md5(p.serialize(types) + query_string) + '.css';
       preprocess_file = drupal_build_css_cache(types, filename);
       output += '<link type="text/css" rel="stylesheet" media="' + media + '" href="' + base_path() + preprocess_file + '" />' + "\n";
-  return no_module_preprocess . output . no_theme_preprocess;
+  return no_plugin_preprocess . output . no_theme_preprocess;
 
 
 
@@ -1562,7 +1568,7 @@ def drupal_load_stylesheet(file, optimize = None):
   
    The returned contents are compressed removing white space and comments only
    when CSS aggregation is enabled. This optimization will not apply for
-   color.module enabled themes with CSS aggregation turned off.
+   color.plugin enabled themes with CSS aggregation turned off.
   
    @param file
      Name of the stylesheet to be processed.
@@ -1623,7 +1629,7 @@ def drupal_clear_css_cache():
   file_scan_directory(file_create_path('css'), '.*', ['.', '..', 'CVS'], 'file_delete', True);
 
 
-def drupal_add_js(data = None, type_ = 'module', scope = 'p.header', defer = False, cache = True, preprocess = True):
+def drupal_add_js(data = None, type_ = 'plugin', scope = 'p.header', defer = False, cache = True, preprocess = True):
   """
    Add a JavaScript file, setting or inline code to the page.
   
@@ -1632,9 +1638,9 @@ def drupal_add_js(data = None, type_ = 'module', scope = 'p.header', defer = Fal
    reference to an existing file or as inline code. The following actions can be
    performed using this function:
   
-   - Add a file ('core', 'module' and 'theme'):
+   - Add a file ('core', 'plugin' and 'theme'):
      Adds a reference to a JavaScript file to the page. JavaScript files
-     are placed in a certain order, from 'core' first, to 'module' and finally
+     are placed in a certain order, from 'core' first, to 'plugin' and finally
      'theme' so that files, that are added later, can override previously added
      files with ease.
   
@@ -1645,12 +1651,12 @@ def drupal_add_js(data = None, type_ = 'module', scope = 'p.header', defer = Fal
   
    - Add settings ('setting'):
      Adds a setting to Drupal's global storage of JavaScript settings. Per-page
-     settings are required by some modules to function properly. The settings
+     settings are required by some plugins to function properly. The settings
      will be accessible at Drupal.settings.
   
    @param data
      (optional) If given, the value depends on the type parameter:
-     - 'core', 'module' or 'theme': Path to the file relative to base_path().
+     - 'core', 'plugin' or 'theme': Path to the file relative to base_path().
      - 'inline': The JavaScript code that should be placed in the given scope.
      - 'setting': An array with configuration options as associative array. The
          array is directly placed in Drupal.settings. You might want to wrap your
@@ -1658,9 +1664,9 @@ def drupal_add_js(data = None, type_ = 'module', scope = 'p.header', defer = Fal
          of the Drupal.settings namespace.
    @param type
      (optional) The type of JavaScript that should be added to the page. Allowed
-     values are 'core', 'module', 'theme', 'inline' and 'setting'. You
+     values are 'core', 'plugin', 'theme', 'inline' and 'setting'. You
      can, however, specify any value. It is treated as a reference to a JavaScript
-     file. Defaults to 'module'.
+     file. Defaults to 'plugin'.
    @param scope
      (optional) The location in which you want to place the script. Possible
      values are 'p.header' and 'footer' by default. If your theme implements
@@ -1690,7 +1696,7 @@ def drupal_add_js(data = None, type_ = 'module', scope = 'p.header', defer = Fal
           'misc/jquery.js' : {'cache' : True, 'defer' : False, 'preprocess' : True},
           'misc/drupal.js' : {'cache' : True, 'defer' : False, 'preprocess' : True}
         },
-        'module' : {},
+        'plugin' : {},
         'theme' : {},
         'setting' : [
           {'basePath' : base_path()}
@@ -1698,7 +1704,7 @@ def drupal_add_js(data = None, type_ = 'module', scope = 'p.header', defer = Fal
         'inline' : {},
       };
     if (not p.empty(scope) and not p.isset(drupal_add_js.javascript, scope)):
-      drupal_add_js.javascript[scope] = {'core' : {}, 'module' : {}, 'theme' : {}, 'setting' : {}, 'inline' : {}};
+      drupal_add_js.javascript[scope] = {'core' : {}, 'plugin' : {}, 'theme' : {}, 'setting' : {}, 'inline' : {}};
     if (not p.empty(type) and not p.empty(scope) and not p.isset(drupal_add_js.javascript[scope], type_)):
       drupal_add_js.javascript[scope][type_] = [];
     if type == 'setting':
@@ -1724,7 +1730,7 @@ def drupal_get_js(scope = 'p.header', javascript = None):
    Returns a themed presentation of all JavaScript code for the current page.
   
    References to JavaScript files are placed in a certain order: first, all
-   'core' files, then all 'module' and finally all 'theme' JavaScript files
+   'core' files, then all 'plugin' and finally all 'theme' JavaScript files
    are added to the page. Then, all settings are output, followed by 'inline'
    JavaScript code. If running update.php, all preprocessing is disabled.
   
@@ -1745,7 +1751,7 @@ def drupal_get_js(scope = 'p.header', javascript = None):
     return '';
   output = '';
   preprocessed = '';
-  no_preprocess = {'core' : '', 'module' : '', 'theme' : ''};
+  no_preprocess = {'core' : '', 'plugin' : '', 'theme' : ''};
   files = {};
   preprocess_js = (variable_get('preprocess_js', False) and (not p.defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'));
   directory = file_directory_path();
@@ -1798,7 +1804,7 @@ def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = None,
    themed into a table. The table must have an id attribute set. If using
    theme_table(), the id may be set as such:
    @code
-   output = theme('table', %(p.header)s, rows, array('id' : 'my-module-table'));
+   output = theme('table', %(p.header)s, rows, array('id' : 'my-plugin-table'));
    return output;
    @endcode
   
@@ -1828,7 +1834,7 @@ def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = None,
   
    Calling drupal_add_tabledrag() would then be written as such:
    @code
-   drupal_add_tabledrag('my-module-table', 'order', 'sibling', 'my-elements-weight');
+   drupal_add_tabledrag('my-plugin-table', 'order', 'sibling', 'my-elements-weight');
    @endcode
   
    In a more complex case where there are several groups in one column (such as
@@ -1844,7 +1850,7 @@ def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = None,
   
    @code
    foreach (regions as region) {
-     drupal_add_tabledrag('my-module-table', 'order', 'sibling', 'my-elements-weight', 'my-elements-weight-'. region);
+     drupal_add_tabledrag('my-plugin-table', 'order', 'sibling', 'my-elements-weight', 'my-elements-weight-'. region);
    }
    @endcode
   
@@ -1863,7 +1869,7 @@ def drupal_add_tabledrag(table_id, action, relationship, group, subgroup = None,
   
    @param table_id
      String containing the target table's id attribute. If the table does not
-     have an id, one will need to be set, such as <table id="my-module-table">.
+     have an id, one will need to be set, such as <table id="my-plugin-table">.
    @param action
      String describing the action to be done on the form item. Either 'match'
      'depth', or 'order'. Match is typically used for parent relationships.
@@ -2126,12 +2132,12 @@ def _drupal_bootstrap_full():
   drupal_set_header('Content-Type: text/html; charset=utf-8');
   # Detect string handling method
   inc_unicode.unicode_check();
-  # Load all enabled modules
-  inc_module.module_load_all();
-  # Let all modules take action before menu system handles the request
+  # Load all enabled plugins
+  inc_plugin.plugin_load_all();
+  # Let all plugins take action before menu system handles the request
   # We do not want this while running update.php.
   if (not p.defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'):
-    inc_module.module_invoke_all('init');
+    inc_plugin.plugin_invoke_all('init');
 
 
 
@@ -2193,8 +2199,8 @@ def drupal_cron_run():
     register_shutdown_function('drupal_cron_cleanup');
     # Lock cron semaphore
     variable_set('cron_semaphore', drupy_time());
-    # Iterate through the modules calling their cron handlers (if any):
-    module_invoke_all('cron');
+    # Iterate through the plugins calling their cron handlers (if any):
+    plugin_invoke_all('cron');
     # Record cron time
     variable_set('cron_last', drupy_time());
     watchdog('cron', 'Cron run completed.', [], WATCHDOG_NOTICE);
@@ -2222,9 +2228,9 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
    Return an array of system file objects.
   
    Returns an array of file objects of the given type from the site-wide
-   directory (i.e. modules/), the all-sites directory (i.e.
-   sites/all/modules/), the profiles directory, and site-specific directory
-   (i.e. sites/somesite/modules/). The returned array will be keyed using the
+   directory (i.e. plugins/), the all-sites directory (i.e.
+   sites/all/plugins/), the profiles directory, and site-specific directory
+   (i.e. sites/somesite/plugins/). The returned array will be keyed using the
    key specified (name, basename, filename). Using name or basename will cause
    site-specific files to be prioritized over similar files in the default
    directories. That is, if a file with the same name appears in both the
@@ -2235,8 +2241,8 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
      The regular expression of the files to find.
    @param directory
      The subdirectory name in which the files are found. For example,
-     'modules' will search in both modules/ and
-     sites/somesite/modules/.
+     'plugins' will search in both plugins/ and
+     sites/somesite/plugins/.
    @param key
      The key to be passed to file_scan_directory().
    @param min_depth
@@ -2258,9 +2264,9 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
   files = [];
   # Always search sites/all/* as well as the global directories
   searchdir.append( 'sites/all/' + directory );
-  # The 'profiles' directory contains pristine collections of modules and
+  # The 'profiles' directory contains pristine collections of plugins and
   # themes as organized by a distribution.  It is pristine in the same way
-  # that /modules is pristine for core; users should avoid changing anything
+  # that /plugins is pristine for core; users should avoid changing anything
   # there in favor of sites/all or sites/<domain> directories.
   if (p.file_exists("profiles/%(profile)s/directory" % {'profile' : profile})):
     searchdir.append( "profiles/%(profile)s/directory" % {'profile' : profile} );
@@ -2313,8 +2319,8 @@ def drupal_alter(type_, data, *additional_args_):
   p.array_shift(additional_args);
   p.array_shift(additional_args);
   args = tuple(p.array_merge(args, additional_args));
-  for module in module_implements(type_ + '_alter'):
-    function = module + '_' + type_ + '_alter';
+  for plugin in plugin_implements(type_ + '_alter'):
+    function = plugin + '_' + type_ + '_alter';
     function( *args );
 
 
@@ -2651,7 +2657,7 @@ def drupal_get_schema(table = None, rebuild = False):
    Get the schema definition of a table, or the whole database schema.
   
    The returned schema will include any modifications made by any
-   module that implements hook_schema_alter().
+   plugin that implements hook_schema_alter().
   
    @param table
      The name of the table. If not given, the schema of all tables is returned.
@@ -2668,11 +2674,11 @@ def drupal_get_schema(table = None, rebuild = False):
     else:
       drupal_get_schema.schema = [];
       # Load the .install files to get hook_schema.
-      module_load_all_includes('install');
-      # Invoke hook_schema for all modules.
-      for module in module_implements('schema'):
-        current = module_invoke(module, 'schema');
-        _drupal_initialize_schema(module, current);
+      plugin_load_all_includes('install');
+      # Invoke hook_schema for all plugins.
+      for plugin in plugin_implements('schema'):
+        current = plugin_invoke(plugin, 'schema');
+        _drupal_initialize_schema(plugin, current);
         drupal_get_schema.schema = p.array_merge(drupal_get_schema.schema, current);
       drupal_alter('schema', drupal_get_schema.schema);
       cache_set('schema', drupal_get_schema.schema);
@@ -2685,23 +2691,23 @@ def drupal_get_schema(table = None, rebuild = False):
 
 
 
-def drupal_install_schema(module):
+def drupal_install_schema(plugin):
   """
-  Create all tables that a module defines in its hook_schema().
+  Create all tables that a plugin defines in its hook_schema().
   
-   Note: This function does not pass the module's schema through
-   hook_schema_alter(). The module's tables will be created exactly as the
-   module defines them.
+   Note: This function does not pass the plugin's schema through
+   hook_schema_alter(). The plugin's tables will be created exactly as the
+   plugin defines them.
   
-   @param module
-     The module for which the tables will be created.
+   @param plugin
+     The plugin for which the tables will be created.
    @return
      An array of arrays with the following key/value pairs:
         success: a boolean indicating whether the query succeeded
         query: the SQL query(s) executed, passed through check_plain()
   """
-  schema = drupal_get_schema_unprocessed(module);
-  _drupal_initialize_schema(module, schema);
+  schema = drupal_get_schema_unprocessed(plugin);
+  _drupal_initialize_schema(plugin, schema);
   ret = array();
   for name,table in schema.items():
     db_create_table(ret, name, table);
@@ -2709,23 +2715,23 @@ def drupal_install_schema(module):
 
 
 
-def drupal_uninstall_schema(module):
+def drupal_uninstall_schema(plugin):
   """
-   Remove all tables that a module defines in its hook_schema().
+   Remove all tables that a plugin defines in its hook_schema().
   
-   Note: This function does not pass the module's schema through
-   hook_schema_alter(). The module's tables will be created exactly as the
-   module defines them.
+   Note: This function does not pass the plugin's schema through
+   hook_schema_alter(). The plugin's tables will be created exactly as the
+   plugin defines them.
   
-   @param module
-     The module for which the tables will be removed.
+   @param plugin
+     The plugin for which the tables will be removed.
    @return
      An array of arrays with the following key/value pairs:
         success: a boolean indicating whether the query succeeded
         query: the SQL query(s) executed, passed through check_plain()
   """
-  schema = drupal_get_schema_unprocessed(module);
-  _drupal_initialize_schema(module, schema);
+  schema = drupal_get_schema_unprocessed(plugin);
+  _drupal_initialize_schema(plugin, schema);
   ret = [];
   for table in schema:
     db_drop_table(ret, table['name']);
@@ -2733,12 +2739,12 @@ def drupal_uninstall_schema(module):
 
 
 
-def drupal_get_schema_unprocessed(module_, table = None):
+def drupal_get_schema_unprocessed(plugin_, table = None):
   """
-   Returns the unprocessed and unaltered version of a module's schema.
+   Returns the unprocessed and unaltered version of a plugin's schema.
   
    Use this function only if you explicitly need the original
-   specification of a schema, as it was defined in a module's
+   specification of a schema, as it was defined in a plugin's
    hook_schema(). No additional default values will be set,
    hook_schema_alter() is not invoked and these unprocessed
    definitions won't be cached.
@@ -2748,42 +2754,42 @@ def drupal_get_schema_unprocessed(module_, table = None):
    specifications.
   
    It is also used by drupal_install_schema() and
-   drupal_uninstall_schema() to ensure that a module's tables are
+   drupal_uninstall_schema() to ensure that a plugin's tables are
    created exactly as specified without any changes introduced by a
-   module that implements hook_schema_alter().
+   plugin that implements hook_schema_alter().
   
-   @param module
-     The module to which the table belongs.
+   @param plugin
+     The plugin to which the table belongs.
    @param table
-     The name of the table. If not given, the module's complete schema
+     The name of the table. If not given, the plugin's complete schema
      is returned.
   """
   # Load the .install file to get hook_schema.
-  module_load_install(module_);
-  schema = module_invoke(module_, 'schema');
+  plugin_load_install(plugin_);
+  schema = plugin_invoke(plugin_, 'schema');
   if (not p.is_null(table) and p.isset(schema, table)):
     return schema[table];
   else:
     return schema;
 
 
-def _drupal_initialize_schema(module, schema):
+def _drupal_initialize_schema(plugin, schema):
   """
    Fill in required default values for table definitions returned by hook_schema().
   
-   @param module
-     The module for which hook_schema() was invoked.
+   @param plugin
+     The plugin for which hook_schema() was invoked.
    @param &schema
-     The schema definition array as it was returned by the module's
+     The schema definition array as it was returned by the plugin's
      hook_schema().
   
    Drupy(BC): schema is a reference
   """
   p.Reference.check(schema);
-  # Set the name and module key for all tables.
+  # Set the name and plugin key for all tables.
   for name,table in schema.val.items():
-    if (p.empty(table['module'])):
-      schema.val[name]['module'] = module;
+    if (p.empty(table['plugin'])):
+      schema.val[name]['plugin'] = plugin;
     if (not p.isset(table, 'name')):
       schema.val[name]['name'] = name;
 
@@ -2951,14 +2957,14 @@ def drupal_parse_info_file(filename):
   
    Comments should start with a semi-colon at the beginning of a line.
   
-   This function is NOT for placing arbitrary module-specific settings. Use
+   This function is NOT for placing arbitrary plugin-specific settings. Use
    variable_get() and variable_set() for that.
   
-   Information stored in the module.info file:
-   - name: The real name of the module for display purposes.
-   - description: A brief description of the module.
-   - dependencies: An array of shortnames of other modules this module depends on.
-   - package: The name of the package of modules this module belongs to.
+   Information stored in the plugin.info file:
+   - name: The real name of the plugin for display purposes.
+   - description: A brief description of the plugin.
+   - dependencies: An array of shortnames of other plugins this plugin depends on.
+   - package: The name of the package of plugins this plugin belongs to.
   
    Example of .info file:
    @verbatim
@@ -3022,14 +3028,14 @@ def watchdog_severity_levels():
   
    Comments should start with a semi-colon at the beginning of a line.
   
-   This function is NOT for placing arbitrary module-specific settings. Use
+   This function is NOT for placing arbitrary plugin-specific settings. Use
    variable_get() and variable_set() for that.
   
-   Information stored in the module.info file:
-   - name: The real name of the module for display purposes.
-   - description: A brief description of the module.
-   - dependencies: An array of shortnames of other modules this module depends on.
-   - package: The name of the package of modules this module belongs to.
+   Information stored in the plugin.info file:
+   - name: The real name of the plugin for display purposes.
+   - description: A brief description of the plugin.
+   - dependencies: An array of shortnames of other plugins this plugin depends on.
+   - package: The name of the package of plugins this plugin belongs to.
   
    Example of .info file:
    @verbatim
@@ -3100,7 +3106,7 @@ def drupal_flush_all_caches():
    Flush all cached data on the site.
   
    Empties cache tables, rebuilds the menu cache and theme registries, and
-   exposes a hook for other modules to clear their own cache data as well.
+   exposes a hook for other plugins to clear their own cache data as well.
   """
   # Change query-strings on css/js files to enforce reload for all users.
   _drupal_flush_css_js();
@@ -3114,7 +3120,7 @@ def drupal_flush_all_caches():
   # Don't clear cache_form - in-progress form submissions may break.
   # Ordered so clearing the page cache will always be the last action.
   core = ['cache', 'cache_block', 'cache_filter', 'cache_registry', 'cache_page'];
-  cache_tables = p.array_merge(module_invoke_all('p.flush_caches'), core);
+  cache_tables = p.array_merge(plugin_invoke_all('p.flush_caches'), core);
   for table in cache_tables:
     cache_clear_all('*', table, True);
 

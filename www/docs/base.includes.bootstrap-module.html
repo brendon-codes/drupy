@@ -57,14 +57,45 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module bootstrap</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.bootstrap-pysrc.html">source&nbsp;code</a></span></p>
+Functions that need to be loaded on every Drupal requst
+
 <hr />
-<div class="fields">      <p><strong>See Also:</strong>
-        &nbsp;
-      </p>
-      <p><strong>Note:</strong>
+<div class="fields">      <dl><dt>See Also:</dt>
+        <dd>
+          <a href='http://drupy.net'>Drupy Homepage</a>,
+          <a href='http://drupal.org'>Drupal Homepage</a>
+        </dd>
+      </dl>
+      <strong>Notes:</strong>
+      <ul class="nomargin-top">
+        <li>
         Drupy is a port of the Drupal project.
- The drupal project can be found at http://drupal.org
-      </p>
+        </li>
+        <li>
+        This file was ported from Drupal's includes/bootstrap.inc
+        </li>
+        <li>
+        License:
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to:
+  
+  The Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor,
+  Boston, MA  02110-1301,
+  USA
+        </li>
+      </ul>
       <p><strong>Author:</strong>
         Brendon Crawford
       </p>
@@ -76,21 +107,6 @@
       </p>
       <p><strong>Version:</strong>
         0.1
-@license: 
-
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- as published by the Free Software Foundation; either version 2
- of the License, or (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       </p>
 </div><!-- ==================== FUNCTIONS ==================== -->
 <a name="section-Functions"></a>
@@ -222,7 +238,7 @@ session name correctly.</td>
           <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#drupal_get_filename" class="summary-sig-name">drupal_get_filename</a>(<span class="summary-sig-arg">type_</span>,
         <span class="summary-sig-arg">name</span>,
         <span class="summary-sig-arg">filename</span>=<span class="summary-sig-default">None</span>)</span><br />
-      Returns and optionally sets the filename for a system item (module,
+      Returns and optionally sets the filename for a system item (plugin,
 theme, etc.).</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.bootstrap-pysrc.html#drupal_get_filename">source&nbsp;code</a></span>
@@ -327,7 +343,7 @@ theme, etc.).</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#bootstrap_invoke_all" class="summary-sig-name">bootstrap_invoke_all</a>(<span class="summary-sig-arg">hook</span>)</span><br />
-      Call all init or exit hooks without including all modules.</td>
+      Call all init or exit hooks without including all plugins.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.bootstrap-pysrc.html#bootstrap_invoke_all">source&nbsp;code</a></span>
             
@@ -396,7 +412,7 @@ theme, etc.).</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="bootstrap_hooks"></a><span class="summary-sig-name">bootstrap_hooks</span>()</span><br />
-      Define the critical hooks that force modules to always be loaded.</td>
+      Define the critical hooks that force plugins to always be loaded.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.bootstrap-pysrc.html#bootstrap_hooks">source&nbsp;code</a></span>
             
@@ -819,7 +835,7 @@ of the proxy server, and not the client's.</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#drupal_rebuild_code_registry" class="summary-sig-name">drupal_rebuild_code_registry</a>()</span><br />
-      Rescan all enabled modules and rebuild the registry.</td>
+      Rescan all enabled plugins and rebuild the registry.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.bootstrap-pysrc.html#drupal_rebuild_code_registry">source&nbsp;code</a></span>
             
@@ -955,15 +971,15 @@ of the proxy server, and not the client's.</td>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="timers"></a><span class="summary-name">timers</span> = <code title="{'page': {'count': 1, 'start': 1214608049.54}}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">page</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">count</code><code class="variable-quote">'</code><code class="variable-op">: </code>1<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">start</code><code class="variable-quote">'</code><code class="variable-op">: </code>1214608049.54<code class="variable-group">}</code><code class="variable-group">}</code></code>
+        <a name="timers"></a><span class="summary-name">timers</span> = <code title="{'page': {'count': 1, 'start': 1214614618.05}}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">page</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">count</code><code class="variable-quote">'</code><code class="variable-op">: </code>1<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">start</code><code class="variable-quote">'</code><code class="variable-op">: </code>1214614618.05<code class="variable-group">}</code><code class="variable-group">}</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="base.includes.bootstrap-module.html#loaded_modules" class="summary-name">loaded_modules</a> = <code title="{'system': &lt;module 'modules.system' from '/Users/brendon/work/projects\
-/PythonDrupal/drupy/base/modules/system/__init__.pyc'&gt;}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">system</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;module 'modules.system' from '/Us<code class="variable-ellipsis">...</code></code>
+        <a href="base.includes.bootstrap-module.html#loaded_plugins" class="summary-name">loaded_plugins</a> = <code title="{'system': &lt;module 'plugins.system' from '/Users/brendon/work/projects\
+/PythonDrupal/drupy/base/plugins/system/__init__.pyc'&gt;}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">system</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;module 'plugins.system' from '/Us<code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr>
@@ -1350,25 +1366,25 @@ the following directories:
     </td>
   </tr></table>
   
-  Returns and optionally sets the filename for a system item (module,
+  Returns and optionally sets the filename for a system item (plugin,
 theme, etc.). The filename, whether provided, cached, or retrieved
 from the database, is only returned if the file exists.
 
-This def plays a key role in allowing Drupal's resources (modules
+This def plays a key role in allowing Drupal's resources (plugins
 and themes) to be located in different places depending on a site's
-configuration. For example, a module 'foo' may legally be be located
+configuration. For example, a plugin 'foo' may legally be be located
 in any of these three places:
 
-modules/foo/foo.module
-sites/all/modules/foo/foo.module
-sites/example.com/modules/foo/foo.module
+plugins/foo/foo.plugin
+sites/all/plugins/foo/foo.plugin
+sites/example.com/plugins/foo/foo.plugin
 
-Calling drupal_get_filename('module', 'foo') will give you one of
-the above, depending on where the module is located.
+Calling drupal_get_filename('plugin', 'foo') will give you one of
+the above, depending on where the plugin is located.
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>type</code></strong> - The type of the item (i.e. theme, theme_engine, module).</li>
+        <li><strong class="pname"><code>type</code></strong> - The type of the item (i.e. theme, theme_engine, plugin).</li>
         <li><strong class="pname"><code>name</code></strong> - The name of the item for which the filename is requested.</li>
         <li><strong class="pname"><code>filename</code></strong> - The filename of the item if it is to be set explicitly rather
   than by consulting the database.</li>
@@ -1518,7 +1534,7 @@ a redirected form submission which was completed).
     </td>
   </tr></table>
   
-  Call all init or exit hooks without including all modules.
+  Call all init or exit hooks without including all plugins.
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -1543,11 +1559,11 @@ a redirected form submission which was completed).
   </tr></table>
   
   Includes a file with the provided type and name. This prevents
-including a theme, engine, module, etc., more than once.
+including a theme, engine, plugin, etc., more than once.
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>type</code></strong> - The type of item to load (i.e. theme, theme_engine, module).</li>
+        <li><strong class="pname"><code>type</code></strong> - The type of item to load (i.e. theme, theme_engine, plugin).</li>
         <li><strong class="pname"><code>name</code></strong> - The name of the item to load.</li>
     </ul></dd>
     <dt>Returns:</dt>
@@ -1882,7 +1898,7 @@ include bootstrap.inc, and call drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE).
     DRUPAL_BOOTSTRAP_DATABASE: initialize database layer.
     DRUPAL_BOOTSTRAP_ACCESS: identify and reject banned hosts.
     DRUPAL_BOOTSTRAP_SESSION: initialize session handling.
-    DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE: load bootstrap.inc and module.inc, start
+    DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE: load bootstrap.inc and plugin.inc, start
       the variable system and try to serve a page from the cache.
     DRUPAL_BOOTSTRAP_LANGUAGE: identify the language used on the page.
     DRUPAL_BOOTSTRAP_PATH: set p.GET['q'] to Drupal path of request.
@@ -2140,9 +2156,9 @@ handler, and PHP calls it for us when necessary.
     </td>
   </tr></table>
   
-  Rescan all enabled modules and rebuild the registry.
+  Rescan all enabled plugins and rebuild the registry.
 
-Rescans all code in modules or includes directory, storing a mapping of
+Rescans all code in plugins or includes directory, storing a mapping of
 each function, file, and hook implementation in the database.
   <dl class="fields">
   </dl>
@@ -2167,7 +2183,7 @@ each function, file, and hook implementation in the database.
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>hook</code></strong> - Array with the hook name and list of modules that implement it.</li>
+        <li><strong class="pname"><code>hook</code></strong> - Array with the hook name and list of plugins that implement it.</li>
         <li><strong class="pname"><code>write_to_persistent_cache</code></strong> - Whether to write to the persistent cache.</li>
     </ul></dd>
   </dl>
@@ -2192,20 +2208,20 @@ each function, file, and hook implementation in the database.
   </td>
 </tr>
 </table>
-<a name="loaded_modules"></a>
+<a name="loaded_plugins"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
-  <h3 class="epydoc">loaded_modules</h3>
+  <h3 class="epydoc">loaded_plugins</h3>
   
   <dl class="fields">
   </dl>
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">system</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;module 'modules.system' from '/Users/brendon/work/projects<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-/PythonDrupal/drupy/base/modules/system/__init__.pyc'&gt;<code class="variable-group">}</code>
+<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">system</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;module 'plugins.system' from '/Users/brendon/work/projects<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+/PythonDrupal/drupy/base/plugins/system/__init__.pyc'&gt;<code class="variable-group">}</code>
 </pre></td></tr></table>
 </dd>
   </dl>
@@ -2238,7 +2254,7 @@ each function, file, and hook implementation in the database.
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:33 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 17:57:02 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

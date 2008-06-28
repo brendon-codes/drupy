@@ -3,34 +3,41 @@
 # Id: database.mysqli.inc,v 1.57 2008/04/14 17:48:33 dries Exp $
 
 """
- @package Drupy
- @see http://drupy.net
- @note Drupy is a port of the Drupal project.
-  The drupal project can be found at http://drupal.org
- @file database_mysqli.py (ported from Drupal's database.mysqli.inc)
   Database interface code for MySQL database servers using the mysqli client
   libraries. mysqli is included in PHP 5 by default and allows developers to
   use the advanced features of MySQL 4.1.x, 5.0.x and beyond.
- @author Brendon Crawford
- @copyright 2008 Brendon Crawford
- @contact message144 at users dot sourceforge dot net
- @created 2008-01-10
- @version 0.1
- @license: 
 
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
+  @package includes
+  @see <a href='http://drupy.net'>Drupy Homepage</a>
+  @see <a href='http://drupal.org'>Drupal Homepage</a>
+  @note Drupy is a port of the Drupal project.
+  @note
+    This file was ported from Drupal's includes/database_mysqli.inc and
+    includes/database-mysql_common.inc
+  @author Brendon Crawford
+  @copyright 2008 Brendon Crawford
+  @contact message144 at users dot sourceforge dot net
+  @created 2008-01-10
+  @version 0.1
+  @note License:
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to:
+    
+    The Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301,
+    USA
 """
 
 
@@ -110,7 +117,7 @@ def _db_query(query, debug = 0):
   if (inc_bootstrap.variable_get('dev_query', 0)):
     usec,sec = p.explode(' ', p.microtime())
     timer = float(usec) + float(sec)
-    # If devel.module query logging is enabled, prepend a comment with the username and calling function
+    # If devel.plugin query logging is enabled, prepend a comment with the username and calling function
     # to the SQL string. This is useful when running mysql's SHOW PROCESSLIST to learn what exact
     # code is issueing the slow query.
     bt = debug_backtrace()
@@ -538,7 +545,7 @@ def db_type_map():
    to the engine-specific data type.
   """
   # Put :normal last so it gets preserved by array_flip.  This makes
-  # it much easier for modules (such as schema.module) to map
+  # it much easier for plugins (such as schema.plugin) to map
   # database types back into schema types.
   map_ = {
     'varchar:normal'  : 'VARCHAR',

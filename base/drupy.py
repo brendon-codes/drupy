@@ -1,33 +1,38 @@
 #!/usr/bin/env python
 
 """
- @package Drupy
- @see http://drupy.net
- @note Drupy is a port of the Drupal project.
-  The Drupal project can be found at http://drupal.org
- @file drupy.py (ported from Drupal's drupal.inc)
-  Test Execution script for drupy
- @author Brendon Crawford
- @copyright 2008 Brendon Crawford
- @contact message144 at users dot sourceforge dot net
- @created 2008-01-10
- @version 0.1
- @license: 
+  Drupy CGI and CLI execution script.
 
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
+  @package base
+  @see <a href='http://drupy.net'>Drupy Homepage</a>
+  @see <a href='http://drupal.org'>Drupal Homepage</a>
+  @note Drupy is a port of the Drupal project.
+  @author Brendon Crawford
+  @copyright 2008 Brendon Crawford
+  @contact message144 at users dot sourceforge dot net
+  @created 2008-01-10
+  @version 0.1
+  @note License:
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to:
+    
+    The Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301,
+    USA
 """
+
 import time
 import re
 import sys
@@ -51,13 +56,13 @@ which_phase = phases[8];
 inc_bootstrap.drupal_bootstrap(which_phase[0]);
 stamp, revised = time.strftime("%c GMT||%m/%d/%Y", time.gmtime()).split('||')
 
-out_plugins = p.print_r(inc_bootstrap.loaded_modules, True)
+out_plugins = p.print_r(inc_bootstrap.loaded_plugins, True)
 out_plugins_html = p.htmlspecialchars(out_plugins)
 out_vars = p.print_r(vars(), True)
 out_vars = re.sub('[a-zA-Z0-9_\.-]+@.+?\.[a-zA-Z]+', '********', out_vars)
 out_vars = re.sub('[a-zA-Z0-9]{32}', '********************************', out_vars)
 out_vars = p.htmlspecialchars(out_vars)
-out_mods = p.print_r(DrupyImport.modules(), True)
+out_mods = p.print_r(DrupyImport.plugins(), True)
 out_mods = p.htmlspecialchars(out_mods)
 
 #
@@ -94,7 +99,7 @@ else:
   print "Generated: %s" % stamp
   print
   print "The following Drupy plugins are loaded."
-  print "A Drupy plugin is the equivalent of a Drupal module"
+  print "A Drupy plugin is the equivalent of a Drupal plugin"
   print
   print out_plugins
   print

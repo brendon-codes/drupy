@@ -57,14 +57,48 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module theme</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.theme-pysrc.html">source&nbsp;code</a></span></p>
+The theme system, which controls the output of Drupal.
+The theme system allows for nearly all output of the Drupy system to be
+customized by user themes.
+
 <hr />
-<div class="fields">      <p><strong>See Also:</strong>
-        &nbsp;
-      </p>
-      <p><strong>Note:</strong>
+<div class="fields">      <dl><dt>See Also:</dt>
+        <dd>
+          <a href='http://drupy.net'>Drupy Homepage</a>,
+          <a href='http://drupal.org'>Drupal Homepage</a>,
+          <a href="http://drupal.org/node/253">Drupal Theme system</a>
+        </dd>
+      </dl>
+      <strong>Notes:</strong>
+      <ul class="nomargin-top">
+        <li>
         Drupy is a port of the Drupal project.
- The Drupal project can be found at http://drupal.org
-      </p>
+        </li>
+        <li>
+        This file was ported from Drupal's includes/theme.inc
+        </li>
+        <li>
+        License:
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to:
+  
+  The Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor,
+  Boston, MA  02110-1301,
+  USA
+        </li>
+      </ul>
       <p><strong>Author:</strong>
         Brendon Crawford
       </p>
@@ -76,21 +110,6 @@
       </p>
       <p><strong>Version:</strong>
         0.1
-@license: 
-
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- as published by the Free Software Foundation; either version 2
- of the License, or (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       </p>
 </div><!-- ==================== FUNCTIONS ==================== -->
 <a name="section-Functions"></a>
@@ -225,7 +244,7 @@ it.</td>
         <tr>
           <td><span class="summary-sig"><a name="drupal_rebuild_theme_registry"></a><span class="summary-sig-name">drupal_rebuild_theme_registry</span>()</span><br />
       Force the system to rebuild the theme registry; this should be called
-when modules are added to the system, or when a dynamic system needs
+when plugins are added to the system, or when a dynamic system needs
 to add more theme hooks.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.theme-pysrc.html#drupal_rebuild_theme_registry">source&nbsp;code</a></span>
@@ -1083,7 +1102,7 @@ it.
   </tr></table>
   
   Process a single invocation of the theme hook. type will be one
-of 'module', 'theme_engine' or 'theme' and it tells us some
+of 'plugin', 'theme_engine' or 'theme' and it tells us some
 important information.
 
 Because cache is a reference, the cache will be continually
@@ -1180,7 +1199,7 @@ If the implementation is a function, it is executed and its return value
 passed along.
 
 If the implementation is a template, the arguments are converted to a
-variables array. This array is then modified by the module implementing
+variables array. This array is then modified by the plugin implementing
 the hook, theme engine (if applicable) and the theme. The following
 functions may be used to modify the variables array. They are processed in
 this order when available:
@@ -1190,15 +1209,15 @@ this order when available:
 
 - template_preprocess_HOOK(&variables)
   This is the first preprocessor called specific to the hook; it should be
-  implemented by the module that registers it.
+  implemented by the plugin that registers it.
 
 - MODULE_preprocess(&variables)
   This will be called for all templates; it should only be used if there
   is a real need. It's purpose is similar to template_preprocess().
 
 - MODULE_preprocess_HOOK(&variables)
-  This is for modules that want to alter or provide extra variables for
-  theming hooks not registered to itself. For example, if a module named
+  This is for plugins that want to alter or provide extra variables for
+  theming hooks not registered to itself. For example, if a plugin named
   "foo" wanted to alter the submitted variable for the hook "node" a
   preprocess function of foo_preprocess_node() can be created to intercept
   and alter the variable.
@@ -1276,7 +1295,7 @@ There are two special variables that these hooks can set:
   </tr></table>
   
   Choose which template file to actually render. These are all suggested
-templates from themes and modules. Theming implementations can occur on
+templates from themes and plugins. Theming implementations can occur on
 multiple levels. All paths are checked to account for this.
   <dl class="fields">
   </dl>
@@ -1357,7 +1376,7 @@ easily discover templates.
 The final settings are arrived at by merging the default settings,
 the site-wide settings, and the settings defined for the specific theme+ * If no key was specified, only the site-wide theme defaults are retrieved+ *
 The default values for each of settings are also defined in this function+ * To add new settings, add their default values here, and then add form elements
-to system_theme_settings() in system.module+ *
+to system_theme_settings() in system.plugin+ *
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -1458,7 +1477,7 @@ theme functions to named objects, allowing the themer more control over
 specific types of output
 
 As of Drupal 6, every theme hook is required to be registered by the
-module that owns it, so that Drupal can tell what to do with it and
+plugin that owns it, so that Drupal can tell what to do with it and
 to make it simple for themes to identify and override the behavior
 for these calls
 
@@ -1468,13 +1487,13 @@ arguments the function or template will need, and provides
 defaults for the template in case they are not filled in+ If the default
 implementation is a function, by convention it is named theme_HOOK()
 
-Each module should provide a default implementation for theme_hooks that
+Each plugin should provide a default implementation for theme_hooks that
 it registers
 
 This implementation may be either a function or a template;
 if it is a function it must be specified via hook_theme()+ By convention,
 default implementations of theme hooks are named theme_HOOK+ Default
-template implementations are stored in the module directory+ *
+template implementations are stored in the plugin directory+ *
 Drupal's default template renderer is a simple PHP parsing engine that
 includes the template and stores the output+ Drupal's theme engines
 can provide alternate template engines, such as XTemplate, Smarty and
@@ -2084,7 +2103,7 @@ theme functions)+
   Process variables for page.tpl.php
 
 Most themes utilize their own copy of page.tpl.php+ The default is located
-inside "modules/system/page.tpl.php"+ Look in there for the full list of
+inside "plugins/system/page.tpl.php"+ Look in there for the full list of
 variables+ *
 Uses the arg() function to generate a series of page template suggestions
 based on the current path+ *
@@ -2117,7 +2136,7 @@ The variables array contains the following arguments:
   Process variables for node.tpl.php
 
 Most themes utilize their own copy of node.tpl.php+ The default is located
-inside "modules/node/node.tpl.php"+ Look in there for the full list of
+inside "plugins/node/node.tpl.php"+ Look in there for the full list of
 variables+ *
 The variables array contains the following arguments:
 - node
@@ -2151,7 +2170,7 @@ into a pluggable template engine+ Uses block properties to generate a
 series of template file suggestions+ If none are found, the default
 block.tpl.php is used+ *
 Most themes utilize their own copy of block.tpl.php+ The default is located
-inside "modules/system/block.tpl.php"+ Look in there for the full list of
+inside "plugins/system/block.tpl.php"+ Look in there for the full list of
 variables+ *
 The variables array contains the following arguments:
 - block
@@ -2189,7 +2208,7 @@ The variables array contains the following arguments:
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:34 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 17:57:02 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

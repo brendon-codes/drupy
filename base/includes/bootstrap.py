@@ -3,32 +3,37 @@
 # $Id: bootstrap.inc,v 1.211 2008/05/26 17:12:54 dries Exp $
 
 """
-@package Drupy
-@see http://drupy.net
-@note Drupy is a port of the Drupal project.
- The drupal project can be found at http://drupal.org
-@file bootstrap.py (ported from Drupal's bootstrap.inc)
- Functions that need to be loaded on every Drupal request.
-@author Brendon Crawford
-@copyright 2008 Brendon Crawford
-@contact message144 at users dot sourceforge dot net
-@created 2008-01-10
-@version 0.1
-@license: 
+  Functions that need to be loaded on every Drupal requst
 
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- as published by the Free Software Foundation; either version 2
- of the License, or (at your option) any later version.
+  @package base.includes
+  @see <a href='http://drupy.net'>Drupy Homepage</a>
+  @see <a href='http://drupal.org'>Drupal Homepage</a>
+  @note Drupy is a port of the Drupal project.
+  @note This file was ported from Drupal's includes/bootstrap.inc
+  @author Brendon Crawford
+  @copyright 2008 Brendon Crawford
+  @contact message144 at users dot sourceforge dot net
+  @created 2008-01-10
+  @version 0.1
+  @note License:
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
 
- You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to:
+    
+    The Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301,
+    USA
 """
 
 #
@@ -41,7 +46,7 @@ import cache as inc_cache
 import database as inc_database
 import session as inc_session
 import theme_maintenance as inc_theme_maintenance
-import module as inc_module
+import plugin as inc_plugin
 import path as inc_path
 import common as inc_common
 import language as inc_language
@@ -56,7 +61,7 @@ base_root = None
 base_url = None
 language_ = None
 timers = None
-loaded_modules = {}
+loaded_plugins = {}
 
 #
 # Maintenance Mode
@@ -86,8 +91,8 @@ CACHE_NORMAL = 1
 
 #
 # Indicates that page caching is using "aggressive" mode. This bypasses
-# loading any modules for additional speed, which may break functionality in
-# modules that expect to be run on each page load.
+# loading any plugins for additional speed, which may break functionality in
+# plugins that expect to be run on each page load.
 #
 CACHE_AGGRESSIVE = 2
 
@@ -179,7 +184,7 @@ DRUPAL_BOOTSTRAP_ACCESS = 3
 DRUPAL_BOOTSTRAP_SESSION = 4
 
 #
-# Sixth bootstrap phase: load bootstrap.inc and module.inc, start
+# Sixth bootstrap phase: load bootstrap.inc and plugin.inc, start
 # the variable system and try to serve a page from the cache.
 #
 DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE = 5
@@ -471,24 +476,24 @@ def conf_init():
 
 def drupal_get_filename(type_, name, filename = None):
   """
-   Returns and optionally sets the filename for a system item (module,
+   Returns and optionally sets the filename for a system item (plugin,
    theme, etc.). The filename, whether provided, cached, or retrieved
    from the database, is only returned if the file exists.
   
-   This def plays a key role in allowing Drupal's resources (modules
+   This def plays a key role in allowing Drupal's resources (plugins
    and themes) to be located in different places depending on a site's
-   configuration. For example, a module 'foo' may legally be be located
+   configuration. For example, a plugin 'foo' may legally be be located
    in any of these three places:
   
-   modules/foo/foo.module
-   sites/all/modules/foo/foo.module
-   sites/example.com/modules/foo/foo.module
+   plugins/foo/foo.plugin
+   sites/all/plugins/foo/foo.plugin
+   sites/example.com/plugins/foo/foo.plugin
   
-   Calling drupal_get_filename('module', 'foo') will give you one of
-   the above, depending on where the module is located.
+   Calling drupal_get_filename('plugin', 'foo') will give you one of
+   the above, depending on where the plugin is located.
   
    @param type
-     The type of the item (i.e. theme, theme_engine, module).
+     The type of the item (i.e. theme, theme_engine, plugin).
    @param name
      The name of the item for which the filename is requested.
    @param filename
@@ -666,13 +671,13 @@ def page_get_cache():
 #
 def bootstrap_invoke_all(hook):
   """
-   Call all init or exit hooks without including all modules.
+   Call all init or exit hooks without including all plugins.
   
    @param hook
      The name of the bootstrap hook we wish to invoke.
   """
-  for module_ in inc_module.module_list(True, True):
-    inc_module.module_invoke(module_, hook);
+  for plugin_ in inc_plugin.plugin_list(True, True):
+    inc_plugin.plugin_invoke(plugin_, hook);
 
 
 
@@ -691,17 +696,17 @@ def bootstrap_invoke_all(hook):
 def drupal_load(type_, name):
   """
    Includes a file with the provided type and name. This prevents
-   including a theme, engine, module, etc., more than once.
+   including a theme, engine, plugin, etc., more than once.
   
    @param type
-     The type of item to load (i.e. theme, theme_engine, module).
+     The type of item to load (i.e. theme, theme_engine, plugin).
    @param name
      The name of the item to load.
   
    @return
      TRUE if the item is loaded or has already been loaded.
   """
-  global loaded_modules
+  global loaded_plugins
   p.static(drupal_load, 'files', {})
   if (not p.isset(drupal_load.files, type)):
     drupal_load.files[type_] = {}
@@ -710,7 +715,7 @@ def drupal_load(type_, name):
   else:
     filename = drupal_get_filename(type_, name);
     if (filename != False):
-      loaded_modules[name] = DrupyImport.import_file(filename)
+      loaded_plugins[name] = DrupyImport.import_file(filename)
       drupal_load.files[type_][name] = True;
       return True;
     else:
@@ -796,7 +801,7 @@ def drupal_page_cache_header(cache):
 #
 def bootstrap_hooks():
   """
-   Define the critical hooks that force modules to always be loaded.
+   Define the critical hooks that force plugins to always be loaded.
   """
   return ['boot', 'exit'];
 
@@ -954,8 +959,8 @@ def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, link = N
     'timestamp'   : p.time_(),
   }
   # Call the logging hooks to log/process the message
-  for module_ in inc_module.module_implements('watchdog', True):
-    inc_module.module_invoke(module_, 'watchdog', log_message);
+  for plugin_ in inc_plugin.plugin_implements('watchdog', True):
+    inc_plugin.plugin_invoke(plugin_, 'watchdog', log_message);
 
 
 def drupal_set_message(message = None, type = 'status', repeat = True):
@@ -1093,7 +1098,7 @@ def drupal_bootstrap(phase):
        DRUPAL_BOOTSTRAP_DATABASE: initialize database layer.
        DRUPAL_BOOTSTRAP_ACCESS: identify and reject banned hosts.
        DRUPAL_BOOTSTRAP_SESSION: initialize session handling.
-       DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE: load bootstrap.inc and module.inc, start
+       DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE: load bootstrap.inc and plugin.inc, start
          the variable system and try to serve a page from the cache.
        DRUPAL_BOOTSTRAP_LANGUAGE: identify the language used on the page.
        DRUPAL_BOOTSTRAP_PATH: set p.GET['q'] to Drupal path of request.
@@ -1146,7 +1151,7 @@ def _drupal_bootstrap(phase):
   elif phase == DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
     # Initialize configuration variables, using values from settings.php if available.
     settings.conf = variable_init( ({} if (settings.conf == None) else settings.conf) );
-    # Load module handling.
+    # Load plugin handling.
     cache_mode = variable_get('cache', CACHE_DISABLED);
     # Get the page from the cache.
     cache =  ('' if (cache_mode == CACHE_DISABLED) else page_get_cache());
@@ -1166,7 +1171,7 @@ def _drupal_bootstrap(phase):
   elif phase == DRUPAL_BOOTSTRAP_LANGUAGE:
     drupal_init_language();
   elif phase == DRUPAL_BOOTSTRAP_PATH:
-    # Initialize p.GET['q'] prior to loading modules and invoking hook_init().
+    # Initialize p.GET['q'] prior to loading plugins and invoking hook_init().
     #inc_path.drupal_init_path();
     pass
   elif phase == DRUPAL_BOOTSTRAP_FULL:
@@ -1239,7 +1244,7 @@ def language_list(field = 'language', reset = False):
     languages_list.languages = {};
   # Init language list
   if (languages_list.languages == None):
-    if (variable_get('language_count', 1) > 1 or module_exists('locale')):
+    if (variable_get('language_count', 1) > 1 or plugin_exists('locale')):
       result = db_query('SELECT# FROM {languages} ORDER BY weight ASC, name ASC');
       while True:
         row = db_fetch_object(result);
@@ -1247,7 +1252,7 @@ def language_list(field = 'language', reset = False):
           break;
         languages_list.languages['language'][row.language] = row;
     else:
-      # No locale module, so use the default language only.
+      # No locale plugin, so use the default language only.
       default_ = language_default();
       languages_list.languages['language'][default_.language] = default_;
   # Return the array indexed by the right field
@@ -1448,9 +1453,9 @@ def registry_mark_code(type_, name, return_ = False):
 #
 def drupal_rebuild_code_registry():
   """
-   Rescan all enabled modules and rebuild the registry.
+   Rescan all enabled plugins and rebuild the registry.
   
-   Rescans all code in modules or includes directory, storing a mapping of
+   Rescans all code in plugins or includes directory, storing a mapping of
    each function, file, and hook implementation in the database.
   """
   p.require_once( './includes/registry.inc' )
@@ -1463,14 +1468,14 @@ def registry_cache_hook_implementations(hook, write_to_persistent_cache = False)
    Save hook implementations cache.
   
    @param hook
-     Array with the hook name and list of modules that implement it.
+     Array with the hook name and list of plugins that implement it.
    @param write_to_persistent_cache
      Whether to write to the persistent cache.
   """
   p.static(registry_cache_hook_implementations, 'implementations', {})
   if (hook):
     # Newer is always better, so overwrite anything that's come before.
-    registry_cache_hook_implementations.implementations[hook['hook']] = hook['modules']
+    registry_cache_hook_implementations.implementations[hook['hook']] = hook['plugins']
   if (write_to_persistent_cache == True):
     # Only write this to cache if the implementations data we are going to cache
     # is different to what we loaded earlier in the request.

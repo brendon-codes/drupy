@@ -1,36 +1,39 @@
 #!/usr/bin/env python
 
 # $Id: menu.inc,v 1.275 2008/06/12 20:49:39 dries Exp $
-#
 
 """
- @package Drupy
- @see http://drupy.net
- @note Drupy is a port of the Drupal project.
-  The Drupal project can be found at http://drupal.org
- @file menu.py (ported from Drupal's menu.inc)
   API for the Drupal menu system.
- @author Brendon Crawford
- @copyright 2008 Brendon Crawford
- @contact message144 at users dot sourceforge dot net
- @created 2008-05-22
- @version 0.1
- @license:
 
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
+  @package includes
+  @see <a href='http://drupy.net'>Drupy Homepage</a>
+  @see <a href='http://drupal.org'>Drupal Homepage</a>
+  @note Drupy is a port of the Drupal project.
+  @note This file was ported from Drupal's includes/menu.inc
+  @author Brendon Crawford
+  @copyright 2008 Brendon Crawford
+  @contact message144 at users dot sourceforge dot net
+  @created 2008-05-22
+  @version 0.1
+  @note License:
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
-  MA  02110-1301, USA.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to:
+    
+    The Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301,
+    USA
 """
 
 from lib.drupy import DrupyPHP as p
@@ -44,7 +47,7 @@ from lib.drupy import DrupyPHP as p
 # The Drupal menu system drives both the navigation system from a user
 # perspective and the callback system that Drupal uses to respond to URLs
 # passed from the browser. For this reason, a good understanding of the
-# menu system is fundamental to the creation of complex modules.
+# menu system is fundamental to the creation of complex plugins.
 #
 # Drupal's menu system follows a simple hierarchy defined by paths.
 # Implementations of hook_menu() define menu items and assign them to
@@ -74,7 +77,7 @@ from lib.drupy import DrupyPHP as p
 # way, the callback for a/b above could respond to a request for
 # a/b/i differently than a request for a/b/j.
 #
-# For an illustration of this process, see page_example.module.
+# For an illustration of this process, see page_example.plugin.
 #
 # Access to the callback functions is also protected by the menu system.
 # The "access callback" with an optional "access arguments" of each menu
@@ -1159,15 +1162,15 @@ def menu_get_active_help():
   router_path = menu_tab_root_path()
   arg = drupal_help_arg(arg(None))
   empty_arg = drupal_help_arg()
-  for name in module_list():
-    if (module_hook(name, 'help')):
+  for name in plugin_list():
+    if (plugin_hook(name, 'help')):
       # Lookup help for this path.
-      help = module_invoke(name, 'help', router_path, arg)
+      help = plugin_invoke(name, 'help', router_path, arg)
       if (help):
         output += help +  "\n"
-      # Add "more help" link on admin pages if the module provides a
+      # Add "more help" link on admin pages if the plugin provides a
       # standalone help page.
-      if (arg[0] == "admin" and module_exists('help') and module_invoke(name, \
+      if (arg[0] == "admin" and plugin_exists('help') and plugin_invoke(name, \
           'help', 'admin/help#' + arg[2], empty_arg) and help):
         output += theme("more_help_link", url('admin/help/' +  arg[2]))
   return output
@@ -1473,7 +1476,7 @@ def menu_set_active_trail(new_trail = None):
       # The title of a local task is used for the tab, never the page title.
       # Thus, replace it with the item corresponding to the root path to get
       # the relevant href and title.  For example, the menu item corresponding
-      # to 'admin' is used when on the 'By module' tab at 'admin/by-module'.
+      # to 'admin' is used when on the 'By plugin' tab at 'admin/by-plugin'.
       parts = p.explode('/', item['tab_root'])
       args = arg()
       # Replace wildcards in the root path using the current path.
@@ -1626,16 +1629,16 @@ def menu_router_build(reset = False):
       menu_router_build.menu = cache.data
     else:
       db_query('DELETE FROM {menu_router}')
-      # We need to manually call each module so that we can know which module
+      # We need to manually call each plugin so that we can know which plugin
       # a given item came from.
       callbacks = []
-      for module in module_implements('menu', None, True):
-        router_items = (module+'_menu')()
+      for plugin in plugin_implements('menu', None, True):
+        router_items = (plugin+'_menu')()
         if (router_items != None and p.is_array(router_items)):
           for path in p.array_keys(router_items):
-            router_items[path]['module'] = module
+            router_items[path]['plugin'] = plugin
           callbacks = p.array_merge(callbacks, router_items)
-      # Alter the menu as defined in modules, keys are like user/%user.
+      # Alter the menu as defined in plugins, keys are like user/%user.
       drupal_alter('menu', callbacks)
       menu_router_build.menu = _menu_router_build(callbacks)
       cache_set('router:', menu_router_build.menu, 'cache_menu')
@@ -1653,7 +1656,7 @@ def _menu_link_build(item):
     item['hidden'] = 1
   # Note, we set this as 'system', so that we can be sure to distinguish all
   # the menu links generated automatically from entries in {menu_router}.
-  item['module'] = 'system'
+  item['plugin'] = 'system'
   item += {
     'menu_name': 'navigation',
     'link_title': item['title'],
@@ -1680,7 +1683,7 @@ def _menu_navigation_links_rebuild(menu):
     # Make sure no child comes before its parent.
     array_multisort(sort, SORT_NUMERIC, menu_links)
     for item in menu_links:
-      existing_item = db_fetch_array(db_query("SELECT mlid, menu_name, plid, customized, has_children, updated FROM {menu_links} WHERE link_path = '%s' AND module = '%s'", item['link_path'], 'system'))
+      existing_item = db_fetch_array(db_query("SELECT mlid, menu_name, plid, customized, has_children, updated FROM {menu_links} WHERE link_path = '%s' AND plugin = '%s'", item['link_path'], 'system'))
       if (existing_item):
         item['mlid'] = existing_item['mlid']
         item['menu_name'] = existing_item['menu_name']
@@ -1744,7 +1747,7 @@ def _menu_delete_item(item, force = False):
   @param force
     Forces deletion. Internal use only, setting to True is discouraged.
   """
-  if (item and (item['module'] != 'system' or item['updated'] or force)):
+  if (item and (item['plugin'] != 'system' or item['updated'] or force)):
     # Children get re-attached to the item's parent.
     if (item['has_children']):
       result = db_query("SELECT mlid FROM {menu_links} WHERE plid = %d", item['mlid'])
@@ -1793,7 +1796,7 @@ def menu_link_save(item):
     'has_children': 0,
     'expanded': 0,
     'options': array(),
-    'module': 'menu',
+    'plugin': 'menu',
     'customized': 0,
     'updated': 0,
   }
@@ -1806,10 +1809,10 @@ def menu_link_save(item):
     # Find the parent - it must be unique.
     parent_path = item.val['link_path']
     where = "WHERE link_path = '%s'"
-    # Only links derived from router items should have module == 'system', and
+    # Only links derived from router items should have plugin == 'system', and
     # we want to find the parent even if it's in a different menu.
-    if (item.val['module'] == 'system'):
-      where += " AND module = '%s'"
+    if (item.val['plugin'] == 'system'):
+      where += " AND plugin = '%s'"
       arg2 = 'system'
     else:
       # If not derived from a router item.val, we respect the specified menu name.
@@ -1839,7 +1842,7 @@ def menu_link_save(item):
       "menu_name, plid, link_path, " + \
       "hidden, external, has_children, " + \
       "expanded, weight, " + \
-      "module, link_title, options, " + \
+      "plugin, link_title, options, " + \
       "customized, updated) VALUES ( " + \
       "'%s', %d, '%s', " + \
       "%d, %d, %d, " + \
@@ -1847,7 +1850,7 @@ def menu_link_save(item):
       item.val['menu_name'], item.val['plid'], item.val['link_path'],
       item.val['hidden'], item.val['_external'], item.val['has_children'],
       item.val['expanded'], item.val['weight'],
-      item.val['module'],  item.val['link_title'], p.serialize(item.val['options']),
+      item.val['plugin'],  item.val['link_title'], p.serialize(item.val['options']),
       item.val['customized'], item.val['updated'])
     item.val['mlid'] = db_last_insert_id('menu_links', 'mlid')
   if (not item.val['plid']):
@@ -1883,12 +1886,12 @@ def menu_link_save(item):
     "router_path = '%s', hidden = %d, external = %d, has_children = %d, " + \
     "expanded = %d, weight = %d, depth = %d, " + \
     "p1 = %d, p2 = %d, p3 = %d, p4 = %d, p5 = %d, p6 = %d, p7 = %d, p8 = %d, p9 = %d, " + \
-    "module = '%s', link_title = '%s', options = '%s', customized = %d WHERE mlid = %d",
+    "plugin = '%s', link_title = '%s', options = '%s', customized = %d WHERE mlid = %d",
     item.val['menu_name'], item.val['plid'], item.val['link_path'],
     item.val['router_path'], item.val['hidden'], item.val['_external'], item.val['has_children'],
     item.val['expanded'], item.val['weight'],  item.val['depth'],
     item.val['p1'], item.val['p2'], item.val['p3'], item.val['p4'], item.val['p5'], item.val['p6'], item.val['p7'], item.val['p8'], item.val['p9'],
-    item.val['module'],  item.val['link_title'], p.serialize(item.val['options']), item.val['customized'], item.val['mlid'])
+    item.val['plugin'],  item.val['link_title'], p.serialize(item.val['options']), item.val['customized'], item.val['mlid'])
   # Check the has_children status of the parent.
   _menu_update_parental_status(item.val)
   menu_cache_clear(menu_name)
@@ -1958,12 +1961,12 @@ def _menu_find_router_path(menu, link_path):
 
 
 
-def menu_link_maintain(module, op, link_path, link_title):
+def menu_link_maintain(plugin, op, link_path, link_title):
   """
-  Insert, update or delete an uncustomized menu link related to a module.
+  Insert, update or delete an uncustomized menu link related to a plugin.
 
-  @param module
-    The name of the module.
+  @param plugin
+    The name of the plugin.
   @param op
     Operation to perform: insert, update or delete.
   @param link_path
@@ -1978,11 +1981,11 @@ def menu_link_maintain(module, op, link_path, link_title):
     menu_link = {
       'link_title': link_title,
       'link_path': link_path,
-      'module': module,
+      'plugin': plugin,
     }
     return menu_link_save(menu_link)
   elif op == 'update':
-    db_query("UPDATE {menu_links} SET link_title = '%s' WHERE link_path = '%s' AND customized = 0 AND module = '%s'", link_title, link_path, module)
+    db_query("UPDATE {menu_links} SET link_title = '%s' WHERE link_path = '%s' AND customized = 0 AND plugin = '%s'", link_title, link_path, plugin)
     menu_cache_clear()
   elif op == 'delete':
     menu_link_delete(None, link_path)
@@ -2290,7 +2293,7 @@ def _menu_site_is_offline():
       if (user_is_anonymous()):
         return p.GET['q'] != 'user' and p.GET['q'] != 'user/login'
       # Logged in users are unprivileged here, so they are logged out.
-      p.require_once( drupal_get_path('module', 'user') +  '/user.pages.inc' )
+      p.require_once( drupal_get_path('plugin', 'user') +  '/user.pages.inc' )
       user_logout()
   return False
 

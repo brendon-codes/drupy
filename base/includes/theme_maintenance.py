@@ -3,38 +3,46 @@
 # $Id: theme.maintenance.inc,v 1.13 2008/04/28 09:25:26 dries Exp $
 
 """
- @package Drupy
- @see http://drupy.net
- @note Drupy is a port of the Drupal project.
-  The Drupal project can be found at http://drupal.org
- @file theme_maintenance.py (ported from Drupal's theme.maintenance.inc)
   Theming for maintenance pages.
   Sets up the theming system for site installs, updates and when the site is
   in off-line mode. It also applies when the database is unavailable.
-  Minnelli is always used for the initial install and update operations. In
-  other cases, "settings.php" must have a "maintenance_theme" key set for the
-  conf variable in order to change the maintenance theme.
- @author Brendon Crawford
- @copyright 2008 Brendon Crawford
- @contact message144 at users dot sourceforge dot net
- @created 2008-01-10
- @version 0.1
- @license: 
 
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
+  @package includes
+  @see <a href='http://drupy.net'>Drupy Homepage</a>
+  @see <a href='http://drupal.org'>Drupal Homepage</a>
+  @note Drupy is a port of the Drupal project.
+  @note This file was ported from Drupal's includes/theme.maintenance.inc
+  @author Brendon Crawford
+  @copyright 2008 Brendon Crawford
+  @contact message144 at users dot sourceforge dot net
+  @created 2008-01-10
+  @version 0.1
+  @note License:
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to:
+    
+    The Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301,
+    USA
 """
+
+#
+# Minnelli is always used for the initial install and update operations. In
+# other cases, "settings.php" must have a "maintenance_theme" key set for the
+# conf variable in order to change the maintenance theme.
+#
 
 
 #
@@ -46,7 +54,7 @@ import theme as inc_theme
 import common as inc_common
 import unicode as inc_unicode
 import file as inc_file
-import module as inc_module
+import plugin as inc_plugin
 import database as inc_database
 
 
@@ -66,13 +74,13 @@ def _drupal_maintenance_theme():
   if (p.defined('MAINTENANCE_MODE') and (MAINTENANCE_MODE == 'install' or MAINTENANCE_MODE == 'update')):
     theme_ = 'minnelli'
   else:
-    # Load module basics (needed for hook invokes).
-    module_list_ = { 'system' : {}, 'filter' : {} }
-    module_list_['system']['filename'] = 'modules/system/system.py'
-    module_list_['filter']['filename'] = 'modules/filter/filter.py'
-    inc_module.module_list(True, False, False, module_list_)
-    drupal_load('module', 'system')
-    drupal_load('module', 'filter')
+    # Load plugin basics (needed for hook invokes).
+    plugin_list_ = { 'system' : {}, 'filter' : {} }
+    plugin_list_['system']['filename'] = 'plugins/system/system.py'
+    plugin_list_['filter']['filename'] = 'plugins/filter/filter.py'
+    inc_plugin.plugin_list(True, False, False, plugin_list_)
+    drupal_load('plugin', 'system')
+    drupal_load('plugin', 'filter')
     theme_ = variable_get('maintenance_theme', 'minnelli')
   themes = list_themes()
   # Store the identifier for retrieving theme settings with.
@@ -87,10 +95,10 @@ def _drupal_maintenance_theme():
   _init_theme(themes[theme], p.array_reverse(base_theme), '_theme_load_offline_registry')
   # These are usually added from system_init() -except maintenance.css.
   # When the database is inactive it's not called so we add it here.
-  drupal_add_css(drupal_get_path('module', 'system') + '/defaults.css', 'module')
-  drupal_add_css(drupal_get_path('module', 'system') + '/system.css', 'module')
-  drupal_add_css(drupal_get_path('module', 'system') + '/system-menus.css', 'module')
-  drupal_add_css(drupal_get_path('module', 'system') + '/maintenance.css', 'module')
+  drupal_add_css(drupal_get_path('plugin', 'system') + '/defaults.css', 'plugin')
+  drupal_add_css(drupal_get_path('plugin', 'system') + '/system.css', 'plugin')
+  drupal_add_css(drupal_get_path('plugin', 'system') + '/system-menus.css', 'plugin')
+  drupal_add_css(drupal_get_path('plugin', 'system') + '/maintenance.css', 'plugin')
 #
 # This builds the registry when the site needs to bypass any database calls.
 #
@@ -156,7 +164,7 @@ def theme_install_page(content):
     variables['messages'] += theme('status_messages', 'status')
   # This was called as a theme hook (not template), so we need to
   # fix path_to_theme() for the template, to point at the actual
-  # theme rather than system module as owner of the hook.
+  # theme rather than system plugin as owner of the hook.
   theme_path = 'themes/garland'
   return theme_render_template('themes/garland/maintenance-page.tpl.py', variables)
 
@@ -190,7 +198,7 @@ def theme_update_page(content, show_messages = True):
     variables['messages'] += theme('status_messages', 'warning')
   # This was called as a theme hook (not template), so we need to
   # fix path_to_theme() for the template, to point at the actual
-  # theme rather than system module as owner of the hook.
+  # theme rather than system plugin as owner of the hook.
   theme_path = 'themes/garland'
   return theme_render_template('themes/garland/maintenance-page.tpl.php', variables)
 

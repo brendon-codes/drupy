@@ -3,43 +3,45 @@
 # $Id: theme.inc,v 1.426 2008/06/06 01:50:20 dries Exp $
 
 """
- @package Drupy
- @see http://drupy.net
- @note Drupy is a port of the Drupal project.
-  The Drupal project can be found at http://drupal.org
- @file theme.py (ported from Drupal's theme.inc)
   The theme system, which controls the output of Drupal.
   The theme system allows for nearly all output of the Drupy system to be
   customized by user themes.
- @author Brendon Crawford
- @copyright 2008 Brendon Crawford
- @contact message144 at users dot sourceforge dot net
- @created 2008-01-10
- @version 0.1
- @license: 
 
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  as published by the Free Software Foundation; either version 2
-  of the License, or (at your option) any later version.
+  @package includes
+  @see <a href='http://drupy.net'>Drupy Homepage</a>
+  @see <a href='http://drupal.org'>Drupal Homepage</a>
+  @see <a href="http://drupal.org/node/253">Drupal Theme system</a>
+  @note Drupy is a port of the Drupal project.
+  @note This file was ported from Drupal's includes/theme.inc
+  @author Brendon Crawford
+  @copyright 2008 Brendon Crawford
+  @contact message144 at users dot sourceforge dot net
+  @created 2008-01-10
+  @version 0.1
+  @note License:
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to:
+    
+    The Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301,
+    USA
 """
-
 
 from lib.drupy import DrupyPHP as p
 
 
-# @see <a href="http://drupal.org/node/253">Theme system</a>
-# @see themeable
-#
 #
 # @name Content markers
 # @{
@@ -79,7 +81,7 @@ def init_theme():
   # Only select the user selected theme if it is available in the
   # list of enabled themes.
   theme_ = (user.theme if (not p.empty(user.theme) and not p.empty(themes[user.theme].status)) else variable_get('theme_default', 'garland'));
-  # Allow modules to override the present theme... only select custom theme
+  # Allow plugins to override the present theme... only select custom theme
   # if it is available in the list of installed themes.
   theme_ = (custom_theme if (custom_theme and themes[custom_theme]) else theme_);
   # Store the identifier for retrieving theme settings with.
@@ -241,7 +243,7 @@ def _theme_save_registry(theme_, registry):
 def drupal_rebuild_theme_registry():
   """
    Force the system to rebuild the theme registry; this should be called
-   when modules are added to the system, or when a dynamic system needs
+   when plugins are added to the system, or when a dynamic system needs
    to add more theme hooks.
   """
   cache_clear_all('theme_registry', 'cache', True);
@@ -251,7 +253,7 @@ def drupal_rebuild_theme_registry():
 def _theme_process_registry(cache, name, type_, theme_, path):
   """
    Process a single invocation of the theme hook. type will be one
-   of 'module', 'theme_engine' or 'theme' and it tells us some
+   of 'plugin', 'theme_engine' or 'theme' and it tells us some
    important information.
   
    Because cache is a reference, the cache will be continually
@@ -274,9 +276,9 @@ def _theme_process_registry(cache, name, type_, theme_, path):
       # if function and file are left out, default to standard naming
       # conventions.
       if (not p.isset(info, 'template') and not p.isset(info, 'function')):
-        result[hook]['function'] = ('theme_' if (type_ == 'module') else name + '_') + hook;
+        result[hook]['function'] = ('theme_' if (type_ == 'plugin') else name + '_') + hook;
       # If a path is set in the info, use what was set. Otherwise use the
-      # default path. This is mostly so system.module can declare theme
+      # default path. This is mostly so system.plugin can declare theme
       # functions on behalf of core .include files.
       # All files are included to be safe. Conditionally included
       # files can prevent them from getting registered.
@@ -302,12 +304,12 @@ def _theme_process_registry(cache, name, type_, theme_, path):
       if (not p.isset(info, 'preprocess functions') or not p.is_array(info['preprocess functions'])):
         info['preprocess functions'] = [];
         prefixes = [];
-        if (type == 'module'):
+        if (type == 'plugin'):
           # Default preprocessor prefix.
           prefixes.append( 'template' );
-          # Add all modules so they can intervene with their own preprocessors. This allows them
+          # Add all plugins so they can intervene with their own preprocessors. This allows them
           # to provide preprocess functions even if they are not the owner of the current hook.
-          prefixes += module_list();
+          prefixes += plugin_list();
         elif (type_ == 'theme_engine'):
           # Theme engines get an extra set that come before the normally named preprocessors.
           prefixes.append( name + '_engine' );
@@ -348,10 +350,10 @@ def _theme_build_registry(theme_, base_theme, theme_engine):
      The name of the theme engine.
   """
   cache = {};
-  # First, process the theme hooks advertised by modules. This will
+  # First, process the theme hooks advertised by plugins. This will
   # serve as the basic registry.
-  for module in module_implements('theme'):
-    _theme_process_registry(cache, module, 'module', module, drupal_get_path('module', module));
+  for plugin in plugin_implements('theme'):
+    _theme_process_registry(cache, plugin, 'plugin', plugin, drupal_get_path('plugin', plugin));
   # Process each base theme.
   for base in base_theme:
     # If the theme uses a theme engine, process its hooks.
@@ -364,7 +366,7 @@ def _theme_build_registry(theme_, base_theme, theme_engine):
     _theme_process_registry(cache, theme_engine, 'theme_engine', theme.name, p.dirname(theme_.filename));
   # Finally, hooks provided by the theme itself.
   _theme_process_registry(cache, theme_.name, 'theme', theme_.name, p.dirname(theme_.filename));
-  # Let modules alter the registry
+  # Let plugins alter the registry
   drupal_alter('theme_registry', cache);
   return cache;
 
@@ -435,7 +437,7 @@ def theme():
    passed along.
   
    If the implementation is a template, the arguments are converted to a
-   variables array. This array is then modified by the module implementing
+   variables array. This array is then modified by the plugin implementing
    the hook, theme engine (if applicable) and the theme. The following
    functions may be used to modify the variables array. They are processed in
    this order when available:
@@ -445,15 +447,15 @@ def theme():
   
    - template_preprocess_HOOK(&variables)
      This is the first preprocessor called specific to the hook; it should be
-     implemented by the module that registers it.
+     implemented by the plugin that registers it.
   
    - MODULE_preprocess(&variables)
      This will be called for all templates; it should only be used if there
      is a real need. It's purpose is similar to template_preprocess().
   
    - MODULE_preprocess_HOOK(&variables)
-     This is for modules that want to alter or provide extra variables for
-     theming hooks not registered to itself. For example, if a module named
+     This is for plugins that want to alter or provide extra variables for
+     theming hooks not registered to itself. For example, if a plugin named
      "foo" wanted to alter the submitted variable for the hook "node" a
      preprocess function of foo_preprocess_node() can be created to intercept
      and alter the variable.
@@ -555,7 +557,7 @@ def theme():
     if (theme_engine != None):
       # If theme or theme engine is implementing this, it may have
       # a different extension and a different renderer.
-      if (info['type'] != 'module'):
+      if (info['type'] != 'plugin'):
         if (p.function_exists(theme_engine + '_render_template')):
           render_function = theme_engine + '_render_template';
         extension_function = theme_engine + '_extension';
@@ -594,7 +596,7 @@ def theme():
 def drupal_discover_template(paths, suggestions, extension = '.tpl.php'):
   """
    Choose which template file to actually render. These are all suggested
-   templates from themes and modules. Theming implementations can occur on
+   templates from themes and plugins. Theming implementations can occur on
    multiple levels. All paths are checked to account for this.
   """
   global theme_engine;
@@ -720,7 +722,7 @@ def theme_get_settings(key = None):
    The final settings are arrived at by merging the default settings,
    the site-wide settings, and the settings defined for the specific theme+ * If no key was specified, only the site-wide theme defaults are retrieved+ *
    The default values for each of settings are also defined in this function+ * To add new settings, add their default values here, and then add form elements
-   to system_theme_settings() in system.module+ *
+   to system_theme_settings() in system.plugin+ *
    @param key
     The template/style value for a given theme+ *
    @return
@@ -745,13 +747,13 @@ def theme_get_settings(key = None):
     'toggle_primary_links'          :  1,
     'toggle_secondary_links'        :  1
   };
-  if (module_exists('node')):
+  if (plugin_exists('node')):
     for type,name in node_get_types().items():
       defaults['toggle_node_info_'+ type] = 1;
   settings = p.array_merge(defaults, variable_get('theme_settings', array()));
   if (key != None):
     settings = p.array_merge(settings, variable_get(p.str_replace('/', '_', 'theme_'+ key +'_settings'), []));
-  # Only offer search box if search.module is enabled+ if (not module_exists('search') or not user_access('search content')):
+  # Only offer search box if search.plugin is enabled+ if (not plugin_exists('search') or not user_access('search content')):
     settings['toggle_search'] = 0;
   return settings;
 
@@ -846,7 +848,7 @@ def theme_placeholder(text):
    specific types of output
   
    As of Drupal 6, every theme hook is required to be registered by the
-   module that owns it, so that Drupal can tell what to do with it and
+   plugin that owns it, so that Drupal can tell what to do with it and
    to make it simple for themes to identify and override the behavior
    for these calls
    
@@ -856,13 +858,13 @@ def theme_placeholder(text):
    defaults for the template in case they are not filled in+ If the default
    implementation is a function, by convention it is named theme_HOOK()
    
-   Each module should provide a default implementation for theme_hooks that
+   Each plugin should provide a default implementation for theme_hooks that
    it registers
    
    This implementation may be either a function or a template;
    if it is a function it must be specified via hook_theme()+ By convention,
    default implementations of theme hooks are named theme_HOOK+ Default
-   template implementations are stored in the module directory+ *
+   template implementations are stored in the plugin directory+ *
    Drupal's default template renderer is a simple PHP parsing engine that
    includes the template and stores the output+ Drupal's theme engines
    can provide alternate template engines, such as XTemplate, Smarty and
@@ -1335,7 +1337,7 @@ def theme_closure(main_ = 0):
      Whether the current page is the front page of the site+ * @return
      A string containing the results of the hook_footer() calls+
   """
-  footer = module_invoke_all('footer', main_);
+  footer = plugin_invoke_all('footer', main_);
   return p.implode("\n", footer) + drupal_get_js('footer');
 
 
@@ -1351,7 +1353,7 @@ def theme_blocks(region):
   list = block_list(region);
   if (list):
     for key,block in list.items():
-      # key == <i>module</i>_<i>delta</i>
+      # key == <i>plugin</i>_<i>delta</i>
       output += theme('block', block);
   # Add any content assigned to this region through drupal_set_content() calls+
   output += drupal_get_content(region);
@@ -1380,9 +1382,9 @@ def theme_username(object_):
     else:
       output = check_plain(name);
   elif (nameSet):
-    # Sometimes modules display content composed by people who are
+    # Sometimes plugins display content composed by people who are
     # not registered members of the site (e.g+ mailing list or news
-    # aggregator modules)+ This clause enables modules to display
+    # aggregator plugins)+ This clause enables plugins to display
     # the True author of the content+
     if (p.isset(object_, 'homepage') and not p.empty(object_.homepage)):
       output = l(object_.name, object_.homepage, {'attributes' : {'rel' : 'nofollow'}});
@@ -1494,7 +1496,7 @@ def template_preprocess_page(variables_):
    Process variables for page.tpl.php
   
    Most themes utilize their own copy of page.tpl.php+ The default is located
-   inside "modules/system/page.tpl.php"+ Look in there for the full list of
+   inside "plugins/system/page.tpl.php"+ Look in there for the full list of
    variables+ *
    Uses the arg() function to generate a series of page template suggestions
    based on the current path+ *
@@ -1631,7 +1633,7 @@ def template_preprocess_node(variables_):
    Process variables for node.tpl.php
   
    Most themes utilize their own copy of node.tpl.php+ The default is located
-   inside "modules/node/node.tpl.php"+ Look in there for the full list of
+   inside "plugins/node/node.tpl.php"+ Look in there for the full list of
    variables+ *
    The variables array contains the following arguments:
    - node
@@ -1642,7 +1644,7 @@ def template_preprocess_node(variables_):
   """
   p.Reference.check(variables);
   node = variables_.val['node'];
-  if (module_exists('taxonomy')):
+  if (plugin_exists('taxonomy')):
     variables_.val['taxonomy'] = taxonomy_link('taxonomy terms', node);
   else:
     variables_.val['taxonomy'] = {};
@@ -1682,7 +1684,7 @@ def template_preprocess_block(variables_):
    series of template file suggestions+ If none are found, the default
    block.tpl.php is used+ *
    Most themes utilize their own copy of block.tpl.php+ The default is located
-   inside "modules/system/block.tpl.php"+ Look in there for the full list of
+   inside "plugins/system/block.tpl.php"+ Look in there for the full list of
    variables+ *
    The variables array contains the following arguments:
    - block
@@ -1699,8 +1701,8 @@ def template_preprocess_block(variables_):
   variables_.val['block_id'] = template_preprocess_block.block_counter[variables_.val['block'].region];
   template_preprocess_block.block_counter[variables_.val['block'].region] += 1;
   variables_.val['template_files'].append( 'block-'+ variables_.val['block'].region );
-  variables_.val['template_files'].append('block-'+ variables_.val['block'].module );
-  variables_.val['template_files'].append( 'block-'+ variables_.val['block'].module +'-'+ variables_.val['block'].delta );
+  variables_.val['template_files'].append('block-'+ variables_.val['block'].plugin );
+  variables_.val['template_files'].append( 'block-'+ variables_.val['block'].plugin +'-'+ variables_.val['block'].delta );
 
 
 

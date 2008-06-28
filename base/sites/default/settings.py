@@ -1,36 +1,38 @@
 # $Id: default.settings.php,v 1.8 2007/12/20 09:35:10 goba Exp $
 
+"""
+  Drupal site-specific configuration file.
 
-#
-# @package Drupy
-# @see http://drupy.net
-# @note Drupy is a port of the Drupal project.
-#  The drupal project can be found at http://drupal.org
-# @file settings.py (ported from Drupal's settings.php)
-#  Drupal site-specific configuration file.
-# @author Brendon Crawford
-# @copyright 2008 Brendon Crawford
-# @contact message144 at users dot sourceforge dot net
-# @created 2008-01-10
-# @version 0.1
-# @license: 
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+  @package default
+  @see <a href='http://drupy.net'>Drupy Homepage</a>
+  @see <a href='http://drupal.org'>Drupal Homepage</a>
+  @note Drupy is a port of the Drupal project.
+  @note This file was ported from Drupal's sites/default/settings.php
+  @author Brendon Crawford
+  @copyright 2008 Brendon Crawford
+  @contact message144 at users dot sourceforge dot net
+  @created 2008-01-10
+  @version 0.1
+  @note License:
 
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to:
+    
+    The Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor,
+    Boston, MA  02110-1301,
+    USA
+"""
 
 #
 # IMPORTANT NOTE:
@@ -85,7 +87,7 @@
 #   ? = %3f   = = %3d   & = %26
 #
 # To specify multiple connections to be used in your site (i.e. for
-# complex custom modules) you can also specify an associative array
+# complex custom plugins) you can also specify an associative array
 # of $db_url variables with the 'default' element used until otherwise
 # requested.
 #
@@ -201,7 +203,7 @@ conf = None
 # is explicitly set to off-line mode through the administration page or when
 # the database is inactive due to an error. It can be set through the
 # 'maintenance_theme' key. The template file should also be copied into the
-# theme. It is located inside 'modules/system/maintenance-page.tpl.php'.
+# theme. It is located inside 'plugins/system/maintenance-page.tpl.php'.
 # Note: This setting does not apply to installation and update pages.
 #
 #   'maintenance_theme' => 'minnelli',
@@ -239,7 +241,7 @@ conf = None
 # String overrides:
 #
 # To override specific strings on your site with or without enabling locale
-# module, add an entry to this list. This functionality allows you to change
+# plugin, add an entry to this list. This functionality allows you to change
 # a small number of your site's default English language interface strings.
 #
 # Remove the leading hash signs to enable.
