@@ -88,7 +88,7 @@
 			</p>
 			<h3>Current Status</h3>
 			<p>
-				Currently, Drupy can load core modules/plugins and execute the core init hook. The core system plugin (Drupal's system.module) is almost complete. For more details, check the <a href="/status/current.html">Drupy diagnostic page</a>, which is updated regularily.
+				Currently, Drupy can load core modules/plugins and execute the core init hook. The core system plugin (Drupal's system.module) is almost complete. For more details, check the <a href="/status/">Drupy diagnostic page</a>, which is updated regularily.
 			</p>
 			<h3>Special Thanks</h3>
 			<p>
