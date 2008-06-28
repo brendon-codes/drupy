@@ -1,17 +1,172 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
-          "DTD/xhtml1-frameset.dtd">
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title> API Documentation </title>
+  <title>base</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
 </head>
-<frameset cols="20%,80%">
-  <frameset rows="30%,70%">
-    <frame src="toc.html" name="moduleListFrame"
-           id="moduleListFrame" />
-    <frame src="toc-everything.html" name="moduleFrame"
-           id="moduleFrame" />
-  </frameset>
-  <frame src="base-module.html" name="mainFrame" id="mainFrame" />
-</frameset>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th bgcolor="#70b0f0" class="navbar-select"
+          >&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Package&nbsp;base
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== PACKAGE DESCRIPTION ==================== -->
+<h1 class="epydoc">Package base</h1><p class="nomargin-top"><span class="codelink"><a href="base-pysrc.html">source&nbsp;code</a></span></p>
+<!-- ==================== SUBMODULES ==================== -->
+<a name="section-Submodules"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Submodules</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Submodules"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr><td class="summary">
+  <ul class="nomargin">
+    <li> <strong class="uidlink"><a href="base.drupy-module.html">base.drupy</a></strong>: <em class="summary">Drupy CGI and CLI execution script.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes-module.html">base.includes</a></strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="base.includes.bootstrap-module.html">base.includes.bootstrap</a></strong>: <em class="summary">Functions that need to be loaded on every Drupal requst</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.cache-module.html">base.includes.cache</a></strong>: <em class="summary">Cache functions</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.common-module.html">base.includes.common</a></strong>: <em class="summary">Common functions that many Drupy plugins will need to reference.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.database-module.html">base.includes.database</a></strong>: <em class="summary">Wrapper for database interface code.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.database_mysqli-module.html">base.includes.database_mysqli</a></strong>: <em class="summary">Database interface code for MySQL database servers using the mysqli client
+libraries.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.file-module.html">base.includes.file</a></strong>: <em class="summary">API for handling file uploads and server file management.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.language-module.html">base.includes.language</a></strong>: <em class="summary">Multiple language handling functionality.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.menu-module.html">base.includes.menu</a></strong>: <em class="summary">API for the Drupal menu system.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.module-module.html">base.includes.module</a></strong>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.path-module.html">base.includes.path</a></strong>: <em class="summary">Functions to handle paths in Drupy, including path aliasing.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.plugin-module.html">base.includes.plugin</a></strong>: <em class="summary">API for loading and interacting with Drupal plugins.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.session-module.html">base.includes.session</a></strong>: <em class="summary">User session handling functions.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.theme-module.html">base.includes.theme</a></strong>: <em class="summary">The theme system, which controls the output of Drupal.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.theme_maintenance-module.html">base.includes.theme_maintenance</a></strong>: <em class="summary">Theming for maintenance pages.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.includes.unicode-module.html">base.includes.unicode</a></strong>: <em class="summary">Drupal Unicode helpers.</em>    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="base.index-module.html">base.index</a></strong>: <em class="summary">The Python page that serves all page requests on a Drupy installation.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.lib-module.html">base.lib</a></strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="base.lib.drupy-module.html">base.lib.drupy</a></strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="base.lib.drupy.DrupyHelper-module.html">base.lib.drupy.DrupyHelper</a></strong>: <em class="summary">Various debugging helper functions.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.lib.drupy.DrupyImport-module.html">base.lib.drupy.DrupyImport</a></strong>: <em class="summary">Dynamic import functions.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.lib.drupy.DrupyMySQL-module.html">base.lib.drupy.DrupyMySQL</a></strong>: <em class="summary">A PHP/MySQL abstraction layer for Python.</em>    </li>
+    <li> <strong class="uidlink"><a href="base.lib.drupy.DrupyPHP-module.html">base.lib.drupy.DrupyPHP</a></strong>: <em class="summary">A PHP abstraction layer for Python</em>    </li>
+    </ul>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="base.plugins-module.html">base.plugins</a></strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="base.plugins.system-module.html">base.plugins.system</a></strong>: <em class="summary">Drupal system plugin</em>    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="base.sites-module.html">base.sites</a></strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="base.sites.all-module.html">base.sites.all</a></strong>    </li>
+    <li> <strong class="uidlink"><a href="base.sites.default-module.html">base.sites.default</a></strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="base.sites.default.settings-module.html">base.sites.default.settings</a></strong>: <em class="summary">Drupal site-specific configuration file.</em>    </li>
+    </ul>
+    </li>
+    </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="base.webtest-module.html">base.webtest</a></strong>: <em class="summary">CGI Web Test</em>    </li>
+  </ul></td></tr>
+</table>
+
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th bgcolor="#70b0f0" class="navbar-select"
+          >&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Fri Jun 27 18:26:11 2008
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
 </html>
