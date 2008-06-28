@@ -56,7 +56,7 @@
   </tr>
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
-<h1 class="epydoc">Module module</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.module-pysrc.html">source&nbsp;code</a></span></p>
+<h1 class="epydoc">Module module</h1><p class="nomargin-top"></p>
 <hr />
 <div class="fields">      <p><strong>See Also:</strong>
         &nbsp;
@@ -109,16 +109,155 @@
     </table>
   </td>
 </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.module-module.html#_module_build_dependencies" class="summary-sig-name" onclick="show_private();">_module_build_dependencies</a>(<span class="summary-sig-arg">files</span>)</span><br />
+      Find dependencies any level deep and fill in dependents information too.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="module_load_all"></a><span class="summary-sig-name">module_load_all</span>()</span><br />
-      Load all the modules that have been enabled in the system table.</td>
+          <td><span class="summary-sig"><a name="drupal_required_modules"></a><span class="summary-sig-name">drupal_required_modules</span>()</span><br />
+      Array of modules required by core.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_load_all">source&nbsp;code</a></span>
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_disable" class="summary-sig-name">module_disable</a>(<span class="summary-sig-arg">module_list_</span>)</span><br />
+      Disable a given set of modules.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_enable" class="summary-sig-name">module_enable</a>(<span class="summary-sig-arg">module_list_</span>)</span><br />
+      Enable a given list of modules.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_exists" class="summary-sig-name">module_exists</a>(<span class="summary-sig-arg">module_</span>)</span><br />
+      Determine whether a given module exists.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_hook" class="summary-sig-name">module_hook</a>(<span class="summary-sig-arg">module_</span>,
+        <span class="summary-sig-arg">hook</span>)</span><br />
+      Determine whether a module implements a hook.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_implements" class="summary-sig-name">module_implements</a>(<span class="summary-sig-arg">hook</span>,
+        <span class="summary-sig-arg">sort</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">refresh</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Determine which modules are implementing a hook.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_invoke" class="summary-sig-name">module_invoke</a>(<span class="summary-sig-arg">*args</span>)</span><br />
+      Invoke a hook in a particular module.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_invoke_all" class="summary-sig-name">module_invoke_all</a>(<span class="summary-sig-arg">*args</span>)</span><br />
+      Invoke a hook in all enabled modules that implement it.</td>
+          <td align="right" valign="top">
+            
             
           </td>
         </tr>
@@ -136,7 +275,7 @@
         <span class="summary-sig-arg">argument</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span><br />
       Call a function repeatedly with each module in turn as an argument.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_iterate">source&nbsp;code</a></span>
+            
             
           </td>
         </tr>
@@ -156,7 +295,7 @@
         <span class="summary-sig-arg">fixed_list</span>=<span class="summary-sig-default">None</span>)</span><br />
       Collect a list of all loaded modules.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_list">source&nbsp;code</a></span>
+            
             
           </td>
         </tr>
@@ -170,80 +309,10 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_rebuild_cache" class="summary-sig-name">module_rebuild_cache</a>()</span><br />
-      Rebuild the database cache of module files.</td>
+          <td><span class="summary-sig"><a name="module_load_all"></a><span class="summary-sig-name">module_load_all</span>()</span><br />
+      Load all the modules that have been enabled in the system table.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_rebuild_cache">source&nbsp;code</a></span>
             
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="base.includes.module-module.html#_module_build_dependencies" class="summary-sig-name" onclick="show_private();">_module_build_dependencies</a>(<span class="summary-sig-arg">files</span>)</span><br />
-      Find dependencies any level deep and fill in dependents information too.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#_module_build_dependencies">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_exists" class="summary-sig-name">module_exists</a>(<span class="summary-sig-arg">module_</span>)</span><br />
-      Determine whether a given module exists.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_exists">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="module_load_install"></a><span class="summary-sig-name">module_load_install</span>(<span class="summary-sig-arg">module_</span>)</span><br />
-      Load a module's installation hooks.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_load_install">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_load_include" class="summary-sig-name">module_load_include</a>(<span class="summary-sig-arg">type_</span>,
-        <span class="summary-sig-arg">module_</span>,
-        <span class="summary-sig-arg">name</span>=<span class="summary-sig-default">None</span>)</span><br />
-      Load a module include file.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_load_include">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -262,7 +331,7 @@
       Load an include file for each of the modules that have been enabled in
 the system table.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_load_all_includes">source&nbsp;code</a></span>
+            
             
           </td>
         </tr>
@@ -276,10 +345,12 @@ the system table.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_enable" class="summary-sig-name">module_enable</a>(<span class="summary-sig-arg">module_list_</span>)</span><br />
-      Enable a given list of modules.</td>
+          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_load_include" class="summary-sig-name">module_load_include</a>(<span class="summary-sig-arg">type_</span>,
+        <span class="summary-sig-arg">module_</span>,
+        <span class="summary-sig-arg">name</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Load a module include file.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_enable">source&nbsp;code</a></span>
+            
             
           </td>
         </tr>
@@ -293,10 +364,10 @@ the system table.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_disable" class="summary-sig-name">module_disable</a>(<span class="summary-sig-arg">module_list_</span>)</span><br />
-      Disable a given set of modules.</td>
+          <td><span class="summary-sig"><a name="module_load_install"></a><span class="summary-sig-name">module_load_install</span>(<span class="summary-sig-arg">module_</span>)</span><br />
+      Load a module's installation hooks.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_disable">source&nbsp;code</a></span>
+            
             
           </td>
         </tr>
@@ -310,81 +381,10 @@ the system table.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_hook" class="summary-sig-name">module_hook</a>(<span class="summary-sig-arg">module_</span>,
-        <span class="summary-sig-arg">hook</span>)</span><br />
-      Determine whether a module implements a hook.</td>
+          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_rebuild_cache" class="summary-sig-name">module_rebuild_cache</a>()</span><br />
+      Rebuild the database cache of module files.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_hook">source&nbsp;code</a></span>
             
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_implements" class="summary-sig-name">module_implements</a>(<span class="summary-sig-arg">hook</span>,
-        <span class="summary-sig-arg">sort</span>=<span class="summary-sig-default">False</span>,
-        <span class="summary-sig-arg">refresh</span>=<span class="summary-sig-default">False</span>)</span><br />
-      Determine which modules are implementing a hook.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_implements">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_invoke" class="summary-sig-name">module_invoke</a>(<span class="summary-sig-arg">*args</span>)</span><br />
-      Invoke a hook in a particular module.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_invoke">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="base.includes.module-module.html#module_invoke_all" class="summary-sig-name">module_invoke_all</a>(<span class="summary-sig-arg">*args</span>)</span><br />
-      Invoke a hook in all enabled modules that implement it.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#module_invoke_all">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="drupal_required_modules"></a><span class="summary-sig-name">drupal_required_modules</span>()</span><br />
-      Array of modules required by core.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="base.includes.module-pysrc.html#drupal_required_modules">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -411,64 +411,6 @@ the system table.</td>
   </td>
 </tr>
 </table>
-<a name="module_list"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">module_list</span>(<span class="sig-arg">refresh</span>=<span class="sig-default">False</span>,
-        <span class="sig-arg">bootstrap</span>=<span class="sig-default">True</span>,
-        <span class="sig-arg">sort</span>=<span class="sig-default">False</span>,
-        <span class="sig-arg">fixed_list</span>=<span class="sig-default">None</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.module-pysrc.html#module_list">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  Collect a list of all loaded modules. During the bootstrap, return only
-vital modules. See bootstrap.inc
-  <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>refresh</code></strong> - Whether to force the module list to be regenerated (such as after the
-  administrator has changed the system settings).</li>
-        <li><strong class="pname"><code>bootstrap</code></strong> - Whether to return the reduced set of modules loaded in "bootstrap mode"
-  for cached pages. See bootstrap.inc.</li>
-        <li><strong class="pname"><code>sort</code></strong> - By default, modules are ordered by weight and filename, settings this option
-  to True, module list will be ordered by module name.</li>
-        <li><strong class="pname"><code>fixed_list</code></strong> - (Optional) Override the module list with the given modules. Stays until the
-  next call with refresh = True.</li>
-    </ul></dd>
-    <dt>Returns:</dt>
-        <dd>An associative array whose keys and values are the names of all loaded
-  modules.</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="module_rebuild_cache"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">module_rebuild_cache</span>()</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.module-pysrc.html#module_rebuild_cache">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  Rebuild the database cache of module files.
-  <dl class="fields">
-    <dt>Returns:</dt>
-        <dd>The array of filesystem objects used to rebuild the cache.</dd>
-  </dl>
-</td></tr></table>
-</div>
 <a name="_module_build_dependencies"></a>
 <div class="private">
 <table class="details" border="1" cellpadding="3"
@@ -479,7 +421,7 @@ vital modules. See bootstrap.inc
   <h3 class="epydoc"><span class="sig"><span class="sig-name">_module_build_dependencies</span>(<span class="sig-arg">files</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.module-pysrc.html#_module_build_dependencies">source&nbsp;code</a></span>&nbsp;
+    >&nbsp;
     </td>
   </tr></table>
   
@@ -504,54 +446,25 @@ the dependents array of module B lists A.
   </dl>
 </td></tr></table>
 </div>
-<a name="module_exists"></a>
+<a name="module_disable"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">module_exists</span>(<span class="sig-arg">module_</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">module_disable</span>(<span class="sig-arg">module_list_</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.module-pysrc.html#module_exists">source&nbsp;code</a></span>&nbsp;
+    >&nbsp;
     </td>
   </tr></table>
   
-  Determine whether a given module exists.
+  Disable a given set of modules.
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>module</code></strong> - The name of the module (without the .module extension).</li>
-    </ul></dd>
-    <dt>Returns:</dt>
-        <dd>True if the module is both installed and enabled.</dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="module_load_include"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">module_load_include</span>(<span class="sig-arg">type_</span>,
-        <span class="sig-arg">module_</span>,
-        <span class="sig-arg">name</span>=<span class="sig-default">None</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.module-pysrc.html#module_load_include">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  Load a module include file.
-  <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>type</code></strong> - The include file's type (file extension).</li>
-        <li><strong class="pname"><code>module</code></strong> - The module to which the include file belongs.</li>
-        <li><strong class="pname"><code>name</code></strong> - Optionally, specify the file name. If not set, the module's name is used.</li>
+        <li><strong class="pname"><code>module_list</code></strong> - An array of module names.</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -566,7 +479,7 @@ the dependents array of module B lists A.
   <h3 class="epydoc"><span class="sig"><span class="sig-name">module_enable</span>(<span class="sig-arg">module_list_</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.module-pysrc.html#module_enable">source&nbsp;code</a></span>&nbsp;
+    >&nbsp;
     </td>
   </tr></table>
   
@@ -579,26 +492,28 @@ the dependents array of module B lists A.
   </dl>
 </td></tr></table>
 </div>
-<a name="module_disable"></a>
+<a name="module_exists"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">module_disable</span>(<span class="sig-arg">module_list_</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">module_exists</span>(<span class="sig-arg">module_</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.module-pysrc.html#module_disable">source&nbsp;code</a></span>&nbsp;
+    >&nbsp;
     </td>
   </tr></table>
   
-  Disable a given set of modules.
+  Determine whether a given module exists.
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>module_list</code></strong> - An array of module names.</li>
+        <li><strong class="pname"><code>module</code></strong> - The name of the module (without the .module extension).</li>
     </ul></dd>
+    <dt>Returns:</dt>
+        <dd>True if the module is both installed and enabled.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -613,7 +528,7 @@ the dependents array of module B lists A.
         <span class="sig-arg">hook</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.module-pysrc.html#module_hook">source&nbsp;code</a></span>&nbsp;
+    >&nbsp;
     </td>
   </tr></table>
   
@@ -642,7 +557,7 @@ the dependents array of module B lists A.
         <span class="sig-arg">refresh</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.module-pysrc.html#module_implements">source&nbsp;code</a></span>&nbsp;
+    >&nbsp;
     </td>
   </tr></table>
   
@@ -672,7 +587,7 @@ the dependents array of module B lists A.
   <h3 class="epydoc"><span class="sig"><span class="sig-name">module_invoke</span>(<span class="sig-arg">*args</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.module-pysrc.html#module_invoke">source&nbsp;code</a></span>&nbsp;
+    >&nbsp;
     </td>
   </tr></table>
   
@@ -699,7 +614,7 @@ the dependents array of module B lists A.
   <h3 class="epydoc"><span class="sig"><span class="sig-name">module_invoke_all</span>(<span class="sig-arg">*args</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.includes.module-pysrc.html#module_invoke_all">source&nbsp;code</a></span>&nbsp;
+    >&nbsp;
     </td>
   </tr></table>
   
@@ -713,6 +628,91 @@ the dependents array of module B lists A.
     <dt>Returns:</dt>
         <dd>An array of return values of the hook implementations. If modules return
   arrays from their implementations, those are merged into one array.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="module_list"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">module_list</span>(<span class="sig-arg">refresh</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">bootstrap</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">sort</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">fixed_list</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  Collect a list of all loaded modules. During the bootstrap, return only
+vital modules. See bootstrap.inc
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>refresh</code></strong> - Whether to force the module list to be regenerated (such as after the
+  administrator has changed the system settings).</li>
+        <li><strong class="pname"><code>bootstrap</code></strong> - Whether to return the reduced set of modules loaded in "bootstrap mode"
+  for cached pages. See bootstrap.inc.</li>
+        <li><strong class="pname"><code>sort</code></strong> - By default, modules are ordered by weight and filename, settings this option
+  to True, module list will be ordered by module name.</li>
+        <li><strong class="pname"><code>fixed_list</code></strong> - (Optional) Override the module list with the given modules. Stays until the
+  next call with refresh = True.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An associative array whose keys and values are the names of all loaded
+  modules.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="module_load_include"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">module_load_include</span>(<span class="sig-arg">type_</span>,
+        <span class="sig-arg">module_</span>,
+        <span class="sig-arg">name</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  Load a module include file.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>type</code></strong> - The include file's type (file extension).</li>
+        <li><strong class="pname"><code>module</code></strong> - The module to which the include file belongs.</li>
+        <li><strong class="pname"><code>name</code></strong> - Optionally, specify the file name. If not set, the module's name is used.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="module_rebuild_cache"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">module_rebuild_cache</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  Rebuild the database cache of module files.
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>The array of filesystem objects used to rebuild the cache.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -743,7 +743,7 @@ the dependents array of module B lists A.
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 16:07:34 2008
+    Generated by Epydoc 3.0.1 on Fri Jun 27 17:57:02 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
