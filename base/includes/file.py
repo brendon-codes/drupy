@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# $Id: file.inc,v 1.125 2008/05/26 17:12:54 dries Exp $
+# $Id: file.inc,v 1.126 2008/06/18 03:36:23 dries Exp $
 
 """
   API for handling file uploads and server file management.
@@ -229,7 +229,7 @@ def file_check_location(source, directory = ''):
   
    @param source A string set to the file to check.
    @param directory A string where the file should be located.
-   @return 0 for invalid path or the real path of the source.
+   @return FALSE for invalid path or the real path of the source.
   """
   check = realpath(source)
   if (check):
@@ -239,7 +239,7 @@ def file_check_location(source, directory = ''):
     source = realpath(p.dirname(source)) + '/' + basename(source)
   directory = realpath(directory)
   if (directory and p.strpos(source, directory) != 0):
-    return 0
+    return False
   return source
 
 
@@ -273,7 +273,7 @@ def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
     source.val = (source.val.filepath if p.is_object(source.val) else source.val)
     drupal_set_message(t('The selected file %file could not be uploaded, because the destination %directory is not properly configured.', {'%file' : source, '%directory' : dest}), 'error')
     watchdog('file system', 'The selected file %file could not be uploaded, because the destination %directory could not be found, or because its permissions do not allow the file to be written.', {'%file' : source.val, '%directory' : dest}, WATCHDOG_ERROR)
-    return 0
+    return False
   # Process a file upload object.
   if (p.is_object(source.val)):
     file = source.val
@@ -283,7 +283,7 @@ def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
   source.val = realpath(source.val)
   if (not p.file_exists(source.val)):
     drupal_set_message(t('The selected file %file could not be copied, because no file by that name exists + Please check that you supplied the correct filename.', {'%file' : source.val}), 'error')
-    return 0
+    return False
   # If the destination file is not specified then use the filename of the source file.
   basename = (basename if basename else basename(source.val))
   dest = directory + '/' + basename
@@ -297,7 +297,7 @@ def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
       return False
     if (not copy(source.val, dest)):
       drupal_set_message(t('The selected file %file could not be copied.', {'%file' : source.val}), 'error')
-      return 0
+      return False
     # Give everyone read access so that FTP'd users or
     # non-webserver users can see/read these files,
     # and give group write permissions so group members
@@ -309,7 +309,7 @@ def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
     source.val = file
   else:
     source.val = dest
-  return 1; # Everything went ok.
+  return True # Everything went ok.
 
 
 
@@ -362,9 +362,9 @@ def file_move(source, dest = 0, replace = FILE_EXISTS_RENAME):
   if (file_copy(source.val, dest, replace)):
     path_current = (source.val.filepath if p.is_object(source.val) else source.val)
     if (path_original == path_current or file_delete(path_original)):
-      return 1
+      return True
     drupal_set_message(t('The removal of the original file %file has failed.', {'%file' : path_original}), 'error')
-  return 0
+  return False
 
 
 
@@ -492,7 +492,7 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
      destination directory should overwritten + A False value will generate a
      new, unique filename in the destination directory.
    @return
-     An object containing the file information, or 0 in the event of an error.
+     An object containing the file information, or False in the event of an error.
   """
   p.static(file_save_upload, 'upload_cache', {})
   # Add in our check of the the file name length.
@@ -515,15 +515,15 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
         'The file %file could not be saved, because it exceeds %maxsize, ' +
         'the maximum allowed size for uploads.', \
         {'%file' : source, '%maxsize' : format_size(file_upload_max_size())}), 'error')
-      return 0
+      return False
     elif p.FILES['files']['error'][source] == UPLOAD_ERR_PARTIAL or \
         p.FILES['files']['error'][source] == UPLOAD_ERR_NO_FILE:
       drupal_set_message(t('The file %file could not be saved, because the upload did not complete.', {'%file' : source}), 'error')
-      return 0
+      return False
     # Unknown error
     else:
       drupal_set_message(t('The file %file could not be saved + An unknown error has occurred.', {'%file' : source}), 'error')
-      return 0
+      return False
     # Build the list of non-munged extensions.
     # @todo: this should not be here + we need to figure out the right place.
     extensions = ''
@@ -560,14 +560,14 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
       else:
         message += ' ' + p.array_pop(errors)
       form_set_error(source, message)
-      return 0
+      return False
     # Move uploaded files from PHP's upload_tmp_dir to Drupal's temporary directory.
     # This overcomes open_basedir restrictions for future file operations.
     file.filepath = file.destination
     if (not move_uploaded_file(p.FILES['files']['tmp_name'][source], file.filepath)):
       form_set_error(source, t('File upload error + Could not move uploaded file.'))
       watchdog('file', 'Upload error + Could not move uploaded file %file to destination %destination.', {'%file' : file.filename, '%destination' : file.filepath})
-      return 0
+      return False
     # If we made it this far it's safe to record this file in the database.
     file.uid = user.uid
     file.status = FILE_STATUS_TEMPORARY
@@ -576,7 +576,7 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
     # Add file to the cache.
     file_save_upload.upload_cache[source] = file
     return file
-  return 0
+  return False
 
 
 
@@ -723,7 +723,7 @@ def file_save_data(data, dest, replace = FILE_EXISTS_RENAME):
      - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is unique
      - FILE_EXISTS_ERROR - Do nothing and return False.
   
-   @return A string containing the resulting filename or 0 on error
+   @return A string containing the resulting filename or False on error
   """
   temp = file_directory_temp()
   # On Windows, tempnam() requires an absolute path, so we use realpath().
@@ -731,11 +731,11 @@ def file_save_data(data, dest, replace = FILE_EXISTS_RENAME):
   fp = p.fopen(file, 'wb')
   if (not fp):
     drupal_set_message(t('The file could not be created.'), 'error')
-    return 0
+    return False
   p.fwrite(fp, data)
   p.fclose(fp)
   if (not file_move(file, dest, replace)):
-    return 0
+    return False
   return file
 
 
