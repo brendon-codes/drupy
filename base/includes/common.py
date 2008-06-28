@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# $Id: common.inc,v 1.771 2008/06/09 08:11:44 dries Exp $
+# $Id: common.inc,v 1.773 2008/06/24 22:09:52 dries Exp $
 
 """
   Common functions that many Drupy plugins will need to reference.
@@ -44,8 +44,9 @@
 #
 # Includes
 #
-from lib.drupy import DrupyPHP as p
 import urllib2
+from lib.drupy import DrupyPHP as p
+from sites.all import settings
 import bootstrap as inc_bootstrap
 import theme as inc_theme
 #import pager as inc_pager
@@ -409,13 +410,25 @@ def drupal_access_denied():
 
 
 
-def drupal_http_request(url, headers = {}, method = 'p.GET', data = None, retry = None):
+def drupal_http_request(url, headers = {}, method = 'GET', data = None, retry = None):
   """
    Perform an HTTP request.
   
    This is a flexible and powerful HTTP client implementation. Correctly handles
    p.GET, p.POST, PUT or any other HTTP requests. Handles redirects.
-  
+
+   @note DRUPY:
+    This function has been modified to use urllib2.
+    Although it does not act exactly as before, it is
+    still good enough to get the job done.
+    Return object should look like this:
+      result:
+        Str error
+        Int code
+        Str request
+        Dict headers
+        Int redirect_code
+        Str redirect_url
    @param url
      A string containing a fully qualified URI.
    @param headers
@@ -430,19 +443,6 @@ def drupal_http_request(url, headers = {}, method = 'p.GET', data = None, retry 
    @return
      An object containing the HTTP request headers, response code, headers,
      data and redirect status.
-  
-   DRUPY(BC):
-    This function has been modified to use urllib2.
-    Although it does not act exactly as before, it is
-    still good enough to get the job done.
-    Return object should look like this:
-      result
-        Str error
-        Int code
-        Str request
-        Dict headers
-        Int redirect_code
-        Str redirect_url
   """
   headers['User-Agent'] = 'Drupy (+http://drupy.sourceforge.net/)';
   req = urllib2.Request(url, data, headers);
@@ -691,12 +691,10 @@ def valid_url(url, absolute = False):
   allowed_characters = '[a-z0-9\/:_\-_\.\?\$,;~=#&%\+]';
   if (absolute):
     url = p.Reference();
-    cnt = p.preg_match("/^(http|https|ftp):\/\/" + allowed_characters + "+$/i", url);
-    return (cnt > 0);
+    return (p.preg_match("/^(http|https|ftp):\/\/" + allowed_characters + "+$/i", url) > 0);
   else:
     url = p.Reference();
-    cnt = p.preg_match("/^" + allowed_characters + "+$/i", url);
-    return (cnt > 0);
+    return (p.preg_match("/^" + allowed_characters + "+$/i", url) > 0);
 
 
 #
