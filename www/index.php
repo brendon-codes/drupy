@@ -84,7 +84,7 @@
 			</p>
 			<h3>API Documentation</h3>
 			<p>
-				If you want to see whats under the hood, have a look at the <a href='/docs'>Drupy API Documentation</a>.
+				If you want to see whats under the hood, have a look at the <a href='/docs/'>Drupy API Documentation</a>.
 			</p>
 			<h3>Current Status</h3>
 			<p>
