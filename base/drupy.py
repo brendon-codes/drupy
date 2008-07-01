@@ -62,7 +62,7 @@ out_vars = p.print_r(vars(), True)
 out_vars = re.sub('[a-zA-Z0-9_\.-]+@.+?\.[a-zA-Z]+', '********', out_vars)
 out_vars = re.sub('[a-zA-Z0-9]{32}', '********************************', out_vars)
 out_vars = p.htmlspecialchars(out_vars)
-out_mods = p.print_r(DrupyImport.plugins(), True)
+out_mods = p.print_r(DrupyImport.modules(), True)
 out_mods = p.htmlspecialchars(out_mods)
 
 #
