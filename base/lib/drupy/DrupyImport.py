@@ -74,9 +74,9 @@ def exists(filename):
   return os.path.exists('%s/__init__.py' % filename)
 
 
-def plugins():
+def modules():
   """
-   Get loaded plugins
+   Get loaded modules
    @return List
   """
   mods = sys.modules
