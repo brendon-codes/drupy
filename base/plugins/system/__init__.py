@@ -217,6 +217,7 @@ def elements():
    
    @return Dict
   """
+  type_ = {}
   # Top level form
   type_['form'] = {
     '#method' : 'post',
@@ -230,263 +231,265 @@ def elements():
     '#name' : 'op',
     '#button_type' : 'submit',
     '#executes_submit_callback' : True,
-    '#process' : ['form_expand_ahah']
+    '#process' : ('form_expand_ahah',)
   }
-  type['button'] = array(
+  type_['button'] = {
     '#input' : True,
     '#name' : 'op',
     '#button_type' : 'submit',
     '#executes_submit_callback' : False,
-    '#process' : array('form_expand_ahah'),
-  )
-  type['image_button'] = array(
+    '#process' : ('form_expand_ahah',)
+  }
+  type_['image_button'] = {
     '#input' : True,
     '#button_type' : 'submit',
     '#executes_submit_callback' : True,
-    '#process' : array('form_expand_ahah'),
+    '#process' : ('form_expand_ahah',),
     '#return_value' : True,
     '#has_garbage_value' : True,
-    '#src' : None,
-  )
-  type['textfield'] = array(
+    '#src' : None
+  }
+  type_['textfield'] = {
     '#input' : True,
     '#size' : 60,
     '#maxlength' : 128,
     '#autocomplete_path' : False,
-    '#process' : array('form_expand_ahah'),
-  )
-  type['password'] = array(
+    '#process' : ('form_expand_ahah',),
+  }
+  type_['password'] = {
     '#input' : True,
     '#size' : 60,
     '#maxlength' : 128,
-    '#process' : array('form_expand_ahah'),
-  )
-  type['password_confirm'] = array(
+    '#process' : ('form_expand_ahah',),
+  }
+  type_['password_confirm'] = {
     '#input' : True,
-    '#process' : array('expand_password_confirm'),
-  )
-  type['textarea'] = array(
+    '#process' : ('expand_password_confirm',),
+  }
+  type_['textarea'] = {
     '#input' : True,
     '#cols' : 60,
     '#rows' : 5,
     '#resizable' : True,
-    '#process' : array('form_expand_ahah'),
-  )
-  type['radios'] = array(
+    '#process' : ('form_expand_ahah',),
+  }
+  type_['radios'] = {
     '#input' : True,
-    '#process' : array('expand_radios'),
-  )
-  type['radio'] = array(
+    '#process' : ('expand_radios',),
+  }
+  type_['radio'] = {
     '#input' : True,
     '#default_value' : None,
-    '#process' : array('form_expand_ahah'),
-  )
-  type['checkboxes'] = array(
+    '#process' : ('form_expand_ahah',),
+  }
+  type_['checkboxes'] = {
     '#input' : True,
     '#tree' : True,
-    '#process' : array('expand_checkboxes'),
-  )
-  type['checkbox'] = array(
+    '#process' : ('expand_checkboxes',),
+  }
+  type_['checkbox'] = {
     '#input' : True,
     '#return_value' : 1,
-    '#process' : array('form_expand_ahah'),
-  )
-  type['select'] = array(
+    '#process' : ('form_expand_ahah',),
+  }
+  type_['select'] = {
     '#input' : True,
     '#size' : 0,
     '#multiple' : False,
-    '#process' : array('form_expand_ahah'),
-  )
-  type['weight'] = array(
+    '#process' : ('form_expand_ahah',),
+  }
+  type_['weight'] = {
     '#input' : True,
     '#delta' : 10,
     '#default_value' : 0,
-    '#process' : array('process_weight', 'form_expand_ahah'),
-  )
-  type['date'] = array(
+    '#process' : ('process_weight', 'form_expand_ahah'),
+  }
+  type_['date'] = {
     '#input' : True,
-    '#element_validate' : array('date_validate'),
-    '#process' : array('expand_date'),
-  )
-  type['file'] = array(
+    '#element_validate' : ('date_validate',),
+    '#process' : ('expand_date',),
+  }
+  type_['file'] = {
     '#input' : True,
     '#size' : 60,
-  )
-#
-# Form structure.
-#
-  type['item'] = array(
+  }
+  #
+  # Form structure.
+  #
+  type_['item'] = {
     '#value' : '',
-  )
-  type['hidden'] = array(
+  }
+  type_['hidden'] = {
     '#input' : True,
-    '#process' : array('form_expand_ahah'),
-  )
-  type['value'] = array(
+    '#process' : ('form_expand_ahah',),
+  }
+  type_['value'] = {
     '#input' : True,
-  )
-  type['markup'] = array(
+  }
+  type_['markup'] = {
     '#prefix' : '',
     '#suffix' : '',
-  )
-  type['fieldset'] = array(
+  }
+  type_['fieldset'] = {
     '#collapsible' : False,
     '#collapsed' : False,
     '#value' : None,
-    '#process' : array('form_expand_ahah'),
-  )
-  type['token'] = array(
+    '#process' : ('form_expand_ahah',),
+  }
+  type_['token'] = {
     '#input' : True,
-  )
-  return type
-}
-#
-# Implementation of hook_menu().
-#
-def system_menu():
-  items['system/files'] = array(
+  }
+  return type_
+
+
+def menu():
+  """
+   Implementation of hook_menu().
+   
+   @return Dict
+  """
+  items = {}
+  items['system/files'] = {
     'title' : 'File download',
     'page callback' : 'file_download',
     'access callback' : True,
-    'type' : MENU_CALLBACK,
-  )
-  items['admin'] = array(
+    'type' : MENU_CALLBACK
+  }
+  items['admin'] = {
     'title' : 'Administer',
-    'access arguments' : array('access administration pages'),
+    'access arguments' : ('access administration pages',),
     'page callback' : 'system_main_admin_page',
     'weight' : 9,
-  )
-  items['admin/compact'] = array(
+  }
+  items['admin/compact'] = {
     'title' : 'Compact mode',
     'page callback' : 'system_admin_compact_page',
-    'access arguments' : array('access administration pages'),
+    'access arguments' : ('access administration pages',),
     'type' : MENU_CALLBACK,
-  )
-  items['admin/by-task'] = array(
+  }
+  items['admin/by-task'] = {
     'title' : 'By task',
     'page callback' : 'system_main_admin_page',
-    'access arguments' : array('access administration pages'),
+    'access arguments' : ('access administration pages',),
     'type' : MENU_DEFAULT_LOCAL_TASK,
-  )
-  items['admin/by-module'] = array(
+  }
+  items['admin/by-module'] = {
     'title' : 'By module',
     'page callback' : 'system_admin_by_module',
-    'access arguments' : array('access administration pages'),
+    'access arguments' : ('access administration pages',),
     'type' : MENU_LOCAL_TASK,
     'weight' : 2,
-  )
-  items['admin/content'] = array(
+  }
+  items['admin/content'] = {
     'title' : 'Content management',
     'description' : "Manage your site's content.",
     'position' : 'left',
     'weight' : -10,
     'page callback' : 'system_admin_menu_block_page',
-    'access arguments' : array('access administration pages'),
-  )
+    'access arguments' : ('access administration pages',),
+  }
   # menu items that are basically just menu blocks
-  items['admin/settings'] = array(
+  items['admin/settings'] = {
     'title' : 'Site configuration',
     'description' : 'Adjust basic site configuration options.',
     'position' : 'right',
     'weight' : -5,
     'page callback' : 'system_settings_overview',
-    'access arguments' : array('access administration pages'),
-  )
-  items['admin/build'] = array(
+    'access arguments' : ('access administration pages',),
+  }
+  items['admin/build'] = {
     'title' : 'Site building',
     'description' : 'Control how your site looks and feels.',
     'position' : 'right',
     'weight' : -10,
     'page callback' : 'system_admin_menu_block_page',
-    'access arguments' : array('access administration pages'),
-  )
-  items['admin/settings/admin'] = array(
+    'access arguments' : ('access administration pages',),
+  }
+  items['admin/settings/admin'] = {
     'title' : 'Administration theme',
     'description' : 'Settings for how your administrative pages should look.',
     'position' : 'left',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_admin_theme_settings'),
-    'access arguments' : array('administer site configuration'),
+    'page arguments' : ('system_admin_theme_settings',),
+    'access arguments' : ('administer site configuration',),
     'block callback' : 'system_admin_theme_settings',
-  )
+  }
   # Themes:
-  items['admin/build/themes'] = array(
+  items['admin/build/themes'] = {
     'title' : 'Themes',
     'description' : 'Change which theme your site uses or allows users to set.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_themes_form', None),
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/build/themes/select'] = array(
+    'page arguments' : ('system_themes_form', None),
+    'access arguments' : ('administer site configuration',)
+  }
+  items['admin/build/themes/select'] = {
     'title' : 'List',
     'description' : 'Select the default theme.',
     'type' : MENU_DEFAULT_LOCAL_TASK,
-    'weight' : -1,
-  )
-  items['admin/build/themes/settings'] = array(
+    'weight' : -1
+  }
+  items['admin/build/themes/settings'] = {
     'title' : 'Configure',
-    'page arguments' : array('system_theme_settings'),
-    'access arguments' : array('administer site configuration'),
-    'type' : MENU_LOCAL_TASK,
-  )
+    'page arguments' : ('system_theme_settings',),
+    'access arguments' : ('administer site configuration',),
+    'type' : MENU_LOCAL_TASK
+  }
   # Theme configuration subtabs
-  items['admin/build/themes/settings/global'] = array(
+  items['admin/build/themes/settings/global'] = {
     'title' : 'Global settings',
     'type' : MENU_DEFAULT_LOCAL_TASK,
     'weight' : -1,
-  )
+  }
   for theme in list_themes():
-    items['admin/build/themes/settings/' +  theme.name] = array(
+    items['admin/build/themes/settings/' +  theme.name] = {
       'title' : theme.info['name'],
       'page arguments' : array('system_theme_settings', theme.name),
       'type' : MENU_LOCAL_TASK,
       'access callback' : '_system_themes_access',
-      'access arguments' : array(theme),
-    )
-  }
-
+      'access arguments' : (theme,),
+    }
   # Modules:
-  items['admin/build/modules'] = array(
+  items['admin/build/modules'] = {
     'title' : 'Modules',
     'description' : 'Enable or disable add-on modules for your site.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_modules'),
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/build/modules/list'] = array(
+    'page arguments' : ('system_modules',),
+    'access arguments' : ('administer site configuration',),
+  }
+  items['admin/build/modules/list'] = {
     'title' : 'List',
     'type' : MENU_DEFAULT_LOCAL_TASK,
-  )
-  items['admin/build/modules/list/confirm'] = array(
+  }
+  items['admin/build/modules/list/confirm'] = {
     'title' : 'List',
-    'access arguments' : array('administer site configuration'),
+    'access arguments' : ('administer site configuration',),
     'type' : MENU_CALLBACK,
-  )
-  items['admin/build/modules/uninstall'] = array(
+  }
+  items['admin/build/modules/uninstall'] = {
     'title' : 'Uninstall',
-    'page arguments' : array('system_modules_uninstall'),
-    'access arguments' : array('administer site configuration'),
+    'page arguments' : ('system_modules_uninstall',),
+    'access arguments' : ('administer site configuration',),
     'type' : MENU_LOCAL_TASK,
-  )
-  items['admin/build/modules/uninstall/confirm'] = array(
+  }
+  items['admin/build/modules/uninstall/confirm'] = {
     'title' : 'Uninstall',
-    'access arguments' : array('administer site configuration'),
+    'access arguments' : ('administer site configuration',),
     'type' : MENU_CALLBACK,
-  )
+  }
   # Actions:
-  items['admin/settings/actions'] = array(
+  items['admin/settings/actions'] = {
     'title' : 'Actions',
     'description' : 'Manage the actions defined for your site.',
-    'access arguments' : array('administer actions'),
+    'access arguments' : ('administer actions',),
     'page callback' : 'system_actions_manage'
-  )
-  items['admin/settings/actions/manage'] = array(
+  }
+  items['admin/settings/actions/manage'] = {
     'title' : 'Manage actions',
     'description' : 'Manage the actions defined for your site.',
     'page callback' : 'system_actions_manage',
     'type' : MENU_DEFAULT_LOCAL_TASK,
     'weight' : -2,
-  )
+  }
   items['admin/settings/actions/configure'] = array(
     'title' : 'Configure an advanced action',
     'page callback' : 'drupal_get_form',
