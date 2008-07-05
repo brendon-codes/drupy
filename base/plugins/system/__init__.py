@@ -158,7 +158,7 @@ def theme():
     },
     'system_modules_uninstall' : {
       'arguments' : {'form' : None},
-      'file' : 'system.admin.inc',
+      'file' : 'system.admin.inc'
     },
     'status_report' : {
       'arguments' : {'requirements' : None},
@@ -170,24 +170,24 @@ def theme():
     },
     'admin_block' : {
       'arguments' : {'block' : None},
-      'file' : 'system.admin.inc',
+      'file' : 'system.admin.inc'
     },
     'admin_block_content' : {
       'arguments' : {'content' : None},
-      'file' : 'system.admin.inc',
+      'file' : 'system.admin.inc'
     },
     'system_admin_by_module' : {
       'arguments' : {'menu_items' : None},
       'file' : 'system.admin.inc'
     },
     'system_powered_by' : {
-      'arguments' : {'image_path' : None},
+      'arguments' : {'image_path' : None}
     },
     'meta_generator_html' : {
-      'arguments' : {'version' : None},
+      'arguments' : {'version' : None}
     },
     'meta_generator_header' : {
-      'arguments' : {'version' : None},
+      'arguments' : {'version' : None}
     },
     'system_compact_link' : {}
   })
@@ -207,7 +207,7 @@ def perm():
     'access site reports' : t('View reports from system logs and other status information.'),
     'select different theme' : t('Select a theme other than the default theme set by the site administrator.'),
     'administer files' : t('Manage user-uploaded files.'),
-    'block IP addresses' : t('Block IP addresses from accessing your site.'),
+    'block IP addresses' : t('Block IP addresses from accessing your site.')
   }
 
 
@@ -221,7 +221,7 @@ def elements():
   # Top level form
   type_['form'] = {
     '#method' : 'post',
-    '#action' : request_uri(),
+    '#action' : request_uri()
   }
   #
   # Input elements.
@@ -254,17 +254,17 @@ def elements():
     '#size' : 60,
     '#maxlength' : 128,
     '#autocomplete_path' : False,
-    '#process' : ('form_expand_ahah',),
+    '#process' : ('form_expand_ahah',)
   }
   type_['password'] = {
     '#input' : True,
     '#size' : 60,
     '#maxlength' : 128,
-    '#process' : ('form_expand_ahah',),
+    '#process' : ('form_expand_ahah',)
   }
   type_['password_confirm'] = {
     '#input' : True,
-    '#process' : ('expand_password_confirm',),
+    '#process' : ('expand_password_confirm',)
   }
   type_['textarea'] = {
     '#input' : True,
@@ -275,69 +275,69 @@ def elements():
   }
   type_['radios'] = {
     '#input' : True,
-    '#process' : ('expand_radios',),
+    '#process' : ('expand_radios',)
   }
   type_['radio'] = {
     '#input' : True,
     '#default_value' : None,
-    '#process' : ('form_expand_ahah',),
+    '#process' : ('form_expand_ahah',)
   }
   type_['checkboxes'] = {
     '#input' : True,
     '#tree' : True,
-    '#process' : ('expand_checkboxes',),
+    '#process' : ('expand_checkboxes',)
   }
   type_['checkbox'] = {
     '#input' : True,
     '#return_value' : 1,
-    '#process' : ('form_expand_ahah',),
+    '#process' : ('form_expand_ahah',)
   }
   type_['select'] = {
     '#input' : True,
     '#size' : 0,
     '#multiple' : False,
-    '#process' : ('form_expand_ahah',),
+    '#process' : ('form_expand_ahah',)
   }
   type_['weight'] = {
     '#input' : True,
     '#delta' : 10,
     '#default_value' : 0,
-    '#process' : ('process_weight', 'form_expand_ahah'),
+    '#process' : ('process_weight', 'form_expand_ahah')
   }
   type_['date'] = {
     '#input' : True,
     '#element_validate' : ('date_validate',),
-    '#process' : ('expand_date',),
+    '#process' : ('expand_date',)
   }
   type_['file'] = {
     '#input' : True,
-    '#size' : 60,
+    '#size' : 60
   }
   #
   # Form structure.
   #
   type_['item'] = {
-    '#value' : '',
+    '#value' : ''
   }
   type_['hidden'] = {
     '#input' : True,
-    '#process' : ('form_expand_ahah',),
+    '#process' : ('form_expand_ahah',)
   }
   type_['value'] = {
-    '#input' : True,
+    '#input' : True
   }
   type_['markup'] = {
     '#prefix' : '',
-    '#suffix' : '',
+    '#suffix' : ''
   }
   type_['fieldset'] = {
     '#collapsible' : False,
     '#collapsed' : False,
     '#value' : None,
-    '#process' : ('form_expand_ahah',),
+    '#process' : ('form_expand_ahah',)
   }
   type_['token'] = {
-    '#input' : True,
+    '#input' : True
   }
   return type_
 
@@ -359,26 +359,26 @@ def menu():
     'title' : 'Administer',
     'access arguments' : ('access administration pages',),
     'page callback' : 'system_main_admin_page',
-    'weight' : 9,
+    'weight' : 9
   }
   items['admin/compact'] = {
     'title' : 'Compact mode',
     'page callback' : 'system_admin_compact_page',
     'access arguments' : ('access administration pages',),
-    'type' : MENU_CALLBACK,
+    'type' : MENU_CALLBACK
   }
   items['admin/by-task'] = {
     'title' : 'By task',
     'page callback' : 'system_main_admin_page',
     'access arguments' : ('access administration pages',),
-    'type' : MENU_DEFAULT_LOCAL_TASK,
+    'type' : MENU_DEFAULT_LOCAL_TASK
   }
   items['admin/by-module'] = {
     'title' : 'By module',
     'page callback' : 'system_admin_by_module',
     'access arguments' : ('access administration pages',),
     'type' : MENU_LOCAL_TASK,
-    'weight' : 2,
+    'weight' : 2
   }
   items['admin/content'] = {
     'title' : 'Content management',
@@ -386,7 +386,7 @@ def menu():
     'position' : 'left',
     'weight' : -10,
     'page callback' : 'system_admin_menu_block_page',
-    'access arguments' : ('access administration pages',),
+    'access arguments' : ('access administration pages',)
   }
   # menu items that are basically just menu blocks
   items['admin/settings'] = {
@@ -395,7 +395,7 @@ def menu():
     'position' : 'right',
     'weight' : -5,
     'page callback' : 'system_settings_overview',
-    'access arguments' : ('access administration pages',),
+    'access arguments' : ('access administration pages',)
   }
   items['admin/build'] = {
     'title' : 'Site building',
@@ -403,7 +403,7 @@ def menu():
     'position' : 'right',
     'weight' : -10,
     'page callback' : 'system_admin_menu_block_page',
-    'access arguments' : ('access administration pages',),
+    'access arguments' : ('access administration pages',)
   }
   items['admin/settings/admin'] = {
     'title' : 'Administration theme',
@@ -412,7 +412,7 @@ def menu():
     'page callback' : 'drupal_get_form',
     'page arguments' : ('system_admin_theme_settings',),
     'access arguments' : ('administer site configuration',),
-    'block callback' : 'system_admin_theme_settings',
+    'block callback' : 'system_admin_theme_settings'
   }
   # Themes:
   items['admin/build/themes'] = {
@@ -438,7 +438,7 @@ def menu():
   items['admin/build/themes/settings/global'] = {
     'title' : 'Global settings',
     'type' : MENU_DEFAULT_LOCAL_TASK,
-    'weight' : -1,
+    'weight' : -1
   }
   for theme in list_themes():
     items['admin/build/themes/settings/' +  theme.name] = {
@@ -446,7 +446,7 @@ def menu():
       'page arguments' : array('system_theme_settings', theme.name),
       'type' : MENU_LOCAL_TASK,
       'access callback' : '_system_themes_access',
-      'access arguments' : (theme,),
+      'access arguments' : (theme,)
     }
   # Modules:
   items['admin/build/modules'] = {
@@ -454,27 +454,27 @@ def menu():
     'description' : 'Enable or disable add-on modules for your site.',
     'page callback' : 'drupal_get_form',
     'page arguments' : ('system_modules',),
-    'access arguments' : ('administer site configuration',),
+    'access arguments' : ('administer site configuration',)
   }
   items['admin/build/modules/list'] = {
     'title' : 'List',
-    'type' : MENU_DEFAULT_LOCAL_TASK,
+    'type' : MENU_DEFAULT_LOCAL_TASK
   }
   items['admin/build/modules/list/confirm'] = {
     'title' : 'List',
     'access arguments' : ('administer site configuration',),
-    'type' : MENU_CALLBACK,
+    'type' : MENU_CALLBACK
   }
   items['admin/build/modules/uninstall'] = {
     'title' : 'Uninstall',
     'page arguments' : ('system_modules_uninstall',),
     'access arguments' : ('administer site configuration',),
-    'type' : MENU_LOCAL_TASK,
+    'type' : MENU_LOCAL_TASK
   }
   items['admin/build/modules/uninstall/confirm'] = {
     'title' : 'Uninstall',
     'access arguments' : ('administer site configuration',),
-    'type' : MENU_CALLBACK,
+    'type' : MENU_CALLBACK
   }
   # Actions:
   items['admin/settings/actions'] = {
@@ -488,431 +488,452 @@ def menu():
     'description' : 'Manage the actions defined for your site.',
     'page callback' : 'system_actions_manage',
     'type' : MENU_DEFAULT_LOCAL_TASK,
-    'weight' : -2,
+    'weight' : -2
   }
-  items['admin/settings/actions/configure'] = array(
+  items['admin/settings/actions/configure'] = {
     'title' : 'Configure an advanced action',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_actions_configure'),
-    'access arguments' : array('administer actions'),
-    'type' : MENU_CALLBACK,
-  )
-  items['admin/settings/actions/delete/%actions'] = array(
+    'page arguments' : ('system_actions_configure',),
+    'access arguments' : ('administer actions',),
+    'type' : MENU_CALLBACK
+  }
+  items['admin/settings/actions/delete/%actions'] = {
     'title' : 'Delete action',
     'description' : 'Delete an action.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_actions_delete_form', 4),
-    'access arguments' : array('administer actions'),
-    'type' : MENU_CALLBACK,
-  )
-  items['admin/settings/actions/orphan'] = array(
+    'page arguments' : ('system_actions_delete_form', 4),
+    'access arguments' : ('administer actions',),
+    'type' : MENU_CALLBACK
+  }
+  items['admin/settings/actions/orphan'] = {
     'title' : 'Remove orphans',
     'page callback' : 'system_actions_remove_orphans',
-    'access arguments' : array('administer actions'),
-    'type' : MENU_CALLBACK,
-  )
+    'access arguments' : ('administer actions',),
+    'type' : MENU_CALLBACK
+  }
   # IP address blocking.
-  items['admin/settings/ip-blocking'] = array(
+  items['admin/settings/ip-blocking'] = {
     'title' : 'IP address blocking',
     'description' : 'Manage blocked IP addresses.',
     'page callback' : 'system_ip_blocking',
-    'access arguments' : array('block IP addresses'),
-  )
-  items['admin/settings/ip-blocking/%'] = array(
+    'access arguments' : ('block IP addresses',),
+  }
+  items['admin/settings/ip-blocking/%'] = {
     'title' : 'IP address blocking',
     'description' : 'Manage blocked IP addresses.',
     'page callback' : 'system_ip_blocking',
-    'access arguments' : array('block IP addresses'),
-    'type' : MENU_CALLBACK,
-  )
-  items['admin/settings/ip-blocking/delete/%blocked_ip'] = array(
+    'access arguments' : ('block IP addresses',),
+    'type' : MENU_CALLBACK
+  }
+  items['admin/settings/ip-blocking/delete/%blocked_ip'] = {
     'title' : 'Delete IP address',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_ip_blocking_delete', 4),
-    'access arguments' : array('block IP addresses'),
-    'type' : MENU_CALLBACK,
-  )
+    'page arguments' : ('system_ip_blocking_delete', 4),
+    'access arguments' : ('block IP addresses',),
+    'type' : MENU_CALLBACK
+  }
   # Settings:
-  items['admin/settings/site-information'] = array(
+  items['admin/settings/site-information'] = {
     'title' : 'Site information',
     'description' : 'Change basic site information, such as the site name, slogan, e-mail address, mission, front page and more.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_site_information_settings'),
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/settings/error-reporting'] = array(
+    'page arguments' : ('system_site_information_settings',),
+    'access arguments' : ('administer site configuration',)
+  }
+  items['admin/settings/error-reporting'] = {
     'title' : 'Error reporting',
     'description' : 'Control how Drupal deals with errors including 403/404 errors as well as PHP error reporting.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_error_reporting_settings'),
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/settings/logging'] = array(
+    'page arguments' : ('system_error_reporting_settings'),
+    'access arguments' : ('administer site configuration',)
+  }
+  items['admin/settings/logging'] = {
     'title' : 'Logging and alerts',
     'description' : "Settings for logging and alerts modules + Various modules can route Drupal's system events to different destination, such as syslog, database, email, + ..etc.",
     'page callback' : 'system_logging_overview',
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/settings/performance'] = array(
+    'access arguments' : ('administer site configuration',)
+  }
+  items['admin/settings/performance'] = {
     'title' : 'Performance',
     'description' : 'Enable or disable page caching for anonymous users and set CSS and JS bandwidth optimization options.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_performance_settings'),
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/settings/file-system'] = array(
+    'page arguments' : ('system_performance_settings',),
+    'access arguments' : ('administer site configuration',)
+  }
+  items['admin/settings/file-system'] = {
     'title' : 'File system',
     'description' : 'Tell Drupal where to store uploaded files and how they are accessed.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_file_system_settings'),
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/settings/image-toolkit'] = array(
+    'page arguments' : ('system_file_system_settings',),
+    'access arguments' : ('administer site configuration',)
+  }
+  items['admin/settings/image-toolkit'] = {
     'title' : 'Image toolkit',
     'description' : 'Choose which image toolkit to use if you have installed optional toolkits.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_image_toolkit_settings'),
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/content/rss-publishing'] = array(
+    'page arguments' : ('system_image_toolkit_settings'),
+    'access arguments' : ('administer site configuration',)
+  }
+  items['admin/content/rss-publishing'] = {
     'title' : 'RSS publishing',
     'description' : 'Configure the number of items per feed and whether feeds should be titles/teasers/full-text.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_rss_feeds_settings'),
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/settings/date-time'] = array(
+    'page arguments' : ('system_rss_feeds_settings',),
+    'access arguments' : ('administer site configuration',)
+  }
+  items['admin/settings/date-time'] = {
     'title' : 'Date and time',
     'description' : "Settings for how Drupal displays date and time, as well as the system's default timezone.",
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_date_time_settings'),
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/settings/date-time/lookup'] = array(
+    'page arguments' : ('system_date_time_settings',),
+    'access arguments' : ('administer site configuration',)
+  }
+  items['admin/settings/date-time/lookup'] = {
     'title' : 'Date and time lookup',
     'type' : MENU_CALLBACK,
     'page callback' : 'system_date_time_lookup',
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/settings/site-maintenance'] = array(
+    'access arguments' : ('administer site configuration',)
+  }
+  items['admin/settings/site-maintenance'] = {
     'title' : 'Site maintenance',
     'description' : 'Take the site off-line for maintenance or bring it back online.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_site_maintenance_settings'),
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/settings/clean-urls'] = array(
+    'page arguments' : ('system_site_maintenance_settings',),
+    'access arguments' : array('administer site configuration',)
+  }
+  items['admin/settings/clean-urls'] = {
     'title' : 'Clean URLs',
     'description' : 'Enable or disable clean URLs for your site.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('system_clean_url_settings'),
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/settings/clean-urls/check'] = array(
+    'page arguments' : ('system_clean_url_settings',),
+    'access arguments' : ('administer site configuration',)
+  }
+  items['admin/settings/clean-urls/check'] = {
     'title' : 'Clean URL check',
     'page callback' : 'drupal_json',
-    'page arguments' : array(array('status' : True)),
+    'page arguments' : ({'status' : True},),
     'access callback' : True,
-    'type' : MENU_CALLBACK,
-  )
+    'type' : MENU_CALLBACK
+  }
   # Menu handler to test that drupal_http_request() works locally.
   # @see system_check_http_request()
-  items['admin/reports/request-test'] = array(
+  items['admin/reports/request-test'] = {
     'title' : 'Request test',
     'page callback' : 'printf',
-    'page arguments' : array('request test'),
+    'page arguments' : ('request test',),
     'access callback' : True,
-    'type' : MENU_CALLBACK,
-  )
+    'type' : MENU_CALLBACK
+  }
   # Reports:
-  items['admin/reports'] = array(
+  items['admin/reports'] = {
     'title' : 'Reports',
     'description' : 'View reports from system logs and other status information.',
     'page callback' : 'system_admin_menu_block_page',
-    'access arguments' : array('access site reports'),
+    'access arguments' : ('access site reports',),
     'weight' : 5,
-    'position' : 'left',
-  )
-  items['admin/reports/status'] = array(
+    'position' : 'left'
+  }
+  items['admin/reports/status'] = {
     'title' : 'Status report',
     'description' : "Get a status report about your site's operation and any detected problems.",
     'page callback' : 'system_status',
     'weight' : 10,
-    'access arguments' : array('administer site configuration'),
-  )
-  items['admin/reports/status/run-cron'] = array(
+    'access arguments' : ('administer site configuration',)
+  }
+  items['admin/reports/status/run-cron'] = {
     'title' : 'Run cron',
     'page callback' : 'system_run_cron',
-    'access arguments' : array('administer site configuration'),
-    'type' : MENU_CALLBACK,
-  )
-  items['admin/reports/status/php'] = array(
+    'access arguments' : ('administer site configuration',),
+    'type' : MENU_CALLBACK
+  }
+  items['admin/reports/status/php'] = {
     'title' : 'PHP',
     'page callback' : 'system_php',
-    'access arguments' : array('administer site configuration'),
-    'type' : MENU_CALLBACK,
-  )
-  items['admin/reports/status/sql'] = array(
+    'access arguments' : ('administer site configuration',),
+    'type' : MENU_CALLBACK
+  }
+  items['admin/reports/status/sql'] = {
     'title' : 'SQL',
     'page callback' : 'system_sql',
-    'access arguments' : array('administer site configuration'),
-    'type' : MENU_CALLBACK,
-  )
+    'access arguments' : ('administer site configuration',),
+    'type' : MENU_CALLBACK
+  }
   # Default page for batch operations
-  items['batch'] = array(
+  items['batch'] = {
     'page callback' : 'system_batch_page',
     'access callback' : True,
-    'type' : MENU_CALLBACK,
-  )
-  return items
-}
-#
-# Retrieve a blocked IP address from the database.
-#
-# @param iid integer
-#   The ID of the blocked IP address to retrieve.
-#
-# @return
-#   The blocked IP address from the database as an array.
-#
-def blocked_ip_load(iid):
-  blocked_ip = db_fetch_array(db_query("SELECT * FROM {blocked_ips} WHERE iid = %d", iid))
-  return blocked_ip
-}
-#
-# Menu item access callback - only admin or enabled themes can be accessed.
-#
-def _system_themes_access(theme):
-  return user_access('administer site configuration') and (theme.status or theme.name == variable_get('admin_theme', '0'))
-}
-#
-# Implementation of hook_init().
-#
-def system_init():
-  # Use the administrative theme if the user is looking at a page in the admin/* path.
-  if (arg(0) == 'admin' or (variable_get('node_admin_theme', '0') and arg(0) == 'node' and (arg(1) == 'add' or arg(2) == 'edit'))):
-    global custom_theme
-    custom_theme = variable_get('admin_theme', '0')
-    drupal_add_css(drupal_get_path('module', 'system') +  '/admin.css', 'module')
+    'type' : MENU_CALLBACK
   }
+  return items
 
+
+
+def blocked_ip_load(iid):
+  """
+   Retrieve a blocked IP address from the database.
+  
+   @param iid integer
+     The ID of the blocked IP address to retrieve.
+  
+   @return
+     The blocked IP address from the database as an array.
+  """
+  blocked_ip = inc_database.db_fetch_array(inc_database.db_query("SELECT * FROM {blocked_ips} WHERE iid = %d", iid))
+  return blocked_ip
+
+
+
+def _themes_access(theme_):
+  """
+   Menu item access callback - only admin or enabled themes can be accessed.
+  """
+  return mod_user.access('administer site configuration') and (theme_.status or theme_.name == inc_bootstrap.variable_get('admin_theme', '0'))
+
+
+
+def init():
+  """
+   Implementation of hook_init().
+  """
+  global custom_theme
+  # Use the administrative theme if the user is looking at a page in the admin/* path.
+  if (inc_path.arg(0) == 'admin' or (inc_bootstrap.variable_get('node_admin_theme', '0') and inc_path.arg(0) == 'node' and (inc_path.arg(1) == 'add' or inc_path.arg(2) == 'edit'))):
+    custom_theme = inc_bootstrap.variable_get('admin_theme', '0')
+    inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') +  '/admin.css', 'module')
   # Add the CSS for this module.
-  drupal_add_css(drupal_get_path('module', 'system') +  '/defaults.css', 'module')
-  drupal_add_css(drupal_get_path('module', 'system') +  '/system.css', 'module')
-  drupal_add_css(drupal_get_path('module', 'system') +  '/system-menus.css', 'module')
+  inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') +  '/defaults.css', 'module')
+  inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') +  '/system.css', 'module')
+  inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') +  '/system-menus.css', 'module')
   # Get the major version
-  list(version,) = explode('.', VERSION)
+  version = p.explode('.', VERSION)[0]
   # Emit the META tag in the HTML HEAD section
-  theme('meta_generator_html', version)
+  inc_theme.theme('meta_generator_html', version)
   # Emit the HTTP Header too
-  theme('meta_generator_header', version)
-}
-#
-# Implementation of hook_user().
-#
-# Allows users to individually set their theme and time zone.
-#
-def system_user(type, edit, &user, category = None):
-  if (type == 'form' and category == 'account'):
-    form['theme_select'] = system_theme_select_form(t('Selecting a different theme will change the look and feel of the site.'), isset(edit['theme']) ? edit['theme'] : None, 2)
-    if (variable_get('configurable_timezones', 1)):
-      zones = _system_zonelist()
-      form['timezone'] = array(
+  inc_theme.theme('meta_generator_header', version)
+
+
+def user(type, edit, user, category = None):
+  """
+   Implementation of hook_user().
+  
+   Allows users to individually set their theme and time zone.
+  """
+  p.Reference.check(user)
+  if (type_ == 'form' and category == 'account'):
+    form['theme_select'] = theme_select_form(inc_common.t('Selecting a different theme will change the look and feel of the site.'), (edit['theme'] if p.isset(edit, 'theme') else None), 2)
+    if (inc_bootstrap.variable_get('configurable_timezones', 1)):
+      zones = _zonelist()
+      form['timezone'] = {
         '#type' : 'fieldset',
-        '#title' : t('Locale settings'),
+        '#title' : inc_common.t('Locale settings'),
         '#weight' : 6,
         '#collapsible' : True,
-      )
-      form['timezone']['timezone'] = array(
+      }
+      form['timezone']['timezone'] = {
         '#type' : 'select',
-        '#title' : t('Time zone'),
-        '#default_value' : strlen(edit['timezone']) ? edit['timezone'] : variable_get('date_default_timezone', 0),
+        '#title' : inc_common.t('Time zone'),
+        '#default_value' : (edit['timezone'] if p.strlen(edit['timezone']) else inc_common.variable_get('date_default_timezone', 0)),
         '#options' : zones,
-        '#description' : t('Select your current local time. Dates and times throughout this site will be displayed using this time zone.'),
-      )
-    }
-
+        '#description' : inc_common.t('Select your current local time. Dates and times throughout this site will be displayed using this time zone.'),
+      }
     return form
-  }
-}
-#
-# Implementation of hook_block().
-#
-# Generate a block with a promotional link to Drupal.org.
-#
-def system_block(op = 'list', delta = '', edit = None):
-  switch (op):
-    case 'list':
-      blocks['powered-by'] = array(
-        'info' : t('Powered by Drupal'),
-        'weight' : '10',
-         # Not worth caching.
-        'cache' : BLOCK_NO_CACHE,
-      )
-      return blocks
-    case 'configure':
-      # Compile a list of fields to show
-      form['wrapper']['color'] = array(
-        '#type' : 'select',
-        '#title' : t('Badge color'),
-        '#default_value' : variable_get('drupal_badge_color', 'powered-blue'),
-        '#options' : array('powered-black' : t('Black'), 'powered-blue' : t('Blue'), 'powered-gray' : t('Gray')),
-      )
-      form['wrapper']['size'] = array(
-        '#type' : 'select',
-        '#title' : t('Badge size'),
-        '#default_value' : variable_get('drupal_badge_size', '80x15'),
-        '#options' : array('80x15' : t('Small'), '88x31' : t('Medium'), '135x42' : t('Large')),
-      )
-      return form
-    case 'save':
-      variable_set('drupal_badge_color', edit['color'])
-      variable_set('drupal_badge_size', edit['size'])
-      break
-    case 'view':
-      image_path = 'misc/' +  variable_get('drupal_badge_color', 'powered-blue')  + '-' . variable_get('drupal_badge_size', '80x15') . '.png'
-      block['subject'] = None; // Don't display a title
-      block['content'] = theme('system_powered_by', image_path)
-      return block
-  }
-}
-#
-# Provide a single block on the administration overview page.
-#
-# @param item
-#   The menu item to be displayed.
-#
-def system_admin_menu_block(item):
-  content = array()
-  if (not isset(item['mlid'])):
-    item += db_fetch_array(db_query("SELECT mlid, menu_name FROM {menu_links} ml WHERE ml.router_path = '%s' AND module = 'system'", item['path']))
-  }
-  result = db_query("
-    SELECT m.load_functions, m.to_arg_functions, m.access_callback, m.access_arguments, m.page_callback, m.page_arguments, m.title, m.title_callback, m.title_arguments, m.type, m.description, ml.*
-    FROM {menu_links} ml
-    LEFT JOIN {menu_router} m ON ml.router_path = m.path
-    WHERE ml.plid = %d AND ml.menu_name = '%s' AND hidden = 0", item['mlid'], item['menu_name'])
-  while (item = db_fetch_array(result)):
-    _menu_link_translate(item)
-    if (not item['access']):
-      continue
+
+
+def block(op = 'list', delta = '', edit = None):
+  """
+   Implementation of hook_block().
+  
+   Generate a block with a promotional link to Drupal.org.
+  """
+  if op == 'list':
+    blocks['powered-by'] = {
+      'info' : inc_common.t('Powered by Drupal'),
+      'weight' : '10',
+       # Not worth caching.
+      'cache' : BLOCK_NO_CACHE
     }
-    # The link 'description' either derived from the hook_menu 'description' or
-    # entered by the user via menu module is saved as the title attribute.
-    if (not empty(item['localized_options']['attributes']['title'])):
-      item['description'] = item['localized_options']['attributes']['title']
-    }
-    # Prepare for sorting as in function _menu_tree_check_access().
-    # The weight is offset so it is always positive, with a uniform 5-digits.
-    content[(50000 + item['weight']) +  ' '  + item['title'] . ' ' . item['mlid']] = item
-  }
-  ksort(content)
-  return content
-}
-#
-# Process admin theme form submissions.
-#
-def system_admin_theme_submit(form, &form_state):
-  # If we're changing themes, make sure the theme has its blocks initialized.
-  if (form_state['values']['admin_theme'] and form_state['values']['admin_theme'] != variable_get('admin_theme', '0')):
-    result = db_result(db_query("SELECT COUNT(*) FROM {blocks} WHERE theme = '%s'", form_state['values']['admin_theme']))
-    if (not result):
-      system_initialize_theme_blocks(form_state['values']['admin_theme'])
-    }
-  }
-}
-#
-# Returns a fieldset containing the theme select form.
-#
-# @param description
-#    description of the fieldset
-# @param default_value
-#    default value of theme radios
-# @param weight
-#    weight of the fieldset
-# @return
-#    a form array
-#
-def system_theme_select_form(description = '', default_value = '', weight = 0):
-  if (user_access('select different theme')):
-    enabled = array()
-    themes = list_themes()
-    for theme in themes:
-      if (theme.status):
-        enabled[] = theme
+    return blocks
+  elif op == 'configure':
+    # Compile a list of fields to show
+    form['wrapper']['color'] = {
+      '#type' : 'select',
+      '#title' : inc_common.t('Badge color'),
+      '#default_value' : inc_bootstrap.variable_get('drupal_badge_color', 'powered-blue'),
+      '#options' : {
+        'powered-black' : inc_common.t('Black'),
+        'powered-blue' : inc_common.t('Blue'),
+        'powered-gray' : inc_common.t('Gray')
       }
     }
+    form['wrapper']['size'] = {
+      '#type' : 'select',
+      '#title' : t('Badge size'),
+      '#default_value' : inc_bootstrap.variable_get('drupal_badge_size', '80x15'),
+      '#options' : {
+        '80x15' : inc_common.t('Small'),
+        '88x31' : inc_common.t('Medium'),
+        '135x42' : inc_common.t('Large')
+      }
+    }
+    return form
+  elif op == 'save':
+    inc_bootstrap.variable_set('drupal_badge_color', edit['color'])
+    inc_bootstrap.variable_set('drupal_badge_size', edit['size'])
+  elif op == 'view':
+    image_path = 'misc/' + inc_bootstrap.variable_get('drupal_badge_color', 'powered-blue')  + '-' + inc_bootstrap.variable_get('drupal_badge_size', '80x15') + '.png'
+    block['subject'] = None # Don't display a title
+    block['content'] = inc_theme.theme('system_powered_by', image_path)
 
-    if (count(enabled) > 1):
-      ksort(enabled)
-      form['themes'] = array(
+
+
+def admin_menu_block(item):
+  """
+   Provide a single block on the administration overview page.
+  
+   @param item
+     The menu item to be displayed.
+  """
+  content = []
+  if (not p.isset(item['mlid'])):
+    item += inc_database.db_fetch_array(inc_database.db_query("SELECT mlid, menu_name FROM {menu_links} ml WHERE ml.router_path = '%s' AND module = 'system'", item['path']))
+  result = inc_database.db_query(
+    "SELECT m.load_functions, m.to_arg_functions, m.access_callback, " + \
+    "m.access_arguments, m.page_callback, m.page_arguments, m.title, " + \
+    "m.title_callback, m.title_arguments, m.type, m.description, ml.* " + \
+    "FROM {menu_links} ml " +
+    "LEFT JOIN {menu_router} m ON ml.router_path = m.path " + \
+    "WHERE ml.plid = %d AND ml.menu_name = '%s' AND hidden = 0", \
+    item['mlid'], item['menu_name'])
+  while True:
+    item = inc_database.db_fetch_array(result)
+    if not item:
+      break
+    inc_menu._menu_link_translate(item)
+    if (not item['access']):
+      continue
+    # The link 'description' either derived from the hook_menu 'description' or
+    # entered by the user via menu module is saved as the title attribute.
+    if (not p.empty(item['localized_options']['attributes']['title'])):
+      item['description'] = item['localized_options']['attributes']['title']
+    # Prepare for sorting as in function _menu_tree_check_access().
+    # The weight is offset so it is always positive, with a uniform 5-digits.
+    content[(50000 + item['weight']) +  ' '  + item['title'] + ' ' + item['mlid']] = item
+  p.ksort(content)
+  return content
+
+
+def admin_theme_submit(form, form_state):
+  """
+   Process admin theme form submissions.
+  """
+  p.Reference.check(form_state)
+  # If we're changing themes, make sure the theme has its blocks initialized.
+  if (form_state.val['values']['admin_theme'] and \
+      form_state.val['values']['admin_theme'] != inc_bootstrap.variable_get('admin_theme', '0')):
+    result = inc_database.db_result(inc_database.db_query("SELECT COUNT(*) FROM {blocks} WHERE theme = '%s'", \
+      form_state.val['values']['admin_theme']))
+    if (not result):
+      initialize_theme_blocks(form_state.val['values']['admin_theme'])
+
+
+def theme_select_form(description = '', default_value = '', weight = 0):
+  """
+   Returns a fieldset containing the theme select form.
+  
+   @param description
+      description of the fieldset
+   @param default_value
+      default value of theme radios
+   @param weight
+      weight of the fieldset
+   @return
+      a form array
+  """
+  if (mod_user.access('select different theme')):
+    enabled = []
+    themes = list_themes()
+    for theme_ in themes:
+      if (theme_.status):
+        enabled.append( theme_ )
+    if (p.count(enabled) > 1):
+      p.ksort(enabled)
+      form['themes'] = {
         '#type' : 'fieldset',
-        '#title' : t('Theme configuration'),
+        '#title' : inc_common.t('Theme configuration'),
         '#description' : description,
         '#collapsible' : True,
         '#theme' : 'system_theme_select_form'
-      )
+      }
       for info in enabled:
         # For the default theme, revert to an empty string so the user's theme updates when the site theme is changed.
-        info.key = info.name == variable_get('theme_default', 'garland') ? '' : info.name
+        info.key = (info.name == ('' if inc_bootstrap.variable_get('theme_default', 'garland') else info.name))
         screenshot = None
         theme_key = info.name
-        while (theme_key):
-          if (file_exists(themes[theme_key].info['screenshot'])):
+        while theme_key:
+          if (p.file_exists(themes[theme_key].info['screenshot'])):
             screenshot = themes[theme_key].info['screenshot']
             break
-          }
-          theme_key = isset(themes[theme_key].info['base theme']) ? themes[theme_key].info['base theme'] : None
+          theme_key = (themes[theme_key].info['base theme'] if p.isset(themes[theme_key].info['base theme']) else None)
+        screenshot = (screenshot if inc_theme.theme('image', screenshot, inc_common.t('Screenshot for %theme theme', {'%theme' : info.name}), '', {'class' : 'screenshot'}, False) else inc_common.t('no screenshot'))
+        form['themes'][info.key]['screenshot'] = {'#value' : screenshot}
+        form['themes'][info.key]['description'] =  \
+        {
+          '#type' : 'item',
+          '#title' : info.name,
+          '#value' :
+            p.dirname(info.filename) + (
+              '<br /> <em>' + inc_common.t('(site default theme)') + '</em>' if \
+              info.name == inc_bootstrap.variable_get('theme_default', 'garland') else \
+              ''
+            )
         }
-
-        screenshot = screenshot ? theme('image', screenshot, t('Screenshot for %theme theme', array('%theme' : info.name)), '', array('class' : 'screenshot'), False) : t('no screenshot')
-        form['themes'][info.key]['screenshot'] = array('#value' : screenshot)
-        form['themes'][info.key]['description'] = array('#type' : 'item', '#title' : info.name, '#value' : dirname(info.filename) . (info.name == variable_get('theme_default', 'garland') ? '<br /> <em>' . t('(site default theme)') . '</em>' : ''))
         options[info.key] = ''
-      }
-
-      form['themes']['theme'] = array('#type' : 'radios', '#options' : options, '#default_value' : default_value ? default_value : '')
+      form['themes']['theme'] = {'#type' : 'radios', '#options' : options, '#default_value' : (default_value if default_value else '')}
       form['#weight'] = weight
       return form
-    }
-  }
-}
-#
-# Checks the existence of the directory specified in form_element. This
-# function is called from the system_settings form to check both the
-# file_directory_path and file_directory_temp directories. If validation
-# fails, the form element is flagged with an error from within the
-# file_check_directory function.
-#
-# @param form_element
-#   The form element containing the name of the directory to check.
-#
-def system_check_directory(form_element):
+
+
+
+def check_directory(form_element):
+  """
+   Checks the existence of the directory specified in form_element. This
+   function is called from the system_settings form to check both the
+   file_directory_path and file_directory_temp directories. If validation
+   fails, the form element is flagged with an error from within the
+   file_check_directory function.
+  
+   @param form_element
+     The form element containing the name of the directory to check.
+  """
   file_check_directory(form_element['#value'], FILE_CREATE_DIRECTORY, form_element['#parents'][0])
   return form_element
-}
-#
-# Retrieves the current status of an array of files in the system table.
-#
-# @param files
-#   An array of files to check.
-# @param type
-#   The type of the files.
-#
-def system_get_files_database(&files, type):
+
+
+
+def get_files_database(files, type):
+  """
+   Retrieves the current status of an array of files in the system table.
+  
+   @param files
+     An array of files to check.
+   @param type
+     The type of the files.
+  """
+  p.Reference.check(files)
   # Extract current files from database.
-  result = db_query("SELECT filename, name, type, status, schema_version FROM {system} WHERE type = '%s'", type)
-  while (file = db_fetch_object(result)):
-    if (isset(files[file.name]) and is_object(files[file.name])):
+  result = inc_database.db_query("SELECT filename, name, type, status, schema_version FROM {system} WHERE type = '%s'", type_)
+  while True:
+    file = inc_database.db_fetch_object(result)
+    if not file:
+      break
+    if (p.isset(files.val[file.name]) and p.is_object(files.val[file.name])):
       file.old_filename = file.filename
       for key,value in file.items():
-        if (not isset(files[file.name]) or not isset(files[file.name].$key)):
-          files[file.name].$key = value
-        }
-      }
-    }
-  }
-}
+        if (not p.isset(files.val[file.name]) or not p.isset(files[file.name], key)):
+          setattr(files.val[file.name], key, value)
+
+
+
 #
 # Prepare defaults for themes.
 #
@@ -1307,7 +1328,7 @@ def system_admin_compact_page(mode = 'off'):
 #
 def system_get_module_admin_tasks(module):
   static items
-  admin_access = user_access('administer permissions')
+  admin_access = mod_user.access('administer permissions')
   admin_tasks = array()
   if (not isset(items)):
     result = db_query("
