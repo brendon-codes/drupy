@@ -36,6 +36,12 @@
     USA
 """
 
+from lib.drupy import DrupyPHP as p
+from includes import database as inc_database
+from includes import bootstrap as inc_bootstrap
+from includes import common as inc_common
+from plugins import user as mod_user
+
 #
 #
 # The current system version.
@@ -934,23 +940,23 @@ def get_files_database(files, type):
 
 
 
-#
-# Prepare defaults for themes.
-#
-# @return
-#   An array of default themes settings.
-#
-def system_theme_default():
-  return array(
-    'regions' : array(
+def theme_default():
+  """
+   Prepare defaults for themes.
+  
+   @return
+     An array of default themes settings.
+  """
+  return {
+    'regions' : {
       'left' : 'Left sidebar',
       'right' : 'Right sidebar',
       'content' : 'Content',
       'header' : 'Header',
-      'footer' : 'Footer',
-    ),
+      'footer' : 'Footer'
+    },
     'description' : '',
-    'features' : array(
+    'features' : (
       'comment_user_picture',
       'favicon',
       'mission',
@@ -960,292 +966,280 @@ def system_theme_default():
       'search',
       'slogan',
       'main_menu',
-      'secondary_menu',
+      'secondary_menu'
     ),
-    'stylesheets' : array(
-      'all' : array('style.css')
-    ),
-    'scripts' : array('script.js'),
+    'stylesheets' : {
+      'all' : ('style.css',)
+    },
+    'scripts' : ('script.js',),
     'screenshot' : 'screenshot.png',
-    'php' : DRUPAL_MINIMUM_PHP,
-  )
-}
-#
-# Collect data about all currently available themes.
-#
-# @return
-#   Array of all available themes and their data.
-#
-def system_theme_data():
-  # Scan the installation theme .info files and their engines.
-  themes = _system_theme_data()
-  # Extract current files from database.
-  system_get_files_database(themes, 'theme')
-  db_query("DELETE FROM {system} WHERE type = 'theme'")
-  for theme in themes:
-    if (not isset(theme.owner)):
-      theme.owner = ''
-    }
-
-    db_query("INSERT INTO {system} (name, owner, info, type, filename, status, bootstrap) VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d)", theme.name, theme.owner, serialize(theme.info), 'theme', theme.filename, isset(theme.status) ? theme.status : 0, 0)
+    'python' : DRUPAL_MINIMUM_PYTHON
   }
 
+
+
+def theme_data():
+  """
+   Collect data about all currently available themes.
+  
+   @return
+     Array of all available themes and their data.
+  """
+  # Scan the installation theme .info files and their engines.
+  themes = _theme_data()
+  # Extract current files from database.
+  get_files_database(themes, 'theme')
+  inc_database.db_query("DELETE FROM {system} WHERE type = 'theme'")
+  for theme_ in themes:
+    if (not isset(theme_, 'owner')):
+      theme_.owner = ''
+    inc_database.db_query(\
+      "INSERT INTO {system} (name, owner, info, type, filename, " + \
+      "status, bootstrap) VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d)", \
+      theme.name, theme.owner, serialize(theme.info), 'theme', \
+      theme.filename, (theme.status if isset(theme, 'status') else 0), 0)
   return themes
-}
-#
-# Helper function to scan and collect theme .info data and their engines.
-#
-# @return
-#   An associative array of themes information.
-#
-def _system_theme_data():
-  static themes_info = array()
-  if (empty(theme_info)):
+
+
+
+def _theme_data():
+  """
+   Helper function to scan and collect theme .info data and their engines.
+  
+   @return
+     An associative array of themes information.
+  """
+  p.static(_theme_data, 'theme_info', {})
+  if (p.empty(_theme_data.theme_info)):
     # Find themes
-    themes = drupal_system_listing('\.info$', 'themes')
+    themes = inc_common.drupal_system_listing('\.info$', 'themes')
     # Find theme engines
-    engines = drupal_system_listing('\.engine$', 'themes/engines')
-    defaults = system_theme_default()
-    sub_themes = array()
+    engines = inc_common.drupal_system_listing('\.engine$', 'themes/engines')
+    defaults = theme_default()
+    sub_themes = {}
     # Read info files for each theme
     for key,theme in themes.items():
       themes[key].info = drupal_parse_info_file(theme.filename) + defaults
       # Invoke hook_system_info_alter() to give installed modules a chance to
       # modify the data in the .info files if necessary.
-      drupal_alter('system_info', themes[key].info, themes[key])
+      inc_common.drupal_alter('system_info', themes[key].info, themes[key])
       if (not empty(themes[key].info['base theme'])):
-        sub_themes[] = key
-      }
-      if (empty(themes[key].info['engine'])):
-        filename = dirname(themes[key].filename) +  '/'  + themes[key].name . '.theme'
-        if (file_exists(filename)):
+        sub_themes.append( key )
+      if (p.empty(themes[key].info['engine'])):
+        filename = p.dirname(themes[key].filename) +  '/'  + themes[key].name + '.theme'
+        if (p.file_exists(filename)):
           themes[key].owner = filename
           themes[key].prefix = key
-        }
-      }
       else:
         engine = themes[key].info['engine']
-        if (isset(engines[engine])):
+        if (p.isset(engines, engine)):
           themes[key].owner = engines[engine].filename
           themes[key].prefix = engines[engine].name
           themes[key].template = True
-        }
-      }
-
       # Give the stylesheets proper path information.
-      pathed_stylesheets = array()
-      foreach (themes[key].info['stylesheets'] as media : stylesheets):
+      pathed_stylesheets = {}
+      for media, stylesheets in  themes[key].info['stylesheets'].items():
         for stylesheet in stylesheets:
-          pathed_stylesheets[media][stylesheet] = dirname(themes[key].filename) +  '/'  + stylesheet
-        }
-      }
+          pathed_stylesheets[media][stylesheet] = p.dirname(themes[key].filename) +  '/'  + stylesheet
       themes[key].info['stylesheets'] = pathed_stylesheets
       # Give the scripts proper path information.
-      scripts = array()
-      foreach (themes[key].info['scripts'] as script):
-        scripts[script] = dirname(themes[key].filename) +  '/'  + script
-      }
+      scripts = {}
+      for script in themes[key].info['scripts']:
+        scripts[script] = p.dirname(themes[key].filename) +  '/'  + script
       themes[key].info['scripts'] = scripts
       # Give the screenshot proper path information.
       if (not empty(themes[key].info['screenshot'])):
-        themes[key].info['screenshot'] = dirname(themes[key].filename) +  '/'  + themes[key].info['screenshot']
-      }
-    }
-
+        themes[key].info['screenshot'] = p.dirname(themes[key].filename) +  '/'  + themes[key].info['screenshot']
     # Now that we've established all our master themes, go back and fill in
     # data for subthemes.
     for key in sub_themes:
-      base_key = system_find_base_theme(themes, key)
+      base_key = find_base_theme(themes, key)
       if (not base_key):
         continue
-      }
       # Copy the 'owner' and 'engine' over if the top level theme uses a
       # theme engine.
-      if (isset(themes[base_key].owner)):
-        if (isset(themes[base_key].info['engine'])):
+      if (isset(themes[base_key], 'owner')):
+        if (isset(themes[base_key].info, 'engine')):
           themes[key].info['engine'] = themes[base_key].info['engine']
           themes[key].owner = themes[base_key].owner
           themes[key].prefix = themes[base_key].prefix
-        }
         else:
           themes[key].prefix = key
-        }
-      }
-    }
-
     themes_info = themes
-  }
-
   return themes_info
-}
-#
-# Recursive function to find the top level base theme. Themes can inherit
-# templates and function implementations from earlier themes.
-#
-# @param themes
-#   An array of available themes.
-# @param key
-#   The name of the theme whose base we are looking for.
-# @param used_keys
-#   A recursion parameter preventing endless loops.
-# @return
-#   Returns the top level parent that has no ancestor or returns None if there isn't a valid parent.
-#
+
+
+
+
 def system_find_base_theme(themes, key, used_keys = array()):
+  """
+   Recursive function to find the top level base theme. Themes can inherit
+   templates and function implementations from earlier themes.
+  
+   @param themes
+     An array of available themes.
+   @param key
+     The name of the theme whose base we are looking for.
+   @param used_keys
+     A recursion parameter preventing endless loops.
+   @return
+     Returns the top level parent that has no ancestor or returns None if there isn't a valid parent.
+  """
   base_key = themes[key].info['base theme']
   # Does the base theme exist?
-  if (not isset(themes[base_key])):
+  if (not p.isset(themes, base_key)):
     return None
-  }
-
   # Is the base theme itself a child of another theme?
-  if (isset(themes[base_key].info['base theme'])):
+  if (p.isset(themes[base_key].info, 'base theme')):
     # Prevent loops.
-    if (not empty(used_keys[base_key])):
+    if (not p.empty(used_keys[base_key])):
       return None
-    }
     used_keys[base_key] = True
-    return system_find_base_theme(themes, base_key, used_keys)
-  }
+    return find_base_theme(themes, base_key, used_keys)
   # If we get here, then this is our parent theme.
   return base_key
-}
-#
-# Get a list of available regions from a specified theme.
-#
-# @param theme_key
-#   The name of a theme.
-# @return
-#   An array of regions in the form region['name'] = 'description'.
-#
-def system_region_list(theme_key):
-  static list = array()
-  if (not array_key_exists(theme_key, list)):
-    info = unserialize(db_result(db_query("SELECT info FROM {system} WHERE type = 'theme' AND name = '%s'", theme_key)))
-    list[theme_key] = array_map('t', info['regions'])
-  }
 
-  return list[theme_key]
-}
-#
-# Get the name of the default region for a given theme.
-#
-# @param theme
-#   The name of a theme.
-# @return
-#   A string that is the region name.
-#
-def system_default_region(theme):
-  regions = array_keys(system_region_list(theme))
-  return isset(regions[0]) ? regions[0] : ''
-}
-#
-# Assign an initial, default set of blocks for a theme.
-#
-# This function is called the first time a new theme is enabled. The new theme
-# gets a copy of the default theme's blocks, with the difference that if a
-# particular region isn't available in the new theme, the block is assigned
-# to the new theme's default region.
-#
-# @param theme
-#   The name of a theme.
-#
-def system_initialize_theme_blocks(theme):
+
+
+def region_list(theme_key):
+  """
+   Get a list of available regions from a specified theme.
+  
+   @param theme_key
+     The name of a theme.
+   @return
+     An array of regions in the form region['name'] = 'description'.
+  """
+  p.static(region_list, 'list_', {})
+  if (not array_key_exists(theme_key, region_list.list_)):
+    info = p.unserialize(inc_database.db_result(inc_database.db_query("SELECT info FROM {system} WHERE type = 'theme' AND name = '%s'", theme_key)))
+    region_list.list_[theme_key] = p.array_map('t', info['regions'])
+  return region_list.list_[theme_key]
+
+
+
+def default_region(theme_):
+  """
+   Get the name of the default region for a given theme.
+  
+   @param theme
+     The name of a theme.
+   @return
+     A string that is the region name.
+  """
+  regions = p.array_keys(region_list(theme_))
+  return (regions[0] if p.isset(regions[0]) else '')
+
+
+
+def initialize_theme_blocks(theme_):
+  """
+   Assign an initial, default set of blocks for a theme.
+  
+   This function is called the first time a new theme is enabled. The new theme
+   gets a copy of the default theme's blocks, with the difference that if a
+   particular region isn't available in the new theme, the block is assigned
+   to the new theme's default region.
+  
+   @param theme
+     The name of a theme.
+  """
   # Initialize theme's blocks if none already registered.
   if (not (db_result(db_query("SELECT COUNT(*) FROM {blocks} WHERE theme = '%s'", theme)))):
     default_theme = variable_get('theme_default', 'garland')
     regions = system_region_list(theme)
     result = db_query("SELECT * FROM {blocks} WHERE theme = '%s'", default_theme)
-    while (block = db_fetch_array(result)):
+    while True:
+      block = inc_database.db_fetch_array(result)
+      if not block:
+        break
       # If the region isn't supported by the theme, assign the block to the theme's default region.
-      if (not array_key_exists(block['region'], regions)):
-        block['region'] = system_default_region(theme)
-      }
-      db_query("INSERT INTO {blocks} (module, delta, theme, status, weight, region, visibility, pages, custom, cache) VALUES ('%s', '%s', '%s', %d, %d, '%s', %d, '%s', %d, %d)",
+      if (not p.array_key_exists(block['region'], regions)):
+        block['region'] = default_region(theme_)
+      inc_database.db_query("INSERT INTO {blocks} (module, delta, theme, status, weight, region, visibility, pages, custom, cache) VALUES ('%s', '%s', '%s', %d, %d, '%s', %d, '%s', %d, %d)",
           block['module'], block['delta'], theme, block['status'], block['weight'], block['region'], block['visibility'], block['pages'], block['custom'], block['cache'])
-    }
-  }
-}
-#
-# Add default buttons to a form and set its prefix.
-#
-# @ingroup forms
-# @see system_settings_form_submit()
-# @param form
-#   An associative array containing the structure of the form.
-# @return
-#   The form structure.
-#
-def system_settings_form(form):
-  form['buttons']['submit'] = array('#type' : 'submit', '#value' : t('Save configuration') )
-  form['buttons']['reset'] = array('#type' : 'submit', '#value' : t('Reset to defaults') )
-  if (not empty(_POST) and form_get_errors()):
-    drupal_set_message(t('The settings have not been saved because of the errors.'), 'error')
-  }
-  form['#submit'][] = 'system_settings_form_submit'
+
+
+
+
+def settings_form(form):
+  """
+   Add default buttons to a form and set its prefix.
+  
+   @ingroup forms
+   @see system_settings_form_submit()
+   @param form
+     An associative array containing the structure of the form.
+   @return
+     The form structure.
+  """
+  form['buttons']['submit'] = {'#type' : 'submit', '#value' : inc_common.t('Save configuration') }
+  form['buttons']['reset'] = {'#type' : 'submit', '#value' : inc_common.t('Reset to defaults') }
+  if (not empty(p.POST) and inc_form.form_get_errors()):
+    inc_common.drupal_set_message(inc_common.t('The settings have not been saved because of the errors.'), 'error')
+  form['#submit'].append( 'system_settings_form_submit' )
   form['#theme'] = 'system_settings_form'
   return form
-}
-#
-# Execute the system_settings_form.
-#
-# If you want node type configure style handling of your checkboxes,
-# add an array_filter value to your form.
-#
-def system_settings_form_submit(form, &form_state):
-  op = isset(form_state['values']['op']) ? form_state['values']['op'] : ''
-  # Exclude unnecessary elements.
-  unset(form_state['values']['submit'], form_state['values']['reset'], form_state['values']['form_id'], form_state['values']['op'], form_state['values']['form_token'], form_state['values']['form_build_id'])
-  foreach (form_state['values'] as key : value):
-    if (op == t('Reset to defaults')):
-      variable_del(key)
-    }
-    else:
-      if (is_array(value) and isset(form_state['values']['array_filter'])):
-        value = array_keys(array_filter(value))
-      }
-      variable_set(key, value)
-    }
-  }
-  if (op == t('Reset to defaults')):
-    drupal_set_message(t('The configuration options have been reset to their default values.'))
-  }
-  else:
-    drupal_set_message(t('The configuration options have been saved.'))
-  }
 
-  cache_clear_all()
-  drupal_rebuild_theme_registry()
-}
-#
-# Helper function to sort requirements.
-#
-def _system_sort_requirements(a, b):
-  if (not isset(a['weight'])):
-    if (not isset(b['weight'])):
-      return strcmp(a['title'], b['title'])
-    }
+
+
+def settings_form_submit(form, form_state):
+  """
+   Execute the system_settings_form.
+  
+   If you want node type configure style handling of your checkboxes,
+   add an array_filter value to your form.
+  """
+  p.Reference.check(form_state)
+  op = (form_state['values']['op'] if p.isset(form_state.val['values']['op']) else '')
+  # Exclude unnecessary elements.
+  del(form_state.val['values']['submit'], form_state.val['values']['reset'], form_state.val['values']['form_id'], form_state.val['values']['op'], form_state.val['values']['form_token'], form_state.val['values']['form_build_id'])
+  for key,value in form_state['values'].items():
+    if (op == inc_common.t('Reset to defaults')):
+      inc_bootstrap.variable_del(key)
+    else:
+      if (p.is_array(value) and p.isset(form_state.val['values']['array_filter'])):
+        value = p.array_keys(p.array_filter(value))
+      inc_bootstrap.variable_set(key, value)
+  if (op == t('Reset to defaults')):
+    inc_common.drupal_set_message(t('The configuration options have been reset to their default values.'))
+  else:
+    inc_common.drupal_set_message(t('The configuration options have been saved.'))
+  inc_cache.cache_clear_all()
+  inc_theme.drupal_rebuild_theme_registry()
+
+
+
+
+def _sort_requirements(a, b):
+  """
+   Helper function to sort requirements.
+  """
+  if (not p.isset(a, 'weight')):
+    if (not p.isset(b, 'weight')):
+      return p.strcmp(a['title'], b['title'])
     return -b['weight']
-  }
-  return isset(b['weight']) ? a['weight'] - b['weight'] : a['weight']
-}
-#
-# Implementation of hook_node_type().
-#
-# Updates theme settings after a node type change.
-#
-def system_node_type(op, info):
-  if (op == 'update' and not empty(info.old_type) and info.type != info.old_type):
+  return ((a['weight'] - b['weight']) if p.isset(b['weight']) else a['weight'])
+
+
+
+def node_type(op, info):
+  """
+   Implementation of hook_node_type().
+  
+   Updates theme settings after a node type change.
+  """
+  if (op == 'update' and not p.empty(info.old_type) and info.type != info.old_type):
     old = 'toggle_node_info_' +  info.old_type
     new = 'toggle_node_info_' +  info.type
-    theme_settings = variable_get('theme_settings', array())
-    if (isset(theme_settings[old])):
+    theme_settings = inc_bootstrap.variable_get('theme_settings', {})
+    if (p.isset(theme_settings, old)):
       theme_settings[new] = theme_settings[old]
-      unset(theme_settings[old])
-      variable_set('theme_settings', theme_settings)
-    }
-  }
-}
+      del(theme_settings[old])
+      inc_bootstrap.variable_set('theme_settings', theme_settings)
+
+
+
 #
 # Output a confirmation form
 #
