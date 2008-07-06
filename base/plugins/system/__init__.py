@@ -40,6 +40,10 @@ from lib.drupy import DrupyPHP as p
 from includes import database as inc_database
 from includes import bootstrap as inc_bootstrap
 from includes import common as inc_common
+from includes import menu as inc_menu
+from includes import tablesort as inc_tablesort
+from includes import form as inc_form
+from includes import theme as inc_theme
 from plugins import user as mod_user
 
 #
@@ -1240,255 +1244,290 @@ def node_type(op, info):
 
 
 
-#
-# Output a confirmation form
-#
-# This function returns a complete form for confirming an action. A link is
-# offered to go back to the item that is being changed in case the user changes
-# his/her mind.
-#
-# If the submit handler for this form is invoked, the user successfully
-# confirmed the action. You should never directly inspect _POST to see if an
-# action was confirmed.
-#
-# @ingroup forms
-# @param form
-#   Additional elements to inject into the form, for example hidden elements.
-# @param question
-#   The question to ask the user (e.g. "Are you sure you want to delete the
-#   block <em>foo</em>?").
-# @param path
-#   The page to go to if the user denies the action.
-#   Can be either a drupal path, or an array with the keys 'path', 'query', 'fragment'.
-# @param description
-#   Additional text to display (defaults to "This action cannot be undone.").
-# @param yes
-#   A caption for the button which confirms the action (e.g. "Delete",
-#   "Replace", ...).
-# @param no
-#   A caption for the link which denies the action (e.g. "Cancel").
-# @param name
-#   The internal name used to refer to the confirmation item.
-# @return
-#   The form.
-#
-def confirm_form(form, question, path, description = None, yes = None, no = None, name = 'confirm'):
-  description = isset(description) ? description : t('This action cannot be undone.')
+def confirm_form(form, question, path_, description = None, yes = None, no = None, name = 'confirm'):
+  """
+   Output a confirmation form
+  
+   This function returns a complete form for confirming an action. A link is
+   offered to go back to the item that is being changed in case the user changes
+   his/her mind.
+  
+   If the submit handler for this form is invoked, the user successfully
+   confirmed the action. You should never directly inspect _POST to see if an
+   action was confirmed.
+  
+   @ingroup forms
+   @param form
+     Additional elements to inject into the form, for example hidden elements.
+   @param question
+     The question to ask the user (e.g. "Are you sure you want to delete the
+     block <em>foo</em>?").
+   @param path
+     The page to go to if the user denies the action.
+     Can be either a drupal path, or an array with the keys 'path', 'query', 'fragment'.
+   @param description
+     Additional text to display (defaults to "This action cannot be undone.").
+   @param yes
+     A caption for the button which confirms the action (e.g. "Delete",
+     "Replace", ...).
+   @param no
+     A caption for the link which denies the action (e.g. "Cancel").
+   @param name
+     The internal name used to refer to the confirmation item.
+   @return
+     The form.
+  """
+  description = (description if description is not None else inc_common.t('This action cannot be undone.'))
   # Prepare cancel link
   query = fragment = None
-  if (is_array(path)):
-    query = isset(path['query']) ? path['query'] : None
-    fragment = isset(path['fragment']) ? path['fragment'] : None
-    path = isset(path['path']) ? path['path'] : None
-  }
-  cancel = l(no ? no : t('Cancel'), path, array('query' : query, 'fragment' : fragment))
-  drupal_set_title(question)
+  if (p.is_array(path_)):
+    query = (path_['query'] if p.isset(path_, 'query') else None)
+    fragment = (path_['fragment'] if p.isset(path_['fragment']) else None)
+    path = (path_['path'] if p.isset(path_, 'path') else None)
+  cancel = inc_common.l((no if no else inc_common.t('Cancel')), path_, {'query' : query, 'fragment' : fragment})
+  inc_path.drupal_set_title(question)
   # Confirm form fails duplication check, as the form values rarely change -- so skip it.
   form['#skip_duplicate_check'] = True
-  form['#attributes'] = array('class' : 'confirmation')
-  form['description'] = array('#value' : description)
-  form[name] = array('#type' : 'hidden', '#value' : 1)
-  form['actions'] = array('#prefix' : '<div class="container-inline">', '#suffix' : '</div>')
-  form['actions']['submit'] = array('#type' : 'submit', '#value' : yes ? yes : t('Confirm'))
-  form['actions']['cancel'] = array('#value' : cancel)
+  form['#attributes'] = {'class' : 'confirmation'}
+  form['description'] = {'#value' : description}
+  form[name] = {'#type' : 'hidden', '#value' : 1}
+  form['actions'] = {'#prefix' : '<div class="container-inline">', '#suffix' : '</div>'}
+  form['actions']['submit'] = {'#type' : 'submit', '#value' : (yes if yes else inc_common.t('Confirm'))}
+  form['actions']['cancel'] = {'#value' : cancel}
   form['#theme'] = 'confirm_form'
   return form
-}
-#
-# Determine if a user is in compact mode.
-#
-def system_admin_compact_mode():
-  global user
-  return (isset(user.admin_compact_mode)) ? user.admin_compact_mode : variable_get('admin_compact_mode', False)
-}
-#
-# Menu callback; Sets whether the admin menu is in compact mode or not.
-#
-# @param mode
-#   Valid values are 'on' and 'off'.
-#
-def system_admin_compact_page(mode = 'off'):
-  global user
-  user_save(user, array('admin_compact_mode' : (mode == 'on')))
-  drupal_goto(drupal_get_destination())
-}
-#
-# Generate a list of tasks offered by a specified module.
-#
-# @param module
-#   Module name.
-# @return
-#   An array of task links.
-#
-def system_get_module_admin_tasks(module):
-  static items
+
+
+
+
+def admin_compact_mode():
+  """
+   Determine if a user is in compact mode.
+  """
+  return (inc_bootstrap.user.admin_compact_mode if \
+    p.isset(inc_bootstrap.user, 'admin_compact_mode') else \
+    variable_get('admin_compact_mode', False))
+
+
+
+def admin_compact_page(mode = 'off'):
+  """
+   Menu callback; Sets whether the admin menu is in compact mode or not.
+  
+   @param mode
+     Valid values are 'on' and 'off'.
+  """
+  mod_user.save(inc_bootstrap.user, {'admin_compact_mode' : (mode == 'on')})
+  inc_common.drupal_goto(inc_common.drupal_get_destination())
+
+
+
+def get_module_admin_tasks(plugin):
+  """
+   Generate a list of tasks offered by a specified module.
+  
+   @param module
+     Module name.
+   @return
+     An array of task links.
+  """
+  p.static(get_module_admin_tasks, 'items', None)
   admin_access = mod_user.access('administer permissions')
-  admin_tasks = array()
-  if (not isset(items)):
-    result = db_query("
-       SELECT m.load_functions, m.to_arg_functions, m.access_callback, m.access_arguments, m.page_callback, m.page_arguments, m.title, m.title_callback, m.title_arguments, m.type, ml.*
-       FROM {menu_links} ml INNER JOIN {menu_router} m ON ml.router_path = m.path WHERE ml.link_path LIKE 'admin/%' AND hidden >= 0 AND module = 'system' AND m.number_parts > 2")
-    items = array()
-    while (item = db_fetch_array(result)):
-      _menu_link_translate(item)
+  admin_tasks = {}
+  if (get_module_admin_tasks.items is None):
+    result = inc_database.db_query(
+      "SELECT " + \
+      "  m.load_functions, m.to_arg_functions, " + \
+      "  m.access_callback, m.access_arguments, " + \
+      "  m.page_callback, m.page_arguments, " + \
+      "  m.title, m.title_callback, " + \
+      "  m.title_arguments, m.type, ml.* " + \
+      "FROM {menu_links} ml " + \
+      "INNER JOIN {menu_router} m ON ml.router_path = m.path " + \
+      "WHERE " + \
+      "  ml.link_path LIKE 'admin/%' AND " + \
+      "  hidden >= 0 AND " + \
+      "  module = 'system' AND " + \
+      "  m.number_parts > 2")
+    get_module_admin_tasks.items = {}
+    while True:
+      item = inc_database.db_fetch_array(result)
+      if not item:
+        break
+      inc_menu._menu_link_translate(item)
       if (item['access']):
-        items[item['router_path']] = item
-      }
-    }
-  }
-  admin_tasks = array()
+        get_module_admin_tasks.items[item['router_path']] = item
+  admin_tasks = {}
   admin_task_count = 0
   # Check for permissions.
-  if (module_hook(module, 'perm') and admin_access):
-    admin_tasks[-1] = l(t('Configure permissions'), 'admin/user/permissions', array('fragment' : 'module-' +  module))
-  }
-
+  if (inc_plugin.plugin_hook(plugin, 'perm') and admin_access):
+    admin_tasks[-1] = inc_common.l(inc_common.t('Configure permissions'), \
+      'admin/user/permissions', {'fragment' : 'plugin-' +  plugin})
   # Check for menu items that are admin links.
-  if (menu = module_invoke(module, 'menu')):
-    for path in array_keys(menu):
-      if (isset(items[path])):
-        admin_tasks[items[path]['title'] +  admin_task_count ++] = l(items[path]['title'], path)
-      }
-    }
-  }
-
+  menu_ = inc_plugin.plugin_invoke(plugin, 'menu')
+  if menu_:
+    for path_ in p.array_keys(menu_):
+      if (p.isset(get_module_admin_tasks.items[path_])):
+        admin_tasks[ \
+          get_module_admin_tasks.items[path_]['title'] + admin_task_count] = \
+          l(get_module_admin_tasks.items[path_]['title'], path_)
+        admin_task_count += 1
   return admin_tasks
-}
-#
-# Implementation of hook_cron().
-#
-# Remove older rows from flood and batch table. Remove old temporary files.
-#
-def system_cron():
+
+
+
+def cron():
+  """
+   Implementation of hook_cron().
+  
+   Remove older rows from flood and batch table. Remove old temporary files.
+  """
   # Cleanup the flood.
-  db_query('DELETE FROM {flood} WHERE timestamp < %d', time() - 3600)
+  inc_database.db_query('DELETE FROM {flood} WHERE timestamp < %d', \
+    p.time_() - 3600)
   # Cleanup the batch table.
-  db_query('DELETE FROM {batch} WHERE timestamp < %d', time() - 864000)
+  inc_database.db_query('DELETE FROM {batch} WHERE timestamp < %d', \
+    p.time_() - 864000)
   # Remove temporary files that are older than DRUPAL_MAXIMUM_TEMP_FILE_AGE.
-  result = db_query('SELECT * FROM {files} WHERE status = %d and timestamp < %d', FILE_STATUS_TEMPORARY, time() - DRUPAL_MAXIMUM_TEMP_FILE_AGE)
-  while (file = db_fetch_object(result)):
-    if (file_exists(file.filepath)):
+  result = inc_database.db_query(
+    'SELECT * ' + \
+    'FROM {files} ' + \
+    'WHERE ' + \
+    '  status = %d and ' + \
+    '  timestamp < %d', \
+    FILE_STATUS_TEMPORARY, \
+    p.time_() - DRUPAL_MAXIMUM_TEMP_FILE_AGE)
+  while True:
+    file = inc_database.db_fetch_object(result)
+    if not file:
+      break
+    if (p.file_exists(file.filepath)):
       # If files that exist cannot be deleted, continue so the database remains
       # consistent.
-      if (not file_delete(file.filepath)):
-        watchdog('file system', 'Could not delete temporary file "%path" during garbage collection', array('%path' : file.filepath), 'error')
+      if (not inc_path.file_delete(file.filepath)):
+        inc_bootstrap.watchdog('file system', \
+          'Could not delete temporary file "%path" during garbage collection', \
+          {'%path' : file.filepath}, 'error')
         continue
+    inc_database.db_query('DELETE FROM {files} WHERE fid = %d', file.fid)
+
+
+
+def hook_info():
+  """
+   Implementation of hook_hook_info().
+  """
+  return {
+    'system' : {
+      'cron' : {
+        'run' : {
+          'runs when' : inc_common.t('When cron runs')
+        }
       }
     }
-    db_query('DELETE FROM {files} WHERE fid = %d', file.fid)
   }
-}
-#
-# Implementation of hook_hook_info().
-#
-def system_hook_info():
-  return array(
-    'system' : array(
-      'cron' : array(
-        'run' : array(
-          'runs when' : t('When cron runs'),
-        ),
-      ),
-    ),
-  )
-}
-#
-# Implementation of hook_action_info().
-#
-def system_action_info():
-  return array(
-    'system_message_action' : array(
+
+
+
+def action_info():
+  """
+   Implementation of hook_action_info().
+  """
+  return {
+    'system_message_action' : {
       'type' : 'system',
-      'description' : t('Display a message to the user'),
+      'description' : inc_common.t('Display a message to the user'),
       'configurable' : True,
-      'hooks' : array(
-        'nodeapi' : array('view', 'insert', 'update', 'delete'),
-        'comment' : array('view', 'insert', 'update', 'delete'),
-        'user' : array('view', 'insert', 'update', 'delete', 'login'),
-        'taxonomy' : array('insert', 'update', 'delete'),
-      ),
-    ),
-    'system_send_email_action' : array(
-      'description' : t('Send e-mail'),
+      'hooks' : {
+        'nodeapi' : ('view', 'insert', 'update', 'delete'),
+        'comment' : ('view', 'insert', 'update', 'delete'),
+        'user' : ('view', 'insert', 'update', 'delete', 'login'),
+        'taxonomy' : ('insert', 'update', 'delete')
+      }
+    },
+    'system_send_email_action' : {
+      'description' : inc_common.t('Send e-mail'),
       'type' : 'system',
       'configurable' : True,
-      'hooks' : array(
-        'nodeapi' : array('view', 'insert', 'update', 'delete'),
-        'comment' : array('view', 'insert', 'update', 'delete'),
-        'user' : array('view', 'insert', 'update', 'delete', 'login'),
-        'taxonomy' : array('insert', 'update', 'delete'),
-      )
-    ),
-    'system_block_ip_action' : array(
-      'description' : t('Ban IP address of current user'),
+      'hooks' : {
+        'nodeapi' : ('view', 'insert', 'update', 'delete'),
+        'comment' : ('view', 'insert', 'update', 'delete'),
+        'user' : ('view', 'insert', 'update', 'delete', 'login'),
+        'taxonomy' : ('insert', 'update', 'delete')
+      }
+    },
+    'system_block_ip_action' : {
+      'description' : inc_common.t('Ban IP address of current user'),
       'type' : 'user',
       'configurable' : False,
-      'hooks' : array(),
-    ),
-    'system_goto_action' : array(
-      'description' : t('Redirect to URL'),
+      'hooks' : (),
+    },
+    'system_goto_action' : {
+      'description' : inc_common.t('Redirect to URL'),
       'type' : 'system',
       'configurable' : True,
-      'hooks' : array(
-        'nodeapi' : array('view', 'insert', 'update', 'delete'),
-        'comment' : array('view', 'insert', 'update', 'delete'),
-        'user' : array('view', 'insert', 'update', 'delete', 'login'),
-      )
-    )
-  )
-}
-#
-# Menu callback. Display an overview of available and configured actions.
-#
-def system_actions_manage():
+      'hooks' : {
+        'nodeapi' : ('view', 'insert', 'update', 'delete'),
+        'comment' : ('view', 'insert', 'update', 'delete'),
+        'user' : ('view', 'insert', 'update', 'delete', 'login')
+      }
+    }
+  }
+
+
+
+def actions_manage():
+  """
+   Menu callback. Display an overview of available and configured actions.
+  """
   output = ''
   actions = actions_list()
   actions_synchronize(actions)
   actions_map = actions_actions_map(actions)
-  options = array(t('Choose an advanced action'))
-  unconfigurable = array()
-  for key,array in actions_map.items():
-    if (array['configurable']):
-      options[key] = array['description'] +  '...'
-    }
+  options = [inc_common.t('Choose an advanced action')]
+  unconfigurable = []
+  for key,array_ in actions_map.items():
+    if (array_['configurable']):
+      options[key] = array_['description'] +  '...'
     else:
-      unconfigurable[] = array
-    }
-  }
-
-  row = array()
-  instances_present = db_fetch_object(db_query("SELECT aid FROM {actions} WHERE parameters != ''"))
-  header = array(
-    array('data' : t('Action type'), 'field' : 'type'),
-    array('data' : t('Description'), 'field' : 'description'),
-    array('data' : instances_present ? t('Operations') : '', 'colspan' : '2')
+      unconfigurable.append( array_ )
+  row = []
+  instances_present = inc_database.db_fetch_object(inc_database.db_query(\
+    "SELECT aid FROM {actions} WHERE parameters != ''"))
+  header_ = (
+    {'data' : inc_common.t('Action type'), 'field' : 'type'},
+    {'data' : inc_common.t('Description'), 'field' : 'description'},
+    {'data' : (inc_common.t('Operations') if \
+      instances_present else ''), 'colspan' : '2'}
   )
   sql = 'SELECT * FROM {actions}'
-  result = pager_query(sql +  tablesort_sql(header), 50)
-  while (action = db_fetch_object(result)):
-    row[] = array(
-      array('data' : action.type),
-      array('data' : action.description),
-      array('data' : action.parameters ? l(t('configure'), "admin/settings/actions/configure/action.aid") : ''),
-      array('data' : action.parameters ? l(t('delete'), "admin/settings/actions/delete/action.aid") : '')
-    )
-  }
-
+  result = pager_query(sql +  inc_tablesort.tablesort_sql(header_), 50)
+  while True:
+    action = inc_database.db_fetch_object(result)
+    if not action:
+      break
+    row.append((
+      {'data' : action.type_},
+      {'data' : action.description},
+      {'data' : (inc_common.l(inc_common.t('configure'), \
+        "admin/settings/actions/configure/%s" % action.aid) if
+        action.parameters else '')},
+      {'data' : (inc_common.l(inc_common.t('delete'), \
+        "admin/settings/actions/delete/%s" % action.aid) if \
+        action.parameters else '')}
+    ))
   if (row):
-    pager = theme('pager', None, 50, 0)
+    pager = inc_theme.theme('pager', None, 50, 0)
     if (not empty(pager)):
-      row[] = array(array('data' : pager, 'colspan' : '3'))
-    }
-    output += '<h3>' +  t('Actions available to Drupal:')  + '</h3>'
-    output += theme('table', header, row)
-  }
-
+      row.append([{'data' : pager, 'colspan' : '3'}])
+    output += '<h3>' +  inc_common.t('Actions available to Drupal:')  + '</h3>'
+    output += inc_theme.theme('table', header, row)
   if (actions_map):
-    output += drupal_get_form('system_actions_manage_form', options)
-  }
-
+    output += inc_form.drupal_get_form('system_actions_manage_form', options)
   return output
-}
+
+
+
 #
 # Define the form for the actions overview page.
 #
