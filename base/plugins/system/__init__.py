@@ -47,6 +47,7 @@ from includes import theme as inc_theme
 from includes import mail as inc_mail
 from plugins import user as plugin_user
 from plugins import node as plugin_node
+from plugins import taxonomy as plugin_taxonomy
 
 #
 #
@@ -91,7 +92,7 @@ DRUPAL_MAXIMUM_TEMP_FILE_AGE = 1440
 
 
 
-def help(path_, arg):
+def hook_help(path_, arg):
   """
    Implementation of hook_help().
    
@@ -100,9 +101,22 @@ def help(path_, arg):
    @return Str
   """
   if path_ == 'admin/help#system':
-    output = '<p>' +  t('The system module is at the foundation of your Drupal website, and provides basic but extensible functionality for use by other modules and themes + Some integral elements of Drupal are contained in and managed by the system module, including caching, enabling or disabling of modules and themes, preparing and displaying the administrative page, and configuring fundamental site settings. A number of key system maintenance operations are also part of the system module.') + '</p>'
+    output = '<p>' +  t('The system module is at the foundation of your ' + \
+      'Drupal website, and provides basic but extensible functionality for ' + \
+      'use by other modules and themes + Some integral elements of ' + \
+      'Drupal are contained in and managed by the system module, including ' + \
+      'caching, enabling or disabling of modules and themes, preparing ' + \
+      'and displaying the administrative page, and configuring ' + \
+      'fundamental site settings. A number of key system maintenance ' + \
+      'operations are also part of the system module.') + '</p>'
     output += '<p>' +  t('The system module provides:')  + '</p>'
-    output += '<ul><li>' +  t('support for enabling and disabling <a href="@modules">modules</a> + Drupal comes packaged with a number of core modules; each module provides a discrete set of features and may be enabled depending on the needs of your site. A wide array of additional modules contributed by members of the Drupal community are available for download at the <a href="@drupal-modules">Drupal.org module page</a>.', {'@modules' : url('admin/build/modules'), '@drupal-modules' : 'http://drupal.org/project/modules'}) + '</li>'
+    output += '<ul><li>' +  t('support for enabling and disabling ' + \
+      '<a href="@modules">modules</a> + Drupal comes packaged with a ' + \
+      'number of core modules; each module provides a discrete set ' + \
+      'of features and may be enabled depending on the needs of your ' + \
+      'site. A wide array of additional modules contributed by members ' + \
+      'of the Drupal community are available for download at the ' + \
+      '<a href="@drupal-modules">Drupal.org module page</a>.', {'@modules' : url('admin/build/modules'), '@drupal-modules' : 'http://drupal.org/project/modules'}) + '</li>'
     output += '<li>' +  t('support for enabling and disabling <a href="@themes">themes</a>, which determine the design and presentation of your site + Drupal comes packaged with several core themes and additional contributed themes are available at the <a href="@drupal-themes">Drupal.org theme page</a>.', {'@themes' : url('admin/build/themes'), '@drupal-themes' : 'http://drupal.org/project/themes'}) + '</li>'
     output += '<li>' +  t('a robust <a href="@cache-settings">caching system</a> that allows the efficient re-use of previously-constructed web pages and web page components + Drupal stores the pages requested by anonymous users in a compressed format; depending on your site configuration and the amount of your web traffic tied to anonymous visitors, Drupal\'s caching system may significantly increase the speed of your site.', {'@cache-settings' : url('admin/settings/performance')}) + '</li>'
     output += '<li>' +  t('a set of routine administrative operations that rely on a correctly-configured <a href="@cron">cron maintenance task</a> to run automatically + A number of other modules, including the feed aggregator, and search also rely on <a href="@cron">cron maintenance tasks</a>. For more information, see the online handbook entry for <a href="@handbook">configuring cron jobs</a>.', {'@cron' : url('admin/reports/status'), '@handbook' : 'http://drupal.org/cron'}) + '</li>'
@@ -149,7 +163,7 @@ def help(path_, arg):
     return '<p>' +  t("Here you can find a short overview of your site's parameters as well as any problems detected with your installation + It may be useful to copy and paste this information into support requests filed on drupal.org's support forums and project issue queues.") + '</p>'
 
 
-def theme():
+def hook_theme():
   """
    Implementation of hook_theme().
    
@@ -206,7 +220,7 @@ def theme():
 
 
 
-def perm():
+def hook_perm():
   """
    Implementation of hook_perm().
    
@@ -223,7 +237,7 @@ def perm():
   }
 
 
-def elements():
+def hook_elements():
   """
    Implementation of hook_elements().
    
@@ -354,7 +368,7 @@ def elements():
   return type_
 
 
-def menu():
+def hook_menu():
   """
    Implementation of hook_menu().
    
@@ -703,7 +717,7 @@ def _themes_access(theme_):
 
 
 
-def init():
+def hook_init():
   """
    Implementation of hook_init().
   """
@@ -724,7 +738,7 @@ def init():
   inc_theme.theme('meta_generator_header', version)
 
 
-def user(type, edit, user, category = None):
+def hook_user(type, edit, user, category = None):
   """
    Implementation of hook_user().
   
@@ -751,7 +765,7 @@ def user(type, edit, user, category = None):
     return form
 
 
-def block(op = 'list', delta = '', edit = None):
+def hook_block(op = 'list', delta = '', edit = None):
   """
    Implementation of hook_block().
   
@@ -770,7 +784,8 @@ def block(op = 'list', delta = '', edit = None):
     form['wrapper']['color'] = {
       '#type' : 'select',
       '#title' : inc_common.t('Badge color'),
-      '#default_value' : inc_bootstrap.variable_get('drupal_badge_color', 'powered-blue'),
+      '#default_value' : inc_bootstrap.variable_get(\
+        'drupal_badge_color', 'powered-blue'),
       '#options' : {
         'powered-black' : inc_common.t('Black'),
         'powered-blue' : inc_common.t('Blue'),
@@ -780,7 +795,8 @@ def block(op = 'list', delta = '', edit = None):
     form['wrapper']['size'] = {
       '#type' : 'select',
       '#title' : t('Badge size'),
-      '#default_value' : inc_bootstrap.variable_get('drupal_badge_size', '80x15'),
+      '#default_value' : inc_bootstrap.variable_get(\
+        'drupal_badge_size', '80x15'),
       '#options' : {
         '80x15' : inc_common.t('Small'),
         '88x31' : inc_common.t('Medium'),
@@ -792,7 +808,9 @@ def block(op = 'list', delta = '', edit = None):
     inc_bootstrap.variable_set('drupal_badge_color', edit['color'])
     inc_bootstrap.variable_set('drupal_badge_size', edit['size'])
   elif op == 'view':
-    image_path = 'misc/' + inc_bootstrap.variable_get('drupal_badge_color', 'powered-blue')  + '-' + inc_bootstrap.variable_get('drupal_badge_size', '80x15') + '.png'
+    image_path = 'misc/' + inc_bootstrap.variable_get('drupal_badge_color', \
+      'powered-blue')  + '-' + inc_bootstrap.variable_get(\
+      'drupal_badge_size', '80x15') + '.png'
     block['subject'] = None # Don't display a title
     block['content'] = inc_theme.theme('system_powered_by', image_path)
 
@@ -807,7 +825,9 @@ def admin_menu_block(item):
   """
   content = []
   if (not p.isset(item['mlid'])):
-    item += inc_database.db_fetch_array(inc_database.db_query("SELECT mlid, menu_name FROM {menu_links} ml WHERE ml.router_path = '%s' AND module = 'system'", item['path']))
+    item += inc_database.db_fetch_array(inc_database.db_query(\
+      "SELECT mlid, menu_name FROM {menu_links} ml " + \
+      "WHERE ml.router_path = '%s' AND module = 'system'", item['path']))
   result = inc_database.db_query(
     "SELECT m.load_functions, m.to_arg_functions, m.access_callback, " + \
     "m.access_arguments, m.page_callback, m.page_arguments, m.title, " + \
@@ -829,7 +849,8 @@ def admin_menu_block(item):
       item['description'] = item['localized_options']['attributes']['title']
     # Prepare for sorting as in function _menu_tree_check_access().
     # The weight is offset so it is always positive, with a uniform 5-digits.
-    content[(50000 + item['weight']) +  ' '  + item['title'] + ' ' + item['mlid']] = item
+    content[(50000 + item['weight']) +  ' '  + item['title'] + \
+      ' ' + item['mlid']] = item
   p.ksort(content)
   return content
 
@@ -841,8 +862,10 @@ def admin_theme_submit(form, form_state):
   p.Reference.check(form_state)
   # If we're changing themes, make sure the theme has its blocks initialized.
   if (form_state['values']['admin_theme'] and \
-      form_state['values']['admin_theme'] != inc_bootstrap.variable_get('admin_theme', '0')):
-    result = inc_database.db_result(inc_database.db_query("SELECT COUNT(*) FROM {blocks} WHERE theme = '%s'", \
+      form_state['values']['admin_theme'] != \
+      inc_bootstrap.variable_get('admin_theme', '0')):
+    result = inc_database.db_result(inc_database.db_query(\
+     "SELECT COUNT(*) FROM {blocks} WHERE theme = '%s'", \
       form_state['values']['admin_theme']))
     if (not result):
       initialize_theme_blocks(form_state['values']['admin_theme'])
@@ -877,16 +900,23 @@ def theme_select_form(description = '', default_value = '', weight = 0):
         '#theme' : 'system_theme_select_form'
       }
       for info in enabled:
-        # For the default theme, revert to an empty string so the user's theme updates when the site theme is changed.
-        info.key = (info.name == ('' if inc_bootstrap.variable_get('theme_default', 'garland') else info.name))
+        # For the default theme, revert to an empty string
+        # so the user's theme updates when the site theme is changed.
+        info.key = (info.name == ('' if \
+          inc_bootstrap.variable_get('theme_default', 'garland') else \
+          info.name))
         screenshot = None
         theme_key = info.name
         while theme_key:
           if (p.file_exists(themes[theme_key].info['screenshot'])):
             screenshot = themes[theme_key].info['screenshot']
             break
-          theme_key = (themes[theme_key].info['base theme'] if p.isset(themes[theme_key].info['base theme']) else None)
-        screenshot = (screenshot if inc_theme.theme('image', screenshot, inc_common.t('Screenshot for %theme theme', {'%theme' : info.name}), '', {'class' : 'screenshot'}, False) else inc_common.t('no screenshot'))
+          theme_key = (themes[theme_key].info['base theme'] if \
+            p.isset(themes[theme_key].info['base theme']) else None)
+        screenshot = (screenshot if inc_theme.theme('image', screenshot, \
+          inc_common.t('Screenshot for %theme theme', \
+          {'%theme' : info.name}), '', {'class' : 'screenshot'}, False) else \
+          inc_common.t('no screenshot'))
         form['themes'][info.key]['screenshot'] = {'#value' : screenshot}
         form['themes'][info.key]['description'] =  \
         {
@@ -894,13 +924,16 @@ def theme_select_form(description = '', default_value = '', weight = 0):
           '#title' : info.name,
           '#value' :
             p.dirname(info.filename) + (
-              '<br /> <em>' + inc_common.t('(site default theme)') + '</em>' if \
-              info.name == inc_bootstrap.variable_get('theme_default', 'garland') else \
+              '<br /> <em>' + inc_common.t(\
+              '(site default theme)') + '</em>' if \
+              info.name == \
+              inc_bootstrap.variable_get('theme_default', 'garland') else \
               ''
             )
         }
         options[info.key] = ''
-      form['themes']['theme'] = {'#type' : 'radios', '#options' : options, '#default_value' : (default_value if default_value else '')}
+      form['themes']['theme'] = {'#type' : 'radios', '#options' : options, \
+        '#default_value' : (default_value if default_value else '')}
       form['#weight'] = weight
       return form
 
@@ -917,7 +950,8 @@ def check_directory(form_element):
    @param form_element
      The form element containing the name of the directory to check.
   """
-  file_check_directory(form_element['#value'], FILE_CREATE_DIRECTORY, form_element['#parents'][0])
+  file_check_directory(form_element['#value'], FILE_CREATE_DIRECTORY, \
+    form_element['#parents'][0])
   return form_element
 
 
@@ -933,7 +967,9 @@ def get_files_database(files, type):
   """
   p.Reference.check(files)
   # Extract current files from database.
-  result = inc_database.db_query("SELECT filename, name, type, status, schema_version FROM {system} WHERE type = '%s'", type_)
+  result = inc_database.db_query(
+    "SELECT filename, name, type, status, schema_version " + \
+    "FROM {system} WHERE type = '%s'", type_)
   while True:
     file = inc_database.db_fetch_object(result)
     if not file:
@@ -1032,7 +1068,8 @@ def _theme_data():
       if (not empty(themes[key].info['base theme'])):
         sub_themes.append( key )
       if (p.empty(themes[key].info['engine'])):
-        filename = p.dirname(themes[key].filename) +  '/'  + themes[key].name + '.theme'
+        filename = p.dirname(themes[key].filename) +  \
+          '/'  + themes[key].name + '.theme'
         if (p.file_exists(filename)):
           themes[key].owner = filename
           themes[key].prefix = key
@@ -1046,7 +1083,8 @@ def _theme_data():
       pathed_stylesheets = {}
       for media, stylesheets in  themes[key].info['stylesheets'].items():
         for stylesheet in stylesheets:
-          pathed_stylesheets[media][stylesheet] = p.dirname(themes[key].filename) +  '/'  + stylesheet
+          pathed_stylesheets[media][stylesheet] = \
+          p.dirname(themes[key].filename) +  '/'  + stylesheet
       themes[key].info['stylesheets'] = pathed_stylesheets
       # Give the scripts proper path information.
       scripts = {}
@@ -1055,7 +1093,8 @@ def _theme_data():
       themes[key].info['scripts'] = scripts
       # Give the screenshot proper path information.
       if (not empty(themes[key].info['screenshot'])):
-        themes[key].info['screenshot'] = p.dirname(themes[key].filename) +  '/'  + themes[key].info['screenshot']
+        themes[key].info['screenshot'] = p.dirname(themes[key].filename) +  \
+        '/'  + themes[key].info['screenshot']
     # Now that we've established all our master themes, go back and fill in
     # data for subthemes.
     for key in sub_themes:
@@ -1077,7 +1116,7 @@ def _theme_data():
 
 
 
-def system_find_base_theme(themes, key, used_keys = array()):
+def find_base_theme(themes, key, used_keys = array()):
   """
    Recursive function to find the top level base theme. Themes can inherit
    templates and function implementations from earlier themes.
@@ -1089,7 +1128,8 @@ def system_find_base_theme(themes, key, used_keys = array()):
    @param used_keys
      A recursion parameter preventing endless loops.
    @return
-     Returns the top level parent that has no ancestor or returns None if there isn't a valid parent.
+     Returns the top level parent that has no ancestor
+     or returns None if there isn't a valid parent.
   """
   base_key = themes[key].info['base theme']
   # Does the base theme exist?
@@ -1118,7 +1158,9 @@ def region_list(theme_key):
   """
   p.static(region_list, 'list_', {})
   if (not array_key_exists(theme_key, region_list.list_)):
-    info = p.unserialize(inc_database.db_result(inc_database.db_query("SELECT info FROM {system} WHERE type = 'theme' AND name = '%s'", theme_key)))
+    info = p.unserialize(inc_database.db_result(inc_database.db_query(\
+      "SELECT info FROM {system} WHERE type = 'theme' AND name = '%s'",\
+      theme_key)))
     region_list.list_[theme_key] = p.array_map('t', info['regions'])
   return region_list.list_[theme_key]
 
@@ -1151,19 +1193,27 @@ def initialize_theme_blocks(theme_):
      The name of a theme.
   """
   # Initialize theme's blocks if none already registered.
-  if (not (db_result(db_query("SELECT COUNT(*) FROM {blocks} WHERE theme = '%s'", theme)))):
+  if (not (db_result(db_query(\
+      "SELECT COUNT(*) FROM {blocks} WHERE theme = '%s'", theme)))):
     default_theme = variable_get('theme_default', 'garland')
     regions = system_region_list(theme)
-    result = db_query("SELECT * FROM {blocks} WHERE theme = '%s'", default_theme)
+    result = db_query("SELECT * FROM {blocks} WHERE theme = '%s'", \
+      default_theme)
     while True:
       block = inc_database.db_fetch_array(result)
       if not block:
         break
-      # If the region isn't supported by the theme, assign the block to the theme's default region.
+      # If the region isn't supported by the theme,
+      # assign the block to the theme's default region.
       if (not p.array_key_exists(block['region'], regions)):
         block['region'] = default_region(theme_)
-      inc_database.db_query("INSERT INTO {blocks} (module, delta, theme, status, weight, region, visibility, pages, custom, cache) VALUES ('%s', '%s', '%s', %d, %d, '%s', %d, '%s', %d, %d)",
-          block['module'], block['delta'], theme, block['status'], block['weight'], block['region'], block['visibility'], block['pages'], block['custom'], block['cache'])
+      inc_database.db_query(\
+          "INSERT INTO {blocks} (module, delta, theme, status, weight, " + \
+          "region, visibility, pages, custom, cache) VALUES ('%s', '%s', " + \
+          "'%s', %d, %d, '%s', %d, '%s', %d, %d)", \
+          block['module'], block['delta'], theme, block['status'], \
+          block['weight'], block['region'], block['visibility'], \
+          block['pages'], block['custom'], block['cache'])
 
 
 
@@ -1179,10 +1229,13 @@ def settings_form(form):
    @return
      The form structure.
   """
-  form['buttons']['submit'] = {'#type' : 'submit', '#value' : inc_common.t('Save configuration') }
-  form['buttons']['reset'] = {'#type' : 'submit', '#value' : inc_common.t('Reset to defaults') }
+  form['buttons']['submit'] = {'#type' : 'submit', '#value' : \
+    inc_common.t('Save configuration') }
+  form['buttons']['reset'] = {'#type' : 'submit', '#value' : \
+    inc_common.t('Reset to defaults') }
   if (not empty(p.POST) and inc_form.form_get_errors()):
-    inc_common.drupal_set_message(inc_common.t('The settings have not been saved because of the errors.'), 'error')
+    inc_common.drupal_set_message(inc_common.t(\
+      'The settings have not been saved because of the errors.'), 'error')
   form['#submit'].append( 'system_settings_form_submit' )
   form['#theme'] = 'system_settings_form'
   return form
@@ -1197,9 +1250,12 @@ def settings_form_submit(form, form_state):
    add an array_filter value to your form.
   """
   p.Reference.check(form_state)
-  op = (form_state['values']['op'] if p.isset(form_state['values']['op']) else '')
+  op = (form_state['values']['op'] if \
+    p.isset(form_state['values']['op']) else '')
   # Exclude unnecessary elements.
-  del(form_state['values']['submit'], form_state['values']['reset'], form_state['values']['form_id'], form_state['values']['op'], form_state['values']['form_token'], form_state['values']['form_build_id'])
+  del(form_state['values']['submit'], form_state['values']['reset'], \
+    form_state['values']['form_id'], form_state['values']['op'], \
+    form_state['values']['form_token'], form_state['values']['form_build_id'])
   for key,value in form_state['values'].items():
     if (op == inc_common.t('Reset to defaults')):
       inc_bootstrap.variable_del(key)
@@ -1208,9 +1264,11 @@ def settings_form_submit(form, form_state):
         value = p.array_keys(p.array_filter(value))
       inc_bootstrap.variable_set(key, value)
   if (op == t('Reset to defaults')):
-    inc_common.drupal_set_message(t('The configuration options have been reset to their default values.'))
+    inc_common.drupal_set_message(inc_common.t(\
+      'The configuration options have been reset to their default values.'))
   else:
-    inc_common.drupal_set_message(t('The configuration options have been saved.'))
+    inc_common.drupal_set_message(inc_common.t(\
+      'The configuration options have been saved.'))
   inc_cache.cache_clear_all()
   inc_theme.drupal_rebuild_theme_registry()
 
@@ -1229,13 +1287,14 @@ def _sort_requirements(a, b):
 
 
 
-def node_type(op, info):
+def hook_node_type(op, info):
   """
    Implementation of hook_node_type().
   
    Updates theme settings after a node type change.
   """
-  if (op == 'update' and not p.empty(info.old_type) and info.type != info.old_type):
+  if (op == 'update' and not p.empty(info.old_type) and \
+      info.type != info.old_type):
     old = 'toggle_node_info_' +  info.old_type
     new = 'toggle_node_info_' +  info.type
     theme_settings = inc_bootstrap.variable_get('theme_settings', {})
@@ -1246,7 +1305,8 @@ def node_type(op, info):
 
 
 
-def confirm_form(form, question, path_, description = None, yes = None, no = None, name = 'confirm'):
+def confirm_form(form, question, path_, description = None, yes = None, \
+    no = None, name = 'confirm'):
   """
    Output a confirmation form
   
@@ -1266,7 +1326,8 @@ def confirm_form(form, question, path_, description = None, yes = None, no = Non
      block <em>foo</em>?").
    @param path
      The page to go to if the user denies the action.
-     Can be either a drupal path, or an array with the keys 'path', 'query', 'fragment'.
+     Can be either a drupal path,
+     or an array with the keys 'path', 'query', 'fragment'.
    @param description
      Additional text to display (defaults to "This action cannot be undone.").
    @param yes
@@ -1279,22 +1340,27 @@ def confirm_form(form, question, path_, description = None, yes = None, no = Non
    @return
      The form.
   """
-  description = (description if description is not None else inc_common.t('This action cannot be undone.'))
+  description = (description if description is not None \
+    else inc_common.t('This action cannot be undone.'))
   # Prepare cancel link
   query = fragment = None
   if (p.is_array(path_)):
     query = (path_['query'] if p.isset(path_, 'query') else None)
     fragment = (path_['fragment'] if p.isset(path_['fragment']) else None)
     path = (path_['path'] if p.isset(path_, 'path') else None)
-  cancel = inc_common.l((no if no else inc_common.t('Cancel')), path_, {'query' : query, 'fragment' : fragment})
+  cancel = inc_common.l((no if no else inc_common.t('Cancel')), path_, \
+    {'query' : query, 'fragment' : fragment})
   inc_path.drupal_set_title(question)
-  # Confirm form fails duplication check, as the form values rarely change -- so skip it.
+  # Confirm form fails duplication check,
+  # as the form values rarely change -- so skip it.
   form['#skip_duplicate_check'] = True
   form['#attributes'] = {'class' : 'confirmation'}
   form['description'] = {'#value' : description}
   form[name] = {'#type' : 'hidden', '#value' : 1}
-  form['actions'] = {'#prefix' : '<div class="container-inline">', '#suffix' : '</div>'}
-  form['actions']['submit'] = {'#type' : 'submit', '#value' : (yes if yes else inc_common.t('Confirm'))}
+  form['actions'] = {'#prefix' : \
+    '<div class="container-inline">', '#suffix' : '</div>'}
+  form['actions']['submit'] = {'#type' : 'submit', '#value' : \
+    (yes if yes else inc_common.t('Confirm'))}
   form['actions']['cancel'] = {'#value' : cancel}
   form['#theme'] = 'confirm_form'
   return form
@@ -1378,7 +1444,7 @@ def get_module_admin_tasks(plugin):
 
 
 
-def cron():
+def hook_cron():
   """
    Implementation of hook_cron().
   
@@ -1415,7 +1481,7 @@ def cron():
 
 
 
-def hook_info():
+def hook_hook_info():
   """
    Implementation of hook_hook_info().
   """
@@ -1431,7 +1497,7 @@ def hook_info():
 
 
 
-def action_info():
+def hook_action_info():
   """
    Implementation of hook_action_info().
   """
@@ -1879,226 +1945,264 @@ def send_email_action(object_, context):
 
 
 
-#
-# Implementation of hook_mail().
-#
-def system_mail(key, &message, params):
+def hook_mail(key, message, params):
+  """
+   Implementation of hook_mail().
+  """
+  p.Reference.check(message)
   account = params['account']
   context = params['context']
-  variables = array(
-    '%site_name' : variable_get('site_name', 'Drupal'),
+  variables_ = {
+    '%site_name' : inc_bootstrap.variable_get('site_name', 'Drupal'),
     '%username' : account.name,
-  )
+  }
   if (context['hook'] == 'taxonomy'):
-    object = params['object']
-    vocabulary = taxonomy_vocabulary_load(object.vid)
-    variables += array(
-      '%term_name' : object.name,
-      '%term_description' : object.description,
-      '%term_id' : object.tid,
+    object_ = params['object']
+    vocabulary = plugin_taxonomy.vocabulary_load(object_.vid)
+    variables_ += {
+      '%term_name' : object_.name,
+      '%term_description' : object_.description,
+      '%term_id' : object_.tid,
       '%vocabulary_name' : vocabulary.name,
       '%vocabulary_description' : vocabulary.description,
-      '%vocabulary_id' : vocabulary.vid,
-    )
-  }
-
+      '%vocabulary_id' : vocabulary.vid
+    }
   # Node-based variable translation is only available if we have a node.
-  if (isset(params['node'])):
+  if (p.isset(params['node'])):
     node = params['node']
-    variables += array(
+    variables_ += {
       '%uid' : node.uid,
-      '%node_url' : url('node/' +  node.nid, array('absolute' : True)),
-      '%node_type' : node_get_types('name', node),
+      '%node_url' : inc_common.url('node/' + node.nid, {'absolute' : True}),
+      '%node_type' : plugin_node.get_types('name', node),
       '%title' : node.title,
       '%teaser' : node.teaser,
-      '%body' : node.body,
-    )
-  }
-  subject = strtr(context['subject'], variables)
-  body = strtr(context['message'], variables)
-  message['subject'] += str_replace(array("\r", "\n"), '', subject)
-  message['body'][] = drupal_html_to_text(body)
-}
+      '%body' : node.body
+    }
+  subject = p.strtr(context['subject'], variables_)
+  body = p.strtr(context['message'], variables_)
+  message['subject'] += p.str_replace(("\r", "\n"), '', subject)
+  message['body'].append( inc_mail.drupal_html_to_text(body) )
 
-def system_message_action_form(context):
-  form['message'] = array(
+
+
+
+def message_action_form(context):
+  form['message'] = {
     '#type' : 'textarea',
-    '#title' : t('Message'),
-    '#default_value' : isset(context['message']) ? context['message'] : '',
+    '#title' : inc_common.t('Message'),
+    '#default_value' : (context['message'] if \
+      p.isset(context['message']) else ''),
     '#required' : True,
     '#rows' : '8',
-    '#description' : t('The message to be displayed to the current user. You may include the following variables: %site_name, %username, %node_url, %node_type, %title, %teaser, %body. Not all variables will be available in all contexts.'),
-  )
+    '#description' : inc_common.t(\
+      'The message to be displayed to the current user. You may include ' + \
+      'the following variables: %site_name, %username, %node_url, ' + \
+      '%node_type, %title, %teaser, %body. Not all variables will be ' + \
+      'available in all contexts.')
+  }
   return form
-}
 
-def system_message_action_submit(form, form_state):
-  return array('message' : form_state['values']['message'])
-}
-#
-# A configurable Drupal action. Sends a message to the current user's screen.
-#
-def system_message_action(&object, context = array()):
-  global user
-  variables = array(
-    '%site_name' : variable_get('site_name', 'Drupal'),
-    '%username' : user.name ? user.name : variable_get('anonymous', t('Anonymous')),
-  )
+
+def message_action_submit(form, form_state):
+  return {'message' : form_state['values']['message']}
+
+
+
+def message_action(object_, context = []):
+  """
+   A configurable Drupal action. Sends a message to the current user's screen.
+  """
+  p.Reference.check(object_)
+  variables_ = {
+    '%site_name' : inc_common.variable_get('site_name', 'Drupal'),
+    '%username' : (inc_bootstrap.user.name if inc_bootstrap.user.name else \
+      inc_bootstrap.variable_get('anonymous', inc_common.t('Anonymous')))
+  }
   # This action can be called in any context, but if placeholders
   # are used a node object must be present to be the source
   # of substituted text.
-  switch (context['hook']):
-    case 'nodeapi':
-      # Because this is not an action of type 'node' the node
-      # will not be passed as object, but it will still be available
-      # in context.
-      node = context['node']
-      break
-    # The comment hook also provides the node, in context.
-    case 'comment':
-      comment = context['comment']
-      node = node_load(comment.nid)
-      break
-    case 'taxonomy':
-      vocabulary = taxonomy_vocabulary_load(object.vid)
-      variables = array_merge(variables, array(
-        '%term_name' : object.name,
-        '%term_description' : object.description,
-        '%term_id' : object.tid,
-        '%vocabulary_name' : vocabulary.name,
-        '%vocabulary_description' : vocabulary.description,
-        '%vocabulary_id' : vocabulary.vid,
-        )
-      )
-      break
-    default:
-      # We are being called directly.
-      node = object
-  }
-
-  if (isset(node) and is_object(node)):
-    variables = array_merge(variables, array(
+  if context['hook'] == 'nodeapi':
+    # Because this is not an action of type 'node' the node
+    # will not be passed as object, but it will still be available
+    # in context.
+    node = context['node']
+  # The comment hook also provides the node, in context.
+  elif context['hook'] == 'comment':
+    comment = context['comment']
+    node = plugin_node.load(comment.nid)
+  elif context['hook'] == 'taxonomy':
+    vocabulary = plugin_taxonomy.vocabulary_load(object_.vid)
+    variables_ = p.array_merge(variables_, {
+      '%term_name' : object_.name,
+      '%term_description' : object_.description,
+      '%term_id' : object_.tid,
+      '%vocabulary_name' : vocabulary.name,
+      '%vocabulary_description' : vocabulary.description,
+      '%vocabulary_id' : vocabulary.vid
+    })
+  else:
+    # We are being called directly.
+    node = object_
+  if (p.isset(node) and p.is_object(node)):
+    variables_ = p.array_merge(variables_, {
       '%uid' : node.uid,
-      '%node_url' : url('node/' +  node.nid, array('absolute' : True)),
-      '%node_type' : check_plain(node_get_types('name', node)),
-      '%title' : filter_xss(node.title),
-      '%teaser' : filter_xss(node.teaser),
-      '%body' : filter_xss(node.body),
-      )
-    )
-  }
-  context['message'] = strtr(context['message'], variables)
-  drupal_set_message(context['message'])
-}
-#
-# Implementation of a configurable Drupal action. Redirect user to a URL.
-#
-def system_goto_action_form(context):
-  form['url'] = array(
+      '%node_url' : inc_common.url('node/' +  node.nid, {'absolute' : True}),
+      '%node_type' : inc_bootstrap.check_plain(\
+        plugin_node.get_types('name', node)),
+      '%title' : plugin_filter.xss(node.title),
+      '%teaser' : plugin_filter.xss(node.teaser),
+      '%body' : plugin_filter.xss(node.body)
+    })
+  context['message'] = p.strtr(context['message'], variables_)
+  inc_bootstrap.drupal_set_message(context['message'])
+
+
+
+def goto_action_form(context):
+  """
+   Implementation of a configurable Drupal action. Redirect user to a URL.
+  """
+  form['url'] = {
     '#type' : 'textfield',
-    '#title' : t('URL'),
-    '#description' : t('The URL to which the user should be redirected. This can be an internal URL like node/1234 or an external URL like http://drupal.org.'),
-    '#default_value' : isset(context['url']) ? context['url'] : '',
+    '#title' : inc_common.t('URL'),
+    '#description' : t(\
+      'The URL to which the user should be redirected. This can be an ' + \
+      'internal URL like node/1234 or an external URL like http://drupal.org.'),
+    '#default_value' : (context['url'] if p.isset(context['url']) else ''),
     '#required' : True,
-  )
+  }
   return form
-}
 
-def system_goto_action_submit(form, form_state):
-  return array(
+
+
+
+def goto_action_submit(form, form_state):
+  return {
     'url' : form_state['values']['url']
-  )
-}
+  }
 
-def system_goto_action(object, context):
-  drupal_goto(context['url'])
-}
-#
-# Implementation of a Drupal action.
-# Blocks the user's IP address.
-#
-def system_block_ip_action():
-  ip = ip_address()
+
+
+def goto_action(object_, context):
+  inc_common.drupal_goto(context['url'])
+
+
+
+def block_ip_action():
+  """
+   Implementation of a Drupal action.
+   Blocks the user's IP address.
+  """
+  ip = inc_bootstrap.ip_address()
   db_query("INSERT INTO {blocked_ips} (ip) VALUES ('%s')", ip);
-  watchdog('action', 'Banned IP address %ip', array('%ip' : ip))
-}
-#
-# Generate an array of time zones and their local time&date.
-#
-def _system_zonelist():
+  inc_bootstrap.watchdog('action', 'Banned IP address %ip', {'%ip' : ip})
+
+
+
+def _zonelist():
+  """
+   Generate an array of time zones and their local time&date.
+  """
   timestamp = time()
-  zonelist = array(-11, -10, -9.5, -9, -8, -7, -6, -5, -4, -3.5, -3, -2, -1, 0, 1, 2, 3, 3.5, 4, 5, 5.5, 5.75, 6, 6.5, 7, 8, 9, 9.5, 10, 10.5, 11, 11.5, 12, 12.75, 13, 14)
-  zones = array()
+  zonelist = array(-11, -10, -9.5, -9, -8, -7, -6, -5, -4, -3.5, -3, \
+    -2, -1, 0, 1, 2, 3, 3.5, 4, 5, 5.5, 5.75, 6, 6.5, 7, 8, 9, 9.5, 10, \
+    10.5, 11, 11.5, 12, 12.75, 13, 14)
+  zones = []
   for offset in zonelist:
     zone = offset * 3600
-    zones[zone] = format_date(timestamp, 'custom', variable_get('date_format_long', 'l, F j, Y - H:i') +  ' O', zone)
-  }
+    zones[zone] = p.format_date(timestamp, 'custom', \
+      inc_bootstrap.variable_get('date_format_long', \
+      'l, F j, Y - H:i') +  ' O', zone)
   return zones
-}
-#
-# Checks whether the server is capable of issuing HTTP requests.
-#
-# The function sets the drupal_http_request_fail system variable to True if
-# drupal_http_request() does not work and then the system status report page
-# will contain an error.
-#
-# @return
-#  Whether the admin/reports/request-test page can be requested via HTTP
-#  and contains the same output as if called via the menu system.
-#
-def system_check_http_request():
+
+
+
+def check_http_request():
+  """
+   Checks whether the server is capable of issuing HTTP requests.
+  
+   The function sets the drupal_http_request_fail system variable to True if
+   drupal_http_request() does not work and then the system status report page
+   will contain an error.
+  
+   @return
+    Whether the admin/reports/request-test page can be requested via HTTP
+    and contains the same output as if called via the menu system.
+  """
   # Check whether we can do any request at all. First get the results for
   # a very simple page which has access True set via the menu system. Then,
   # try to drupal_http_request() the same page and compare.
-  ob_start()
-  path = 'admin/reports/request-test'
-  menu_execute_active_handler(path)
-  nothing = ob_get_contents()
-  ob_end_clean()
-  result = drupal_http_request(url(path, array('absolute' : True)))
-  works = isset(result.data) and result.data == nothing
-  variable_set('drupal_http_request_fails', not works)
+  # ob_start()
+  path_ = 'admin/reports/request-test'
+  inc_menu.menu_execute_active_handler(path_)
+  nothing = None
+  # nothing = ob_get_contents()
+  # ob_end_clean()
+  result = inc_common.drupal_http_request(inc_common.url(path_, \
+    {'absolute' : True}))
+  works = (p.isset(result.data) and (result.data == nothing))
+  inc_bootstrap.variable_set('drupal_http_request_fails', not works)
   return works
-}
-#
-# Format the Powered by Drupal text.
-#
-# @ingroup themeable
-#
-def theme_system_powered_by(image_path):
-  image = theme('image', image_path, t('Powered by Drupal, an open source content management system'), t('Powered by Drupal, an open source content management system'))
-  return l(image, 'http://drupal.org', array('html' : True, 'absolute' : True, 'external' : True))
-}
-#
-# Display the link to show or hide inline help descriptions.
-#
-# @ingroup themeable
-#
-def theme_system_compact_link():
+
+
+
+def theme_powered_by(image_path):
+  """
+   Format the Powered by Drupal text.
+  
+   @ingroup themeable
+  """
+  image = theme('image', image_path, \
+    inc_common.t(\
+    'Powered by Drupal, an open source content management system'), \
+    inc_common.t(\
+    'Powered by Drupal, an open source content management system'))
+  return inc_common.l(image, 'http://drupal.org', \
+    {'html' : True, 'absolute' : True, 'external' : True})
+
+
+
+def theme_compact_link():
+  """
+   Display the link to show or hide inline help descriptions.
+  
+   @ingroup themeable
+  """
   output = '<div class="compact-link">'
-  if (system_admin_compact_mode()):
-    output += l(t('Show descriptions'), 'admin/compact/off', array('attributes' : array('title' : t('Expand layout to include descriptions.')), 'query' : drupal_get_destination()))
-  }
+  if (admin_compact_mode()):
+    output += inc_common.l(inc_common.t('Show descriptions'), \
+      'admin/compact/off', {'attributes' : \
+      {'title' : inc_common.t('Expand layout to include descriptions.')}, \
+      'query' : inc_common.drupal_get_destination()})
   else:
-    output += l(t('Hide descriptions'), 'admin/compact/on', array('attributes' : array('title' : t('Compress layout by hiding descriptions.')), 'query' : drupal_get_destination()))
-  }
+    output += inc_common.l(inc_common.t('Hide descriptions'), \
+      'admin/compact/on', {'attributes' : \
+      {'title' : inc_common.t('Compress layout by hiding descriptions.')}, \
+      'query' : drupal_get_destination()})
   output += '</div>'
   return output
-}
-#
-# Send Drupal and the major version number in the META GENERATOR HTML.
-#
-# @ingroup themeable
-#
+
+
+
 def theme_meta_generator_html(version = VERSION):
-  drupal_set_html_head('<meta name="Generator" content="Drupal ' +  version  + ' (http://drupal.org)" />')
-}
-#
-# Send Drupal and the major version number in the HTTP headers.
-#
-# @ingroup themeable
-#
+  """
+   Send Drupal and the major version number in the META GENERATOR HTML.
+  
+   @ingroup themeable
+  """
+  inc_common.drupal_set_html_head('<meta name="Generator" content="Drupal ' +  \
+    version  + ' (http://drupal.org)" />')
+
+
+
 def theme_meta_generator_header(version = VERSION):
-  drupal_set_header('X-Generator: Drupal ' +  version  + ' (http://drupal.org)')
-}
+  """
+   Send Drupal and the major version number in the HTTP headers.
+  
+   @ingroup themeable
+  """
+  inc_common.drupal_set_header(\
+    'X-Generator: Drupal ' +  version  + ' (http://drupal.org)')
+
+
 
