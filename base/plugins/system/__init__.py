@@ -44,7 +44,9 @@ from includes import menu as inc_menu
 from includes import tablesort as inc_tablesort
 from includes import form as inc_form
 from includes import theme as inc_theme
-from plugins import user as mod_user
+from includes import mail as inc_mail
+from plugins import user as plugin_user
+from plugins import node as plugin_node
 
 #
 #
@@ -697,7 +699,7 @@ def _themes_access(theme_):
   """
    Menu item access callback - only admin or enabled themes can be accessed.
   """
-  return mod_user.access('administer site configuration') and (theme_.status or theme_.name == inc_bootstrap.variable_get('admin_theme', '0'))
+  return plugin_user.access('administer site configuration') and (theme_.status or theme_.name == inc_bootstrap.variable_get('admin_theme', '0'))
 
 
 
@@ -838,12 +840,12 @@ def admin_theme_submit(form, form_state):
   """
   p.Reference.check(form_state)
   # If we're changing themes, make sure the theme has its blocks initialized.
-  if (form_state.val['values']['admin_theme'] and \
-      form_state.val['values']['admin_theme'] != inc_bootstrap.variable_get('admin_theme', '0')):
+  if (form_state['values']['admin_theme'] and \
+      form_state['values']['admin_theme'] != inc_bootstrap.variable_get('admin_theme', '0')):
     result = inc_database.db_result(inc_database.db_query("SELECT COUNT(*) FROM {blocks} WHERE theme = '%s'", \
-      form_state.val['values']['admin_theme']))
+      form_state['values']['admin_theme']))
     if (not result):
-      initialize_theme_blocks(form_state.val['values']['admin_theme'])
+      initialize_theme_blocks(form_state['values']['admin_theme'])
 
 
 def theme_select_form(description = '', default_value = '', weight = 0):
@@ -859,7 +861,7 @@ def theme_select_form(description = '', default_value = '', weight = 0):
    @return
       a form array
   """
-  if (mod_user.access('select different theme')):
+  if (plugin_user.access('select different theme')):
     enabled = []
     themes = list_themes()
     for theme_ in themes:
@@ -936,11 +938,11 @@ def get_files_database(files, type):
     file = inc_database.db_fetch_object(result)
     if not file:
       break
-    if (p.isset(files.val[file.name]) and p.is_object(files.val[file.name])):
+    if (p.isset(files[file.name]) and p.is_object(files[file.name])):
       file.old_filename = file.filename
       for key,value in file.items():
-        if (not p.isset(files.val[file.name]) or not p.isset(files[file.name], key)):
-          setattr(files.val[file.name], key, value)
+        if (not p.isset(files[file.name]) or not p.isset(files[file.name], key)):
+          setattr(files[file.name], key, value)
 
 
 
@@ -1195,14 +1197,14 @@ def settings_form_submit(form, form_state):
    add an array_filter value to your form.
   """
   p.Reference.check(form_state)
-  op = (form_state['values']['op'] if p.isset(form_state.val['values']['op']) else '')
+  op = (form_state['values']['op'] if p.isset(form_state['values']['op']) else '')
   # Exclude unnecessary elements.
-  del(form_state.val['values']['submit'], form_state.val['values']['reset'], form_state.val['values']['form_id'], form_state.val['values']['op'], form_state.val['values']['form_token'], form_state.val['values']['form_build_id'])
+  del(form_state['values']['submit'], form_state['values']['reset'], form_state['values']['form_id'], form_state['values']['op'], form_state['values']['form_token'], form_state['values']['form_build_id'])
   for key,value in form_state['values'].items():
     if (op == inc_common.t('Reset to defaults')):
       inc_bootstrap.variable_del(key)
     else:
-      if (p.is_array(value) and p.isset(form_state.val['values']['array_filter'])):
+      if (p.is_array(value) and p.isset(form_state['values']['array_filter'])):
         value = p.array_keys(p.array_filter(value))
       inc_bootstrap.variable_set(key, value)
   if (op == t('Reset to defaults')):
@@ -1317,7 +1319,7 @@ def admin_compact_page(mode = 'off'):
    @param mode
      Valid values are 'on' and 'off'.
   """
-  mod_user.save(inc_bootstrap.user, {'admin_compact_mode' : (mode == 'on')})
+  plugin_user.save(inc_bootstrap.user, {'admin_compact_mode' : (mode == 'on')})
   inc_common.drupal_goto(inc_common.drupal_get_destination())
 
 
@@ -1332,7 +1334,7 @@ def get_module_admin_tasks(plugin):
      An array of task links.
   """
   p.static(get_module_admin_tasks, 'items', None)
-  admin_access = mod_user.access('administer permissions')
+  admin_access = plugin_user.access('administer permissions')
   admin_tasks = {}
   if (get_module_admin_tasks.items is None):
     result = inc_database.db_query(
@@ -1528,335 +1530,355 @@ def actions_manage():
 
 
 
-#
-# Define the form for the actions overview page.
-#
-# @see system_actions_manage_form_submit()
-# @ingroup forms
-# @param form_state
-#   An associative array containing the current state of the form; not used.
-# @param options
-#   An array of configurable actions.
-# @return
-#   Form definition.
-#
-def system_actions_manage_form(form_state, options = array()):
-  form['parent'] = array(
+def actions_manage_form(form_state, options = []):
+  """
+   Define the form for the actions overview page.
+  
+   @see system_actions_manage_form_submit()
+   @ingroup forms
+   @param form_state
+     An associative array containing the current state of the form; not used.
+   @param options
+     An array of configurable actions.
+   @return
+     Form definition.
+  """
+  form['parent'] = {
     '#type' : 'fieldset',
-    '#title' : t('Make a new advanced action available'),
+    '#title' : inc_common.t('Make a new advanced action available'),
     '#prefix' : '<div class="container-inline">',
-    '#suffix' : '</div>',
-  )
-  form['parent']['action'] = array(
+    '#suffix' : '</div>'
+  }
+  form['parent']['action'] = {
     '#type' : 'select',
     '#default_value' : '',
     '#options' : options,
-    '#description' : '',
-  )
-  form['parent']['buttons']['submit'] = array(
+    '#description' : ''
+  }
+  form['parent']['buttons']['submit'] = {
     '#type' : 'submit',
-    '#value' : t('Create'),
-  )
+    '#value' : inc_common.t('Create')
+  }
   return form
-}
-#
-# Process system_actions_manage form submissions.
-#
-def system_actions_manage_form_submit(form, &form_state):
-  if (form_state['values']['action']):
-    form_state['redirect'] = 'admin/settings/actions/configure/' +  form_state['values']['action']
-  }
-}
-#
-# Menu callback. Create the form for configuration of a single action.
-#
-# We provide the "Description" field. The rest of the form
-# is provided by the action. We then provide the Save button.
-# Because we are combining unknown form elements with the action
-# configuration form, we use actions_ prefix on our elements.
-#
-# @see system_actions_configure_validate()
-# @see system_actions_configure_submit()
-# @param action
-#   md5 hash of action ID or an integer. If it's an md5 hash, we
-#   are creating a new instance. If it's an integer, we're editing
-#   an existing instance.
-# @return
-#   Form definition.
-#
-def system_actions_configure(form_state, action = None):
-  if (action == None):
-    drupal_goto('admin/settings/actions')
-  }
 
+
+
+def actions_manage_form_submit(form, form_state):
+  """
+   Process system_actions_manage form submissions.
+  """
+  p.Reference.check(form_state)
+  if (form_state['values']['action']):
+    form_state['redirect'] = 'admin/settings/actions/configure/%s' % \
+    form_state['values']['action']
+
+
+
+def actions_configure(form_state, action = None):
+  """
+   Menu callback. Create the form for configuration of a single action.
+  
+   We provide the "Description" field. The rest of the form
+   is provided by the action. We then provide the Save button.
+   Because we are combining unknown form elements with the action
+   configuration form, we use actions_ prefix on our elements.
+  
+   @see system_actions_configure_validate()
+   @see system_actions_configure_submit()
+   @param action
+     md5 hash of action ID or an integer. If it's an md5 hash, we
+     are creating a new instance. If it's an integer, we're editing
+     an existing instance.
+   @return
+     Form definition.
+  """
+  if (action is None):
+    inc_common.drupal_goto('admin/settings/actions')
   actions_map = actions_actions_map(actions_list())
-  edit = array()
+  edit = []
   # Numeric action denotes saved instance of a configurable action
   # else we are creating a new action instance.
-  if (is_numeric(action)):
+  if (p.is_numeric(action)):
     aid = action
     # Load stored parameter values from database.
-    data = db_fetch_object(db_query("SELECT * FROM {actions} WHERE aid = %d", intval(aid)))
+    data = inc_database.db_fetch_object(inc_database.db_query(\
+      "SELECT * FROM {actions} WHERE aid = %d", p.intval(aid)))
     edit['actions_description'] = data.description
     edit['actions_type'] = data.type
     function = data.callback
-    action = md5(data.callback)
-    params = unserialize(data.parameters)
+    action = p.md5(data.callback)
+    params = p.unserialize(data.parameters)
     if (params):
       for name,val in params.items():
         edit[name] = val
-      }
-    }
-  }
   else:
+    aid = None
     function = actions_map[action]['callback']
     edit['actions_description'] = actions_map[action]['description']
     edit['actions_type'] = actions_map[action]['type']
-  }
-
-  form['actions_description'] = array(
+  form['actions_description'] = {
     '#type' : 'textfield',
-    '#title' : t('Description'),
+    '#title' : inc_common.t('Description'),
     '#default_value' : edit['actions_description'],
     '#maxlength' : '255',
-    '#description' : t('A unique description for this advanced action. This description will be displayed in the interface of modules that integrate with actions, such as Trigger module.'),
+    '#description' : inc_common.t(\
+      'A unique description for this advanced action. This description ' + \
+      'will be displayed in the interface of modules that integrate ' + \
+      'with actions, such as Trigger module.'),
     '#weight' : -10
-  )
+  }
   action_form = function +  '_form'
-  form = array_merge(form, action_form(edit))
-  form['actions_type'] = array(
+  form = p.array_merge(form, action_form(edit))
+  form['actions_type'] = {
     '#type' : 'value',
     '#value' : edit['actions_type'],
-  )
-  form['actions_action'] = array(
+  }
+  form['actions_action'] = {
     '#type' : 'hidden',
     '#value' : action,
-  )
+  }
   # aid is set when configuring an existing action instance.
-  if (isset(aid)):
-    form['actions_aid'] = array(
+  if (aid is not None):
+    form['actions_aid'] = {
       '#type' : 'hidden',
       '#value' : aid,
-    )
-  }
-  form['actions_configured'] = array(
+    }
+  form['actions_configured'] = {
     '#type' : 'hidden',
     '#value' : '1',
-  )
-  form['buttons']['submit'] = array(
-    '#type' : 'submit',
-    '#value' : t('Save'),
-    '#weight' : 13
-  )
-  return form
-}
-#
-# Validate system_actions_configure form submissions.
-#
-def system_actions_configure_validate(form, form_state):
-  function = actions_function_lookup(form_state['values']['actions_action']) +  '_validate'
-  # Hand off validation to the action.
-  if (function_exists(function)):
-    function(form, form_state)
   }
-}
-#
-# Process system_actions_configure form submissions.
-#
-def system_actions_configure_submit(form, &form_state):
+  form['buttons']['submit'] = {
+    '#type' : 'submit',
+    '#value' : inc_common.t('Save'),
+    '#weight' : 13
+  }
+  return form
+
+
+
+def actions_configure_validate(form, form_state):
+  """
+   Validate system_actions_configure form submissions.
+  """
+  function = actions_function_lookup(form_state['values']['actions_action']) + \
+    '_validate'
+  # Hand off validation to the action.
+  if (p.function_exists(function)):
+    function(form, form_state)
+
+
+
+def actions_configure_submit(form, form_state):
+  """
+   Process system_actions_configure form submissions.
+  """
+  p.Reference.check(form_state)
   function = actions_function_lookup(form_state['values']['actions_action'])
   submit_function = function +  '_submit'
   # Action will return keyed array of values to store.
   params = submit_function(form, form_state)
-  aid = isset(form_state['values']['actions_aid']) ? form_state['values']['actions_aid'] : None
-  actions_save(function, form_state['values']['actions_type'], params, form_state['values']['actions_description'], aid)
-  drupal_set_message(t('The action has been successfully saved.'))
+  aid = (form_state['values']['actions_aid'] if \
+    p.isset(form_state['values']['actions_aid']) else None)
+  actions_save(function, form_state['values']['actions_type'], params, \
+    form_state['values']['actions_description'], aid)
+  inc_bootstrap.drupal_set_message(t('The action has been successfully saved.'))
   form_state['redirect'] = 'admin/settings/actions/manage'
-}
-#
-# Create the form for confirmation of deleting an action.
-#
-# @ingroup forms
-# @see system_actions_delete_form_submit()
-#
-def system_actions_delete_form(form_state, action):
 
-  form['aid'] = array(
+
+def actions_delete_form(form_state, action):
+  """
+   Create the form for confirmation of deleting an action.
+  
+   @ingroup forms
+   @see system_actions_delete_form_submit()
+  """
+  form['aid'] = {
     '#type' : 'hidden',
     '#value' : action.aid,
-  )
+  }
   return confirm_form(form,
-    t('Are you sure you want to delete the action %action?', array('%action' : action.description)),
+    inc_common.t('Are you sure you want to delete the action %action?', \
+      {'%action' : action.description}),
     'admin/settings/actions/manage',
-    t('This cannot be undone.'),
-    t('Delete'), t('Cancel')
+    inc_common.t('This cannot be undone.'),
+    inc_common.t('Delete'), inc_common.t('Cancel')
   )
-}
-#
-# Process system_actions_delete form submissions.
-#
-# Post-deletion operations for action deletion.
-#
-def system_actions_delete_form_submit(form, &form_state):
+
+
+
+def actions_delete_form_submit(form, form_state):
+  """
+   Process system_actions_delete form submissions.
+  
+   Post-deletion operations for action deletion.
+  """
+  p.Reference.check(form_state)
   aid = form_state['values']['aid']
   action = actions_load(aid)
   actions_delete(aid)
-  description = check_plain(action.description)
-  watchdog('user', 'Deleted action %aid (%action)', array('%aid' : aid, '%action' : description))
-  drupal_set_message(t('Action %action was deleted', array('%action' : description)))
+  description = inc_bootstrap.check_plain(action.description)
+  inc_bootstrap.watchdog('user', 'Deleted action %aid (%action)', \
+    {'%aid' : aid, '%action' : description})
+  inc_common.drupal_set_message(inc_common.t('Action %action was deleted', \
+    {'%action' : description}))
   form_state['redirect'] = 'admin/settings/actions/manage'
-}
-#
-# Post-deletion operations for deleting action orphans.
-#
-# @param orphaned
-#   An array of orphaned actions.
-#
-def system_action_delete_orphans_post(orphaned):
-  for callback in orphaned:
-    drupal_set_message(t("Deleted orphaned action (%action).", array('%action' : callback)))
-  }
-}
-#
-# Remove actions that are in the database but not supported by any enabled module.
-#
-def system_actions_remove_orphans():
-  actions_synchronize(actions_list(), True)
-  drupal_goto('admin/settings/actions/manage')
-}
-#
-# Return a form definition so the Send email action can be configured.
-#
-# @see system_send_email_action_validate()
-# @see system_send_email_action_submit()
-# @param context
-#   Default values (if we are editing an existing action instance).
-# @return
-#   Form definition.
-#
-def system_send_email_action_form(context):
-  # Set default values for form.
-  if (not isset(context['recipient'])):
-    context['recipient'] = ''
-  }
-  if (not isset(context['subject'])):
-    context['subject'] = ''
-  }
-  if (not isset(context['message'])):
-    context['message'] = ''
-  }
 
-  form['recipient'] = array(
+
+
+def action_delete_orphans_post(orphaned):
+  """
+   Post-deletion operations for deleting action orphans.
+  
+   @param orphaned
+     An array of orphaned actions.
+  """
+  for callback in orphaned:
+    inc_common.drupal_set_message(inc_common.t(\
+      "Deleted orphaned action (%action).", {'%action' : callback}))
+
+
+
+def actions_remove_orphans():
+  """
+   Remove actions that are in the database but not supported by any enabled module.
+  """
+  actions_synchronize(actions_list(), True)
+  inc_common.drupal_goto('admin/settings/actions/manage')
+
+
+
+def send_email_action_form(context):
+  """
+   Return a form definition so the Send email action can be configured.
+  
+   @see system_send_email_action_validate()
+   @see system_send_email_action_submit()
+   @param context
+     Default values (if we are editing an existing action instance).
+   @return
+     Form definition.
+  """
+  # Set default values for form.
+  if (not p.isset(context, 'recipient')):
+    context['recipient'] = ''
+  if (not p.isset(context, 'subject')):
+    context['subject'] = ''
+  if (not p.isset(context, 'message')):
+    context['message'] = ''
+  form['recipient'] = {
     '#type' : 'textfield',
-    '#title' : t('Recipient'),
+    '#title' : inc_common.t('Recipient'),
     '#default_value' : context['recipient'],
     '#maxlength' : '254',
-    '#description' : t('The email address to which the message should be sent OR enter %author if you would like to send an e-mail to the author of the original post.', array('%author' : '%author')),
-  )
-  form['subject'] = array(
+    '#description' : inc_common.t(\
+      'The email address to which the message should be sent OR ' + \
+      'enter %author if you would like to send an e-mail to the author ' + \
+      'of the original post.', {'%author' : '%author'})
+  }
+  form['subject'] = {
     '#type' : 'textfield',
-    '#title' : t('Subject'),
+    '#title' : inc_common.t('Subject'),
     '#default_value' : context['subject'],
     '#maxlength' : '254',
-    '#description' : t('The subject of the message.'),
-  )
-  form['message'] = array(
+    '#description' : inc_common.t('The subject of the message.')
+  }
+  form['message'] = {
     '#type' : 'textarea',
-    '#title' : t('Message'),
+    '#title' : inc_common.t('Message'),
     '#default_value' : context['message'],
     '#cols' : '80',
     '#rows' : '20',
-    '#description' : t('The message that should be sent. You may include the following variables: %site_name, %username, %node_url, %node_type, %title, %teaser, %body. Not all variables will be available in all contexts.'),
-  )
+    '#description' : inc_common.t(
+      'The message that should be sent. You may include the following ' + \
+      'variables: %site_name, %username, %node_url, %node_type, %title, ' + \
+      '%teaser, %body. Not all variables will be available in all contexts.')
+  }
   return form
-}
-#
-# Validate system_send_email_action form submissions.
-#
-def system_send_email_action_validate(form, form_state):
+
+
+
+def send_email_action_validate(form, form_state):
+  """
+   Validate system_send_email_action form submissions.
+  """
   form_values = form_state['values']
   # Validate the configuration form.
-  if (not valid_email_address(form_values['recipient']) and form_values['recipient'] != '%author'):
-    # We want the literal %author placeholder to be emphasized in the error message.
-    form_set_error('recipient', t('Please enter a valid email address or %author.', array('%author' : '%author')))
-  }
-}
-#
-# Process system_send_email_action form submissions.
-#
-def system_send_email_action_submit(form, form_state):
+  if (not valid_email_address(form_values['recipient']) and \
+      form_values['recipient'] != '%author'):
+    # We want the literal %author placeholder
+    # to be emphasized in the error message.
+    inc_form.form_set_error('recipient', inc_common.t(
+      'Please enter a valid email address or %author.', \
+      {'%author' : '%author'}))
+
+
+
+def send_email_action_submit(form, form_state):
+  """
+   Process system_send_email_action form submissions.
+  """
   form_values = form_state['values']
   # Process the HTML form to store configuration. The keyed array that
   # we return will be serialized to the database.
-  params = array(
+  params = {
     'recipient' : form_values['recipient'],
     'subject'   : form_values['subject'],
-    'message'   : form_values['message'],
-  )
-  return params
-}
-#
-# Implementation of a configurable Drupal action. Sends an email.
-#
-def system_send_email_action(object, context):
-  global user
-  switch (context['hook']):
-    case 'nodeapi':
-      # Because this is not an action of type 'node' the node
-      # will not be passed as object, but it will still be available
-      # in context.
-      node = context['node']
-      break
-    # The comment hook provides nid, in context.
-    case 'comment':
-      comment = context['comment']
-      node = node_load(comment.nid)
-      break
-    case 'user':
-      # Because this is not an action of type 'user' the user
-      # object is not passed as object, but it will still be available
-      # in context.
-      account = context['account']
-      if (isset(context['node'])):
-        node = context['node']
-      }
-      elif (context['recipient'] == '%author'):
-        # If we don't have a node, we don't have a node author.
-        watchdog('error', 'Cannot use %author token in this context.')
-        return
-      }
-      break
-    default:
-      # We are being called directly.
-      node = object
+    'message'   : form_values['message']
   }
+  return params
 
+
+
+def send_email_action(object_, context):
+  """
+   Implementation of a configurable Drupal action. Sends an email.
+  """
+  if context['hook'] == 'nodeapi':
+    # Because this is not an action of type 'node' the node
+    # will not be passed as object, but it will still be available
+    # in context.
+    node = context['node']
+  # The comment hook provides nid, in context.
+  elif context['hook'] == 'comment':
+    comment = context['comment']
+    node = plugin_node.load(comment.nid)
+  elif context['hook'] == 'user':
+    # Because this is not an action of type 'user' the user
+    # object is not passed as object, but it will still be available
+    # in context.
+    account = context['account']
+    if (p.isset(context, 'node')):
+      node = context['node']
+    elif (context['recipient'] == '%author'):
+      # If we don't have a node, we don't have a node author.
+      inc_bootstrap.watchdog('error', \
+        'Cannot use %author token in this context.')
+      return
+  else:
+    # We are being called directly.
+    node = object_
   recipient = context['recipient']
-  if (isset(node)):
-    if (not isset(account)):
-      account = user_load(array('uid' : node.uid))
-    }
+  if node is not None:
+    if (account is None):
+      account = plugin_user.load({'uid' : node.uid})
     if (recipient == '%author'):
       recipient = account.mail
-    }
-  }
-
   if (not isset(account)):
-    account = user
-  }
-  language = user_preferred_language(account)
-  params = array('account' : account, 'object' : object, 'context' : context)
-  if (isset(node)):
+    account = inc_bootstrap.user
+  language = plugin_user.preferred_language(account)
+  params = {'account' : account, 'object' : object_, 'context' : context}
+  if (node is not None):
     params['node'] = node
-  }
-
-  if (drupal_mail('system', 'action_send_email', recipient, language, params)):
-    watchdog('action', 'Sent email to %recipient', array('%recipient' : recipient))
-  }
+  if (inc_mail.drupal_mail('system', 'action_send_email', recipient, \
+      language, params)):
+    inc_bootstrap.watchdog('action', 'Sent email to %recipient', \
+      {'%recipient' : recipient})
   else:
-    watchdog('error', 'Unable to send email to %recipient', array('%recipient' : recipient))
-  }
-}
+    inc_bootstrap.watchdog('error', 'Unable to send email to %recipient', \
+      {'%recipient' : recipient})
+
+
+
 #
 # Implementation of hook_mail().
 #
