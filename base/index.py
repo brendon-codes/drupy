@@ -42,7 +42,7 @@
     USA
 """
 
-from lib.drupy import DrupyPHP as p
+from lib.drupy import DrupyPHP as php
 from includes import bootstrap as inc_bootstrap
 from includes import menu as inc_menu
 from includes import common as inc_common
@@ -53,7 +53,7 @@ print "THIS FILE IS NOT YET FUNCTIONAL"
 print "TO SEE A RUNNING INSTANCE OF DRUPY"
 print "PLEASE RUN DRUPY.PY AS A CGI OR CLI"
 print
-p.flush()
+php.flush()
 exit(1)
 
 
@@ -79,6 +79,6 @@ inc_common.drupal_page_footer();
 #
 # Flush the output
 #
-p.flush()
+php.flush()
 
 

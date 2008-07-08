@@ -39,7 +39,7 @@
 #
 # Includes
 #
-from lib.drupy import DrupyPHP as p
+from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyImport
 from sites.default import settings
 import cache as inc_cache
@@ -195,7 +195,7 @@ DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE = 5
 DRUPAL_BOOTSTRAP_LANGUAGE = 6
 
 #
-# Eighth bootstrap phase: set p.GET['q'] to Drupal path of request.
+# Eighth bootstrap phase: set php.GET['q'] to Drupal path of request.
 #
 DRUPAL_BOOTSTRAP_PATH = 7
 
@@ -252,11 +252,11 @@ def timer_start(name):
   global timers;
   if timers == None:
     timers = {};
-  if not p.isset(timers, name):
+  if not php.isset(timers, name):
     timers[name] = {}
-  (usec, sec) = p.explode(' ', p.microtime());
+  (usec, sec) = php.explode(' ', php.microtime());
   timers[name]['start'] = float(usec) + float(sec);
-  timers[name]['count'] = ((timers[name]['count'] + 1) if p.isset(timers[name],'count') else 1);
+  timers[name]['count'] = ((timers[name]['count'] + 1) if php.isset(timers[name],'count') else 1);
 
 
 
@@ -278,11 +278,11 @@ def timer_read(name):
      The current timer value in ms.
   """
   global timers;
-  if (p.isset(timers[name], 'start')):
-    (usec, sec) = p.explode(' ', p.microtime());
+  if (php.isset(timers[name], 'start')):
+    (usec, sec) = php.explode(' ', php.microtime());
     stop = float(usec) + float(sec);
     diff = round((stop - timers[name]['start']) * 1000, 2);
-    if (p.isset(timers[name], 'time')):
+    if (php.isset(timers[name], 'time')):
       diff += timers[name]['time'];
     return diff;
 
@@ -426,23 +426,23 @@ def conf_init():
   # These will come from settings
   # db_url, db_prefix, cookie_domain, conf, installed_profile, update_free_access
   if (base_url != None):
-    # Parse fixed base URL from settings.p.
-    parts = p.parse_url(base_url);
-    if (not p.isset(parts, 'path')):
+    # Parse fixed base URL from settings.php.
+    parts = php.parse_url(base_url);
+    if (not php.isset(parts, 'path')):
       parts['path'] = '';
     base_path_ = parts['path'] + '/';
     # Build base_root (everything until first slash after "scheme://").
-    base_root = p.substr(base_url, 0, p.strlen(base_url) - p.strlen(parts['path']));
+    base_root = php.substr(base_url, 0, php.strlen(base_url) - php.strlen(parts['path']));
   else:
     # Create base URL
-    base_root = ('https' if (p.isset(p.SERVER, 'HTTPS') and p.SERVER['HTTPS'] == 'on') else 'http');
-    # As p.SERVER['HTTP_HOST'] is user input, ensure it only contains
+    base_root = ('https' if (php.isset(php.SERVER, 'HTTPS') and php.SERVER['HTTPS'] == 'on') else 'http');
+    # As php.SERVER['HTTP_HOST'] is user input, ensure it only contains
     # characters allowed in hostnames.
-    base_root += '://' + p.preg_replace('/[^a-z0-9-:._]/i', '', p.SERVER['HTTP_HOST']);
+    base_root += '://' + php.preg_replace('/[^a-z0-9-:._]/i', '', php.SERVER['HTTP_HOST']);
     base_url = base_root;
-    # p.SERVER['SCRIPT_NAME'] can, in contrast to p.SERVER['PHP_SELF'], not
+    # php.SERVER['SCRIPT_NAME'] can, in contrast to php.SERVER['PHP_SELF'], not
     # be modified by a visitor.
-    dir = p.trim(p.dirname(p.SERVER['SCRIPT_NAME']), '\,/');
+    dir = php.trim(php.dirname(php.SERVER['SCRIPT_NAME']), '\,/');
     if (len(dir) > 0):
       base_path_ = "/dir";
       base_url += base_path_;
@@ -455,22 +455,22 @@ def conf_init():
   else:
     # Otherwise use base_url as session name, without the protocol
     # to use the same session identifiers across http and https.
-    (dummy_, session_name_) = p.explode('://', base_url, 2);
+    (dummy_, session_name_) = php.explode('://', base_url, 2);
     # We escape the hostname because it can be modified by a visitor.
-    if (not p.empty(p.SERVER['HTTP_HOST'])):
-      settings.cookie_domain = check_plain(p.SERVER['HTTP_HOST']);
+    if (not php.empty(php.SERVER['HTTP_HOST'])):
+      settings.cookie_domain = check_plain(php.SERVER['HTTP_HOST']);
   # Strip leading periods, www., and port numbers from cookie domain.
-  settings.cookie_domain = p.ltrim(settings.cookie_domain, '.');
-  if (p.strpos(settings.cookie_domain, 'www.') == 0):
-    settings.cookie_domain = p.substr(settings.cookie_domain, 4);
-  settings.cookie_domain = p.explode(':', settings.cookie_domain);
+  settings.cookie_domain = php.ltrim(settings.cookie_domain, '.');
+  if (php.strpos(settings.cookie_domain, 'www.') == 0):
+    settings.cookie_domain = php.substr(settings.cookie_domain, 4);
+  settings.cookie_domain = php.explode(':', settings.cookie_domain);
   settings.cookie_domain = '.' + settings.cookie_domain[0];
   # Per RFC 2109, cookie domains must contain at least one dot other than the
   # first. For hosts such as 'localhost' or IP Addresses we don't set a cookie domain.
-  if (p.count(p.explode('.', settings.cookie_domain)) > 2 and not p.is_numeric(p.str_replace('.', '', settings.cookie_domain))):
-    p.ini_set('session.cookie_domain', settings.cookie_domain);
+  if (php.count(php.explode('.', settings.cookie_domain)) > 2 and not php.is_numeric(php.str_replace('.', '', settings.cookie_domain))):
+    php.ini_set('session.cookie_domain', settings.cookie_domain);
   #print session_name;
-  inc_session.sess_name('SESS' + p.md5(session_name_));
+  inc_session.sess_name('SESS' + php.md5(session_name_));
 
 
 
@@ -503,20 +503,20 @@ def drupal_get_filename(type_, name, filename = None):
    @return
      The filename of the requested item.
   """
-  p.static(drupal_get_filename, 'files', {})
+  php.static(drupal_get_filename, 'files', {})
   file = inc_database.db_result(inc_database.db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, type_))
-  if (not p.isset(drupal_get_filename.files, type_)):
+  if (not php.isset(drupal_get_filename.files, type_)):
     drupal_get_filename.files[type_] = {}
-  if (filename != None and p.file_exists(filename)):
+  if (filename != None and php.file_exists(filename)):
     drupal_get_filename.files[type_][name] = filename;
-  elif (p.isset(drupal_get_filename.files[type_], name)):
+  elif (php.isset(drupal_get_filename.files[type_], name)):
     # nothing
     pass;
   # Verify that we have an active database connection, before querying
   # the database.  This is required because this def is called both
   # before we have a database connection (i.e. during installation) and
   # when a database connection fails.
-  elif (db_is_active() and (file and p.file_exists(file))):
+  elif (db_is_active() and (file and php.file_exists(file))):
     drupal_get_filename.files[type_][name] = file;
   else:
     # Fallback to searching the filesystem if the database connection is
@@ -532,10 +532,10 @@ def drupal_get_filename(type_, name, filename = None):
       "dir/name/file" % fileVals
     ];
     for file_ in fileChecker:
-      if (p.file_exists(file_)):
+      if (php.file_exists(file_)):
         drupal_get_filename.files[type_][name] = file_;
         break;
-  if (p.isset(drupal_get_filename.files[type_], name)):
+  if (php.isset(drupal_get_filename.files[type_], name)):
     return drupal_get_filename.files[type_][name];
 
 
@@ -559,7 +559,7 @@ def variable_init(conf_ = {}):
       variable = inc_database.db_fetch_object(result);
       if (not variable):
         break;
-      variables[variable.name] = p.unserialize(variable.value);
+      variables[variable.name] = php.unserialize(variable.value);
     inc_cache.cache_set('variables', variables);
   for name,value in conf_.items():
     variables[name] = value;
@@ -588,7 +588,7 @@ def variable_get(name, default_):
    @return
      The value of the variable.
   """
-  return  (settings.conf[name] if p.isset(settings.conf, name) else default_);
+  return  (settings.conf[name] if php.isset(settings.conf, name) else default_);
 
 
 
@@ -611,7 +611,7 @@ def variable_set(name, value):
      The value to set. This can be any PHP data type; these functions take care
      of serialization as necessary.
   """
-  serialized_value = p.serialize(value);
+  serialized_value = php.serialize(value);
   db_query("UPDATE {variable} SET value = '%s' WHERE name = '%s'", serialized_value, name);
   if (db_affected_rows() == 0):
     db_query("INSERT INTO {variable} (name, value) VALUES ('%s', '%s')", name, serialized_value);
@@ -655,9 +655,9 @@ def page_get_cache():
      (whether it was started in this request or not).
   """
   cache = None;
-  if (user == None and p.SERVER['p.REQUEST_METHOD'] == 'p.GET' and p.count(drupal_set_message()) == 0):
+  if (user == None and php.SERVER['php.REQUEST_METHOD'] == 'php.GET' and php.count(drupal_set_message()) == 0):
     cache = cache_get(base_root + request_uri(), 'cache_page');
-    if (p.empty(cache)):
+    if (php.empty(cache)):
       ob_start()
   return cache;
 
@@ -707,10 +707,10 @@ def drupal_load(type_, name):
      TRUE if the item is loaded or has already been loaded.
   """
   global loaded_plugins
-  p.static(drupal_load, 'files', {})
-  if (not p.isset(drupal_load.files, type)):
+  php.static(drupal_load, 'files', {})
+  if (not php.isset(drupal_load.files, type)):
     drupal_load.files[type_] = {}
-  if (p.isset(drupal_load.files[type_], name)):
+  if (php.isset(drupal_load.files[type_], name)):
     return True
   else:
     filename = drupal_get_filename(type_, name);
@@ -736,16 +736,16 @@ def drupal_page_header():
   """
    Set HTTP headers in preparation for a page response.
   
-   Authenticated users are always given a 'no-cache' p.header, and will
+   Authenticated users are always given a 'no-cache' php.header, and will
    fetch a fresh page on every request.  This prevents authenticated
    users seeing locally cached pages that show them as logged out.
   
    @see page_set_cache()
   """
-  p.header("Expires: Sun, 19 Nov 1978 05:00:00 GMT");
-  p.header("Last-Modified: " + p.gmdate("%D, %d %M %Y %H:%i:%s") + " GMT");
-  p.header("Cache-Control: store, no-cache, must-revalidate");
-  p.header("Cache-Control: post-check=0, pre-check=0", False);
+  php.header("Expires: Sun, 19 Nov 1978 05:00:00 GMT");
+  php.header("Last-Modified: " + php.gmdate("%D, %d %M %Y %H:%i:%s") + " GMT");
+  php.header("Cache-Control: store, no-cache, must-revalidate");
+  php.header("Cache-Control: post-check=0, pre-check=0", False);
 
 
 
@@ -759,39 +759,39 @@ def drupal_page_cache_header(cache):
    logged out and the page has not been modified.
   """
   # Set default values:
-  last_modified = p.gmdate('D, d M Y H:i:s', cache.created) + ' GMT';
+  last_modified = php.gmdate('D, d M Y H:i:s', cache.created) + ' GMT';
   etag = '"' + drupy_md5(last_modified) + '"';
   # See if the client has provided the required HTTP headers:
-  if_modified_since =  (p.stripslashes(p.SERVER['HTTP_IF_MODIFIED_SINCE']) \
-    if p.isset(ph.SERVER, 'HTTP_IF_MODIFIED_SINCE') else False);
-  if_none_match = (p.stripslashes(p.SERVER['HTTP_IF_NONE_MATCH']) \
-    if p.isset(p.SERVER, 'HTTP_IF_NONE_MATCH') else False);
+  if_modified_since =  (php.stripslashes(php.SERVER['HTTP_IF_MODIFIED_SINCE']) \
+    if php.isset(php.SERVER, 'HTTP_IF_MODIFIED_SINCE') else False);
+  if_none_match = (php.stripslashes(php.SERVER['HTTP_IF_NONE_MATCH']) \
+    if php.isset(php.SERVER, 'HTTP_IF_NONE_MATCH') else False);
   if (if_modified_since and if_none_match
       and if_none_match == etag # etag must match
       and if_modified_since == last_modified):  # if-modified-since must match
-    p.header('HTTP/1.1 304 Not Modified');
+    php.header('HTTP/1.1 304 Not Modified');
     # All 304 responses must send an etag if the 200 response for the same object contained an etag
-    p.header("Etag: %(etag)s" % {'etag':etag});
+    php.header("Etag: %(etag)s" % {'etag':etag});
     exit();
   # Send appropriate response:
-  p.header("Last-Modified: %(last_modified)s" % {'last_modified':last_modified});
-  p.header("Etag: %(etag)s" % {'etag':etag});
+  php.header("Last-Modified: %(last_modified)s" % {'last_modified':last_modified});
+  php.header("Etag: %(etag)s" % {'etag':etag});
   # The following headers force validation of cache:
-  p.header("Expires: Sun, 19 Nov 1978 05:00:00 GMT");
-  p.header("Cache-Control: must-revalidate");
+  php.header("Expires: Sun, 19 Nov 1978 05:00:00 GMT");
+  php.header("Cache-Control: must-revalidate");
   if (variable_get('page_compression', True)):
     # Determine if the browser accepts gzipped data.
-    if (p.strpos(p.SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') == False and p.function_exists('gzencode')):
-      # Strip the gzip p.header and run uncompress.
-      cache.data = p.gzinflate(p.substr(p.substr(cache.data, 10), 0, -8));
-    elif (p.function_exists('gzencode')):
-      p.header('Content-Encoding: gzip');
+    if (php.strpos(php.SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') == False and php.function_exists('gzencode')):
+      # Strip the gzip php.header and run uncompress.
+      cache.data = php.gzinflate(php.substr(php.substr(cache.data, 10), 0, -8));
+    elif (php.function_exists('gzencode')):
+      php.header('Content-Encoding: gzip');
   # Send the original request's headers. We send them one after
-  # another so PHP's p.header() def can deal with duplicate
+  # another so PHP's php.header() def can deal with duplicate
   # headers.
-  headers = p.explode("\n", cache.headers);
-  for p.header_ in headers:
-    p.header(p.header_);
+  headers = php.explode("\n", cache.headers);
+  for php.header_ in headers:
+    php.header(php.header_);
   print cache.data;
 
 
@@ -815,10 +815,10 @@ def drupal_unpack(obj, field = 'data'):
    @param field
      The attribute of obj whose value should be unserialized.
   """
-  data = p.unserialize(obj.field);
-  if (obj.field and not p.empty(data)):
+  data = php.unserialize(obj.field);
+  if (obj.field and not php.empty(data)):
     for key,value in data.items():
-      if (not p.isset(obj, key)):
+      if (not php.isset(obj, key)):
         setattr(obj, key, value);
   return obj;
 
@@ -827,8 +827,8 @@ def referer_uri():
   """
    Return the URI of the referring page.
   """
-  if (p.isset(p.SERVER, 'HTTP_REFERER')):
-    return p.SERVER['HTTP_REFERER'];
+  if (php.isset(php.SERVER, 'HTTP_REFERER')):
+    return php.SERVER['HTTP_REFERER'];
 
 
 def check_plain(text):
@@ -838,7 +838,7 @@ def check_plain(text):
    Uses drupal_validate_utf8 to prevent cross site scripting attacks on
    Internet Explorer 6.
   """
-  return (p.htmlspecialchars(text, p.ENT_QUOTES) if drupal_validate_utf8(text) else '');
+  return (php.htmlspecialchars(text, php.ENT_QUOTES) if drupal_validate_utf8(text) else '');
 
 
 
@@ -901,25 +901,25 @@ def drupal_validate_utf8(text):
    @return
      TRUE if the text is valid UTF-8, FALSE if not.
   """
-  if (p.strlen(text) == 0):
+  if (php.strlen(text) == 0):
     return True;
-  return (p.preg_match('/^./us', text) == 1);
+  return (php.preg_match('/^./us', text) == 1);
 
 
 def request_uri():
   """
-   Since p.SERVER['p.REQUEST_URI'] is only available on Apache, we
+   Since php.SERVER['php.REQUEST_URI'] is only available on Apache, we
    generate an equivalent using other environment variables.
   """
-  if (p.isset(p.SERVER, 'REQUEST_URI')):
-    uri = p.SERVER['REQUEST_URI'];
+  if (php.isset(php.SERVER, 'REQUEST_URI')):
+    uri = php.SERVER['REQUEST_URI'];
   else:
-    if (p.isset(p.SERVER, 'argv')):
-      uri = p.SERVER['SCRIPT_NAME'] + '?' + p.SERVER['argv'][0];
-    elif (p.isset(p.SERVER, 'QUERY_STRING')):
-      uri = p.SERVER['SCRIPT_NAME'] + '?' + p.SERVER['QUERY_STRING'];
+    if (php.isset(php.SERVER, 'argv')):
+      uri = php.SERVER['SCRIPT_NAME'] + '?' + php.SERVER['argv'][0];
+    elif (php.isset(php.SERVER, 'QUERY_STRING')):
+      uri = php.SERVER['SCRIPT_NAME'] + '?' + php.SERVER['QUERY_STRING'];
     else:
-      uri = p.SERVER['SCRIPT_NAME'];
+      uri = php.SERVER['SCRIPT_NAME'];
   return uri;
 
 
@@ -956,7 +956,7 @@ def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, link = N
     'request_uri' : base_root + request_uri(),
     'referer'     : referer_uri(),
     'ip'          : ip_address(),
-    'timestamp'   : p.time_(),
+    'timestamp'   : php.time_(),
   }
   # Call the logging hooks to log/process the message
   for plugin_ in inc_plugin.plugin_implements('watchdog', True):
@@ -983,14 +983,14 @@ def drupal_set_message(message = None, type = 'status', repeat = True):
      be repeated.
   """
   if (message):
-    if (not p.isset(p.SESSION, 'messages')):
-      p.SESSION['messages'] = {};
-    if (not p.isset(p.SESSION['messages'], type)):
-      p.SESSION['messages'][type] = [];
-    if (repeat or not p.in_array(message, p.SESSION['messages'][type])):
-      p.SESSION['messages'][type].append( message );
+    if (not php.isset(php.SESSION, 'messages')):
+      php.SESSION['messages'] = {};
+    if (not php.isset(php.SESSION['messages'], type)):
+      php.SESSION['messages'][type] = [];
+    if (repeat or not php.in_array(message, php.SESSION['messages'][type])):
+      php.SESSION['messages'][type].append( message );
   # messages not set when DB connection fails
-  return  (p.SESSION['messages'] if p.isset(p.SESSION, 'messages') else None);
+  return  (php.SESSION['messages'] if php.isset(php.SESSION, 'messages') else None);
 
 
 def drupal_get_messages(type = None, clear_queue = True):
@@ -1008,15 +1008,15 @@ def drupal_get_messages(type = None, clear_queue = True):
      all message types are returned, or an empty array if none exist.
   """
   messages = drupal_set_message();
-  if (not p.empty('messages')):
+  if (not php.empty('messages')):
     if (type != None and type != False):
       if (clear_queue):
-        del(p.SESSION['messages'][type]);
-      if (p.isset(messages, type)):
+        del(php.SESSION['messages'][type]);
+      if (php.isset(messages, type)):
         return {type : messages[type]};
     else:
       if (clear_queue):
-        del(p.SESSION['messages']);
+        del(php.SESSION['messages']);
       return messages;
   return {};
 
@@ -1053,8 +1053,8 @@ def drupal_is_denied(ip):
   # for an array of IP addresses in settings.php before querying the
   # database.
   blocked_ips = variable_get('blocked_ips', None);
-  if (blocked_ips != None and p.is_array(blocked_ips)):
-    return p.in_array(ip, blocked_ips)
+  if (blocked_ips != None and php.is_array(blocked_ips)):
+    return php.in_array(ip, blocked_ips)
   else:
     sql = "SELECT 1 FROM {blocked_ips} WHERE ip = '%s'";
     return (inc_database.db_result(inc_database.db_query(sql, ip)) != False)
@@ -1072,7 +1072,7 @@ def drupal_anonymous_user(session = ''):
   
    @return Object - the user object.
   """
-  user = p.stdClass();
+  user = php.stdClass();
   user.uid = 0;
   user.hostname = ip_address();
   user.roles = {};
@@ -1101,14 +1101,14 @@ def drupal_bootstrap(phase):
        DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE: load bootstrap.inc and plugin.inc, start
          the variable system and try to serve a page from the cache.
        DRUPAL_BOOTSTRAP_LANGUAGE: identify the language used on the page.
-       DRUPAL_BOOTSTRAP_PATH: set p.GET['q'] to Drupal path of request.
+       DRUPAL_BOOTSTRAP_PATH: set php.GET['q'] to Drupal path of request.
        DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix input data.
   """
   # DRUPY(BC): Why were these set as static vars?
   # No longer needed. 
   phase_index = 0;
   phases = range(DRUPAL_BOOTSTRAP_CONFIGURATION, DRUPAL_BOOTSTRAP_FULL+1);
-  while (phase >= phase_index and p.isset(phases, phase_index)):
+  while (phase >= phase_index and php.isset(phases, phase_index)):
     current_phase = phases[phase_index];
     #Drupal was unsetting the phase var here.
     #This was completely unnecessary and most likely the cause of some bugs
@@ -1142,12 +1142,12 @@ def _drupal_bootstrap(phase):
   elif phase == DRUPAL_BOOTSTRAP_ACCESS:
     # Deny access to blocked IP addresses - t() is not yet available
     if (drupal_is_denied(ip_address())):
-      p.header('HTTP/1.1 403 Forbidden');
+      php.header('HTTP/1.1 403 Forbidden');
       print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
       exit()
   elif phase == DRUPAL_BOOTSTRAP_SESSION:
-    p.session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
-    p.session_start();
+    php.session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
+    php.session_start();
   elif phase == DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
     # Initialize configuration variables, using values from settings.php if available.
     settings.conf = variable_init( ({} if (settings.conf == None) else settings.conf) );
@@ -1171,7 +1171,7 @@ def _drupal_bootstrap(phase):
   elif phase == DRUPAL_BOOTSTRAP_LANGUAGE:
     drupal_init_language();
   elif phase == DRUPAL_BOOTSTRAP_PATH:
-    # Initialize p.GET['q'] prior to loading plugins and invoking hook_init().
+    # Initialize php.GET['q'] prior to loading plugins and invoking hook_init().
     #inc_path.drupal_init_path();
     pass
   elif phase == DRUPAL_BOOTSTRAP_FULL:
@@ -1204,9 +1204,9 @@ def get_t():
    Return the name of the localisation function. Use in code that needs to
    run both during installation and normal operation.
   """
-  p.static(get_t, 't')
+  php.static(get_t, 't')
   if (get_t.t == None):
-    get_t.t =  ('st' if p.function_exists('install_main') else 't');
+    get_t.t =  ('st' if php.function_exists('install_main') else 't');
   return get_t.t;
 
 
@@ -1238,7 +1238,7 @@ def language_list(field = 'language', reset = False):
    @param field The field to index the list with.
    @param reset Boolean to request a reset of the list.
   """
-  p.static(language_list, 'languages')
+  php.static(language_list, 'languages')
   # Reset language list
   if (reset):
     languages_list.languages = {};
@@ -1256,11 +1256,11 @@ def language_list(field = 'language', reset = False):
       default_ = language_default();
       languages_list.languages['language'][default_.language] = default_;
   # Return the array indexed by the right field
-  if (not p.isset(languages_list.languages, field)):
+  if (not php.isset(languages_list.languages, field)):
     languages_list.languages[field] = {};
     for lang in languages_list.languages['language']:
       # Some values should be collected into an array
-      if (p.in_array(field, ['enabled', 'weight'])):
+      if (php.in_array(field, ['enabled', 'weight'])):
         languages_list.languages[field][lang.field][lang.language] = lang;
       else:
         languages_list.languages[field][lang.field] = lang;
@@ -1275,7 +1275,7 @@ def language_default(property = None):
    @param property
      Optional property of the language object to return
   """
-  language_local = variable_get('language_default', p.object_({
+  language_local = variable_get('language_default', php.object_({
     'language' : 'en',
     'name' : 'English',
     'native' : 'English',
@@ -1313,23 +1313,23 @@ def ip_address(reset=False):
      IP address of client machine, adjusted for reverse proxy and/or cluster
      environments.
   """
-  p.static(ip_address, 'ip_address')
+  php.static(ip_address, 'ip_address')
   if (ip_address.ip_address is None or reset):
-    ip_address.ip_address = p.SERVER['REMOTE_ADDR'];
-    if (variable_get('reverse_proxy', 0) and p.array_key_exists('HTTP_X_FORWARDED_FOR', p.SERVER)):
+    ip_address.ip_address = php.SERVER['REMOTE_ADDR'];
+    if (variable_get('reverse_proxy', 0) and php.array_key_exists('HTTP_X_FORWARDED_FOR', php.SERVER)):
       # If an array of known reverse proxy IPs is provided, then trust
-      # the XFF p.header if request really comes from one of them.
+      # the XFF php.header if request really comes from one of them.
       reverse_proxy_addresses = variable_get('reverse_proxy_addresses', []);
-      if (not p.empty(reverse_proxy_addresses) and \
-          p.in_array(ip_address.ip_address, reverse_proxy_addresses)):
+      if (not php.empty(reverse_proxy_addresses) and \
+          php.in_array(ip_address.ip_address, reverse_proxy_addresses)):
         # If there are several arguments, we need to check the most
         # recently added one, i.e. the last one.
-        ip_address.ip_address = p.array_pop(p.explode(',', p.SERVER['HTTP_X_FORWARDED_FOR']));
+        ip_address.ip_address = php.array_pop(php.explode(',', php.SERVER['HTTP_X_FORWARDED_FOR']));
       # When Drupal is run in a cluster environment, REMOTE_ADDR contains the IP
       # address of a server in the cluster, while the IP address of the client is
       # stored in HTTP_X_CLUSTER_CLIENT_IP.
-      if (array_key_exists('HTTP_X_CLUSTER_CLIENT_IP', p.SERVER)):
-        ip_address.ip_address = p.SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
+      if (array_key_exists('HTTP_X_CLUSTER_CLIENT_IP', php.SERVER)):
+        ip_address.ip_address = php.SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
   return ip_address.ip_address;
 
 #
@@ -1362,7 +1362,7 @@ def drupal_function_exists(function, scope=None):
    If the function is already available, this function does nothing.
    If the function is not available, it tries to load the file where the
    function lives. If the file is not available, it returns False, so that it
-   can be used as a drop-in replacement for p.function_exists().
+   can be used as a drop-in replacement for php.function_exists().
    
    DRUPY(BC): This function needs to be heavily modified
   
@@ -1374,7 +1374,7 @@ def drupal_function_exists(function, scope=None):
      True if the function is now available, False otherwise.
   """
   # We arent using the registry, so lets just return a simple function_exists
-  return p.function_exists(function, scope)
+  return php.function_exists(function, scope)
 
 
 
@@ -1416,7 +1416,7 @@ def _registry_check_code(type_, name):
   """
   file = db_result(db_query("SELECT filename FROM {registry} WHERE name = '%s' AND type = '%s'", name, type_))
   if (file):
-    p.require_once(file)
+    php.require_once(file)
     registry_mark_code(type_, name)
     return True
 
@@ -1443,11 +1443,11 @@ def registry_mark_code(type_, name, return_ = False):
    @param return
      Boolean flag to indicate whether to return the resources.
   """
-  p.static(registry_mark_code, 'resources', [])
+  php.static(registry_mark_code, 'resources', [])
   if (type_ and name):
-    if (not p.isset(registry_mark_code.resources, type_, )):
+    if (not php.isset(registry_mark_code.resources, type_, )):
       registry_mark_code.resources[type_] = []
-    if (not p.in_array(name, registry_mark_code.resources[type_])):
+    if (not php.in_array(name, registry_mark_code.resources[type_])):
       registry_mark_code.resources[type].append( name )
   if (return_):
     return registry_mark_code.resources
@@ -1467,7 +1467,7 @@ def drupal_rebuild_code_registry():
    Rescans all code in plugins or includes directory, storing a mapping of
    each function, file, and hook implementation in the database.
   """
-  p.require_once( './includes/registry.inc' )
+  php.require_once( './includes/registry.inc' )
   _drupal_rebuild_code_registry()
 
 
@@ -1481,7 +1481,7 @@ def registry_cache_hook_implementations(hook, write_to_persistent_cache = False)
    @param write_to_persistent_cache
      Whether to write to the persistent cache.
   """
-  p.static(registry_cache_hook_implementations, 'implementations', {})
+  php.static(registry_cache_hook_implementations, 'implementations', {})
   if (hook):
     # Newer is always better, so overwrite anything that's come before.
     registry_cache_hook_implementations.implementations[hook['hook']] = hook['plugins']
@@ -1507,9 +1507,9 @@ def registry_cache_path_files():
     params = []
     for type,names in used_code.items():
       type_sql.append( "(name IN (" +  db_placeholders(names, 'varchar')  + ") AND type = '%s')" )
-      params = p.array_merge(params, names)
+      params = php.array_merge(params, names)
       params.append( type )
-    res = db_query("SELECT DISTINCT filename FROM {registry} WHERE " +  p.implode(' OR ', type_sql), params)
+    res = db_query("SELECT DISTINCT filename FROM {registry} WHERE " +  php.implode(' OR ', type_sql), params)
     while True:
       row = db_fetch_object(res)
       if (row == None):
@@ -1521,7 +1521,7 @@ def registry_cache_path_files():
       # is different to what we loaded earlier in the request.
       if (files != registry_load_path_files(True)):
         menu = menu_get_item();
-        cache_set('registry:' + menu['path'], p.implode(';', files), 'cache_registry');
+        cache_set('registry:' + menu['path'], php.implode(';', files), 'cache_registry');
 
 
 
@@ -1532,15 +1532,15 @@ def registry_load_path_files(return_ = False):
   """
    registry_load_path_files
   """
-  p.static(registry_load_path_files, 'file_cache_data', [])
+  php.static(registry_load_path_files, 'file_cache_data', [])
   if (return_):
     sort(registry_load_path_files.file_cache_data);
     return registry_load_path_files.file_cache_data;
   menu = menu_get_item();
   cache = cache_get('registry:' + menu['path'], 'cache_registry');
-  if (not p.empty(cache.data)):
-    for file in p.explode(';', cache.data):
-      p.require_once(file);
+  if (not php.empty(cache.data)):
+    for file in php.explode(';', cache.data):
+      php.require_once(file);
       registry_load_path_files.file_cache_data.append( file );
 
 
@@ -1548,7 +1548,7 @@ def registry_get_hook_implementations_cache():
   """
    registry_get_hook_implementations_cache
   """
-  p.static(registry_get_hook_implementations_cache, 'implementations')
+  php.static(registry_get_hook_implementations_cache, 'implementations')
   if (registry_get_hook_implementations_cache.implementations == None):
     cache = inc_cache.cache_get('hooks', 'cache_registry')
     if (cache):

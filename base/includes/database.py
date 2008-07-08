@@ -40,7 +40,7 @@
 #
 # Includes
 #
-from lib.drupy import DrupyPHP as p
+from lib.drupy import DrupyPHP as php
 from sites.default import settings
 import bootstrap as inc_bootstrap
 import database_mysqli as db
@@ -52,7 +52,7 @@ active_db = None
 
 
 #
-# A hash value to check when outputting database errors, p.md5('DB_ERROR').
+# A hash value to check when outputting database errors, php.md5('DB_ERROR').
 #
 # @see drupal_error_handler()
 #
@@ -128,19 +128,19 @@ def db_prefix_tables(sql):
    @return
      The properly-prefixed string.
   """
-  if (p.is_array(settings.db_prefix)):
-    if (p.array_key_exists('default', settings.db_prefix)):
+  if (php.is_array(settings.db_prefix)):
+    if (php.array_key_exists('default', settings.db_prefix)):
       tmp = settings.db_prefix;
       del(tmp['default']);
       for key,val in tmp.items():
-        sql = p.strtr(sql, {('{' + key + '}') : (val + key)});
-      return p.strtr(sql, {'{' : settings.db_prefix['default'], '}' : ''});
+        sql = php.strtr(sql, {('{' + key + '}') : (val + key)});
+      return php.strtr(sql, {'{' : settings.db_prefix['default'], '}' : ''});
     else:
       for key,val in settings.db_prefix.items():
-        sql = p.strtr(sql, {('{' + key + '}') : (val + key)});
-      return p.strtr(sql, {'{' : '', '}' : ''});
+        sql = php.strtr(sql, {('{' + key + '}') : (val + key)});
+      return php.strtr(sql, {'{' : '', '}' : ''});
   else:
-    return p.strtr(sql, {'{' : settings.db_prefix, '}' : ''});
+    return php.strtr(sql, {'{' : settings.db_prefix, '}' : ''});
 
 
 def db_set_active(name = 'default'):
@@ -167,18 +167,18 @@ def db_set_active(name = 'default'):
    to get this figured out 
   """
   global active_db
-  p.static(db_set_active, 'db_conns', {})
-  p.static(db_set_active, 'active_name', False)
+  php.static(db_set_active, 'db_conns', {})
+  php.static(db_set_active, 'active_name', False)
   if (settings.db_url == None):
-    p.include_once('includes/install.py');
+    php.include_once('includes/install.py');
     install_goto('install.py');
-  if (not p.isset(db_set_active.db_conns, name)):
+  if (not php.isset(db_set_active.db_conns, name)):
     # Initiate a new connection, using the named DB URL specified.
     if (isinstance(settings.db_url, dict)):
-      connect_url = (settings.db_url[name] if p.array_key_exists(name, settings.db_url) else settings.db_url['default']);
+      connect_url = (settings.db_url[name] if php.array_key_exists(name, settings.db_url) else settings.db_url['default']);
     else:
       connect_url = settings.db_url;
-    db_type = p.substr(connect_url, 0, p.strpos(connect_url, '://'));
+    db_type = php.substr(connect_url, 0, php.strpos(connect_url, '://'));
     #handler = "includes/database_%(db_type)s.py" % {'db_type' : db_type};
     #try:
     #  import db file here
@@ -186,9 +186,9 @@ def db_set_active(name = 'default'):
     #  _db_error_page("The database type '" + db_type + "' is unsupported. Please use either 'mysql' or 'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
     db_set_active.db_conns[name] = db.db_connect(connect_url);
     # We need to pass around the simpletest database prefix in the request
-    # and we put that in the user_agent p.header.
-    if (p.preg_match("/^simpletest\d+$/", p.SERVER['HTTP_USER_AGENT'])):
-      db_prefix = p.SERVER['HTTP_USER_AGENT'];
+    # and we put that in the user_agent php.header.
+    if (php.preg_match("/^simpletest\d+$/", php.SERVER['HTTP_USER_AGENT'])):
+      db_prefix = php.SERVER['HTTP_USER_AGENT'];
   previous_name = db_set_active.active_name;
   # Set the active connection.
   db_set_active.active_name = name;
@@ -232,20 +232,20 @@ def _db_query_callback(match, init = False):
   """
    Helper function for db_query().
   """
-  p.static(_db_query_callback, 'args')
+  php.static(_db_query_callback, 'args')
   if (init):
     _db_query_callback.args = list(match);
     return;
   if match[1] == '%d': # We must use type casting to int to convert FALSE/NULL/(TRUE?)
-    return str(int(p.array_shift(_db_query_callback.args))); # We don't need db_escape_string as numbers are db-safe
+    return str(int(php.array_shift(_db_query_callback.args))); # We don't need db_escape_string as numbers are db-safe
   elif match[1] == '%s':
-    return db.db_escape_string(p.array_shift(_db_query_callback.args));
+    return db.db_escape_string(php.array_shift(_db_query_callback.args));
   elif match[1] == '%%':
     return '%';
   elif match[1] == '%f':
-    return float(p.array_shift(_db_query_callback.args));
+    return float(php.array_shift(_db_query_callback.args));
   elif match[1] == '%b': # binary data
-    return db.db_encode_blob(p.array_shift(_db_query_callback.args));
+    return db.db_encode_blob(php.array_shift(_db_query_callback.args));
 
 
 def db_placeholders(arguments, type = 'int'):
@@ -261,7 +261,7 @@ def db_placeholders(arguments, type = 'int'):
      The Schema API type of a field (e.g. 'int', 'text', or 'varchar').
   """
   placeholder = db_type_placeholder(type);
-  return p.implode(',', p.array_fill(0, p.count(arguments), placeholder));
+  return php.implode(',', php.array_fill(0, php.count(arguments), placeholder));
 
 
 #

@@ -35,6 +35,9 @@ import re
 import sys
 from lib.drupy import DrupyPHP
 
+prefix_find = 'p\.'
+prefix_replace = 'php.'
+
 f = open(sys.argv[1], 'r+')
 data = f.read()
 
@@ -45,11 +48,11 @@ for k,v in vars(DrupyPHP).items():
     continue
   # Function
   elif (t == 'function'):
-    pat = r'(?<![a-zA-Z0-9_\.])(%s)(?=\()' % k
+    pat = r'(?<![a-zA-Z0-9_\.])%s(%s)(?=\()' % (prefix_find,k)
   # Variable
   else:
-    pat = r'(?<![a-zA-Z0-9_\.])(%s)(?![a-zA-Z])' % k
-  rep = r'p.\1'
+    pat = r'(?<![a-zA-Z0-9_\.])%s(%s)(?![a-zA-Z])' % (prefix_find,k)
+  rep = r'%s\1' % prefix_replace
   data = re.sub(pat, rep, data)
 
 
