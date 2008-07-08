@@ -43,10 +43,10 @@
 """
 
 from lib.drupy import DrupyPHP as php
-from includes import bootstrap as inc_bootstrap
-from includes import menu as inc_menu
-from includes import common as inc_common
-from includes import theme as inc_theme
+from includes import bootstrap as lib_bootstrap
+from includes import menu as lib_menu
+from includes import common as lib_common
+from includes import theme as lib_theme
 
 print
 print "THIS FILE IS NOT YET FUNCTIONAL"
@@ -61,20 +61,20 @@ exit(1)
 # We need to catch all exceptions and send them to the
 # default exception handler
 #
-drupal_bootstrap(inc_bootstrap.DRUPAL_BOOTSTRAP_FULL);
-return_ = inc_menu.menu_execute_active_handler();
+drupal_bootstrap(lib_bootstrap.DRUPAL_BOOTSTRAP_FULL);
+return_ = lib_menu.menu_execute_active_handler();
 # Menu status constants are integers; page content is a string.
 if (is_int(return_)):
-  if (return_ == inc_menu.MENU_NOT_FOUND):
-      inc_bootstrap.drupal_not_found();
-  elif (return_ == inc_menu.MENU_ACCESS_DENIED):
-    inc_common.drupal_access_denied();
-  elif (return_ == inc_menu.MENU_SITE_OFFLINE):
-    inc_common.drupal_site_offline();
+  if (return_ == lib_menu.MENU_NOT_FOUND):
+      lib_bootstrap.drupal_not_found();
+  elif (return_ == lib_menu.MENU_ACCESS_DENIED):
+    lib_common.drupal_access_denied();
+  elif (return_ == lib_menu.MENU_SITE_OFFLINE):
+    lib_common.drupal_site_offline();
 else:
   # Print any value (including an empty string) except NULL or undefined:
-  print inc_theme.theme('page', return_);
-inc_common.drupal_page_footer();
+  print lib_theme.theme('page', return_);
+lib_common.drupal_page_footer();
 
 #
 # Flush the output

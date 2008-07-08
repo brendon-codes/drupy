@@ -1226,7 +1226,7 @@ def theme_mark(type = MARK_NEW):
    @return
      A string containing the marker+
   """
-  if (inc_bootstrap.user.uid > 0):
+  if (lib_bootstrap.user.uid > 0):
     if (type == MARK_NEW):
       return ' <span class="marker">'+ t('new') +'</span>';
     elif (type == MARK_UPDATED):
@@ -1485,9 +1485,9 @@ def template_preprocess(variables_, hook):
     # Flag front page status+
     variables['is_front'] = drupal_is_front_page();
     # Tell all templates by which kind of user they're viewed+
-    variables['logged_in'] = (inc_bootstrap.user.uid > 0);
+    variables['logged_in'] = (lib_bootstrap.user.uid > 0);
     # Provide user object to all templates
-    variables_.val['user'] = inc_bootstrap.user;
+    variables_.val['user'] = lib_bootstrap.user;
 
 
 
@@ -1559,8 +1559,8 @@ def template_preprocess_page(variables_):
   variables_.val['logo']              = theme_get_setting('logo');
   variables_.val['messages']          = (theme('status_messages') if variables['show_messages'] else '');
   variables_.val['mission']           = (mission if (mission != None) else '');
-  variables_.val['main_menu']         = (inc_menu.menu_main_menu() if theme_get_setting('toggle_main_menu') else []);
-  variables_.val['secondary_menu']    = (inc_menu.menu_secondary_menu() if theme_get_setting('toggle_secondary_menu') else []);
+  variables_.val['main_menu']         = (lib_menu.menu_main_menu() if theme_get_setting('toggle_main_menu') else []);
+  variables_.val['secondary_menu']    = (lib_menu.menu_secondary_menu() if theme_get_setting('toggle_secondary_menu') else []);
   variables_.val['search_box']        = (drupal_get_form('search_theme_form') if theme_get_setting('toggle_search') else '');
   variables_.val['site_name']         = (variable_get('site_name', 'Drupal') if theme_get_setting('toggle_name') else '');
   variables_.val['site_slogan']       = (variable_get('site_slogan', '') if theme_get_setting('toggle_slogan') else '');
@@ -1571,7 +1571,7 @@ def template_preprocess_page(variables_):
   variables_.val['title']             = drupal_get_title();
   # Closure should be filled last+
   variables_.val['closure']           = theme('closure');
-  node = inc_menu.menu_get_object();
+  node = lib_menu.menu_get_object();
   if (node):
     variables_.val['node'] = node;
   # Compile a list of classes that are going to be applied to the body element+

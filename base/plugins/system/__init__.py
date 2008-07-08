@@ -37,13 +37,13 @@
 """
 
 from lib.drupy import DrupyPHP as php
-from includes import database as inc_database
-from includes import bootstrap as inc_bootstrap
-from includes import common as inc_common
-from includes import menu as inc_menu
+from includes import database as lib_database
+from includes import bootstrap as lib_bootstrap
+from includes import common as lib_common
+from includes import menu as lib_menu
 #from includes import tablesort as inc_tablesort
 #from includes import form as inc_form
-from includes import theme as inc_theme
+from includes import theme as lib_theme
 #from includes import mail as inc_mail
 #from plugins import user as plugin_user
 #from plugins import node as plugin_node
@@ -239,7 +239,7 @@ def hook_help(path_, arg):
       'before they may be used. To create an advanced action, select ' + \
       'the action from the drop-down below and click the ' + \
       '<em>Create</em> button.') + '</p>'
-    if (inc_plugin.plugin_exists('trigger')):
+    if (lib_plugin.plugin_exists('trigger')):
       output += '<p>' +  t('You may proceed to the ' + \
         '<a href="@url">Triggers</a> page to assign these actions ' + \
         'to system events.', {'@url' : url('admin/build/trigger')})  + '</p>'
@@ -823,7 +823,7 @@ def blocked_ip_load(iid):
    @return
      The blocked IP address from the database as an array.
   """
-  blocked_ip = inc_database.db_fetch_array(inc_database.db_query(\
+  blocked_ip = lib_database.db_fetch_array(lib_database.db_query(\
     "SELECT * FROM {blocked_ips} WHERE iid = %d", iid))
   return blocked_ip
 
@@ -835,7 +835,7 @@ def _themes_access(theme_):
   """
   return plugin_user.access('administer site configuration') and \
     (theme_.status or theme_.name == \
-    inc_bootstrap.variable_get('admin_theme', '0'))
+    lib_bootstrap.variable_get('admin_theme', '0'))
 
 
 def hook_init():
@@ -845,26 +845,26 @@ def hook_init():
   global custom_theme
   # Use the administrative theme if the user
   # is looking at a page in the admin/* path.
-  if (inc_path.arg(0) == 'admin' or \
-      (inc_bootstrap.variable_get('node_admin_theme', '0') and \
-      inc_path.arg(0) == 'node' and (inc_path.arg(1) == 'add' or \
-      inc_path.arg(2) == 'edit'))):
-    custom_theme = inc_bootstrap.variable_get('admin_theme', '0')
-    inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') + \
+  if (lib_path.arg(0) == 'admin' or \
+      (lib_bootstrap.variable_get('node_admin_theme', '0') and \
+      lib_path.arg(0) == 'node' and (lib_path.arg(1) == 'add' or \
+      lib_path.arg(2) == 'edit'))):
+    custom_theme = lib_bootstrap.variable_get('admin_theme', '0')
+    lib_common.drupal_add_css(lib_common.drupal_get_path('module', 'system') + \
     '/admin.css', 'module')
   # Add the CSS for this module.
-  inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') +  \
+  lib_common.drupal_add_css(lib_common.drupal_get_path('module', 'system') +  \
     '/defaults.css', 'module')
-  inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') + \
+  lib_common.drupal_add_css(lib_common.drupal_get_path('module', 'system') + \
     '/system.css', 'module')
-  inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') + \
+  lib_common.drupal_add_css(lib_common.drupal_get_path('module', 'system') + \
     '/system-menus.css', 'module')
   # Get the major version
   version = php.explode('.', VERSION)[0]
   # Emit the META tag in the HTML HEAD section
-  inc_theme.theme('meta_generator_html', version)
+  lib_theme.theme('meta_generator_html', version)
   # Emit the HTTP Header too
-  inc_theme.theme('meta_generator_header', version)
+  lib_theme.theme('meta_generator_header', version)
 
 
 def hook_user(type, edit, user, category = None):
@@ -875,26 +875,26 @@ def hook_user(type, edit, user, category = None):
   """
   php.Reference.check(user)
   if (type_ == 'form' and category == 'account'):
-    form['theme_select'] = theme_select_form(inc_common.t(
+    form['theme_select'] = theme_select_form(lib_common.t(
       'Selecting a different theme will ' + \
       'change the look and feel of the site.'), \
       (edit['theme'] if php.isset(edit, 'theme') else None), 2)
-    if (inc_bootstrap.variable_get('configurable_timezones', 1)):
+    if (lib_bootstrap.variable_get('configurable_timezones', 1)):
       zones = _zonelist()
       form['timezone'] = {
         '#type' : 'fieldset',
-        '#title' : inc_common.t('Locale settings'),
+        '#title' : lib_common.t('Locale settings'),
         '#weight' : 6,
         '#collapsible' : True,
       }
       form['timezone']['timezone'] = {
         '#type' : 'select',
-        '#title' : inc_common.t('Time zone'),
+        '#title' : lib_common.t('Time zone'),
         '#default_value' : (edit['timezone'] if \
           php.strlen(edit['timezone']) else \
-          inc_common.variable_get('date_default_timezone', 0)),
+          lib_common.variable_get('date_default_timezone', 0)),
         '#options' : zones,
-        '#description' : inc_common.t('Select your current local time. ' + \
+        '#description' : lib_common.t('Select your current local time. ' + \
           'Dates and times throughout this site will be displayed using ' + \
           'this time zone.'),
       }
@@ -909,7 +909,7 @@ def hook_block(op = 'list', delta = '', edit = None):
   """
   if op == 'list':
     blocks['powered-by'] = {
-      'info' : inc_common.t('Powered by Drupal'),
+      'info' : lib_common.t('Powered by Drupal'),
       'weight' : '10',
        # Not worth caching.
       'cache' : BLOCK_NO_CACHE
@@ -919,36 +919,36 @@ def hook_block(op = 'list', delta = '', edit = None):
     # Compile a list of fields to show
     form['wrapper']['color'] = {
       '#type' : 'select',
-      '#title' : inc_common.t('Badge color'),
-      '#default_value' : inc_bootstrap.variable_get(\
+      '#title' : lib_common.t('Badge color'),
+      '#default_value' : lib_bootstrap.variable_get(\
         'drupal_badge_color', 'powered-blue'),
       '#options' : {
-        'powered-black' : inc_common.t('Black'),
-        'powered-blue' : inc_common.t('Blue'),
-        'powered-gray' : inc_common.t('Gray')
+        'powered-black' : lib_common.t('Black'),
+        'powered-blue' : lib_common.t('Blue'),
+        'powered-gray' : lib_common.t('Gray')
       }
     }
     form['wrapper']['size'] = {
       '#type' : 'select',
       '#title' : t('Badge size'),
-      '#default_value' : inc_bootstrap.variable_get(\
+      '#default_value' : lib_bootstrap.variable_get(\
         'drupal_badge_size', '80x15'),
       '#options' : {
-        '80x15' : inc_common.t('Small'),
-        '88x31' : inc_common.t('Medium'),
-        '135x42' : inc_common.t('Large')
+        '80x15' : lib_common.t('Small'),
+        '88x31' : lib_common.t('Medium'),
+        '135x42' : lib_common.t('Large')
       }
     }
     return form
   elif op == 'save':
-    inc_bootstrap.variable_set('drupal_badge_color', edit['color'])
-    inc_bootstrap.variable_set('drupal_badge_size', edit['size'])
+    lib_bootstrap.variable_set('drupal_badge_color', edit['color'])
+    lib_bootstrap.variable_set('drupal_badge_size', edit['size'])
   elif op == 'view':
-    image_path = 'misc/' + inc_bootstrap.variable_get('drupal_badge_color', \
-      'powered-blue')  + '-' + inc_bootstrap.variable_get(\
+    image_path = 'misc/' + lib_bootstrap.variable_get('drupal_badge_color', \
+      'powered-blue')  + '-' + lib_bootstrap.variable_get(\
       'drupal_badge_size', '80x15') + '.png'
     block['subject'] = None # Don't display a title
-    block['content'] = inc_theme.theme('system_powered_by', image_path)
+    block['content'] = lib_theme.theme('system_powered_by', image_path)
 
 
 
@@ -961,10 +961,10 @@ def admin_menu_block(item):
   """
   content = []
   if (not php.isset(item['mlid'])):
-    item += inc_database.db_fetch_array(inc_database.db_query(\
+    item += lib_database.db_fetch_array(lib_database.db_query(\
       "SELECT mlid, menu_name FROM {menu_links} ml " + \
       "WHERE ml.router_path = '%s' AND module = 'system'", item['path']))
-  result = inc_database.db_query(
+  result = lib_database.db_query(
     "SELECT m.load_functions, m.to_arg_functions, m.access_callback, " + \
     "m.access_arguments, m.page_callback, m.page_arguments, m.title, " + \
     "m.title_callback, m.title_arguments, m.type, m.description, ml.* " + \
@@ -973,10 +973,10 @@ def admin_menu_block(item):
     "WHERE ml.plid = %d AND ml.menu_name = '%s' AND hidden = 0", \
     item['mlid'], item['menu_name'])
   while True:
-    item = inc_database.db_fetch_array(result)
+    item = lib_database.db_fetch_array(result)
     if not item:
       break
-    inc_menu._menu_link_translate(item)
+    lib_menu._menu_link_translate(item)
     if (not item['access']):
       continue
     # The link 'description' either derived from the hook_menu 'description' or
@@ -999,8 +999,8 @@ def admin_theme_submit(form, form_state):
   # If we're changing themes, make sure the theme has its blocks initialized.
   if (form_state['values']['admin_theme'] and \
       form_state['values']['admin_theme'] != \
-      inc_bootstrap.variable_get('admin_theme', '0')):
-    result = inc_database.db_result(inc_database.db_query(\
+      lib_bootstrap.variable_get('admin_theme', '0')):
+    result = lib_database.db_result(lib_database.db_query(\
      "SELECT COUNT(*) FROM {blocks} WHERE theme = '%s'", \
       form_state['values']['admin_theme']))
     if (not result):
@@ -1030,7 +1030,7 @@ def theme_select_form(description = '', default_value = '', weight = 0):
       p.ksort(enabled)
       form['themes'] = {
         '#type' : 'fieldset',
-        '#title' : inc_common.t('Theme configuration'),
+        '#title' : lib_common.t('Theme configuration'),
         '#description' : description,
         '#collapsible' : True,
         '#theme' : 'system_theme_select_form'
@@ -1039,7 +1039,7 @@ def theme_select_form(description = '', default_value = '', weight = 0):
         # For the default theme, revert to an empty string
         # so the user's theme updates when the site theme is changed.
         info.key = (info.name == ('' if \
-          inc_bootstrap.variable_get('theme_default', 'garland') else \
+          lib_bootstrap.variable_get('theme_default', 'garland') else \
           info.name))
         screenshot = None
         theme_key = info.name
@@ -1049,10 +1049,10 @@ def theme_select_form(description = '', default_value = '', weight = 0):
             break
           theme_key = (themes[theme_key].info['base theme'] if \
             php.isset(themes[theme_key].info['base theme']) else None)
-        screenshot = (screenshot if inc_theme.theme('image', screenshot, \
-          inc_common.t('Screenshot for %theme theme', \
+        screenshot = (screenshot if lib_theme.theme('image', screenshot, \
+          lib_common.t('Screenshot for %theme theme', \
           {'%theme' : info.name}), '', {'class' : 'screenshot'}, False) else \
-          inc_common.t('no screenshot'))
+          lib_common.t('no screenshot'))
         form['themes'][info.key]['screenshot'] = {'#value' : screenshot}
         form['themes'][info.key]['description'] =  \
         {
@@ -1060,10 +1060,10 @@ def theme_select_form(description = '', default_value = '', weight = 0):
           '#title' : info.name,
           '#value' :
             php.dirname(info.filename) + (
-              '<br /> <em>' + inc_common.t(\
+              '<br /> <em>' + lib_common.t(\
               '(site default theme)') + '</em>' if \
               info.name == \
-              inc_bootstrap.variable_get('theme_default', 'garland') else \
+              lib_bootstrap.variable_get('theme_default', 'garland') else \
               ''
             )
         }
@@ -1103,11 +1103,11 @@ def get_files_database(files, type):
   """
   php.Reference.check(files)
   # Extract current files from database.
-  result = inc_database.db_query(
+  result = lib_database.db_query(
     "SELECT filename, name, type, status, schema_version " + \
     "FROM {system} WHERE type = '%s'", type_)
   while True:
-    file = inc_database.db_fetch_object(result)
+    file = lib_database.db_fetch_object(result)
     if not file:
       break
     if (php.isset(files[file.name]) and php.is_object(files[file.name])):
@@ -1167,11 +1167,11 @@ def theme_data():
   themes = _theme_data()
   # Extract current files from database.
   get_files_database(themes, 'theme')
-  inc_database.db_query("DELETE FROM {system} WHERE type = 'theme'")
+  lib_database.db_query("DELETE FROM {system} WHERE type = 'theme'")
   for theme_ in themes:
     if (not isset(theme_, 'owner')):
       theme_.owner = ''
-    inc_database.db_query(\
+    lib_database.db_query(\
       "INSERT INTO {system} (name, owner, info, type, filename, " + \
       "status, bootstrap) VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d)", \
       theme.name, theme.owner, serialize(theme.info), 'theme', \
@@ -1190,9 +1190,9 @@ def _theme_data():
   php.static(_theme_data, 'theme_info', {})
   if (php.empty(_theme_data.theme_info)):
     # Find themes
-    themes = inc_common.drupal_system_listing('\.info$', 'themes')
+    themes = lib_common.drupal_system_listing('\.info$', 'themes')
     # Find theme engines
-    engines = inc_common.drupal_system_listing('\.engine$', 'themes/engines')
+    engines = lib_common.drupal_system_listing('\.engine$', 'themes/engines')
     defaults = theme_default()
     sub_themes = {}
     # Read info files for each theme
@@ -1200,7 +1200,7 @@ def _theme_data():
       themes[key].info = drupal_parse_info_file(theme.filename) + defaults
       # Invoke hook_system_info_alter() to give installed modules a chance to
       # modify the data in the .info files if necessary.
-      inc_common.drupal_alter('system_info', themes[key].info, themes[key])
+      lib_common.drupal_alter('system_info', themes[key].info, themes[key])
       if (not empty(themes[key].info['base theme'])):
         sub_themes.append( key )
       if (php.empty(themes[key].info['engine'])):
@@ -1294,7 +1294,7 @@ def region_list(theme_key):
   """
   php.static(region_list, 'list_', {})
   if (not array_key_exists(theme_key, region_list.list_)):
-    info = php.unserialize(inc_database.db_result(inc_database.db_query(\
+    info = php.unserialize(lib_database.db_result(lib_database.db_query(\
       "SELECT info FROM {system} WHERE type = 'theme' AND name = '%s'",\
       theme_key)))
     region_list.list_[theme_key] = p.array_map('t', info['regions'])
@@ -1336,14 +1336,14 @@ def initialize_theme_blocks(theme_):
     result = db_query("SELECT * FROM {blocks} WHERE theme = '%s'", \
       default_theme)
     while True:
-      block = inc_database.db_fetch_array(result)
+      block = lib_database.db_fetch_array(result)
       if not block:
         break
       # If the region isn't supported by the theme,
       # assign the block to the theme's default region.
       if (not php.array_key_exists(block['region'], regions)):
         block['region'] = default_region(theme_)
-      inc_database.db_query(\
+      lib_database.db_query(\
           "INSERT INTO {blocks} (module, delta, theme, status, weight, " + \
           "region, visibility, pages, custom, cache) VALUES ('%s', '%s', " + \
           "'%s', %d, %d, '%s', %d, '%s', %d, %d)", \
@@ -1366,11 +1366,11 @@ def settings_form(form):
      The form structure.
   """
   form['buttons']['submit'] = {'#type' : 'submit', '#value' : \
-    inc_common.t('Save configuration') }
+    lib_common.t('Save configuration') }
   form['buttons']['reset'] = {'#type' : 'submit', '#value' : \
-    inc_common.t('Reset to defaults') }
+    lib_common.t('Reset to defaults') }
   if (not empty(php.POST) and inc_form.form_get_errors()):
-    inc_common.drupal_set_message(inc_common.t(\
+    lib_common.drupal_set_message(lib_common.t(\
       'The settings have not been saved because of the errors.'), 'error')
   form['#submit'].append( 'system_settings_form_submit' )
   form['#theme'] = 'system_settings_form'
@@ -1393,20 +1393,20 @@ def settings_form_submit(form, form_state):
     form_state['values']['form_id'], form_state['values']['op'], \
     form_state['values']['form_token'], form_state['values']['form_build_id'])
   for key,value in form_state['values'].items():
-    if (op == inc_common.t('Reset to defaults')):
-      inc_bootstrap.variable_del(key)
+    if (op == lib_common.t('Reset to defaults')):
+      lib_bootstrap.variable_del(key)
     else:
       if (php.is_array(value) and php.isset(form_state['values']['array_filter'])):
         value = php.array_keys(php.array_filter(value))
-      inc_bootstrap.variable_set(key, value)
+      lib_bootstrap.variable_set(key, value)
   if (op == t('Reset to defaults')):
-    inc_common.drupal_set_message(inc_common.t(\
+    lib_common.drupal_set_message(lib_common.t(\
       'The configuration options have been reset to their default values.'))
   else:
-    inc_common.drupal_set_message(inc_common.t(\
+    lib_common.drupal_set_message(lib_common.t(\
       'The configuration options have been saved.'))
-  inc_cache.cache_clear_all()
-  inc_theme.drupal_rebuild_theme_registry()
+  lib_cache.cache_clear_all()
+  lib_theme.drupal_rebuild_theme_registry()
 
 
 
@@ -1433,11 +1433,11 @@ def hook_node_type(op, info):
       info.type != info.old_type):
     old = 'toggle_node_info_' +  info.old_type
     new = 'toggle_node_info_' +  info.type
-    theme_settings = inc_bootstrap.variable_get('theme_settings', {})
+    theme_settings = lib_bootstrap.variable_get('theme_settings', {})
     if (php.isset(theme_settings, old)):
       theme_settings[new] = theme_settings[old]
       del(theme_settings[old])
-      inc_bootstrap.variable_set('theme_settings', theme_settings)
+      lib_bootstrap.variable_set('theme_settings', theme_settings)
 
 
 
@@ -1477,16 +1477,16 @@ def confirm_form(form, question, path_, description = None, yes = None, \
      The form.
   """
   description = (description if description is not None \
-    else inc_common.t('This action cannot be undone.'))
+    else lib_common.t('This action cannot be undone.'))
   # Prepare cancel link
   query = fragment = None
   if (php.is_array(path_)):
     query = (path_['query'] if php.isset(path_, 'query') else None)
     fragment = (path_['fragment'] if php.isset(path_['fragment']) else None)
     path = (path_['path'] if php.isset(path_, 'path') else None)
-  cancel = inc_common.l((no if no else inc_common.t('Cancel')), path_, \
+  cancel = lib_common.l((no if no else lib_common.t('Cancel')), path_, \
     {'query' : query, 'fragment' : fragment})
-  inc_path.drupal_set_title(question)
+  lib_path.drupal_set_title(question)
   # Confirm form fails duplication check,
   # as the form values rarely change -- so skip it.
   form['#skip_duplicate_check'] = True
@@ -1496,7 +1496,7 @@ def confirm_form(form, question, path_, description = None, yes = None, \
   form['actions'] = {'#prefix' : \
     '<div class="container-inline">', '#suffix' : '</div>'}
   form['actions']['submit'] = {'#type' : 'submit', '#value' : \
-    (yes if yes else inc_common.t('Confirm'))}
+    (yes if yes else lib_common.t('Confirm'))}
   form['actions']['cancel'] = {'#value' : cancel}
   form['#theme'] = 'confirm_form'
   return form
@@ -1508,8 +1508,8 @@ def admin_compact_mode():
   """
    Determine if a user is in compact mode.
   """
-  return (inc_bootstrap.user.admin_compact_mode if \
-    php.isset(inc_bootstrap.user, 'admin_compact_mode') else \
+  return (lib_bootstrap.user.admin_compact_mode if \
+    php.isset(lib_bootstrap.user, 'admin_compact_mode') else \
     variable_get('admin_compact_mode', False))
 
 
@@ -1521,8 +1521,8 @@ def admin_compact_page(mode = 'off'):
    @param mode
      Valid values are 'on' and 'off'.
   """
-  plugin_user.save(inc_bootstrap.user, {'admin_compact_mode' : (mode == 'on')})
-  inc_common.drupal_goto(inc_common.drupal_get_destination())
+  plugin_user.save(lib_bootstrap.user, {'admin_compact_mode' : (mode == 'on')})
+  lib_common.drupal_goto(lib_common.drupal_get_destination())
 
 
 
@@ -1539,7 +1539,7 @@ def get_module_admin_tasks(plugin):
   admin_access = plugin_user.access('administer permissions')
   admin_tasks = {}
   if (get_module_admin_tasks.items is None):
-    result = inc_database.db_query(
+    result = lib_database.db_query(
       "SELECT " + \
       "  m.load_functions, m.to_arg_functions, " + \
       "  m.access_callback, m.access_arguments, " + \
@@ -1555,20 +1555,20 @@ def get_module_admin_tasks(plugin):
       "  m.number_parts > 2")
     get_module_admin_tasks.items = {}
     while True:
-      item = inc_database.db_fetch_array(result)
+      item = lib_database.db_fetch_array(result)
       if not item:
         break
-      inc_menu._menu_link_translate(item)
+      lib_menu._menu_link_translate(item)
       if (item['access']):
         get_module_admin_tasks.items[item['router_path']] = item
   admin_tasks = {}
   admin_task_count = 0
   # Check for permissions.
-  if (inc_plugin.plugin_hook(plugin, 'perm') and admin_access):
-    admin_tasks[-1] = inc_common.l(inc_common.t('Configure permissions'), \
+  if (lib_plugin.plugin_hook(plugin, 'perm') and admin_access):
+    admin_tasks[-1] = lib_common.l(lib_common.t('Configure permissions'), \
       'admin/user/permissions', {'fragment' : 'plugin-' +  plugin})
   # Check for menu items that are admin links.
-  menu_ = inc_plugin.plugin_invoke(plugin, 'menu')
+  menu_ = lib_plugin.plugin_invoke(plugin, 'menu')
   if menu_:
     for path_ in php.array_keys(menu_):
       if (php.isset(get_module_admin_tasks.items[path_])):
@@ -1587,13 +1587,13 @@ def hook_cron():
    Remove older rows from flood and batch table. Remove old temporary files.
   """
   # Cleanup the flood.
-  inc_database.db_query('DELETE FROM {flood} WHERE timestamp < %d', \
+  lib_database.db_query('DELETE FROM {flood} WHERE timestamp < %d', \
     php.time_() - 3600)
   # Cleanup the batch table.
-  inc_database.db_query('DELETE FROM {batch} WHERE timestamp < %d', \
+  lib_database.db_query('DELETE FROM {batch} WHERE timestamp < %d', \
     php.time_() - 864000)
   # Remove temporary files that are older than DRUPAL_MAXIMUM_TEMP_FILE_AGE.
-  result = inc_database.db_query(
+  result = lib_database.db_query(
     'SELECT * ' + \
     'FROM {files} ' + \
     'WHERE ' + \
@@ -1602,18 +1602,18 @@ def hook_cron():
     FILE_STATUS_TEMPORARY, \
     php.time_() - DRUPAL_MAXIMUM_TEMP_FILE_AGE)
   while True:
-    file = inc_database.db_fetch_object(result)
+    file = lib_database.db_fetch_object(result)
     if not file:
       break
     if (php.file_exists(file.filepath)):
       # If files that exist cannot be deleted, continue so the database remains
       # consistent.
-      if (not inc_path.file_delete(file.filepath)):
-        inc_bootstrap.watchdog('file system', \
+      if (not lib_path.file_delete(file.filepath)):
+        lib_bootstrap.watchdog('file system', \
           'Could not delete temporary file "%path" during garbage collection', \
           {'%path' : file.filepath}, 'error')
         continue
-    inc_database.db_query('DELETE FROM {files} WHERE fid = %d', file.fid)
+    lib_database.db_query('DELETE FROM {files} WHERE fid = %d', file.fid)
 
 
 
@@ -1625,7 +1625,7 @@ def hook_hook_info():
     'system' : {
       'cron' : {
         'run' : {
-          'runs when' : inc_common.t('When cron runs')
+          'runs when' : lib_common.t('When cron runs')
         }
       }
     }
@@ -1640,7 +1640,7 @@ def hook_action_info():
   return {
     'system_message_action' : {
       'type' : 'system',
-      'description' : inc_common.t('Display a message to the user'),
+      'description' : lib_common.t('Display a message to the user'),
       'configurable' : True,
       'hooks' : {
         'nodeapi' : ('view', 'insert', 'update', 'delete'),
@@ -1650,7 +1650,7 @@ def hook_action_info():
       }
     },
     'system_send_email_action' : {
-      'description' : inc_common.t('Send e-mail'),
+      'description' : lib_common.t('Send e-mail'),
       'type' : 'system',
       'configurable' : True,
       'hooks' : {
@@ -1661,13 +1661,13 @@ def hook_action_info():
       }
     },
     'system_block_ip_action' : {
-      'description' : inc_common.t('Ban IP address of current user'),
+      'description' : lib_common.t('Ban IP address of current user'),
       'type' : 'user',
       'configurable' : False,
       'hooks' : (),
     },
     'system_goto_action' : {
-      'description' : inc_common.t('Redirect to URL'),
+      'description' : lib_common.t('Redirect to URL'),
       'type' : 'system',
       'configurable' : True,
       'hooks' : {
@@ -1688,7 +1688,7 @@ def actions_manage():
   actions = actions_list()
   actions_synchronize(actions)
   actions_map = actions_actions_map(actions)
-  options = [inc_common.t('Choose an advanced action')]
+  options = [lib_common.t('Choose an advanced action')]
   unconfigurable = []
   for key,array_ in actions_map.items():
     if (array_['configurable']):
@@ -1696,36 +1696,36 @@ def actions_manage():
     else:
       unconfigurable.append( array_ )
   row = []
-  instances_present = inc_database.db_fetch_object(inc_database.db_query(\
+  instances_present = lib_database.db_fetch_object(lib_database.db_query(\
     "SELECT aid FROM {actions} WHERE parameters != ''"))
   header_ = (
-    {'data' : inc_common.t('Action type'), 'field' : 'type'},
-    {'data' : inc_common.t('Description'), 'field' : 'description'},
-    {'data' : (inc_common.t('Operations') if \
+    {'data' : lib_common.t('Action type'), 'field' : 'type'},
+    {'data' : lib_common.t('Description'), 'field' : 'description'},
+    {'data' : (lib_common.t('Operations') if \
       instances_present else ''), 'colspan' : '2'}
   )
   sql = 'SELECT * FROM {actions}'
   result = pager_query(sql +  inc_tablesort.tablesort_sql(header_), 50)
   while True:
-    action = inc_database.db_fetch_object(result)
+    action = lib_database.db_fetch_object(result)
     if not action:
       break
     row.append((
       {'data' : action.type_},
       {'data' : action.description},
-      {'data' : (inc_common.l(inc_common.t('configure'), \
+      {'data' : (lib_common.l(lib_common.t('configure'), \
         "admin/settings/actions/configure/%s" % action.aid) if
         action.parameters else '')},
-      {'data' : (inc_common.l(inc_common.t('delete'), \
+      {'data' : (lib_common.l(lib_common.t('delete'), \
         "admin/settings/actions/delete/%s" % action.aid) if \
         action.parameters else '')}
     ))
   if (row):
-    pager = inc_theme.theme('pager', None, 50, 0)
+    pager = lib_theme.theme('pager', None, 50, 0)
     if (not empty(pager)):
       row.append([{'data' : pager, 'colspan' : '3'}])
-    output += '<h3>' +  inc_common.t('Actions available to Drupal:')  + '</h3>'
-    output += inc_theme.theme('table', header, row)
+    output += '<h3>' +  lib_common.t('Actions available to Drupal:')  + '</h3>'
+    output += lib_theme.theme('table', header, row)
   if (actions_map):
     output += inc_form.drupal_get_form('system_actions_manage_form', options)
   return output
@@ -1747,7 +1747,7 @@ def actions_manage_form(form_state, options = []):
   """
   form['parent'] = {
     '#type' : 'fieldset',
-    '#title' : inc_common.t('Make a new advanced action available'),
+    '#title' : lib_common.t('Make a new advanced action available'),
     '#prefix' : '<div class="container-inline">',
     '#suffix' : '</div>'
   }
@@ -1759,7 +1759,7 @@ def actions_manage_form(form_state, options = []):
   }
   form['parent']['buttons']['submit'] = {
     '#type' : 'submit',
-    '#value' : inc_common.t('Create')
+    '#value' : lib_common.t('Create')
   }
   return form
 
@@ -1795,7 +1795,7 @@ def actions_configure(form_state, action = None):
      Form definition.
   """
   if (action is None):
-    inc_common.drupal_goto('admin/settings/actions')
+    lib_common.drupal_goto('admin/settings/actions')
   actions_map = actions_actions_map(actions_list())
   edit = []
   # Numeric action denotes saved instance of a configurable action
@@ -1803,7 +1803,7 @@ def actions_configure(form_state, action = None):
   if (php.is_numeric(action)):
     aid = action
     # Load stored parameter values from database.
-    data = inc_database.db_fetch_object(inc_database.db_query(\
+    data = lib_database.db_fetch_object(lib_database.db_query(\
       "SELECT * FROM {actions} WHERE aid = %d", p.intval(aid)))
     edit['actions_description'] = data.description
     edit['actions_type'] = data.type
@@ -1820,10 +1820,10 @@ def actions_configure(form_state, action = None):
     edit['actions_type'] = actions_map[action]['type']
   form['actions_description'] = {
     '#type' : 'textfield',
-    '#title' : inc_common.t('Description'),
+    '#title' : lib_common.t('Description'),
     '#default_value' : edit['actions_description'],
     '#maxlength' : '255',
-    '#description' : inc_common.t(\
+    '#description' : lib_common.t(\
       'A unique description for this advanced action. This description ' + \
       'will be displayed in the interface of modules that integrate ' + \
       'with actions, such as Trigger module.'),
@@ -1851,7 +1851,7 @@ def actions_configure(form_state, action = None):
   }
   form['buttons']['submit'] = {
     '#type' : 'submit',
-    '#value' : inc_common.t('Save'),
+    '#value' : lib_common.t('Save'),
     '#weight' : 13
   }
   return form
@@ -1883,7 +1883,7 @@ def actions_configure_submit(form, form_state):
     php.isset(form_state['values']['actions_aid']) else None)
   actions_save(function, form_state['values']['actions_type'], params, \
     form_state['values']['actions_description'], aid)
-  inc_bootstrap.drupal_set_message(t('The action has been successfully saved.'))
+  lib_bootstrap.drupal_set_message(t('The action has been successfully saved.'))
   form_state['redirect'] = 'admin/settings/actions/manage'
 
 
@@ -1899,11 +1899,11 @@ def actions_delete_form(form_state, action):
     '#value' : action.aid,
   }
   return confirm_form(form,
-    inc_common.t('Are you sure you want to delete the action %action?', \
+    lib_common.t('Are you sure you want to delete the action %action?', \
       {'%action' : action.description}),
     'admin/settings/actions/manage',
-    inc_common.t('This cannot be undone.'),
-    inc_common.t('Delete'), inc_common.t('Cancel')
+    lib_common.t('This cannot be undone.'),
+    lib_common.t('Delete'), lib_common.t('Cancel')
   )
 
 
@@ -1918,10 +1918,10 @@ def actions_delete_form_submit(form, form_state):
   aid = form_state['values']['aid']
   action = actions_load(aid)
   actions_delete(aid)
-  description = inc_bootstrap.check_plain(action.description)
-  inc_bootstrap.watchdog('user', 'Deleted action %aid (%action)', \
+  description = lib_bootstrap.check_plain(action.description)
+  lib_bootstrap.watchdog('user', 'Deleted action %aid (%action)', \
     {'%aid' : aid, '%action' : description})
-  inc_common.drupal_set_message(inc_common.t('Action %action was deleted', \
+  lib_common.drupal_set_message(lib_common.t('Action %action was deleted', \
     {'%action' : description}))
   form_state['redirect'] = 'admin/settings/actions/manage'
 
@@ -1935,7 +1935,7 @@ def action_delete_orphans_post(orphaned):
      An array of orphaned actions.
   """
   for callback in orphaned:
-    inc_common.drupal_set_message(inc_common.t(\
+    lib_common.drupal_set_message(lib_common.t(\
       "Deleted orphaned action (%action).", {'%action' : callback}))
 
 
@@ -1945,7 +1945,7 @@ def actions_remove_orphans():
    Remove actions that are in the database but not supported by any enabled module.
   """
   actions_synchronize(actions_list(), True)
-  inc_common.drupal_goto('admin/settings/actions/manage')
+  lib_common.drupal_goto('admin/settings/actions/manage')
 
 
 
@@ -1969,28 +1969,28 @@ def send_email_action_form(context):
     context['message'] = ''
   form['recipient'] = {
     '#type' : 'textfield',
-    '#title' : inc_common.t('Recipient'),
+    '#title' : lib_common.t('Recipient'),
     '#default_value' : context['recipient'],
     '#maxlength' : '254',
-    '#description' : inc_common.t(\
+    '#description' : lib_common.t(\
       'The email address to which the message should be sent OR ' + \
       'enter %author if you would like to send an e-mail to the author ' + \
       'of the original post.', {'%author' : '%author'})
   }
   form['subject'] = {
     '#type' : 'textfield',
-    '#title' : inc_common.t('Subject'),
+    '#title' : lib_common.t('Subject'),
     '#default_value' : context['subject'],
     '#maxlength' : '254',
-    '#description' : inc_common.t('The subject of the message.')
+    '#description' : lib_common.t('The subject of the message.')
   }
   form['message'] = {
     '#type' : 'textarea',
-    '#title' : inc_common.t('Message'),
+    '#title' : lib_common.t('Message'),
     '#default_value' : context['message'],
     '#cols' : '80',
     '#rows' : '20',
-    '#description' : inc_common.t(
+    '#description' : lib_common.t(
       'The message that should be sent. You may include the following ' + \
       'variables: %site_name, %username, %node_url, %node_type, %title, ' + \
       '%teaser, %body. Not all variables will be available in all contexts.')
@@ -2009,7 +2009,7 @@ def send_email_action_validate(form, form_state):
       form_values['recipient'] != '%author'):
     # We want the literal %author placeholder
     # to be emphasized in the error message.
-    inc_form.form_set_error('recipient', inc_common.t(
+    inc_form.form_set_error('recipient', lib_common.t(
       'Please enter a valid email address or %author.', \
       {'%author' : '%author'}))
 
@@ -2053,7 +2053,7 @@ def send_email_action(object_, context):
       node = context['node']
     elif (context['recipient'] == '%author'):
       # If we don't have a node, we don't have a node author.
-      inc_bootstrap.watchdog('error', \
+      lib_bootstrap.watchdog('error', \
         'Cannot use %author token in this context.')
       return
   else:
@@ -2066,17 +2066,17 @@ def send_email_action(object_, context):
     if (recipient == '%author'):
       recipient = account.mail
   if (not isset(account)):
-    account = inc_bootstrap.user
+    account = lib_bootstrap.user
   language = plugin_user.preferred_language(account)
   params = {'account' : account, 'object' : object_, 'context' : context}
   if (node is not None):
     params['node'] = node
   if (inc_mail.drupal_mail('system', 'action_send_email', recipient, \
       language, params)):
-    inc_bootstrap.watchdog('action', 'Sent email to %recipient', \
+    lib_bootstrap.watchdog('action', 'Sent email to %recipient', \
       {'%recipient' : recipient})
   else:
-    inc_bootstrap.watchdog('error', 'Unable to send email to %recipient', \
+    lib_bootstrap.watchdog('error', 'Unable to send email to %recipient', \
       {'%recipient' : recipient})
 
 
@@ -2089,7 +2089,7 @@ def hook_mail(key, message, params):
   account = params['account']
   context = params['context']
   variables_ = {
-    '%site_name' : inc_bootstrap.variable_get('site_name', 'Drupal'),
+    '%site_name' : lib_bootstrap.variable_get('site_name', 'Drupal'),
     '%username' : account.name,
   }
   if (context['hook'] == 'taxonomy'):
@@ -2108,7 +2108,7 @@ def hook_mail(key, message, params):
     node = params['node']
     variables_ += {
       '%uid' : node.uid,
-      '%node_url' : inc_common.url('node/' + node.nid, {'absolute' : True}),
+      '%node_url' : lib_common.url('node/' + node.nid, {'absolute' : True}),
       '%node_type' : plugin_node.get_types('name', node),
       '%title' : node.title,
       '%teaser' : node.teaser,
@@ -2125,12 +2125,12 @@ def hook_mail(key, message, params):
 def message_action_form(context):
   form['message'] = {
     '#type' : 'textarea',
-    '#title' : inc_common.t('Message'),
+    '#title' : lib_common.t('Message'),
     '#default_value' : (context['message'] if \
       php.isset(context['message']) else ''),
     '#required' : True,
     '#rows' : '8',
-    '#description' : inc_common.t(\
+    '#description' : lib_common.t(\
       'The message to be displayed to the current user. You may include ' + \
       'the following variables: %site_name, %username, %node_url, ' + \
       '%node_type, %title, %teaser, %body. Not all variables will be ' + \
@@ -2150,9 +2150,9 @@ def message_action(object_, context = []):
   """
   php.Reference.check(object_)
   variables_ = {
-    '%site_name' : inc_common.variable_get('site_name', 'Drupal'),
-    '%username' : (inc_bootstrap.user.name if inc_bootstrap.user.name else \
-      inc_bootstrap.variable_get('anonymous', inc_common.t('Anonymous')))
+    '%site_name' : lib_common.variable_get('site_name', 'Drupal'),
+    '%username' : (lib_bootstrap.user.name if lib_bootstrap.user.name else \
+      lib_bootstrap.variable_get('anonymous', lib_common.t('Anonymous')))
   }
   # This action can be called in any context, but if placeholders
   # are used a node object must be present to be the source
@@ -2182,15 +2182,15 @@ def message_action(object_, context = []):
   if (php.isset(node) and php.is_object(node)):
     variables_ = php.array_merge(variables_, {
       '%uid' : node.uid,
-      '%node_url' : inc_common.url('node/' +  node.nid, {'absolute' : True}),
-      '%node_type' : inc_bootstrap.check_plain(\
+      '%node_url' : lib_common.url('node/' +  node.nid, {'absolute' : True}),
+      '%node_type' : lib_bootstrap.check_plain(\
         plugin_node.get_types('name', node)),
       '%title' : plugin_filter.xss(node.title),
       '%teaser' : plugin_filter.xss(node.teaser),
       '%body' : plugin_filter.xss(node.body)
     })
   context['message'] = php.strtr(context['message'], variables_)
-  inc_bootstrap.drupal_set_message(context['message'])
+  lib_bootstrap.drupal_set_message(context['message'])
 
 
 
@@ -2200,7 +2200,7 @@ def goto_action_form(context):
   """
   form['url'] = {
     '#type' : 'textfield',
-    '#title' : inc_common.t('URL'),
+    '#title' : lib_common.t('URL'),
     '#description' : t(\
       'The URL to which the user should be redirected. This can be an ' + \
       'internal URL like node/1234 or an external URL like http://drupal.org.'),
@@ -2220,7 +2220,7 @@ def goto_action_submit(form, form_state):
 
 
 def goto_action(object_, context):
-  inc_common.drupal_goto(context['url'])
+  lib_common.drupal_goto(context['url'])
 
 
 
@@ -2229,9 +2229,9 @@ def block_ip_action():
    Implementation of a Drupal action.
    Blocks the user's IP address.
   """
-  ip = inc_bootstrap.ip_address()
+  ip = lib_bootstrap.ip_address()
   db_query("INSERT INTO {blocked_ips} (ip) VALUES ('%s')", ip);
-  inc_bootstrap.watchdog('action', 'Banned IP address %ip', {'%ip' : ip})
+  lib_bootstrap.watchdog('action', 'Banned IP address %ip', {'%ip' : ip})
 
 
 
@@ -2247,7 +2247,7 @@ def _zonelist():
   for offset in zonelist:
     zone = offset * 3600
     zones[zone] = p.format_date(timestamp, 'custom', \
-      inc_bootstrap.variable_get('date_format_long', \
+      lib_bootstrap.variable_get('date_format_long', \
       'l, F j, Y - H:i') +  ' O', zone)
   return zones
 
@@ -2270,14 +2270,14 @@ def check_http_request():
   # try to drupal_http_request() the same page and compare.
   # ob_start()
   path_ = 'admin/reports/request-test'
-  inc_menu.menu_execute_active_handler(path_)
+  lib_menu.menu_execute_active_handler(path_)
   nothing = None
   # nothing = ob_get_contents()
   # ob_end_clean()
-  result = inc_common.drupal_http_request(inc_common.url(path_, \
+  result = lib_common.drupal_http_request(lib_common.url(path_, \
     {'absolute' : True}))
   works = (php.isset(result.data) and (result.data == nothing))
-  inc_bootstrap.variable_set('drupal_http_request_fails', not works)
+  lib_bootstrap.variable_set('drupal_http_request_fails', not works)
   return works
 
 
@@ -2289,11 +2289,11 @@ def theme_powered_by(image_path):
    @ingroup themeable
   """
   image = theme('image', image_path, \
-    inc_common.t(\
+    lib_common.t(\
     'Powered by Drupal, an open source content management system'), \
-    inc_common.t(\
+    lib_common.t(\
     'Powered by Drupal, an open source content management system'))
-  return inc_common.l(image, 'http://drupal.org', \
+  return lib_common.l(image, 'http://drupal.org', \
     {'html' : True, 'absolute' : True, 'external' : True})
 
 
@@ -2306,14 +2306,14 @@ def theme_compact_link():
   """
   output = '<div class="compact-link">'
   if (admin_compact_mode()):
-    output += inc_common.l(inc_common.t('Show descriptions'), \
+    output += lib_common.l(lib_common.t('Show descriptions'), \
       'admin/compact/off', {'attributes' : \
-      {'title' : inc_common.t('Expand layout to include descriptions.')}, \
-      'query' : inc_common.drupal_get_destination()})
+      {'title' : lib_common.t('Expand layout to include descriptions.')}, \
+      'query' : lib_common.drupal_get_destination()})
   else:
-    output += inc_common.l(inc_common.t('Hide descriptions'), \
+    output += lib_common.l(lib_common.t('Hide descriptions'), \
       'admin/compact/on', {'attributes' : \
-      {'title' : inc_common.t('Compress layout by hiding descriptions.')}, \
+      {'title' : lib_common.t('Compress layout by hiding descriptions.')}, \
       'query' : drupal_get_destination()})
   output += '</div>'
   return output
@@ -2326,7 +2326,7 @@ def theme_meta_generator_html(version = VERSION):
   
    @ingroup themeable
   """
-  inc_common.drupal_set_html_head('<meta name="Generator" content="Drupal ' +  \
+  lib_common.drupal_set_html_head('<meta name="Generator" content="Drupal ' +  \
     version  + ' (http://drupal.org)" />')
 
 
@@ -2337,7 +2337,7 @@ def theme_meta_generator_header(version = VERSION):
   
    @ingroup themeable
   """
-  inc_common.drupal_set_header(\
+  lib_common.drupal_set_header(\
     'X-Generator: Drupal ' +  version  + ' (http://drupal.org)')
 
 

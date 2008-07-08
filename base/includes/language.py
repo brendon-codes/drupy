@@ -37,7 +37,7 @@
 """
 
 from lib.drupy import DrupyPHP as php
-import bootstrap as inc_bootstrap
+import bootstrap as lib_bootstrap
 
 
 def language_initialize():
@@ -45,20 +45,20 @@ def language_initialize():
     Choose a language for the page, based on language negotiation settings.
   """
   # Configured presentation language mode.
-  mode = variable_get('language_negotiation', inc_bootstrap.LANGUAGE_NEGOTIATION_NONE)
+  mode = variable_get('language_negotiation', lib_bootstrap.LANGUAGE_NEGOTIATION_NONE)
   # Get a list of enabled languages.
-  languages = inc_bootstrap.language_list('enabled')
+  languages = lib_bootstrap.language_list('enabled')
   languages = languages[1]
-  if mode == inc_bootstrap.LANGUAGE_NEGOTIATION_NONE:
+  if mode == lib_bootstrap.LANGUAGE_NEGOTIATION_NONE:
     return language_default()
-  elif mode == inc_bootstrap.LANGUAGE_NEGOTIATION_DOMAIN:
+  elif mode == lib_bootstrap.LANGUAGE_NEGOTIATION_DOMAIN:
     for language in languages:
       parts = php.parse_url(language.domain)
       if (not php.empty(parts['host']) and (_SERVER['php.SERVER_NAME'] == parts['host'])):
         return language
     return language_default()
-  elif mode == inc_bootstrap.LANGUAGE_NEGOTIATION_PATH_DEFAULT or \
-      mode == inc_bootstrap.LANGUAGE_NEGOTIATION_PATH:
+  elif mode == lib_bootstrap.LANGUAGE_NEGOTIATION_PATH_DEFAULT or \
+      mode == lib_bootstrap.LANGUAGE_NEGOTIATION_PATH:
     # _GET['q'] might not be available at this time, because
     # path initialization runs after the language bootstrap phase.
     args =  (php.explode('/', _GET['q']) if php.isset(_GET, 'q') else [])
@@ -73,8 +73,8 @@ def language_initialize():
       # If we did not found the language by prefix, choose the default.
       return language_default()
   # User language.
-  if (inc_bootstrap.user.uid and php.isset(languages[inc_bootstrap.user.language])):
-    return languages[inc_bootstrap.user.language]
+  if (lib_bootstrap.user.uid and php.isset(languages[lib_bootstrap.user.language])):
+    return languages[lib_bootstrap.user.language]
   # Browser accept-language parsing.
   language = language_from_browser()
   if (language):
@@ -118,23 +118,23 @@ def language_url_rewrite(path, options):
   if (not options['external']):
     # Language can be passed as an option, or we go for current language.
     if (not php.isset(options, 'language')):
-      options['language'] = inc_bootstrap.language_
-    lang_type = variable_get('language_negotiation', inc_bootstrap.LANGUAGE_NEGOTIATION_NONE)
-    if lang_type == inc_bootstrap.LANGUAGE_NEGOTIATION_NONE:
+      options['language'] = lib_bootstrap.language_
+    lang_type = variable_get('language_negotiation', lib_bootstrap.LANGUAGE_NEGOTIATION_NONE)
+    if lang_type == lib_bootstrap.LANGUAGE_NEGOTIATION_NONE:
       # No language dependent path allowed in this mode.
       del(options['language'])
       return
-    elif lang_type == inc_bootstrap.LANGUAGE_NEGOTIATION_DOMAIN:
+    elif lang_type == lib_bootstrap.LANGUAGE_NEGOTIATION_DOMAIN:
       if (options['language'].domain):
         # Ask for an absolute URL with our modified base_url.
         options['absolute'] = True
         options['base_url'] = options['language'].domain
       return
-    elif lang_type == inc_bootstrap.LANGUAGE_NEGOTIATION_PATH_DEFAULT:
+    elif lang_type == lib_bootstrap.LANGUAGE_NEGOTIATION_PATH_DEFAULT:
       default = language_default()
       if (options['language'].language == default.language):
         return
-    if lang_type == inc_bootstrap.LANGUAGE_NEGOTIATION_PATH:
+    if lang_type == lib_bootstrap.LANGUAGE_NEGOTIATION_PATH:
       if (not php.empty(options['language'].prefix)):
         options['prefix'] = options['language'].prefix +  '/'
       return

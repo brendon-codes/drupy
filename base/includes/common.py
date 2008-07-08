@@ -47,14 +47,14 @@
 import urllib2
 from lib.drupy import DrupyPHP as php
 from sites.default import settings
-import bootstrap as inc_bootstrap
-import theme as inc_theme
+import bootstrap as lib_bootstrap
+import theme as lib_theme
 #import pager as inc_pager
-import plugin as inc_plugin
-import menu as inc_menu
+import plugin as lib_plugin
+import menu as lib_menu
 #import tablesort as inc_tablesort
-import file as inc_file
-import unicode as inc_unicode
+import file as lib_file
+import unicode as lib_unicode
 #import image as inc_image
 #import form as inc_form
 #import mail as inc_mail
@@ -482,9 +482,9 @@ def drupal_error_handler(errno, message, filename, line, context, errType = None
     };
     entry = '%(errType)s : %(message)s in %(filename)s on line %(line)s' % err;
     # Force display of error messages in update.php.
-    if (inc_bootstrap.variable_get('error_level', 1) == 1 or strstr(php.SERVER['SCRIPT_NAME'], 'update.py')):
-      inc_bootstrap.drupal_set_message(entry, 'error');
-    inc_bootstrap.watchdog('php', '%(message)s in %(filename)s on line %(line)s.' % err, inc_bootstrap.WATCHDOG_ERROR);
+    if (lib_bootstrap.variable_get('error_level', 1) == 1 or strstr(php.SERVER['SCRIPT_NAME'], 'update.py')):
+      lib_bootstrap.drupal_set_message(entry, 'error');
+    lib_bootstrap.watchdog('php', '%(message)s in %(filename)s on line %(line)s.' % err, lib_bootstrap.WATCHDOG_ERROR);
 
 
 
@@ -2129,13 +2129,13 @@ def _drupal_bootstrap_full():
   # Emit the correct charset HTTP php.header.
   drupal_set_header('Content-Type: text/html; charset=utf-8');
   # Detect string handling method
-  inc_unicode.unicode_check();
+  lib_unicode.unicode_check();
   # Load all enabled plugins
-  inc_plugin.plugin_load_all();
+  lib_plugin.plugin_load_all();
   # Let all plugins take action before menu system handles the request
   # We do not want this while running update.php.
   if (not php.defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'):
-    inc_plugin.plugin_invoke_all('init');
+    lib_plugin.plugin_invoke_all('init');
 
 
 

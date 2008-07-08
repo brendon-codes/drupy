@@ -1,19 +1,16 @@
 #!/usr/bin/env python
 
 """
-  Converts DrupyPHP namespaces
+  Converts inc_* to lib* for modules
 
   @package pNamespaceConverter
   @see <a href='http://drupy.net'>Drupy Homepage</a>
   @see <a href='http://drupal.org'>Drupal Homepage</a>
   @note Drupy is a port of the Drupal project.
-  @note
-    This should be run after an initial php2py conversion to bring the PHP
-    functions into a namespace
   @author Brendon Crawford
   @copyright 2008 Brendon Crawford
   @contact message144 at users dot sourceforge dot net
-  @created 2008-06-19
+  @created 2008-07-08
   @version 0.1
   @note License:
 
@@ -36,36 +33,31 @@
     USA
 """
 
+
 import re
 import sys
-from lib.drupy import DrupyPHP
+import os
 
-prefix_find = 'p\.'
-prefix_replace = 'php.'
+prefix_find = 'inc_'
+prefix_replace = 'lib_'
 
 f = open(sys.argv[1], 'r+')
 data = f.read()
 
-for k,v in vars(DrupyPHP).items():
-  t = type(v).__name__
-  # Module
-  if (t == 'module'):
+i = os.listdir('includes')
+for v in i:
+  name, ext = v.split('.')
+  if ext != 'py':
     continue
-  # Function
-  elif (t == 'function'):
-    pat = r'(?<![a-zA-Z0-9_\.])%s(%s)(?=\()' % (prefix_find,k)
-  # Variable
-  else:
-    pat = r'(?<![a-zA-Z0-9_\.])%s(%s)(?![a-zA-Z])' % (prefix_find,k)
-  rep = r'%s\1' % prefix_replace
+  pat = r'(?<![a-zA-Z0-9_\.])%s%s(?![a-zA-Z])' % (prefix_find,name)
+  rep = r'%s%s' % (prefix_replace,name)
   data = re.sub(pat, rep, data)
-
 
 f.truncate(0)
 f.seek(0)
 f.write(data)
 f.close()
 
-print "Success"
+print "Success: %s" % sys.argv[1]
 
 

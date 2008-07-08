@@ -49,13 +49,13 @@
 # Imports
 #
 from lib.drupy import DrupyPHP as php
-import path as inc_path
-import theme as inc_theme
-import common as inc_common
-import unicode as inc_unicode
-import file as inc_file
-import plugin as inc_plugin
-import database as inc_database
+import path as lib_path
+import theme as lib_theme
+import common as lib_common
+import unicode as lib_unicode
+import file as lib_file
+import plugin as lib_plugin
+import database as lib_database
 
 
 #
@@ -69,7 +69,7 @@ def _drupal_maintenance_theme():
   # If theme is already set, assume the others are set too, and do nothing.
   if (theme_ != None):
     return
-  inc_unicode.unicode_check()
+  lib_unicode.unicode_check()
   # Install and update pages are treated differently to prevent theming overrides.
   if (php.defined('MAINTENANCE_MODE') and (MAINTENANCE_MODE == 'install' or MAINTENANCE_MODE == 'update')):
     theme_ = 'minnelli'
@@ -78,7 +78,7 @@ def _drupal_maintenance_theme():
     plugin_list_ = { 'system' : {}, 'filter' : {} }
     plugin_list_['system']['filename'] = 'plugins/system/system.py'
     plugin_list_['filter']['filename'] = 'plugins/filter/filter.py'
-    inc_plugin.plugin_list(True, False, False, plugin_list_)
+    lib_plugin.plugin_list(True, False, False, plugin_list_)
     drupal_load('plugin', 'system')
     drupal_load('plugin', 'filter')
     theme_ = variable_get('maintenance_theme', 'minnelli')
