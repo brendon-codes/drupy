@@ -2,10 +2,7 @@
 ## About This Document
 ##
 
-  author Brendon Crawford and morphir
-  copyright 2008 Brendon Crawford and morphir
-  contact message144 at users dot sourceforge dot net,
-  morphir: ombinde at gmail dot com
+  copyright 2008 Brendon and morphir
   created 2008-01-10
   version 0.1
   contents: THESE ARE THE DRUPY CONVERSION AND CODING STANDARDS.
