@@ -36,7 +36,7 @@
 import time
 import re
 import sys
-from lib.drupy import DrupyPHP as p
+from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyImport
 from includes import bootstrap as inc_bootstrap
 
@@ -56,19 +56,19 @@ which_phase = phases[8];
 inc_bootstrap.drupal_bootstrap(which_phase[0]);
 stamp, revised = time.strftime("%c GMT||%m/%d/%Y", time.gmtime()).split('||')
 
-out_plugins = p.print_r(inc_bootstrap.loaded_plugins, True)
-out_plugins_html = p.htmlspecialchars(out_plugins)
-out_vars = p.print_r(vars(), True)
+out_plugins = php.print_r(inc_bootstrap.loaded_plugins, True)
+out_plugins_html = php.htmlspecialchars(out_plugins)
+out_vars = php.print_r(vars(), True)
 out_vars = re.sub('[a-zA-Z0-9_\.-]+@.+?\.[a-zA-Z]+', '********', out_vars)
 out_vars = re.sub('[a-zA-Z0-9]{32}', '********************************', out_vars)
-out_vars = p.htmlspecialchars(out_vars)
-out_mods = p.print_r(DrupyImport.modules(), True)
-out_mods = p.htmlspecialchars(out_mods)
+out_vars = php.htmlspecialchars(out_vars)
+out_mods = php.print_r(DrupyImport.modules(), True)
+out_mods = php.htmlspecialchars(out_mods)
 
 #
 # Executed from Web
 #
-if p.SERVER['WEB']:
+if php.SERVER['WEB']:
   print "<?xml version='1.0' encoding='UTF-8'?>"
   print "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' " + \
     "'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>"
@@ -109,6 +109,6 @@ else:
 #
 # Flush
 #
-p.flush()
+php.flush()
   
   

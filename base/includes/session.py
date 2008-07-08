@@ -36,7 +36,7 @@
     USA
 """
 
-from lib.drupy import DrupyPHP as p
+from lib.drupy import DrupyPHP as php
 
 def sess_open(save_path, session_name):
   return True
@@ -51,7 +51,7 @@ def sess_read(key):
   # So we are moving session closure before destructing objects.
   register_shutdown_function('session_write_close')
   # Handle the case of first time visitors and clients that don't store cookies (eg. web crawlers).
-  if (not p.isset(_COOKIE, p.session_name())):
+  if (not php.isset(_COOKIE, php.session_name())):
     user = drupal_anonymous_user()
     return ''
   # Otherwise, if the session is still active, we have a record of the client's session in the database.
@@ -71,7 +71,7 @@ def sess_read(key):
       user.roles[role.rid] = role.name
   # We didn't find the client's record (session has expired), or they are an anonymous user.
   else:
-    session = (user.session if p.isset(user.session) else '')
+    session = (user.session if php.isset(user.session) else '')
     user = drupal_anonymous_user(session)
   return user.session
 
@@ -81,7 +81,7 @@ def sess_write(key, value):
   global user
   # If saving of session data is disabled or if the client doesn't have a session,
   # and one isn't being created (value), do nothing.
-  if (not session_save_session() or (p.empty(_COOKIE[p.session_name()]) and p.empty(value))):
+  if (not session_save_session() or (php.empty(_COOKIE[php.session_name()]) and php.empty(value))):
     return True
   result = db_result(db_query("SELECT COUNT(*) FROM {sessions} WHERE sid = '%s'", key))
   if (not result):
@@ -89,10 +89,10 @@ def sess_write(key, value):
     # crawlers out of session table. This reduces memory and server load,
     # and gives more useful statistics. We can't eliminate anonymous session
     # table rows without breaking "Who's Online" block.
-    if (user.uid or value or p.count(_COOKIE)):
-      db_query("INSERT INTO {sessions} (sid, uid, cache, hostname, session, timestamp) VALUES ('%s', %d, %d, '%s', '%s', %d)", key, user.uid, (user.cache if p.isset(user, 'cache') else ''), ip_address(), value, drupy_time())
+    if (user.uid or value or php.count(_COOKIE)):
+      db_query("INSERT INTO {sessions} (sid, uid, cache, hostname, session, timestamp) VALUES ('%s', %d, %d, '%s', '%s', %d)", key, user.uid, (user.cache if php.isset(user, 'cache') else ''), ip_address(), value, drupy_time())
   else:
-    db_query("UPDATE {sessions} SET uid = %d, cache = %d, hostname = '%s', session = '%s', timestamp = %d WHERE sid = '%s'", user.uid, (user.cache if p.isset(user, 'cache') else ''), ip_address(), value, drupy_time(), key)
+    db_query("UPDATE {sessions} SET uid = %d, cache = %d, hostname = '%s', session = '%s', timestamp = %d WHERE sid = '%s'", user.uid, (user.cache if php.isset(user, 'cache') else ''), ip_address(), value, drupy_time(), key)
     # Last access time is updated no more frequently than once every 180 seconds.
     # This reduces contention in the users table.
     if (user.uid and drupy_time() - user.access > variable_get('session_write_interval', 180)):
@@ -175,7 +175,7 @@ def session_save_session(status = None):
    @return
      False if writing session data has been disabled. Otherwise, True.
   """
-  p.static(session_save_session, 'save_session', True)
+  php.static(session_save_session, 'save_session', True)
   if status != None:
     session_save_session.save_session = status
   return session_save_session.save_session
@@ -183,7 +183,7 @@ def session_save_session(status = None):
 #
 # Aliases
 #
-sess_name = p.session_name
+sess_name = php.session_name
 
 
 

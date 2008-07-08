@@ -39,7 +39,7 @@
     USA
 """
 
-from lib.drupy import DrupyPHP as p
+from lib.drupy import DrupyPHP as php
 
 
 #
@@ -80,7 +80,7 @@ def init_theme():
   themes = list_themes();
   # Only select the user selected theme if it is available in the
   # list of enabled themes.
-  theme_ = (user.theme if (not p.empty(user.theme) and not p.empty(themes[user.theme].status)) else variable_get('theme_default', 'garland'));
+  theme_ = (user.theme if (not php.empty(user.theme) and not php.empty(themes[user.theme].status)) else variable_get('theme_default', 'garland'));
   # Allow plugins to override the present theme... only select custom theme
   # if it is available in the list of installed themes.
   theme_ = (custom_theme if (custom_theme and themes[custom_theme]) else theme_);
@@ -89,11 +89,11 @@ def init_theme():
   # Find all our ancestor themes and put them in an array.
   base_theme = [];
   ancestor = theme_;
-  while (ancestor and p.isset(themes[ancestor].base_theme)):
+  while (ancestor and php.isset(themes[ancestor].base_theme)):
     new_base_theme = themes[themes[ancestor].base_theme];
     base_theme.append(new_base_theme);
     ancestor = themes[ancestor].base_theme;
-  _init_theme(themes[theme_], p.array_reverse(base_theme));
+  _init_theme(themes[theme_], php.array_reverse(base_theme));
 
 
 
@@ -126,19 +126,19 @@ def _init_theme(theme_, base_theme = [], registry_callback = '_theme_load_regist
   global theme_info, base_theme_info, theme_engine, theme_path;
   theme_info = theme_;
   base_theme_info = base_theme;
-  theme_path = p.dirname(theme.filename);
+  theme_path = php.dirname(theme.filename);
   # Prepare stylesheets from this theme as well as all ancestor themes.
   # We work it this way so that we can have child themes override parent
   # theme stylesheets easily.
   final_stylesheets = {};
   # Grab stylesheets from base theme
   for base in base_theme:
-    if (not p.empty(base.stylesheets)):
+    if (not php.empty(base.stylesheets)):
       for media,stylesheets in base.stylesheets.items():
         for name,stylesheet in stylesheets.items():
           final_stylesheets[media][name] = stylesheet;
   # Add stylesheets used by this theme.
-  if (not p.empty(theme.stylesheets)):
+  if (not php.empty(theme.stylesheets)):
     for media,stylesheets in theme.stylesheets.items():
       for name,stylesheet in stylesheets.items():
         final_stylesheets[media][name] = stylesheet;
@@ -150,11 +150,11 @@ def _init_theme(theme_, base_theme = [], registry_callback = '_theme_load_regist
   final_scripts = {};
   # Grab scripts from base theme
   for base in base_theme:
-    if (not p.empty(base.scripts)):
+    if (not php.empty(base.scripts)):
       for name,script in base.scripts.items():
         final_scripts[name] = script;
   # Add scripts used by this theme.
-  if (not p.empty(theme_.scripts)):
+  if (not php.empty(theme_.scripts)):
     for name,script in theme_.scripts.items():
       final_scripts[name] = script;
   # Add scripts used by this theme.
@@ -162,11 +162,11 @@ def _init_theme(theme_, base_theme = [], registry_callback = '_theme_load_regist
     drupal_add_js(script, 'theme');
   theme_engine = None;
   # Initialize the theme.
-  if (p.isset(theme_, 'engine')):
+  if (php.isset(theme_, 'engine')):
     # Include the engine.
-    p.include_once( './' + theme_.owner );
+    php.include_once( './' + theme_.owner );
     theme_engine = theme.engine;
-    if (p.function_exists(theme_engine + '_init')):
+    if (php.function_exists(theme_engine + '_init')):
       for base in base_theme:
         call_user_func(theme_engine + '_init', base);
       call_user_func(theme_engine + '_init', theme);
@@ -174,11 +174,11 @@ def _init_theme(theme_, base_theme = [], registry_callback = '_theme_load_regist
     # include non-engine theme files
     for base in base_theme:
       # Include the theme file or the engine.
-      if (not p.empty(base.owner)):
-        p.include_once( './'  + base.owner );
+      if (not php.empty(base.owner)):
+        php.include_once( './'  + base.owner );
     # and our theme gets one too.
-    if (not p.empty(theme.owner)):
-      p.include_once( './' + theme.owner );
+    if (not php.empty(theme.owner)):
+      php.include_once( './' + theme.owner );
     if (drupal_function_exists(registry_callback)):
       registry_callback(theme_, base_theme, theme_engine)
 
@@ -191,7 +191,7 @@ def theme_get_registry(registry = None):
    registry from cache. If this fails, it will construct the registry and
    cache it.
   """
-  p.static(theme_get_registry, 'theme_registry')
+  php.static(theme_get_registry, 'theme_registry')
   if (theme_get_registry.theme_registry != None):
     theme_get_registry.theme_registry = registry;
   return theme_get_registry.theme_registry;
@@ -222,7 +222,7 @@ def _theme_load_registry(theme_, base_theme = None, theme_engine = None):
   """
   # Check the theme registry cache; if it exists, use it.
   cache = cache_get("theme_registry:t%s" % theme.name, 'cache');
-  if (p.isset(cache, 'data')):
+  if (php.isset(cache, 'data')):
     registry = cache.data;
   else:
     # If not, build one and cache it.
@@ -266,42 +266,42 @@ def _theme_process_registry(cache, name, type_, theme_, path):
    This can be useful to themes and theme engines by giving them more control
    over how and when the preprocess functions are run.
   """
-  p.Reference.check(cache);
+  php.Reference.check(cache);
   function = name + '_theme';
-  if (p.function_exists(function)):
+  if (php.function_exists(function)):
     result = function(cache.val, type_, theme_, path);
     for hook,info in result.items():
       result[hook]['type'] = type_;
       result[hook]['theme path'] = path;
       # if function and file are left out, default to standard naming
       # conventions.
-      if (not p.isset(info, 'template') and not p.isset(info, 'function')):
+      if (not php.isset(info, 'template') and not php.isset(info, 'function')):
         result[hook]['function'] = ('theme_' if (type_ == 'plugin') else name + '_') + hook;
       # If a path is set in the info, use what was set. Otherwise use the
       # default path. This is mostly so system.plugin can declare theme
       # functions on behalf of core .include files.
       # All files are included to be safe. Conditionally included
       # files can prevent them from getting registered.
-      if (p.isset(info, 'file') and not p.isset(info['path'])):
+      if (php.isset(info, 'file') and not php.isset(info['path'])):
         result[hook]['file'] = path + '/' + info['file'];
-        p.include_once(result[hook]['file']);
-      elif (p.isset(info, 'file') and p.isset(info, 'path')):
-        p.include_once(info['path'] + '/' + info['file']);
-      if (p.isset(info, 'template') and not p.isset(info, 'path')):
+        php.include_once(result[hook]['file']);
+      elif (php.isset(info, 'file') and php.isset(info, 'path')):
+        php.include_once(info['path'] + '/' + info['file']);
+      if (php.isset(info, 'template') and not php.isset(info, 'path')):
         result[hook]['template'] = path + '/' + info['template'];
       # If 'arguments' have been defined previously, carry them forward.
       # This should happen if a theme overrides a Drupal defined theme
       # function, for example.
-      if (not p.isset(info, 'arguments') and p.isset(cache.val, hook)):
+      if (not php.isset(info, 'arguments') and php.isset(cache.val, hook)):
         result[hook]['arguments'] = cache[hook]['arguments'];
       # Likewise with theme paths. These are used for template naming suggestions.
       # Theme implementations can occur in multiple paths. Suggestions should follow.
-      if (not p.isset(info, 'theme paths') and p.isset(cache.val, hook)):
+      if (not php.isset(info, 'theme paths') and php.isset(cache.val, hook)):
         result[hook]['theme paths'] = cache[hook]['theme paths'];
       # Check for sub-directories.
-      result[hook]['theme paths'].append( info['path'] if p.isset(info, 'path') else path );
+      result[hook]['theme paths'].append( info['path'] if php.isset(info, 'path') else path );
       # Check for default _preprocess_ functions. Ensure arrayness.
-      if (not p.isset(info, 'preprocess functions') or not p.is_array(info['preprocess functions'])):
+      if (not php.isset(info, 'preprocess functions') or not php.is_array(info['preprocess functions'])):
         info['preprocess functions'] = [];
         prefixes = [];
         if (type == 'plugin'):
@@ -320,20 +320,20 @@ def _theme_process_registry(cache, name, type_, theme_, path):
           # This applies when the theme manually registers their own preprocessors.
           prefixes.append( name );
         for prefix in prefixes:
-          if (p.function_exists(prefix + '_preprocess')):
+          if (php.function_exists(prefix + '_preprocess')):
             info['preprocess functions'].append( prefix + '_preprocess' );
-          if (p.function_exists(prefix + '_preprocess_' + hook)):
+          if (php.function_exists(prefix + '_preprocess_' + hook)):
             info['preprocess functions'].append( prefix + '_preprocess_' + hook );
       # Check for the override flag and prevent the cached preprocess functions from being used.
       # This allows themes or theme engines to remove preprocessors set earlier in the registry build.
-      if (not p.empty(info['override preprocess functions'])):
+      if (not php.empty(info['override preprocess functions'])):
         # Flag not needed inside the registry.
         del(result[hook]['override preprocess functions']);
-      elif (p.isset(cache[hook], 'preprocess functions') and p.is_array(cache.val[hook]['preprocess functions'])):
-        info['preprocess functions'] = p.array_merge(cache[hook]['preprocess functions'], info['preprocess functions']);
+      elif (php.isset(cache[hook], 'preprocess functions') and php.is_array(cache.val[hook]['preprocess functions'])):
+        info['preprocess functions'] = php.array_merge(cache[hook]['preprocess functions'], info['preprocess functions']);
       result[hook]['preprocess functions'] = info['preprocess functions'];
     # Merge the newly created theme hooks into the existing cache.
-    cache.val = p.array_merge(cache.val, result);
+    cache.val = php.array_merge(cache.val, result);
 
 
 
@@ -357,15 +357,15 @@ def _theme_build_registry(theme_, base_theme, theme_engine):
   # Process each base theme.
   for base in base_theme:
     # If the theme uses a theme engine, process its hooks.
-    base_path = p.dirname(base.filename);
+    base_path = php.dirname(base.filename);
     if (theme_engine):
       _theme_process_registry(cache, theme_engine, 'base_theme_engine', base.name, base_path);
     _theme_process_registry(cache, base.name, 'base_theme', base.name, base_path);
   # And then the same thing, but for the theme.
   if (theme_engine):
-    _theme_process_registry(cache, theme_engine, 'theme_engine', theme.name, p.dirname(theme_.filename));
+    _theme_process_registry(cache, theme_engine, 'theme_engine', theme.name, php.dirname(theme_.filename));
   # Finally, hooks provided by the theme itself.
-  _theme_process_registry(cache, theme_.name, 'theme', theme_.name, p.dirname(theme_.filename));
+  _theme_process_registry(cache, theme_.name, 'theme', theme_.name, php.dirname(theme_.filename));
   # Let plugins alter the registry
   drupal_alter('theme_registry', cache);
   return cache;
@@ -384,21 +384,21 @@ def list_themes(refresh = False):
    @return
      An array of the currently available themes.
   """
-  p.static(list_themes, '_list', [])
+  php.static(list_themes, '_list', [])
   if (refresh):
     list_themes.list_ = [];
-  if (p.empty(list_themes.list_)):
+  if (php.empty(list_themes.list_)):
     themes = [];
     # Extract from the database only when it is available.
     # Also check that the site is not in the middle of an install or update.
-    if (db_is_active() and not p.defined('MAINTENANCE_MODE')):
+    if (db_is_active() and not php.defined('MAINTENANCE_MODE')):
       result = db_query("SELECT * FROM {system} WHERE type = '%s'", 'theme');
       while True:
         theme_ = db_fetch_object(result);
         if theme_ == False or theme_ == None:
           break;
-        if (p.file_exists(theme_.filename)):
-          theme_.info = p.unserialize(theme_.info);
+        if (php.file_exists(theme_.filename)):
+          theme_.info = php.unserialize(theme_.info);
           themes.append( theme_ );
     else:
       # Scan the installation when the database should not be read.
@@ -406,18 +406,18 @@ def list_themes(refresh = False):
     for theme_ in themes:
       for media,stylesheets in theme_.info['stylesheets']:
         for stylesheet,path in stylesheets:
-          if (p.file_exists(path)):
+          if (php.file_exists(path)):
             theme_.stylesheets[media][stylesheet] = path;
       for script,path in theme.info['scripts'].items():
-        if (p.file_exists(path)):
+        if (php.file_exists(path)):
           theme_.scripts[script] = path;
-      if (p.isset(theme_.info, 'engine')):
+      if (php.isset(theme_.info, 'engine')):
         theme_.engine = theme_.info['engine'];
-      if (p.isset(theme_.info, 'base theme')):
+      if (php.isset(theme_.info, 'base theme')):
         theme_.base_theme = theme_.info['base theme'];
       # Status is normally retrieved from the database. Add zero values when
       # read from the installation directory to prevent notices.
-      if (not p.isset(theme_, 'status')):
+      if (not php.isset(theme_, 'status')):
         theme_.status = 0;
       list_themes.list_[theme_.name] = theme_;
   return list_themes.list_;
@@ -514,30 +514,30 @@ def theme():
   """
   global theme_path;
   global theme_engine;
-  p.static(theme, 'hooks')
+  php.static(theme, 'hooks')
   args = func_get_args();
-  hook = p.array_shift(args);
+  hook = php.array_shift(args);
   if (theme.hooks == None):
     init_theme();
     theme.hooks = theme_get_registry();
-  if (p.is_array(hook)):
+  if (php.is_array(hook)):
     for candidate in hook:
-      if (p.isset(hooks, candidate)):
+      if (php.isset(hooks, candidate)):
         break;
     hook = candidate;
-  if (not p.isset(theme.hooks, hook)):
+  if (not php.isset(theme.hooks, hook)):
     return;
   info = theme.hooks[hook];
   temp = theme_path;
   # point path_to_theme() to the currently used theme path:
   theme_path = info['theme path'];
   # Include a file if the theme function or preprocess function is held elsewhere.
-  if (not p.empty(info['file'])):
+  if (not php.empty(info['file'])):
     include_file = info['file'];
-    if (p.isset(info, 'path')):
+    if (php.isset(info, 'path')):
       include_file = info['path'] + '/' + include_file;
-    p.include_once(include_file);
-  if (p.isset(info, 'function')):
+    php.include_once(include_file);
+  if (php.isset(info, 'function')):
     # The theme call is a function.
     output = info['function'](*args);
   else:
@@ -545,10 +545,10 @@ def theme():
     variables = {
       'template_files' : []
     };
-    if (not p.empty(info['arguments'])):
+    if (not php.empty(info['arguments'])):
       count = 0;
       for name,default in info['arguments'].items():
-        variables[name] = (args[count] if p.isset(args, count) else default);
+        variables[name] = (args[count] if php.isset(args, count) else default);
         count += 1;
     # default render function and extension.
     render_function = 'theme_render_template';
@@ -558,15 +558,15 @@ def theme():
       # If theme or theme engine is implementing this, it may have
       # a different extension and a different renderer.
       if (info['type'] != 'plugin'):
-        if (p.function_exists(theme_engine + '_render_template')):
+        if (php.function_exists(theme_engine + '_render_template')):
           render_function = theme_engine + '_render_template';
         extension_function = theme_engine + '_extension';
-        if (p.function_exists(extension_function)):
+        if (php.function_exists(extension_function)):
           extension = extension_function();
-    if (p.isset(info, 'preprocess functions') and p.is_array(info['preprocess functions'])):
+    if (php.isset(info, 'preprocess functions') and php.is_array(info['preprocess functions'])):
       # This construct ensures that we can keep a reference through
       # call_user_func_array.
-      variables_ = p.Reference(variables);
+      variables_ = php.Reference(variables);
       args = (variables_, hook);
       for preprocess_function in info['preprocess functions']:
         if (drupal_function_exists(preprocess_function)):
@@ -576,15 +576,15 @@ def theme():
     # from a list. The order is FILO, so this array is ordered from
     # least appropriate first to most appropriate last.
     suggestions = {};
-    if (p.isset(variables_.val, 'template_files')):
+    if (php.isset(variables_.val, 'template_files')):
       suggestions = variables_.val['template_files'];
-    if (p.isset(variables_.val, 'template_file')):
+    if (php.isset(variables_.val, 'template_file')):
       suggestions.append( variables_.val['template_file'] );
     if (suggestions):
       template_file = drupal_discover_template(info['theme paths'], suggestions, extension);
-    if (p.empty(template_file)):
+    if (php.empty(template_file)):
       template_file = info['template'] + extension;
-      if (p.isset(info, 'path')):
+      if (php.isset(info, 'path')):
         template_file = info['path'] + '/' + template_file;
     output = render_function(template_file, variables);
   # restore path_to_theme()
@@ -601,13 +601,13 @@ def drupal_discover_template(paths, suggestions, extension = '.tpl.php'):
   """
   global theme_engine;
   # Loop through all paths and suggestions in FIFO order.
-  suggestions = p.array_reverse(suggestions);
-  paths = p.array_reverse(paths);
+  suggestions = php.array_reverse(suggestions);
+  paths = php.array_reverse(paths);
   for suggesiton in suggestions:
-    if (not p.empty(suggestion)):
+    if (not php.empty(suggestion)):
       for path in paths:
         file = path + '/' + suggestion + extension;
-        if (p.file_exists(file)):
+        if (php.file_exists(file)):
           return file;
 
 
@@ -640,16 +640,16 @@ def drupal_find_theme_functions(cache, prefixes):
   functions = get_defined_functions();
   for hook,info in cache.items():
     for prefix in prefixes:
-      if (not p.empty(info['pattern'])):
+      if (not php.empty(info['pattern'])):
         matches = preg_grep('/^' + prefix + '_' + info['pattern'] + '/', functions['user']);
         if (matches > 1):
           for match in matches:
-            new_hook = p.str_replace(prefix + '_', '', match);
+            new_hook = php.str_replace(prefix + '_', '', match);
             templates[new_hook] = {
               'function' : match,
               'arguments' : info['arguments'],
             };
-      if (p.function_exists(prefix + '_' + hook)):
+      if (php.function_exists(prefix + '_' + hook)):
         templates[hook] = {
           'function' : prefix + '_' + hook,
         };
@@ -674,43 +674,43 @@ def drupal_find_theme_templates(cache, extension, path):
   # used for filtering+ This allows base themes to have sub-themes in its
   # folder hierarchy without affecting the base themes template discovery+ theme_paths = array();
   for theme_info in list_themes():
-    if (not p.empty(theme_info.base_theme)):
-      theme_paths[theme_info.base_theme][theme_info.name] = p.dirname(theme_info.filename);
+    if (not php.empty(theme_info.base_theme)):
+      theme_paths[theme_info.base_theme][theme_info.name] = php.dirname(theme_info.filename);
   for basetheme,subthemes in theme_paths.items():
     for subtheme,subtheme_path in subthemes.items():
-      if (p.isset(theme_paths, subtheme)):
-        theme_paths[basetheme] = p.array_merge(theme_paths[basetheme], theme_paths[subtheme]);
-  subtheme_paths = (theme_paths[theme] if p.isset(theme_paths, theme) else []);
-  # Escape the periods in the extension+ regex = p.str_replace('.', '\.', extension) +'$';
+      if (php.isset(theme_paths, subtheme)):
+        theme_paths[basetheme] = php.array_merge(theme_paths[basetheme], theme_paths[subtheme]);
+  subtheme_paths = (theme_paths[theme] if php.isset(theme_paths, theme) else []);
+  # Escape the periods in the extension+ regex = php.str_replace('.', '\.', extension) +'$';
   # Because drupal_system_listing works the way it does, we check for real
   # templates separately from checking for patterns+ files = drupal_system_listing(regex, path, 'name', 0);
   for template,file in files.items():
-    # Ignore sub-theme templates for the current theme+ if (p.strpos(file.filename, p.str_replace(subtheme_paths, '', file.filename)) !== 0):
+    # Ignore sub-theme templates for the current theme+ if (php.strpos(file.filename, php.str_replace(subtheme_paths, '', file.filename)) !== 0):
     continue;
     # Chop off the remaining extensions if there are any+ template already
     # has the rightmost extension removed, but there might still be more,
-    # such as with +tpl.php, which still has +tpl in template at this point+ if ((pos = p.strpos(template, '.')) !== False):
-    template = p.substr(template, 0, pos);
+    # such as with +tpl.php, which still has +tpl in template at this point+ if ((pos = php.strpos(template, '.')) !== False):
+    template = php.substr(template, 0, pos);
     # Transform - in filenames to _ to match function naming scheme
-    # for the purposes of searching+ hook = p.strtr(template, '-', '_');
-    if (p.isset(cache, hook)):
+    # for the purposes of searching+ hook = php.strtr(template, '-', '_');
+    if (php.isset(cache, hook)):
       templates[hook] = {
         'template' : template,
-        'path' : p.dirname(file.filename),
+        'path' : php.dirname(file.filename),
       };
-  patterns = p.array_keys(files);
+  patterns = php.array_keys(files);
   for hook,info in cache.items():
-    if (not p.empty(info, 'pattern')):
+    if (not php.empty(info, 'pattern')):
       # Transform _ in pattern to - to match file naming scheme
-      # for the purposes of searching+ pattern = p.strtr(info['pattern'], '_', '-');
+      # for the purposes of searching+ pattern = php.strtr(info['pattern'], '_', '-');
       matches = preg_grep('/^'+ pattern +'/', patterns);
       if (matches):
         for match in matches:
-          file = p.substr(match, 0, p.strpos(match, '.'));
+          file = php.substr(match, 0, php.strpos(match, '.'));
           # Put the underscores back in for the hook name and register this pattern+
-          templates[p.strtr(file, '-', '_')] = {
+          templates[php.strtr(file, '-', '_')] = {
             'template' : file,
-            'path' : p.dirname(files[match].filename),
+            'path' : php.dirname(files[match].filename),
             'arguments' : info['arguments'],
           };
   return templates;
@@ -750,9 +750,9 @@ def theme_get_settings(key = None):
   if (plugin_exists('node')):
     for type,name in node_get_types().items():
       defaults['toggle_node_info_'+ type] = 1;
-  settings = p.array_merge(defaults, variable_get('theme_settings', array()));
+  settings = php.array_merge(defaults, variable_get('theme_settings', array()));
   if (key != None):
-    settings = p.array_merge(settings, variable_get(p.str_replace('/', '_', 'theme_'+ key +'_settings'), []));
+    settings = php.array_merge(settings, variable_get(php.str_replace('/', '_', 'theme_'+ key +'_settings'), []));
   # Only offer search box if search.plugin is enabled+ if (not plugin_exists('search') or not user_access('search content')):
     settings['toggle_search'] = 0;
   return settings;
@@ -773,7 +773,7 @@ def theme_get_setting(setting_name, refresh = False):
      The value of the requested setting, None if the setting does not exist
   """
   global theme_key;
-  p.static(theme_get_setting, 'settings')
+  php.static(theme_get_setting, 'settings')
   if (theme_get_setting.settings == None or refresh):
     theme_get_setting.settings = theme_get_settings(theme_key);
     themes = list_themes();
@@ -784,13 +784,13 @@ def theme_get_setting(setting_name, refresh = False):
       theme_get_setting.settings['mission'] = '';
     if (theme_get_setting.settings['toggle_logo']):
       if (theme_get_setting.settings['default_logo']):
-        theme_get_setting.settings['logo'] = base_path() + p.dirname(theme_object.filename) +'/logo.png';
+        theme_get_setting.settings['logo'] = base_path() + php.dirname(theme_object.filename) +'/logo.png';
       elif (theme_get_setting.settings['logo_path']):
         theme_get_setting.settings['logo'] = base_path() + theme_get_setting.settings['logo_path'];
     if (theme_get_setting.settings['toggle_favicon']):
       if (theme_get_setting.settings['default_favicon']):
-        favicon = (p.dirname(theme_object.filename) +'/favicon.ico');
-        if (p.file_exists(favicon)):
+        favicon = (php.dirname(theme_object.filename) +'/favicon.ico');
+        if (php.file_exists(favicon)):
           theme_get_setting.settings['favicon'] = base_path() + favicon;
         else:
           theme_get_setting.settings['favicon'] = base_path() +'misc/favicon.ico';
@@ -798,7 +798,7 @@ def theme_get_setting(setting_name, refresh = False):
         theme_get_setting.settings['favicon'] = base_path() + theme_get_setting.settings['favicon_path'];
       else:
         theme_get_setting.settings['toggle_favicon'] = False;
-  return (theme_get_setting.settings[setting_name] if p.isset(theme_get_setting.settings, setting_name) else None);
+  return (theme_get_setting.settings[setting_name] if php.isset(theme_get_setting.settings, setting_name) else None);
 
 
 
@@ -814,7 +814,7 @@ def theme_render_template(file, variables):
   """
   extract(variables, EXTR_SKIP);  # Extract the variables to a local namespace
   ob_start();                     # Start output buffering
-  p.include( "./file" );               # Include the file
+  php.include( "./file" );               # Include the file
   contents = ob_get_contents();   # Get the contents of the buffer
   ob_end_clean();                 # End buffering and discard
   return contents;                # Return the contents
@@ -837,11 +837,11 @@ def theme_placeholder(text):
   
    Inside Drupal, the theme layer is utilized by the use of the theme()
    function, which is passed the name of a component (the theme hook)
-   and several arguments+ For example, theme('table', p.header, rows);
+   and several arguments+ For example, theme('table', php.header, rows);
    Additionally, the theme() function can take an array of theme
    hooks, which can be used to provide 'fallback' implementations to
    allow for more specific control of output+ For example, the function:
-   theme(array('table__foo', 'table'), p.header, rows) would look to see if
+   theme(array('table__foo', 'table'), php.header, rows) would look to see if
    'table__foo' is registered anywhere; if it is not, it would 'fall back'
    to the generic 'table' implementation+ This can be used to attach specific
    theme functions to named objects, allowing the themer more control over
@@ -914,7 +914,7 @@ def theme_status_messages(display = None):
   output = '';
   for type,messages in drupal_get_messages(display).items():
     output += "<div class=\"messages type\">\n";
-    if (p.count(messages) > 1):
+    if (php.count(messages) > 1):
       output += " <ul>\n";
       for message in messages:
         output += '  <li>'+ message +"</li>\n";
@@ -936,9 +936,9 @@ def theme_links(links, attributes = {'class' : 'links'}):
      A string containing an unordered list of links+
   """
   output = '';
-  if (p.count(links) > 0):
+  if (php.count(links) > 0):
     output = '<ul'+ drupal_attributes(attributes) +'>';
-    num_links = p.count(links);
+    num_links = php.count(links);
     i = 1;
     for key,link in links.items():
       class_ = key;
@@ -947,18 +947,18 @@ def theme_links(links, attributes = {'class' : 'links'}):
         class_ += ' first';
       if (i == num_links):
         class_ += ' last';
-      if (p.isset(link['href']) and (link['href'] == p.GET['q'] or (link['href'] == '<front>' and drupal_is_front_page()))):
+      if (php.isset(link['href']) and (link['href'] == php.GET['q'] or (link['href'] == '<front>' and drupal_is_front_page()))):
         class_ += ' active';
       output += '<li class="'+ class_ +'">';
-      if (p.isset(link['href'])):
+      if (php.isset(link['href'])):
         # Pass in link as options, they share the same keys
         output += l(link['title'], link['href'], link);
-      elif (not p.empty(link, 'title')):
+      elif (not php.empty(link, 'title')):
         # Some links are actually not links, but we wrap these in <span> for adding title and class attributes
-        if (p.empty(link, 'html')):
+        if (php.empty(link, 'html')):
           link['title'] = check_plain(link['title']);
         span_attributes = '';
-        if (p.isset(link, 'attributes')):
+        if (php.isset(link, 'attributes')):
           span_attributes = drupal_attributes(link['attributes']);
         output += '<span'+ span_attributes +'>'+ link['title'] +'</span>';
       i += 1;
@@ -979,12 +979,12 @@ def theme_image(path, alt = '', title = '', attributes = None, getsize = True):
      If set to True, the image's dimension are fetched and added as width/height attributes+ * @return
      A string containing the image tag+
   """
-  imageSize = p.getimagesize(path);
-  if (not getsize or (p.is_file(path) and (imageSize != False))):
+  imageSize = php.getimagesize(path);
+  if (not getsize or (php.is_file(path) and (imageSize != False))):
     width, height, type, image_attributes = imageSize; 
     attributes = drupal_attributes(attributes);
     url =  path if (url(path) == path) else (base_path() + path);
-    return '<img src="'+ check_url(url) +'" alt="'+ check_plain(alt) +'" title="'+ check_plain(title) +'" '+ (image_attributes if not p.empty(image_attributes) else '') + attributes +' />';
+    return '<img src="'+ check_url(url) +'" alt="'+ check_plain(alt) +'" title="'+ check_plain(title) +'" '+ (image_attributes if not php.empty(image_attributes) else '') + attributes +' />';
 
 
 
@@ -994,8 +994,8 @@ def theme_breadcrumb(breadcrumb):
    @param breadcrumb
      An array containing the breadcrumb links+ * @return a string containing the breadcrumb output
   """
-  if (not p.empty(breadcrumb)):
-    return '<div class="breadcrumb">'+ p.implode(' &raquo; ', breadcrumb) +'</div>';
+  if (not php.empty(breadcrumb)):
+    return '<div class="breadcrumb">'+ php.implode(' &raquo; ', breadcrumb) +'</div>';
 
 
 
@@ -1016,21 +1016,21 @@ def theme_submenu(links):
    @param links
      An array of links+
   """
-  return '<div class="submenu">'+ p.implode(' | ', links) +'</div>';
+  return '<div class="submenu">'+ php.implode(' | ', links) +'</div>';
 
 
 def theme_table(header_, rows, attributes = {}, caption = None, colgroups = {}):
   """
    Return a themed table.
   
-   @param p.header
+   @param php.header
      An array containing the table headers. Each element of the array can be
      either a localized string or an associative array with the following keys:
      - "data": The localized title of the table column.
      - "field": The database field represented in the table column (required if
        user is to be able to sort on this column).
      - "sort": A default sort order for this column ("asc" or "desc").
-     - Any HTML attributes, such as "colspan", to apply to the column p.header cell.
+     - Any HTML attributes, such as "colspan", to apply to the column php.header cell.
    @param rows
      An array of table rows. Every row is an array of cells, or an associative
      array with the following keys:
@@ -1039,7 +1039,7 @@ def theme_table(header_, rows, attributes = {}, caption = None, colgroups = {}):
   
      Each cell can be either a string or an associative array with the following keys:
      - "data": The string to display in the table cell.
-     - "p.header": Indicates this cell is a p.header.
+     - "php.header": Indicates this cell is a php.header.
      - Any HTML attributes, such as "colspan", to apply to the table cell.
   
      Here's an example for rows:
@@ -1094,20 +1094,20 @@ def theme_table(header_, rows, attributes = {}, caption = None, colgroups = {}):
      An HTML string representing the table.
   """
   # Add sticky headers, if applicable.
-  if (p.count(header_)):
+  if (php.count(header_)):
     drupal_add_js('misc/tableheader.js')
     # Add 'sticky-enabled' class to the table to identify it for JS.
     # This is needed to target tables constructed by this function.
-    attributes['class'] = ('sticky-enabled' if p.empty(attributes['class']) else  (attributes['class'] +  ' sticky-enabled'))
+    attributes['class'] = ('sticky-enabled' if php.empty(attributes['class']) else  (attributes['class'] +  ' sticky-enabled'))
   output = '<table' +  drupal_attributes(attributes)  + ">\n"
-  if (p.isset(caption)):
+  if (php.isset(caption)):
     output += '<caption>' +  caption  + "</caption>\n"
   # Format the table columns:
-  if (p.count(colgroups)):
+  if (php.count(colgroups)):
     for number,colgroup in colgroups.items():
       attributes = {}
       # Check if we're dealing with a simple or complex column
-      if (p.isset(colgroup, 'data')):
+      if (php.isset(colgroup, 'data')):
         for key,value in colgroup.items():
           if (key == 'data'):
             cols = value
@@ -1116,7 +1116,7 @@ def theme_table(header_, rows, attributes = {}, caption = None, colgroups = {}):
       else:
         cols = colgroup
       # Build colgroup
-      if (p.is_array(cols) and p.count(cols)):
+      if (php.is_array(cols) and php.count(cols)):
         output += ' <colgroup' +  drupal_attributes(attributes)  + '>'
         i = 0
         for col in cols:
@@ -1124,29 +1124,29 @@ def theme_table(header_, rows, attributes = {}, caption = None, colgroups = {}):
         output += " </colgroup>\n"
       else:
         output += ' <colgroup' +  drupal_attributes(attributes)  + " />\n"
-  # Format the table p.header:
-  if (p.count(header_) > 0):
+  # Format the table php.header:
+  if (php.count(header_) > 0):
     ts = tablesort_init(header_);
     # HTML requires that the thead tag has tr tags in it follwed by tbody
     # tags+
     #Using ternary operator to check and see if we have any rows+
-    output += (' <thead><tr>' if (p.count(rows) > 1) else ' <tr>');
+    output += (' <thead><tr>' if (php.count(rows) > 1) else ' <tr>');
     for cell in header_:
       cell = tablesort_header(cell, header_, ts);
       output += _theme_table_cell(cell, True);
     # Using ternary operator to close the tags based on whether or not there are rows
-    output += (" </tr></thead>\n" if (p.count(rows) > 0) else "</tr>\n");
+    output += (" </tr></thead>\n" if (php.count(rows) > 0) else "</tr>\n");
   else:
     ts = [];
   # Format the table rows:
-  if (p.count(rows) > 0):
+  if (php.count(rows) > 0):
     output += "<tbody>\n";
     flip = {'even' : 'odd', 'odd' : 'even'};
     class_ = 'even';
     for number,row in rows.items():
       attributes = [];
       # Check if we're dealing with a simple or complex row
-      if (p.isset(row, 'data')):
+      if (php.isset(row, 'data')):
         for key,value in row.items():
           if (key == 'data'):
             cells = value;
@@ -1154,10 +1154,10 @@ def theme_table(header_, rows, attributes = {}, caption = None, colgroups = {}):
             attributes[key] = value;
       else:
         cells = row;
-      if (p.count(cells) > 0):
+      if (php.count(cells) > 0):
         # Add odd/even class
         class_ = flip[class_];
-        if (p.isset(attributes, 'class')):
+        if (php.isset(attributes, 'class')):
           attributes['class'] += ' '+ class_;
         else:
           attributes['class'] = class_;
@@ -1178,7 +1178,7 @@ def theme_table(header_, rows, attributes = {}, caption = None, colgroups = {}):
 
 def theme_table_select_header_cell():
   """
-   Returns a p.header cell for tables that have a select all functionality+
+   Returns a php.header cell for tables that have a select all functionality+
   """
   drupal_add_js('misc/tableselect.js');
   return {'class' : 'select-all'};
@@ -1255,13 +1255,13 @@ def theme_item_list(items = [], title = None, type = 'ul', attributes = []):
   output = '<div class="item-list">';
   if (title != None):
     output += '<h3>'+ title +'</h3>';
-  if (not p.empty(items)):
+  if (not php.empty(items)):
     output += "<type"+ drupal_attributes(attributes) +'>';
-    num_items = p.count(items);
+    num_items = php.count(items);
     for i,item in items.items():
       attributes = {};
       children = {};
-      if (p.is_array(item)):
+      if (php.is_array(item)):
         for key,value in item.items():
           if (key == 'data'):
             data = value;
@@ -1271,12 +1271,12 @@ def theme_item_list(items = [], title = None, type = 'ul', attributes = []):
             attributes[key] = value;
       else:
         data = item;
-      if (p.count(children) > 0):
+      if (php.count(children) > 0):
         data += theme_item_list(children, None, type, attributes); # Render nested list
       if (i == 0):
-        attributes['class'] = ('first' if p.empty(attributes['class']) else (attributes['class'] +' first'));
+        attributes['class'] = ('first' if php.empty(attributes['class']) else (attributes['class'] +' first'));
       if (i == num_items - 1):
-        attributes['class'] = ('last' if p.empty(attributes['class']) else (attributes['class'] +' last'));
+        attributes['class'] = ('last' if php.empty(attributes['class']) else (attributes['class'] +' last'));
       output += '<li'+ drupal_attributes(attributes) +'>'+ data +"</li>\n";
     output += "</type>";
   output += '</div>';
@@ -1338,7 +1338,7 @@ def theme_closure(main_ = 0):
      A string containing the results of the hook_footer() calls+
   """
   footer = plugin_invoke_all('footer', main_);
-  return p.implode("\n", footer) + drupal_get_js('footer');
+  return php.implode("\n", footer) + drupal_get_js('footer');
 
 
 
@@ -1370,7 +1370,7 @@ def theme_username(object_):
      suggests that this is a site user+
    Otherwise, only the username is returned
   """
-  nameSet = (p.isset(object_, 'name') and not p.empty(object_.name));
+  nameSet = (php.isset(object_, 'name') and not php.empty(object_.name));
   if (object_.uid > 0 and nameSet):
     # Shorten the name when it is too long or it will break many tables+
     if (drupal_strlen(object_.name) > 20):
@@ -1386,7 +1386,7 @@ def theme_username(object_):
     # not registered members of the site (e.g+ mailing list or news
     # aggregator plugins)+ This clause enables plugins to display
     # the True author of the content+
-    if (p.isset(object_, 'homepage') and not p.empty(object_.homepage)):
+    if (php.isset(object_, 'homepage') and not php.empty(object_.homepage)):
       output = l(object_.name, object_.homepage, {'attributes' : {'rel' : 'nofollow'}});
     else:
       output = check_plain(object_.name);
@@ -1437,9 +1437,9 @@ def theme_indentation(size = 1):
 
 def _theme_table_cell(cell, header_ = False):
   attributes = '';
-  if (p.is_array(cell)):
-    data = (cell['data'] if p.isset(cell, 'data') else '');
-    header_ |= p.isset(cell, 'header');
+  if (php.is_array(cell)):
+    data = (cell['data'] if php.isset(cell, 'data') else '');
+    header_ |= php.isset(cell, 'header');
     del(cell['data']);
     del(cell['header']);
     attributes = drupal_attributes(cell);
@@ -1460,13 +1460,13 @@ def template_preprocess(variables_, hook):
    it possible to be used in default theme implementations (non-overriden
    theme functions)+
   """
-  p.static(template_preprocess, 'count', {})
-  p.Reference.check(variables_);
+  php.static(template_preprocess, 'count', {})
+  php.Reference.check(variables_);
   # Track run count for each hook to provide zebra striping+
   # See "template_preprocess_block()" which provides the same feature specific to blocks+
   template_preprocess.count[hook] = \
     (template_preprocess.count[hook] \
-      if (p.isset(template_preprocess.count, hook) and \
+      if (php.isset(template_preprocess.count, hook) and \
         is_int(template_preprocess.count[hook])) else 1);
   variables_.val['zebra'] = ('odd' if ((template_preprocess.count[hook] % 2) > 1) else 'even');
   template_preprocess.count[hook] += 1;
@@ -1478,7 +1478,7 @@ def template_preprocess(variables_, hook):
   variables_.val['is_front']            = False;
   variables_.val['logged_in']           = False;
   variables_.val['db_is_active'] = db_is_active() ;
-  if (variables_.val['db_is_active'] and not p.defined('MAINTENANCE_MODE')):
+  if (variables_.val['db_is_active'] and not php.defined('MAINTENANCE_MODE')):
     # Check for administrators+
     if (user_access('access administration pages')):
       variables_.val['is_admin'] = True;
@@ -1510,29 +1510,29 @@ def template_preprocess_page(variables_):
   """
   global theme_;
   global language;
-  p.Reference.check(variables_);
+  php.Reference.check(variables_);
   # Add favicon
   if (theme_get_setting('toggle_favicon')):
     drupal_set_html_head('<link rel="shortcut icon" href="'+ check_url(theme_get_setting('favicon')) +'" type="image/x-icon" />');
   # Populate all block regions+
   regions = system_region_list(theme);
   # Load all region content assigned via blocks+
-  for region in p.array_keys(regions):
+  for region in php.array_keys(regions):
     # Prevent left and right regions from rendering blocks when 'show_blocks' == False+
     if (not (not variables_.val['show_blocks'] and (region == 'left' or region == 'right'))):
       blocks = theme('blocks', region);
     else:
       blocks = '';
     # Assign region to a region variable+
-    if (p.isset(variables, region)):
+    if (php.isset(variables, region)):
       variables_.val[region] += blocks
     else:
       variables_.val[region] = blocks;
   # Set up layout variable+
   variables['layout'] = 'none';
-  if (not p.empty(variables_.val['left'])):
+  if (not php.empty(variables_.val['left'])):
     variables_.val['layout'] = 'left';
-  if (not p.empty(variables_.val['right'])):
+  if (not php.empty(variables_.val['right'])):
     variables['layout'] = ('both' if (variables['layout'] == 'left') else 'right');
   # Set mission when viewing the frontpage+
   if (drupal_is_front_page()):
@@ -1546,7 +1546,7 @@ def template_preprocess_page(variables_):
     head_title = [variable_get('site_name', 'Drupal')];
     if (variable_get('site_slogan', '')):
       head_title.append( variable_get('site_slogan', '') );
-  variables_.val['head_title']        = p.implode(' | ', head_title);
+  variables_.val['head_title']        = php.implode(' | ', head_title);
   variables_.val['base_path']         = base_path();
   variables_.val['front_page']        = url();
   variables_.val['breadcrumb']        = theme('breadcrumb', drupal_get_breadcrumb());
@@ -1555,7 +1555,7 @@ def template_preprocess_page(variables_):
   variables_.val['head']              = drupal_get_html_head();
   variables_.val['help']              = theme('help');
   variables_.val['language']          = language;
-  variables_.val['language'].dir      = ('rtl' if (p.isset(language, 'direction') and not p.empty(language.direction)) else 'ltr');
+  variables_.val['language'].dir      = ('rtl' if (php.isset(language, 'direction') and not php.empty(language.direction)) else 'ltr');
   variables_.val['logo']              = theme_get_setting('logo');
   variables_.val['messages']          = (theme('status_messages') if variables['show_messages'] else '');
   variables_.val['mission']           = (mission if (mission != None) else '');
@@ -1585,9 +1585,9 @@ def template_preprocess_page(variables_):
   # type (e.g+ node, admin, user, etc.)+ To avoid illegal characters in the class,
   # we're removing everything disallowed+ We are not using 'a-z' as that might leave
   # in certain international characters (e.g+ German umlauts)+
-  body_classes.append( p.preg_replace('not [^abcdefghijklmnopqrstuvwxyz0-9-_]+not s', '', 'page-'+ form_clean_id(drupal_strtolower(arg(0)))) );
+  body_classes.append( php.preg_replace('not [^abcdefghijklmnopqrstuvwxyz0-9-_]+not s', '', 'page-'+ form_clean_id(drupal_strtolower(arg(0)))) );
   # If on an individual node page, add the node type+
-  if (p.isset(variables_.val, 'node') and variables_.val['node'].type):
+  if (php.isset(variables_.val, 'node') and variables_.val['node'].type):
     body_classes.append( 'node-type-'+ form_clean_id(variables_.val['node'].type) );
   # Add information about the number of sidebars+
   if (variables_.val['layout'] == 'both'):
@@ -1597,7 +1597,7 @@ def template_preprocess_page(variables_):
   else:
     body_classes.append( 'one-sidebar sidebar-'+ variables_.val['layout'] );
   # Implode with spaces+
-  variables_.val['body_classes'] = p.implode(' ', body_classes);
+  variables_.val['body_classes'] = php.implode(' ', body_classes);
   # Build a list of suggested template files in order of specificity+ One
   # suggestion is made for every element of the current path, though
   # numeric elements are not carried to subsequent suggestions+ For example,
@@ -1618,11 +1618,11 @@ def template_preprocess_page(variables_):
     else:
       i += 1;
     suggestions.append( suggestion +'-'+ arg_ );
-    if (not p.is_numeric(arg_)):
+    if (not php.is_numeric(arg_)):
       suggestion += '-'+ arg_;
   if (drupal_is_front_page()):
     suggestions.append( 'page-front' );
-  if (not p.empty(suggestions)):
+  if (not php.empty(suggestions)):
     variables_.val['template_files'] = suggestions;
 
 
@@ -1642,7 +1642,7 @@ def template_preprocess_node(variables_):
   
    @see node.tpl.php
   """
-  p.Reference.check(variables);
+  php.Reference.check(variables);
   node = variables_.val['node'];
   if (plugin_exists('taxonomy')):
     variables_.val['taxonomy'] = taxonomy_link('taxonomy terms', node);
@@ -1650,18 +1650,18 @@ def template_preprocess_node(variables_):
     variables_.val['taxonomy'] = {};
   if (variables_.val['teaser'] and node.teaser):
     variables_.val['content'] = node.teaser;
-  elif (p.isset(node, 'body')):
+  elif (php.isset(node, 'body')):
     variables_.val['content'] = node.body;
   else:
     variables_.val['content'] = '';
   variables_.val['date']      = format_date(node.created);
-  variables_.val['links']     = (theme('links', node.links, {'class' : 'links inline'}) if (not p.empty(node.links)) else '');
+  variables_.val['links']     = (theme('links', node.links, {'class' : 'links inline'}) if (not php.empty(node.links)) else '');
   variables_.val['name']      = theme('username', node);
   variables_.val['node_url']  = url('node/'+ node.nid);
   variables_.val['terms']     = theme('links', variables_.val['taxonomy'], {'class' : 'links inline'});
   variables_.val['title']     = check_plain(node.title);
   # Flatten the node object's member fields+
-  variables_.val = p.array_merge(drupy_array(node), variables_.val);
+  variables_.val = php.array_merge(drupy_array(node), variables_.val);
   # Display info only on certain node types+
   if (theme_get_setting('toggle_node_info_'+ node.type_)):
     variables_.val['submitted'] = theme('node_submitted', node);
@@ -1670,7 +1670,7 @@ def template_preprocess_node(variables_):
     variables_.val['submitted'] = '';
     variables_.val['picture'] = '';
   # Clean up name so there are no underscores+
-  variables_.val['template_files'].append( 'node-' + p.str_replace('_', '-', node.type_) )
+  variables_.val['template_files'].append( 'node-' + php.str_replace('_', '-', node.type_) )
   variables_.val['template_files'].append( 'node-' + node.nid )
 
 
@@ -1692,10 +1692,10 @@ def template_preprocess_block(variables_):
   
    @see block.tpl.php
   """
-  p.static(template_preprocess_block, 'block_counter', {})
-  p.Reference.check(variables_);
+  php.static(template_preprocess_block, 'block_counter', {})
+  php.Reference.check(variables_);
   # All blocks get an independent counter for each region+
-  if (not p.isset(template_preprocess_block.block_counter, variables_.val['block'].region)):
+  if (not php.isset(template_preprocess_block.block_counter, variables_.val['block'].region)):
     template_preprocess_block.block_counter[variables_.val['block'].region] = 1;
   # Same with zebra striping+
   variables_.val['block_zebra'] = ('odd' if ((template_preprocess_block.block_counter[variables_.val['block'].region] % 2) > 0) else 'even');

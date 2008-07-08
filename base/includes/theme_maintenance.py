@@ -48,7 +48,7 @@
 #
 # Imports
 #
-from lib.drupy import DrupyPHP as p
+from lib.drupy import DrupyPHP as php
 import path as inc_path
 import theme as inc_theme
 import common as inc_common
@@ -71,7 +71,7 @@ def _drupal_maintenance_theme():
     return
   inc_unicode.unicode_check()
   # Install and update pages are treated differently to prevent theming overrides.
-  if (p.defined('MAINTENANCE_MODE') and (MAINTENANCE_MODE == 'install' or MAINTENANCE_MODE == 'update')):
+  if (php.defined('MAINTENANCE_MODE') and (MAINTENANCE_MODE == 'install' or MAINTENANCE_MODE == 'update')):
     theme_ = 'minnelli'
   else:
     # Load plugin basics (needed for hook invokes).
@@ -88,11 +88,11 @@ def _drupal_maintenance_theme():
   # Find all our ancestor themes and put them in an array.
   base_theme = array()
   ancestor = theme_
-  while (ancestor and p.isset(themes[ancestor], base_theme)):
+  while (ancestor and php.isset(themes[ancestor], base_theme)):
     new_base_theme = themes[themes[ancestor].base_theme]
     base_theme.append(new_base_theme)
     ancestor = themes[ancestor].base_theme
-  _init_theme(themes[theme], p.array_reverse(base_theme), '_theme_load_offline_registry')
+  _init_theme(themes[theme], php.array_reverse(base_theme), '_theme_load_offline_registry')
   # These are usually added from system_init() -except maintenance.css.
   # When the database is inactive it's not called so we add it here.
   drupal_add_css(drupal_get_path('plugin', 'system') + '/defaults.css', 'plugin')
@@ -114,7 +114,7 @@ def theme_task_list(items_, active = None):
   
    @ingroup themeable
   """
-  done = ((active == None) or (p.isset(items, active)))
+  done = ((active == None) or (php.isset(items, active)))
   output = '<ol class="task-list">'
   for k,item in items_.items():
     if (active == k):
@@ -147,19 +147,19 @@ def theme_install_page(content):
   template_preprocess_maintenance_page(variables)
   # Special handling of error messages
   messages = drupal_set_message()
-  if (p.isset(messages, 'error')):
-    title = (st('The following errors must be resolved before you can continue the installation process') if (p.count(messages['error']) > 1) else st('The following error must be resolved before you can continue the installation process'))
+  if (php.isset(messages, 'error')):
+    title = (st('The following errors must be resolved before you can continue the installation process') if (php.count(messages['error']) > 1) else st('The following error must be resolved before you can continue the installation process'))
     variables['messages'] += '<h3>' + title + ':</h3>'
     variables['messages'] += theme('status_messages', 'error')
     variables['content'] += '<p>' + st('Please check the error messages and <a href="not url">try again</a>.', {'not url' : request_uri()}) + '</p>'
   # Special handling of warning messages
-  if (p.isset(messages, 'warning')):
-    title = (st('The following installation warnings should be carefully reviewed') if (p.count(messages['warning']) > 1) else st('The following installation warning should be carefully reviewed'))
+  if (php.isset(messages, 'warning')):
+    title = (st('The following installation warnings should be carefully reviewed') if (php.count(messages['warning']) > 1) else st('The following installation warning should be carefully reviewed'))
     variables['messages'] += '<h4>' + title + ':</h4>'
     variables['messages'] += theme('status_messages', 'warning')
   # Special handling of status messages
-  if (p.isset(messages, 'status')):
-    title = (st('The following installation warnings should be carefully reviewed, but in most cases may be safely ignored') if (p.count(messages['status']) > 1) else st('The following installation warning should be carefully reviewed, but in most cases may be safely ignored'))
+  if (php.isset(messages, 'status')):
+    title = (st('The following installation warnings should be carefully reviewed, but in most cases may be safely ignored') if (php.count(messages['status']) > 1) else st('The following installation warning should be carefully reviewed, but in most cases may be safely ignored'))
     variables['messages'] += '<h4>' + title + ':</h4>'
     variables['messages'] += theme('status_messages', 'status')
   # This was called as a theme hook (not template), so we need to
@@ -192,8 +192,8 @@ def theme_update_page(content, show_messages = True):
   template_preprocess_maintenance_page(variables)
   # Special handling of warning messages.
   messages = drupal_set_message()
-  if (p.isset(messages['warning'])):
-    title = ('The following update warnings should be carefully reviewed before continuing' if (p.count(messages['warning']) > 1) else 'The following update warning should be carefully reviewed before continuing')
+  if (php.isset(messages['warning'])):
+    title = ('The following update warnings should be carefully reviewed before continuing' if (php.count(messages['warning']) > 1) else 'The following update warning should be carefully reviewed before continuing')
     variables['messages'] += '<h4>' + title + ':</h4>'
     variables['messages'] += theme('status_messages', 'warning')
   # This was called as a theme hook (not template), so we need to
@@ -221,7 +221,7 @@ def template_preprocess_maintenance_page(variables):
   
    @see maintenance-page.tpl.php
   """
-  p.Reference.check(variables)
+  php.Reference.check(variables)
   global theme_
   # Add favicon
   if (theme_get_setting('toggle_favicon')):
@@ -230,18 +230,18 @@ def template_preprocess_maintenance_page(variables):
   theme_data = _system_theme_data()
   regions = theme_data[theme_].info['regions']
   # Get all region content set with drupal_set_content().
-  for region in p.array_keys(regions):
+  for region in php.array_keys(regions):
     # Assign region to a region variable.
     region_content = drupal_get_content(region)
-    if p.isset(variables.val, region):
+    if php.isset(variables.val, region):
       variables.val[region] += region_content
     else:
       variables[region] = region_content
   # Setup layout variable.
   variables.val['layout'] = 'none'
-  if (not p.empty(variables.val['left'])):
+  if (not php.empty(variables.val['left'])):
     variables['layout'] = 'left'
-  if (not p.empty(variables['right'])):
+  if (not php.empty(variables['right'])):
     variables.val['layout'] = ('both' if (variables.val['layout'] == 'left') else 'right')
   # Construct page title
   if (drupal_get_title()):
@@ -250,7 +250,7 @@ def template_preprocess_maintenance_page(variables):
     head_title = [variable_get('site_name', 'Drupal')]
     if (variable_get('site_slogan', '')):
       head_title.append( variable_get('site_slogan', '') )
-  variables.val['head_title']        = p.implode(' | ', head_title)
+  variables.val['head_title']        = php.implode(' | ', head_title)
   variables.val['base_path']         = base_path()
   variables.val['front_page']        = url()
   variables.val['breadcrumb']        = ''
@@ -277,7 +277,7 @@ def template_preprocess_maintenance_page(variables):
   # Compile a list of classes that are going to be applied to the body element.
   body_classes = []
   body_classes.append( 'in-maintenance' )
-  if (p.isset(variables.val, 'db_is_active') and not variables.val['db_is_active']):
+  if (php.isset(variables.val, 'db_is_active') and not variables.val['db_is_active']):
     body_classes.append( 'db-offline' )
   if (variables.val['layout'] == 'both'):
     body_classes.append( 'two-sidebars' )
@@ -285,10 +285,10 @@ def template_preprocess_maintenance_page(variables):
     body_classes.append( 'no-sidebars' )
   else:
     body_classes.append( 'one-sidebar sidebar-'  + variables.val['layout'] )
-  variables.val['body_classes'] = p.implode(' ', body_classes)
+  variables.val['body_classes'] = php.implode(' ', body_classes)
   # Dead databases will show error messages so supplying this template will
   # allow themers to override the page and the content completely.
-  if (p.isset(variables.val, 'db_is_active') and not variables.val['db_is_active']):
+  if (php.isset(variables.val, 'db_is_active') and not variables.val['db_is_active']):
     variables.val['template_file'] = 'maintenance-page-offline';
 
 

@@ -36,7 +36,7 @@
     USA
 """
 
-from lib.drupy import DrupyPHP as p
+from lib.drupy import DrupyPHP as php
 from xml.dom import minidom
 import htmlentitydefs
 import re
@@ -124,7 +124,7 @@ def drupal_xml_parser_create(data):
    @return
      An XML parser object or FALSE on error.
   """
-  p.Reference.check(data);
+  php.Reference.check(data);
   # Default XML encoding is UTF-8
   encoding = 'utf-8';
   data.val = unicode(data.val, encoding);
