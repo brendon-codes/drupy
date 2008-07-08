@@ -53,7 +53,7 @@
 </table>
 <!-- ==================== PACKAGE DESCRIPTION ==================== -->
 <h1 class="epydoc">Package system</h1><p class="nomargin-top"><span class="codelink"><a href="base.plugins.system-pysrc.html">source&nbsp;code</a></span></p>
-Drupal system plugin
+Configuration system that lets administrators modify the workings of the site.
 
 <hr />
 <div class="fields">      <dl><dt>See Also:</dt>
@@ -68,7 +68,7 @@ Drupal system plugin
         Drupy is a port of the Drupal project.
         </li>
         <li>
-        This is a test file
+        This file was ported from Drupal's modules/system/system.module
         </li>
         <li>
         License:
@@ -127,15 +127,1144 @@ Drupal system plugin
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="base.plugins.system-module.html#init" class="summary-sig-name">init</a>(<span class="summary-sig-arg">*args</span>)</span><br />
-      Hook init</td>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#hook_help" class="summary-sig-name">hook_help</a>(<span class="summary-sig-arg">path_</span>,
+        <span class="summary-sig-arg">arg</span>)</span><br />
+      Implementation of hook_help().</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="base.plugins.system-pysrc.html#init">source&nbsp;code</a></span>
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_help">source&nbsp;code</a></span>
             
           </td>
         </tr>
       </table>
       
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#hook_theme" class="summary-sig-name">hook_theme</a>()</span><br />
+      Implementation of hook_theme().</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_theme">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#hook_perm" class="summary-sig-name">hook_perm</a>()</span><br />
+      Implementation of hook_perm().</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_perm">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#hook_elements" class="summary-sig-name">hook_elements</a>()</span><br />
+      Implementation of hook_elements().</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_elements">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#hook_menu" class="summary-sig-name">hook_menu</a>()</span><br />
+      Implementation of hook_menu().</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_menu">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#blocked_ip_load" class="summary-sig-name">blocked_ip_load</a>(<span class="summary-sig-arg">iid</span>)</span><br />
+      Retrieve a blocked IP address from the database.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#blocked_ip_load">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_themes_access"></a><span class="summary-sig-name">_themes_access</span>(<span class="summary-sig-arg">theme_</span>)</span><br />
+      Menu item access callback - only admin or enabled themes can be accessed.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#_themes_access">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="hook_init"></a><span class="summary-sig-name">hook_init</span>()</span><br />
+      Implementation of hook_init().</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_init">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#hook_user" class="summary-sig-name">hook_user</a>(<span class="summary-sig-arg">type</span>,
+        <span class="summary-sig-arg">edit</span>,
+        <span class="summary-sig-arg">user</span>,
+        <span class="summary-sig-arg">category</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Implementation of hook_user().</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_user">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#hook_block" class="summary-sig-name">hook_block</a>(<span class="summary-sig-arg">op</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">list</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">delta</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">edit</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Implementation of hook_block().</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_block">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#admin_menu_block" class="summary-sig-name">admin_menu_block</a>(<span class="summary-sig-arg">item</span>)</span><br />
+      Provide a single block on the administration overview page.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#admin_menu_block">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="admin_theme_submit"></a><span class="summary-sig-name">admin_theme_submit</span>(<span class="summary-sig-arg">form</span>,
+        <span class="summary-sig-arg">form_state</span>)</span><br />
+      Process admin theme form submissions.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#admin_theme_submit">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#theme_select_form" class="summary-sig-name">theme_select_form</a>(<span class="summary-sig-arg">description</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">default_value</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">weight</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Returns a fieldset containing the theme select form.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#theme_select_form">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#check_directory" class="summary-sig-name">check_directory</a>(<span class="summary-sig-arg">form_element</span>)</span><br />
+      Checks the existence of the directory specified in form_element.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#check_directory">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#get_files_database" class="summary-sig-name">get_files_database</a>(<span class="summary-sig-arg">files</span>,
+        <span class="summary-sig-arg">type</span>)</span><br />
+      Retrieves the current status of an array of files in the system table.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#get_files_database">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#theme_default" class="summary-sig-name">theme_default</a>()</span><br />
+      Prepare defaults for themes.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#theme_default">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#theme_data" class="summary-sig-name">theme_data</a>()</span><br />
+      Collect data about all currently available themes.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#theme_data">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#_theme_data" class="summary-sig-name" onclick="show_private();">_theme_data</a>()</span><br />
+      Helper function to scan and collect theme .info data and their engines.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#_theme_data">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#find_base_theme" class="summary-sig-name">find_base_theme</a>(<span class="summary-sig-arg">themes</span>,
+        <span class="summary-sig-arg">key</span>,
+        <span class="summary-sig-arg">used_keys</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span><br />
+      Recursive function to find the top level base theme.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#find_base_theme">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#region_list" class="summary-sig-name">region_list</a>(<span class="summary-sig-arg">theme_key</span>)</span><br />
+      Get a list of available regions from a specified theme.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#region_list">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#default_region" class="summary-sig-name">default_region</a>(<span class="summary-sig-arg">theme_</span>)</span><br />
+      Get the name of the default region for a given theme.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#default_region">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#initialize_theme_blocks" class="summary-sig-name">initialize_theme_blocks</a>(<span class="summary-sig-arg">theme_</span>)</span><br />
+      Assign an initial, default set of blocks for a theme.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#initialize_theme_blocks">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#settings_form" class="summary-sig-name">settings_form</a>(<span class="summary-sig-arg">form</span>)</span><br />
+      Add default buttons to a form and set its prefix.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#settings_form">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#settings_form_submit" class="summary-sig-name">settings_form_submit</a>(<span class="summary-sig-arg">form</span>,
+        <span class="summary-sig-arg">form_state</span>)</span><br />
+      Execute the system_settings_form.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#settings_form_submit">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_sort_requirements"></a><span class="summary-sig-name">_sort_requirements</span>(<span class="summary-sig-arg">a</span>,
+        <span class="summary-sig-arg">b</span>)</span><br />
+      Helper function to sort requirements.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#_sort_requirements">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#hook_node_type" class="summary-sig-name">hook_node_type</a>(<span class="summary-sig-arg">op</span>,
+        <span class="summary-sig-arg">info</span>)</span><br />
+      Implementation of hook_node_type().</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_node_type">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#confirm_form" class="summary-sig-name">confirm_form</a>(<span class="summary-sig-arg">form</span>,
+        <span class="summary-sig-arg">question</span>,
+        <span class="summary-sig-arg">path_</span>,
+        <span class="summary-sig-arg">description</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">yes</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">no</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">name</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">confirm</code><code class="variable-quote">'</code></span>)</span><br />
+      Output a confirmation form
+
+This function returns a complete form for confirming an action.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#confirm_form">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="admin_compact_mode"></a><span class="summary-sig-name">admin_compact_mode</span>()</span><br />
+      Determine if a user is in compact mode.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#admin_compact_mode">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#admin_compact_page" class="summary-sig-name">admin_compact_page</a>(<span class="summary-sig-arg">mode</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">off</code><code class="variable-quote">'</code></span>)</span><br />
+      Menu callback; Sets whether the admin menu is in compact mode or not.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#admin_compact_page">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#get_module_admin_tasks" class="summary-sig-name">get_module_admin_tasks</a>(<span class="summary-sig-arg">plugin</span>)</span><br />
+      Generate a list of tasks offered by a specified module.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#get_module_admin_tasks">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#hook_cron" class="summary-sig-name">hook_cron</a>()</span><br />
+      Implementation of hook_cron().</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_cron">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="hook_hook_info"></a><span class="summary-sig-name">hook_hook_info</span>()</span><br />
+      Implementation of hook_hook_info().</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_hook_info">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="hook_action_info"></a><span class="summary-sig-name">hook_action_info</span>()</span><br />
+      Implementation of hook_action_info().</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_action_info">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#actions_manage" class="summary-sig-name">actions_manage</a>()</span><br />
+      Menu callback.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#actions_manage">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#actions_manage_form" class="summary-sig-name">actions_manage_form</a>(<span class="summary-sig-arg">form_state</span>,
+        <span class="summary-sig-arg">options</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span><br />
+      Define the form for the actions overview page.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#actions_manage_form">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="actions_manage_form_submit"></a><span class="summary-sig-name">actions_manage_form_submit</span>(<span class="summary-sig-arg">form</span>,
+        <span class="summary-sig-arg">form_state</span>)</span><br />
+      Process system_actions_manage form submissions.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#actions_manage_form_submit">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#actions_configure" class="summary-sig-name">actions_configure</a>(<span class="summary-sig-arg">form_state</span>,
+        <span class="summary-sig-arg">action</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Menu callback.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#actions_configure">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="actions_configure_validate"></a><span class="summary-sig-name">actions_configure_validate</span>(<span class="summary-sig-arg">form</span>,
+        <span class="summary-sig-arg">form_state</span>)</span><br />
+      Validate system_actions_configure form submissions.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#actions_configure_validate">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="actions_configure_submit"></a><span class="summary-sig-name">actions_configure_submit</span>(<span class="summary-sig-arg">form</span>,
+        <span class="summary-sig-arg">form_state</span>)</span><br />
+      Process system_actions_configure form submissions.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#actions_configure_submit">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#actions_delete_form" class="summary-sig-name">actions_delete_form</a>(<span class="summary-sig-arg">form_state</span>,
+        <span class="summary-sig-arg">action</span>)</span><br />
+      Create the form for confirmation of deleting an action.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#actions_delete_form">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#actions_delete_form_submit" class="summary-sig-name">actions_delete_form_submit</a>(<span class="summary-sig-arg">form</span>,
+        <span class="summary-sig-arg">form_state</span>)</span><br />
+      Process system_actions_delete form submissions.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#actions_delete_form_submit">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#action_delete_orphans_post" class="summary-sig-name">action_delete_orphans_post</a>(<span class="summary-sig-arg">orphaned</span>)</span><br />
+      Post-deletion operations for deleting action orphans.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#action_delete_orphans_post">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="actions_remove_orphans"></a><span class="summary-sig-name">actions_remove_orphans</span>()</span><br />
+      Remove actions that are in the database but not supported by any enabled module.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#actions_remove_orphans">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#send_email_action_form" class="summary-sig-name">send_email_action_form</a>(<span class="summary-sig-arg">context</span>)</span><br />
+      Return a form definition so the Send email action can be configured.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#send_email_action_form">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="send_email_action_validate"></a><span class="summary-sig-name">send_email_action_validate</span>(<span class="summary-sig-arg">form</span>,
+        <span class="summary-sig-arg">form_state</span>)</span><br />
+      Validate system_send_email_action form submissions.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#send_email_action_validate">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="send_email_action_submit"></a><span class="summary-sig-name">send_email_action_submit</span>(<span class="summary-sig-arg">form</span>,
+        <span class="summary-sig-arg">form_state</span>)</span><br />
+      Process system_send_email_action form submissions.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#send_email_action_submit">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#send_email_action" class="summary-sig-name">send_email_action</a>(<span class="summary-sig-arg">object_</span>,
+        <span class="summary-sig-arg">context</span>)</span><br />
+      Implementation of a configurable Drupal action.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#send_email_action">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="hook_mail"></a><span class="summary-sig-name">hook_mail</span>(<span class="summary-sig-arg">key</span>,
+        <span class="summary-sig-arg">message</span>,
+        <span class="summary-sig-arg">params</span>)</span><br />
+      Implementation of hook_mail().</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#hook_mail">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="message_action_form"></a><span class="summary-sig-name">message_action_form</span>(<span class="summary-sig-arg">context</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#message_action_form">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="message_action_submit"></a><span class="summary-sig-name">message_action_submit</span>(<span class="summary-sig-arg">form</span>,
+        <span class="summary-sig-arg">form_state</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#message_action_submit">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#message_action" class="summary-sig-name">message_action</a>(<span class="summary-sig-arg">object_</span>,
+        <span class="summary-sig-arg">context</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span><br />
+      A configurable Drupal action.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#message_action">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#goto_action_form" class="summary-sig-name">goto_action_form</a>(<span class="summary-sig-arg">context</span>)</span><br />
+      Implementation of a configurable Drupal action.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#goto_action_form">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="goto_action_submit"></a><span class="summary-sig-name">goto_action_submit</span>(<span class="summary-sig-arg">form</span>,
+        <span class="summary-sig-arg">form_state</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#goto_action_submit">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="goto_action"></a><span class="summary-sig-name">goto_action</span>(<span class="summary-sig-arg">object_</span>,
+        <span class="summary-sig-arg">context</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#goto_action">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#block_ip_action" class="summary-sig-name">block_ip_action</a>()</span><br />
+      Implementation of a Drupal action.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#block_ip_action">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_zonelist"></a><span class="summary-sig-name">_zonelist</span>()</span><br />
+      Generate an array of time zones and their local time&date.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#_zonelist">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.plugins.system-module.html#check_http_request" class="summary-sig-name">check_http_request</a>()</span><br />
+      Checks whether the server is capable of issuing HTTP requests.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#check_http_request">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="theme_powered_by"></a><span class="summary-sig-name">theme_powered_by</span>(<span class="summary-sig-arg">image_path</span>)</span><br />
+      Format the Powered by Drupal text.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#theme_powered_by">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="theme_compact_link"></a><span class="summary-sig-name">theme_compact_link</span>()</span><br />
+      Display the link to show or hide inline help descriptions.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#theme_compact_link">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="theme_meta_generator_html"></a><span class="summary-sig-name">theme_meta_generator_html</span>(<span class="summary-sig-arg">version</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">7.0-dev</code><code class="variable-quote">'</code></span>)</span><br />
+      Send Drupal and the major version number in the META GENERATOR HTML.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#theme_meta_generator_html">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="theme_meta_generator_header"></a><span class="summary-sig-name">theme_meta_generator_header</span>(<span class="summary-sig-arg">version</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">7.0-dev</code><code class="variable-quote">'</code></span>)</span><br />
+      Send Drupal and the major version number in the HTTP headers.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.plugins.system-pysrc.html#theme_meta_generator_header">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES ==================== -->
+<a name="section-Variables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Variables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="VERSION"></a><span class="summary-name">VERSION</span> = <code title="'7.0-dev'"><code class="variable-quote">'</code><code class="variable-string">7.0-dev</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="DRUPAL_CORE_COMPATIBILITY"></a><span class="summary-name">DRUPAL_CORE_COMPATIBILITY</span> = <code title="'7.x'"><code class="variable-quote">'</code><code class="variable-string">7.x</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="DRUPAL_MINIMUM_PHP"></a><span class="summary-name">DRUPAL_MINIMUM_PHP</span> = <code title="None">None</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="DRUPAL_MINIMUM_PYTHON"></a><span class="summary-name">DRUPAL_MINIMUM_PYTHON</span> = <code title="'2.5'"><code class="variable-quote">'</code><code class="variable-string">2.5</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="DRUPAL_MINIMUM_PHP_MEMORY_LIMIT"></a><span class="summary-name">DRUPAL_MINIMUM_PHP_MEMORY_LIMIT</span> = <code title="None">None</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="DRUPAL_MINIMUM_MYSQL"></a><span class="summary-name">DRUPAL_MINIMUM_MYSQL</span> = <code title="'5.0'"><code class="variable-quote">'</code><code class="variable-string">5.0</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="DRUPAL_MINIMUM_PGSQL"></a><span class="summary-name">DRUPAL_MINIMUM_PGSQL</span> = <code title="'7.4'"><code class="variable-quote">'</code><code class="variable-string">7.4</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="DRUPAL_MAXIMUM_TEMP_FILE_AGE"></a><span class="summary-name">DRUPAL_MAXIMUM_TEMP_FILE_AGE</span> = <code title="1440">1440</code>
     </td>
   </tr>
 </table>
@@ -157,28 +1286,946 @@ Drupal system plugin
   </td>
 </tr>
 </table>
-<a name="init"></a>
+<a name="hook_help"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">init</span>(<span class="sig-arg">*args</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">hook_help</span>(<span class="sig-arg">path_</span>,
+        <span class="sig-arg">arg</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="base.plugins.system-pysrc.html#init">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#hook_help">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  Hook init
+  Implementation of hook_help().
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>args</code></strong> - Tuple</li>
+        <li><strong class="pname"><code>path_</code></strong> - Str</li>
+        <li><strong class="pname"><code>arg</code></strong> - Dict</li>
     </ul></dd>
     <dt>Returns:</dt>
-        <dd>Bool</dd>
+        <dd>Str</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="hook_theme"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">hook_theme</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#hook_theme">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Implementation of hook_theme().
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>Dict</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="hook_perm"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">hook_perm</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#hook_perm">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Implementation of hook_perm().
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>Dict</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="hook_elements"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">hook_elements</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#hook_elements">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Implementation of hook_elements().
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>Dict</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="hook_menu"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">hook_menu</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#hook_menu">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Implementation of hook_menu().
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>Dict</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="blocked_ip_load"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">blocked_ip_load</span>(<span class="sig-arg">iid</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#blocked_ip_load">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Retrieve a blocked IP address from the database.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>iid</code></strong> - integer
+  The ID of the blocked IP address to retrieve.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The blocked IP address from the database as an array.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="hook_user"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">hook_user</span>(<span class="sig-arg">type</span>,
+        <span class="sig-arg">edit</span>,
+        <span class="sig-arg">user</span>,
+        <span class="sig-arg">category</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#hook_user">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Implementation of hook_user().
+
+Allows users to individually set their theme and time zone.
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="hook_block"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">hook_block</span>(<span class="sig-arg">op</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">list</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">delta</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">edit</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#hook_block">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Implementation of hook_block().
+
+Generate a block with a promotional link to Drupal.org.
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="admin_menu_block"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">admin_menu_block</span>(<span class="sig-arg">item</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#admin_menu_block">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Provide a single block on the administration overview page.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>item</code></strong> - The menu item to be displayed.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_select_form"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_select_form</span>(<span class="sig-arg">description</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">default_value</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">weight</span>=<span class="sig-default">0</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#theme_select_form">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Returns a fieldset containing the theme select form.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>description</code></strong> - description of the fieldset</li>
+        <li><strong class="pname"><code>default_value</code></strong> - default value of theme radios</li>
+        <li><strong class="pname"><code>weight</code></strong> - weight of the fieldset</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>a form array</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="check_directory"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">check_directory</span>(<span class="sig-arg">form_element</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#check_directory">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Checks the existence of the directory specified in form_element. This
+function is called from the system_settings form to check both the
+file_directory_path and file_directory_temp directories. If validation
+fails, the form element is flagged with an error from within the
+file_check_directory function.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>form_element</code></strong> - The form element containing the name of the directory to check.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_files_database"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_files_database</span>(<span class="sig-arg">files</span>,
+        <span class="sig-arg">type</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#get_files_database">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Retrieves the current status of an array of files in the system table.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>files</code></strong> - An array of files to check.</li>
+        <li><strong class="pname"><code>type</code></strong> - The type of the files.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_default"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_default</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#theme_default">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Prepare defaults for themes.
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>An array of default themes settings.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="theme_data"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">theme_data</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#theme_data">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Collect data about all currently available themes.
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>Array of all available themes and their data.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_theme_data"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_theme_data</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#_theme_data">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Helper function to scan and collect theme .info data and their engines.
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>An associative array of themes information.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="find_base_theme"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">find_base_theme</span>(<span class="sig-arg">themes</span>,
+        <span class="sig-arg">key</span>,
+        <span class="sig-arg">used_keys</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#find_base_theme">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Recursive function to find the top level base theme. Themes can inherit
+templates and function implementations from earlier themes.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>themes</code></strong> - An array of available themes.</li>
+        <li><strong class="pname"><code>key</code></strong> - The name of the theme whose base we are looking for.</li>
+        <li><strong class="pname"><code>used_keys</code></strong> - A recursion parameter preventing endless loops.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Returns the top level parent that has no ancestor
+  or returns None if there isn't a valid parent.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="region_list"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">region_list</span>(<span class="sig-arg">theme_key</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#region_list">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Get a list of available regions from a specified theme.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>theme_key</code></strong> - The name of a theme.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An array of regions in the form region['name'] = 'description'.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="default_region"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">default_region</span>(<span class="sig-arg">theme_</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#default_region">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Get the name of the default region for a given theme.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>theme</code></strong> - The name of a theme.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>A string that is the region name.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="initialize_theme_blocks"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">initialize_theme_blocks</span>(<span class="sig-arg">theme_</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#initialize_theme_blocks">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Assign an initial, default set of blocks for a theme.
+
+This function is called the first time a new theme is enabled. The new theme
+gets a copy of the default theme's blocks, with the difference that if a
+particular region isn't available in the new theme, the block is assigned
+to the new theme's default region.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>theme</code></strong> - The name of a theme.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="settings_form"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">settings_form</span>(<span class="sig-arg">form</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#settings_form">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Add default buttons to a form and set its prefix.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>form</code></strong> - An associative array containing the structure of the form.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The form structure.</dd>
+  </dl>
+<div class="fields">      <p><strong>See Also:</strong>
+        <code class="link"></code>
+      </p>
+</div></td></tr></table>
+</div>
+<a name="settings_form_submit"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">settings_form_submit</span>(<span class="sig-arg">form</span>,
+        <span class="sig-arg">form_state</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#settings_form_submit">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Execute the system_settings_form.
+
+If you want node type configure style handling of your checkboxes,
+add an array_filter value to your form.
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="hook_node_type"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">hook_node_type</span>(<span class="sig-arg">op</span>,
+        <span class="sig-arg">info</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#hook_node_type">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Implementation of hook_node_type().
+
+Updates theme settings after a node type change.
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="confirm_form"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">confirm_form</span>(<span class="sig-arg">form</span>,
+        <span class="sig-arg">question</span>,
+        <span class="sig-arg">path_</span>,
+        <span class="sig-arg">description</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">yes</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">no</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">name</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">confirm</code><code class="variable-quote">'</code></span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#confirm_form">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Output a confirmation form
+
+This function returns a complete form for confirming an action. A link is
+offered to go back to the item that is being changed in case the user changes
+his/her mind.
+
+If the submit handler for this form is invoked, the user successfully
+confirmed the action. You should never directly inspect _POST to see if an
+action was confirmed.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>form</code></strong> - Additional elements to inject into the form, for example hidden elements.</li>
+        <li><strong class="pname"><code>question</code></strong> - The question to ask the user (e.g. "Are you sure you want to delete the
+  block <em>foo</em>?").</li>
+        <li><strong class="pname"><code>path</code></strong> - The page to go to if the user denies the action.
+  Can be either a drupal path,
+  or an array with the keys 'path', 'query', 'fragment'.</li>
+        <li><strong class="pname"><code>description</code></strong> - Additional text to display (defaults to "This action cannot be undone.").</li>
+        <li><strong class="pname"><code>yes</code></strong> - A caption for the button which confirms the action (e.g. "Delete",
+  "Replace", ...).</li>
+        <li><strong class="pname"><code>no</code></strong> - A caption for the link which denies the action (e.g. "Cancel").</li>
+        <li><strong class="pname"><code>name</code></strong> - The internal name used to refer to the confirmation item.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The form.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="admin_compact_page"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">admin_compact_page</span>(<span class="sig-arg">mode</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">off</code><code class="variable-quote">'</code></span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#admin_compact_page">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Menu callback; Sets whether the admin menu is in compact mode or not.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>mode</code></strong> - Valid values are 'on' and 'off'.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_module_admin_tasks"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_module_admin_tasks</span>(<span class="sig-arg">plugin</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#get_module_admin_tasks">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Generate a list of tasks offered by a specified module.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>module</code></strong> - Module name.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An array of task links.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="hook_cron"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">hook_cron</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#hook_cron">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Implementation of hook_cron().
+
+Remove older rows from flood and batch table. Remove old temporary files.
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="actions_manage"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">actions_manage</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#actions_manage">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Menu callback. Display an overview of available and configured actions.
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="actions_manage_form"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">actions_manage_form</span>(<span class="sig-arg">form_state</span>,
+        <span class="sig-arg">options</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#actions_manage_form">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Define the form for the actions overview page.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>form_state</code></strong> - An associative array containing the current state of the form; not used.</li>
+        <li><strong class="pname"><code>options</code></strong> - An array of configurable actions.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Form definition.</dd>
+  </dl>
+<div class="fields">      <p><strong>See Also:</strong>
+        <code class="link"></code>
+      </p>
+</div></td></tr></table>
+</div>
+<a name="actions_configure"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">actions_configure</span>(<span class="sig-arg">form_state</span>,
+        <span class="sig-arg">action</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#actions_configure">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Menu callback. Create the form for configuration of a single action.
+
+We provide the "Description" field. The rest of the form
+is provided by the action. We then provide the Save button.
+Because we are combining unknown form elements with the action
+configuration form, we use actions_ prefix on our elements.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>action</code></strong> - md5 hash of action ID or an integer. If it's an md5 hash, we
+  are creating a new instance. If it's an integer, we're editing
+  an existing instance.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Form definition.</dd>
+  </dl>
+<div class="fields">      <dl><dt>See Also:</dt>
+        <dd>
+          <code class="link"></code>,
+          <code class="link"></code>
+        </dd>
+      </dl>
+</div></td></tr></table>
+</div>
+<a name="actions_delete_form"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">actions_delete_form</span>(<span class="sig-arg">form_state</span>,
+        <span class="sig-arg">action</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#actions_delete_form">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Create the form for confirmation of deleting an action.
+  <dl class="fields">
+  </dl>
+<div class="fields">      <p><strong>See Also:</strong>
+        <code class="link">system_actions_delete_form_submit</code>
+      </p>
+</div></td></tr></table>
+</div>
+<a name="actions_delete_form_submit"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">actions_delete_form_submit</span>(<span class="sig-arg">form</span>,
+        <span class="sig-arg">form_state</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#actions_delete_form_submit">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Process system_actions_delete form submissions.
+
+Post-deletion operations for action deletion.
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="action_delete_orphans_post"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">action_delete_orphans_post</span>(<span class="sig-arg">orphaned</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#action_delete_orphans_post">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Post-deletion operations for deleting action orphans.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>orphaned</code></strong> - An array of orphaned actions.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="send_email_action_form"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">send_email_action_form</span>(<span class="sig-arg">context</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#send_email_action_form">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Return a form definition so the Send email action can be configured.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>context</code></strong> - Default values (if we are editing an existing action instance).</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>Form definition.</dd>
+  </dl>
+<div class="fields">      <dl><dt>See Also:</dt>
+        <dd>
+          <code class="link"></code>,
+          <code class="link"></code>
+        </dd>
+      </dl>
+</div></td></tr></table>
+</div>
+<a name="send_email_action"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">send_email_action</span>(<span class="sig-arg">object_</span>,
+        <span class="sig-arg">context</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#send_email_action">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Implementation of a configurable Drupal action. Sends an email.
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="message_action"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">message_action</span>(<span class="sig-arg">object_</span>,
+        <span class="sig-arg">context</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#message_action">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  A configurable Drupal action. Sends a message to the current user's screen.
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="goto_action_form"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">goto_action_form</span>(<span class="sig-arg">context</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#goto_action_form">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Implementation of a configurable Drupal action. Redirect user to a URL.
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="block_ip_action"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">block_ip_action</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#block_ip_action">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Implementation of a Drupal action.
+Blocks the user's IP address.
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="check_http_request"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">check_http_request</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.plugins.system-pysrc.html#check_http_request">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Checks whether the server is capable of issuing HTTP requests.
+
+The function sets the drupal_http_request_fail system variable to True if
+drupal_http_request() does not work and then the system status report page
+will contain an error.
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>Whether the admin/reports/request-test page can be requested via HTTP
+ and contains the same output as if called via the menu system.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -209,7 +2256,7 @@ Drupal system plugin
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 18:26:12 2008
+    Generated by Epydoc 3.0.1 on Tue Jul  8 14:26:47 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

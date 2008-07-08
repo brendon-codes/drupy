@@ -494,7 +494,7 @@ theme, etc.).</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="request_uri"></a><span class="summary-sig-name">request_uri</span>()</span><br />
-      Since p.SERVER['p.REQUEST_URI'] is only available on Apache, we
+      Since php.SERVER['php.REQUEST_URI'] is only available on Apache, we
 generate an equivalent using other environment variables.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.bootstrap-pysrc.html#request_uri">source&nbsp;code</a></span>
@@ -722,10 +722,10 @@ generate an equivalent using other environment variables.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#ip_address" class="summary-sig-name">ip_address</a>()</span><br />
-      If Drupal is behind a reverse proxy, we use the X-Forwarded-For p.header
-instead of p.SERVER['REMOTE_ADDR'], which would be the IP address
-of the proxy server, and not the client's.</td>
+          <td><span class="summary-sig"><a href="base.includes.bootstrap-module.html#ip_address" class="summary-sig-name">ip_address</a>(<span class="summary-sig-arg">reset</span>=<span class="summary-sig-default">False</span>)</span><br />
+      If Drupal is behind a reverse proxy, we use the X-Forwarded-For header
+instead of $_SERVER['REMOTE_ADDR'], which would be the IP address of 
+the proxy server, and not the client's.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.bootstrap-pysrc.html#ip_address">source&nbsp;code</a></span>
             
@@ -967,7 +967,7 @@ of the proxy server, and not the client's.</td>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="timers"></a><span class="summary-name">timers</span> = <code title="{'page': {'count': 1, 'start': 1214616367.72}}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">page</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">count</code><code class="variable-quote">'</code><code class="variable-op">: </code>1<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">start</code><code class="variable-quote">'</code><code class="variable-op">: </code>1214616367.72<code class="variable-group">}</code><code class="variable-group">}</code></code>
+        <a name="timers"></a><span class="summary-name">timers</span> = <code title="{'page': {'count': 1, 'start': 1215552402.28}}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">page</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">count</code><code class="variable-quote">'</code><code class="variable-op">: </code>1<code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">start</code><code class="variable-quote">'</code><code class="variable-op">: </code>1215552402.28<code class="variable-group">}</code><code class="variable-group">}</code></code>
     </td>
   </tr>
 <tr>
@@ -975,7 +975,7 @@ of the proxy server, and not the client's.</td>
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a href="base.includes.bootstrap-module.html#loaded_plugins" class="summary-name">loaded_plugins</a> = <code title="{'system': &lt;module 'plugins.system' from '/Users/brendon/work/projects\
-/PythonDrupal/drupy/base/plugins/system/__init__.pyc'&gt;}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">system</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;module 'plugins.system' from '/Us<code class="variable-ellipsis">...</code></code>
+/PythonDrupal/drupy/base/plugins/system/__init__.py'&gt;}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">system</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;module 'plugins.system' from '/Us<code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr>
@@ -1583,7 +1583,7 @@ including a theme, engine, plugin, etc., more than once.
   
   Set HTTP headers in preparation for a page response.
 
-Authenticated users are always given a 'no-cache' p.header, and will
+Authenticated users are always given a 'no-cache' php.header, and will
 fetch a fresh page on every request.  This prevents authenticated
 users seeing locally cached pages that show them as logged out.
   <dl class="fields">
@@ -1897,7 +1897,7 @@ include bootstrap.inc, and call drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE).
     DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE: load bootstrap.inc and plugin.inc, start
       the variable system and try to serve a page from the cache.
     DRUPAL_BOOTSTRAP_LANGUAGE: identify the language used on the page.
-    DRUPAL_BOOTSTRAP_PATH: set p.GET['q'] to Drupal path of request.
+    DRUPAL_BOOTSTRAP_PATH: set php.GET['q'] to Drupal path of request.
     DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix input data.</li>
     </ul></dd>
   </dl>
@@ -2003,19 +2003,25 @@ run both during installation and normal operation.
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">ip_address</span>()</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ip_address</span>(<span class="sig-arg">reset</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="base.includes.bootstrap-pysrc.html#ip_address">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  If Drupal is behind a reverse proxy, we use the X-Forwarded-For p.header
-instead of p.SERVER['REMOTE_ADDR'], which would be the IP address
-of the proxy server, and not the client's.
+  If Drupal is behind a reverse proxy, we use the X-Forwarded-For header
+instead of $_SERVER['REMOTE_ADDR'], which would be the IP address of 
+the proxy server, and not the client's.  If Drupal is run in a cluster
+we use the X-Cluster-Client-Ip header instead.
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>$reset</code></strong> - Reset the current IP address saved in static.</li>
+    </ul></dd>
     <dt>Returns:</dt>
-        <dd>IP address of client machine, adjusted for reverse proxy.</dd>
+        <dd>IP address of client machine, adjusted for reverse proxy and/or cluster
+  environments.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2039,7 +2045,7 @@ of the proxy server, and not the client's.
 If the function is already available, this function does nothing.
 If the function is not available, it tries to load the file where the
 function lives. If the file is not available, it returns False, so that it
-can be used as a drop-in replacement for p.function_exists().
+can be used as a drop-in replacement for php.function_exists().
 
 DRUPY(BC): This function needs to be heavily modified
   <dl class="fields">
@@ -2217,7 +2223,7 @@ each function, file, and hook implementation in the database.
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
 <code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">system</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;module 'plugins.system' from '/Users/brendon/work/projects<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-/PythonDrupal/drupy/base/plugins/system/__init__.pyc'&gt;<code class="variable-group">}</code>
+/PythonDrupal/drupy/base/plugins/system/__init__.py'&gt;<code class="variable-group">}</code>
 </pre></td></tr></table>
 </dd>
   </dl>
@@ -2250,7 +2256,7 @@ each function, file, and hook implementation in the database.
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 18:26:11 2008
+    Generated by Epydoc 3.0.1 on Tue Jul  8 14:26:46 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
