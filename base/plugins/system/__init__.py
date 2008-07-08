@@ -116,51 +116,153 @@ def hook_help(path_, arg):
       'of features and may be enabled depending on the needs of your ' + \
       'site. A wide array of additional modules contributed by members ' + \
       'of the Drupal community are available for download at the ' + \
-      '<a href="@drupal-modules">Drupal.org module page</a>.', {'@modules' : url('admin/build/modules'), '@drupal-modules' : 'http://drupal.org/project/modules'}) + '</li>'
-    output += '<li>' +  t('support for enabling and disabling <a href="@themes">themes</a>, which determine the design and presentation of your site + Drupal comes packaged with several core themes and additional contributed themes are available at the <a href="@drupal-themes">Drupal.org theme page</a>.', {'@themes' : url('admin/build/themes'), '@drupal-themes' : 'http://drupal.org/project/themes'}) + '</li>'
-    output += '<li>' +  t('a robust <a href="@cache-settings">caching system</a> that allows the efficient re-use of previously-constructed web pages and web page components + Drupal stores the pages requested by anonymous users in a compressed format; depending on your site configuration and the amount of your web traffic tied to anonymous visitors, Drupal\'s caching system may significantly increase the speed of your site.', {'@cache-settings' : url('admin/settings/performance')}) + '</li>'
-    output += '<li>' +  t('a set of routine administrative operations that rely on a correctly-configured <a href="@cron">cron maintenance task</a> to run automatically + A number of other modules, including the feed aggregator, and search also rely on <a href="@cron">cron maintenance tasks</a>. For more information, see the online handbook entry for <a href="@handbook">configuring cron jobs</a>.', {'@cron' : url('admin/reports/status'), '@handbook' : 'http://drupal.org/cron'}) + '</li>'
-    output += '<li>' +  t('basic configuration options for your site, including <a href="@date-settings">date and time settings</a>, <a href="@file-system">file system settings</a>, <a href="@clean-url">clean URL support</a>, <a href="@site-info">site name and other information</a>, and a <a href="@site-maintenance">site maintenance</a> function for taking your site temporarily off-line.', {'@date-settings' : url('admin/settings/date-time'), '@file-system' : url('admin/settings/file-system'), '@clean-url' : url('admin/settings/clean-urls'), '@site-info' : url('admin/settings/site-information'), '@site-maintenance' : url('admin/settings/site-maintenance')})  + '</li></ul>'
-    output += '<p>' +  t('For more information, see the online handbook entry for <a href="@system">System module</a>.', {'@system' : 'http://drupal.org/handbook/modules/system/'})  + '</p>'
+      '<a href="@drupal-modules">Drupal.org module page</a>.', {'@modules' : \
+      url('admin/build/modules'), '@drupal-modules' : \
+      'http://drupal.org/project/modules'}) + '</li>'
+    output += '<li>' +  t('support for enabling and disabling ' + \
+      '<a href="@themes">themes</a>, which determine the design and ' + \
+      'presentation of your site + Drupal comes packaged with several ' + \
+      'core themes and additional contributed themes are available at ' + \
+      'the <a href="@drupal-themes">Drupal.org theme page</a>.', \
+      {'@themes' : url('admin/build/themes'), '@drupal-themes' : \
+       'http://drupal.org/project/themes'}) + '</li>'
+    output += '<li>' +  t('a robust ' + \
+      '<a href="@cache-settings">caching system</a> that allows the ' + \
+      'efficient re-use of previously-constructed web pages and web page ' + \
+      'components + Drupal stores the pages requested by anonymous ' + \
+      'users in a compressed format; depending on your site configuration ' + \
+      'and the amount of your web traffic tied to anonymous visitors, ' + \
+      'Drupal\'s caching system may significantly increase the speed ' + \
+      'of your site.', {'@cache-settings' : \
+      url('admin/settings/performance')}) + '</li>'
+    output += '<li>' +  t('a set of routine administrative operations that ' + \
+      'rely on a correctly-configured <a href="@cron">cron maintenance ' + \
+      'task</a> to run automatically + A number of other modules, ' + \
+      'including  the feed aggregator, and search also rely on ' + \
+      '<a href="@cron">cron maintenance tasks</a>. For more information, ' + \
+      'see the online handbook entry for ' + \
+      '<a href="@handbook">configuring cron jobs</a>.', \
+      {'@cron' : url('admin/reports/status'), '@handbook' : \
+       'http://drupal.org/cron'}) + '</li>'
+    output += '<li>' +  t('basic configuration options for your site, ' + \
+      'including <a href="@date-settings">date and time settings</a>, ' + \
+      '<a href="@file-system">file system settings</a>, ' + \
+      '<a href="@clean-url">clean URL support</a>, ' + \
+      '<a href="@site-info">site name and other information</a>, and a ' + \
+      '<a href="@site-maintenance">site maintenance</a> function for ' + \
+      'taking your site temporarily off-line.', {'@date-settings' : \
+      url('admin/settings/date-time'), '@file-system' : \
+      url('admin/settings/file-system'), '@clean-url' : \
+      url('admin/settings/clean-urls'), '@site-info' : \
+      url('admin/settings/site-information'), '@site-maintenance' : \
+      url('admin/settings/site-maintenance')})  + '</li></ul>'
+    output += '<p>' +  t('For more information, see the online handbook ' + \
+      'entry for <a href="@system">System module</a>.', \
+      {'@system' : 'http://drupal.org/handbook/modules/system/'})  + '</p>'
     return output
   elif path_ == 'admin':
-    return '<p>' +  t('Welcome to the administration section + Here you may control how your site functions.') + '</p>'
+    return '<p>' +  t('Welcome to the administration section + Here ' + \
+      'you may control how your site functions.') + '</p>'
   elif path_ == 'admin/by-module':
-    return '<p>' +  t('This page shows you all available administration tasks for each module.')  + '</p>'
+    return '<p>' +  t('This page shows you all available administration ' + \
+      'tasks for each module.')  + '</p>'
   elif path_ == 'admin/build/themes':
-    output = '<p>' +  t('Select which themes are available to your users and specify the default theme + To configure site-wide display settings, click the "configure" task above. Alternatively, to override these settings in a specific theme, click the "configure" link for that theme. Note that different themes may have different regions available for displaying content; for consistency in presentation, you may wish to enable only one theme.') + '</p>'
-    output += '<p>' +  t('To change the appearance of your site, a number of <a href="@themes">contributed themes</a> are available.', {'@themes' : 'http://drupal.org/project/themes'})  + '</p>'
+    output = '<p>' +  t('Select which themes are available to your users ' + \
+      'and specify the default theme + To configure site-wide display ' + \
+      'settings, click the "configure" task above. Alternatively, ' + \
+      'to override these settings in a specific theme, click the ' + \
+      '"configure" link for that theme. Note that different themes ' + \
+      'may have different regions available for displaying content; ' + \
+      'for consistency in presentation, you may wish to enable ' + \
+      'only one theme.') + '</p>'
+    output += '<p>' +  t('To change the appearance of your site, a ' + \
+      'number of <a href="@themes">contributed themes</a> are available.', \
+      {'@themes' : 'http://drupal.org/project/themes'})  + '</p>'
     return output
   elif path_ == 'admin/build/themes/settings/' +  arg[4]:
     reference = p.explode('.', arg[4], 2)
     theme = p.array_pop(reference)
-    return '<p>' +  t('These options control the display settings for the <code>%template</code> theme + When your site is displayed using this theme, these settings will be used. By clicking "Reset to defaults," you can choose to use the <a href="@global">global settings</a> for this theme.', {'%template' : theme, '@global' : url('admin/build/themes/settings')}) + '</p>'
+    return '<p>' +  t('These options control the display settings for ' + \
+      'the <code>%template</code> theme + When your site is displayed ' + \
+      'using this theme, these settings will be used. By clicking ' + \
+      '"Reset to defaults," you can choose to use the ' + \
+      '<a href="@global">global settings</a> for this theme.', \
+      {'%template' : theme, '@global' : \
+       url('admin/build/themes/settings')}) + '</p>'
   elif path_ == 'admin/build/themes/settings':
-    return '<p>' +  t('These options control the default display settings for your entire site, across all themes + Unless they have been overridden by a specific theme, these settings will be used.') + '</p>'
+    return '<p>' +  t('These options control the default display settings ' + \
+      'for your entire site, across all themes + Unless they have been ' + \
+      'overridden by a specific theme, these settings will be used.') + '</p>'
   elif path_ == 'admin/build/modules':
-    output = '<p>' +  t('Modules are plugins that extend Drupal\'s core functionality + Enable modules by selecting the <em>Enabled</em> checkboxes below and clicking the <em>Save configuration</em> button. Once a module is enabled, new <a href="@permissions">permissions</a> may be available.)', {'@permissions' : url('admin/user/permissions')}) + '</p>'
-    output += '<p>' +  t('It is important that <a href="@update-php">update.php</a> is run every time a module is updated to a newer version.', {'@update-php' : base_url  + '/update.php'}) + '</p>'
-    output += '<p>' +  t('You can find all administration tasks belonging to a particular module on the <a href="@by-module">administration by module page</a>.', {'@by-module' : url('admin/by-module')})  + '</p>'
-    output += '<p>' +  t('To extend the functionality of your site, a number of <a href="@modules">contributed modules</a> are available.', {'@modules' : 'http://drupal.org/project/modules'})  + '</p>'
+    output = '<p>' +  t('Modules are plugins that extend Drupal\'s core ' + \
+      'functionality + Enable modules by selecting the ' + \
+      '<em>Enabled</em> checkboxes below and clicking the ' + \
+      '<em>Save configuration</em> button. Once a module is enabled, ' + \
+      'new <a href="@permissions">permissions</a> may be available.)', \
+      {'@permissions' : url('admin/user/permissions')}) + '</p>'
+    output += '<p>' +  t('It is important that ' + \
+      '<a href="@update-php">update.php</a> is run every time a module ' + \
+      'is updated to a newer version.', {'@update-php' : base_url  + \
+      '/update.php'}) + '</p>'
+    output += '<p>' +  t('You can find all administration tasks belonging ' + \
+      'to a particular module on the <a href="@by-module">administration ' + \
+      'by module page</a>.', {'@by-module' : url('admin/by-module')})  + '</p>'
+    output += '<p>' +  t('To extend the functionality of your site, ' + \
+       'a number of <a href="@modules">contributed modules</a> are ' + \
+       'available.', {'@modules' : \
+       'http://drupal.org/project/modules'})  + '</p>'
     return output
   elif path_ == 'admin/build/modules/uninstall':
-    return '<p>' +  t('The uninstall process removes all data related to a module + To uninstall a module, you must first disable it. Not all modules support this feature.') + '</p>'
+    return '<p>' +  t('The uninstall process removes all data related to ' + \
+      'a module + To uninstall a module, you must first disable it. ' + \
+      'Not all modules support this feature.') + '</p>'
   elif path_ == 'admin/build/block/configure':
     if (arg[4] == 'system' and arg[5] == 0):
-      return '<p>' +  t('The <em>Powered by Drupal</em> block is an optional link to the home page of the Drupal project + While there is absolutely no requirement that sites feature this link, it may be used to show support for Drupal.') + '</p>'
+      return '<p>' +  t('The <em>Powered by Drupal</em> block is an ' + \
+        'optional link to the home page of the Drupal project + ' + \
+        'While there is absolutely no requirement that sites feature ' + \
+        'this link, it may be used to show support for Drupal.') + '</p>'
   elif path_ == 'admin/settings/actions' or \
       path_ == 'admin/settings/actions/manage':
-    output = '<p>' +  t('Actions are individual tasks that the system can do, such as unpublishing a piece of content or banning a user + Modules, such as the trigger module, can fire these actions when certain system events happen; for example, when a new post is added or when a user logs in. Modules may also provide additional actions.') + '</p>'
-    output += '<p>' +  t('There are two types of actions: simple and advanced + Simple actions do not require any additional configuration, and are listed here automatically. Advanced actions can do more than simple actions; for example, send an e-mail to a specified address, or check for certain words within a piece of content. These actions need to be created and configured first before they may be used. To create an advanced action, select the action from the drop-down below and click the <em>Create</em> button.') + '</p>'
+    output = '<p>' +  t('Actions are individual tasks that the system can ' + \
+      'do, such as unpublishing a piece of content or banning a user + ' + \
+      'Modules, such as the trigger module, can fire these actions ' + \
+      'when certain system events happen; for example, when a new ' + \
+      'post is added or when a user logs in. Modules may also ' + \
+      'provide additional actions.') + '</p>'
+    output += '<p>' +  t('There are two types of actions: simple and ' + \
+      'advanced + Simple actions do not require any additional ' + \
+      'configuration, and are listed here automatically. Advanced actions ' + \
+      'can do more than simple actions; for example, send an e-mail to ' + \
+      'a specified address, or check for certain words within a piece ' + \
+      'of content. These actions need to be created and configured first ' + \
+      'before they may be used. To create an advanced action, select ' + \
+      'the action from the drop-down below and click the ' + \
+      '<em>Create</em> button.') + '</p>'
     if (inc_plugin.plugin_exists('trigger')):
-      output += '<p>' +  t('You may proceed to the <a href="@url">Triggers</a> page to assign these actions to system events.', {'@url' : url('admin/build/trigger')})  + '</p>'
+      output += '<p>' +  t('You may proceed to the ' + \
+        '<a href="@url">Triggers</a> page to assign these actions ' + \
+        'to system events.', {'@url' : url('admin/build/trigger')})  + '</p>'
     return output
   elif path_ == 'admin/settings/actions/configure':
-    return t('An advanced action offers additional configuration options which may be filled out below + Changing the <em>Description</em> field is recommended, in order to better identify the precise action taking place. This description will be displayed in modules such as the trigger module when assigning actions to system events, so it is best if it is as descriptive as possible (for example, "Send e-mail to Moderation Team" rather than simply "Send e-mail").')
+    return t('An advanced action offers additional configuration options ' + \
+      'which may be filled out below + Changing the ' + \
+      '<em>Description</em> field is recommended, in order to better ' + \
+      'identify the precise action taking place. This description ' + \
+      'will be displayed in modules such as the trigger module when ' + \
+      'assigning actions to system events, so it is best if it is as ' + \
+      'descriptive as possible (for example, "Send e-mail to ' + \
+      'Moderation Team" rather than simply "Send e-mail").')
   elif path_ == 'admin/settings/ip-blocking':
-    return '<p>' +  t('IP addresses listed here are blocked from your site before any modules are loaded + You may add IP addresses to the list, or delete existing entries.') + '</p>'
+    return '<p>' +  t('IP addresses listed here are blocked from your ' + \
+      'site before any modules are loaded + You may add IP addresses to ' + \
+      'the list, or delete existing entries.') + '</p>'
   elif path_ == 'admin/reports/status':
-    return '<p>' +  t("Here you can find a short overview of your site's parameters as well as any problems detected with your installation + It may be useful to copy and paste this information into support requests filed on drupal.org's support forums and project issue queues.") + '</p>'
+    return '<p>' +  t("Here you can find a short overview of your " + \
+      "site's parameters as well as any problems detected with your " + \
+      "installation + It may be useful to copy and paste this " + \
+      "information into support requests filed on drupal.org's " + \
+      "support forums and project issue queues.") + '</p>'
 
 
 def hook_theme():
@@ -227,11 +329,16 @@ def hook_perm():
    @return Dict
   """
   return {
-    'administer site configuration' : t('Configure site-wide settings such as module or theme administration settings.'),
-    'access administration pages' : t('View the administration panel and browse the help system.'),
+    'administer site configuration' : t(\
+      'Configure site-wide settings such as module or theme ' + \
+      'administration settings.'),
+    'access administration pages' : t('View the administration panel ' + \
+      'and browse the help system.'),
     'administer actions' : t('Manage the actions defined for your site.'),
-    'access site reports' : t('View reports from system logs and other status information.'),
-    'select different theme' : t('Select a theme other than the default theme set by the site administrator.'),
+    'access site reports' : t('View reports from system logs and other ' + \
+      'status information.'),
+    'select different theme' : t('Select a theme other than the default ' + \
+      'theme set by the site administrator.'),
     'administer files' : t('Manage user-uploaded files.'),
     'block IP addresses' : t('Block IP addresses from accessing your site.')
   }
@@ -561,55 +668,64 @@ def hook_menu():
   # Settings:
   items['admin/settings/site-information'] = {
     'title' : 'Site information',
-    'description' : 'Change basic site information, such as the site name, slogan, e-mail address, mission, front page and more.',
+    'description' : 'Change basic site information, such as the site ' + \
+      'name, slogan, e-mail address, mission, front page and more.',
     'page callback' : 'drupal_get_form',
     'page arguments' : ('system_site_information_settings',),
     'access arguments' : ('administer site configuration',)
   }
   items['admin/settings/error-reporting'] = {
     'title' : 'Error reporting',
-    'description' : 'Control how Drupal deals with errors including 403/404 errors as well as PHP error reporting.',
+    'description' : 'Control how Drupal deals with errors including ' + \
+      '403/404 errors as well as PHP error reporting.',
     'page callback' : 'drupal_get_form',
     'page arguments' : ('system_error_reporting_settings'),
     'access arguments' : ('administer site configuration',)
   }
   items['admin/settings/logging'] = {
     'title' : 'Logging and alerts',
-    'description' : "Settings for logging and alerts modules + Various modules can route Drupal's system events to different destination, such as syslog, database, email, + ..etc.",
+    'description' : "Settings for logging and alerts modules + Various " + \
+      "modules can route Drupal's system events to different destination, " + \
+      "such as syslog, database, email, + ..etc.",
     'page callback' : 'system_logging_overview',
     'access arguments' : ('administer site configuration',)
   }
   items['admin/settings/performance'] = {
     'title' : 'Performance',
-    'description' : 'Enable or disable page caching for anonymous users and set CSS and JS bandwidth optimization options.',
+    'description' : 'Enable or disable page caching for anonymous ' + \
+      'users and set CSS and JS bandwidth optimization options.',
     'page callback' : 'drupal_get_form',
     'page arguments' : ('system_performance_settings',),
     'access arguments' : ('administer site configuration',)
   }
   items['admin/settings/file-system'] = {
     'title' : 'File system',
-    'description' : 'Tell Drupal where to store uploaded files and how they are accessed.',
+    'description' : 'Tell Drupal where to store uploaded files and ' + \
+      'how they are accessed.',
     'page callback' : 'drupal_get_form',
     'page arguments' : ('system_file_system_settings',),
     'access arguments' : ('administer site configuration',)
   }
   items['admin/settings/image-toolkit'] = {
     'title' : 'Image toolkit',
-    'description' : 'Choose which image toolkit to use if you have installed optional toolkits.',
+    'description' : 'Choose which image toolkit to use if you ' + \
+      'have installed optional toolkits.',
     'page callback' : 'drupal_get_form',
     'page arguments' : ('system_image_toolkit_settings'),
     'access arguments' : ('administer site configuration',)
   }
   items['admin/content/rss-publishing'] = {
     'title' : 'RSS publishing',
-    'description' : 'Configure the number of items per feed and whether feeds should be titles/teasers/full-text.',
+    'description' : 'Configure the number of items per feed and whether ' + \
+      'feeds should be titles/teasers/full-text.',
     'page callback' : 'drupal_get_form',
     'page arguments' : ('system_rss_feeds_settings',),
     'access arguments' : ('administer site configuration',)
   }
   items['admin/settings/date-time'] = {
     'title' : 'Date and time',
-    'description' : "Settings for how Drupal displays date and time, as well as the system's default timezone.",
+    'description' : "Settings for how Drupal displays date and time, " + \
+      "as well as the system's default timezone.",
     'page callback' : 'drupal_get_form',
     'page arguments' : ('system_date_time_settings',),
     'access arguments' : ('administer site configuration',)
@@ -622,7 +738,8 @@ def hook_menu():
   }
   items['admin/settings/site-maintenance'] = {
     'title' : 'Site maintenance',
-    'description' : 'Take the site off-line for maintenance or bring it back online.',
+    'description' : 'Take the site off-line for maintenance ' + \
+      'or bring it back online.',
     'page callback' : 'drupal_get_form',
     'page arguments' : ('system_site_maintenance_settings',),
     'access arguments' : array('administer site configuration',)
@@ -653,7 +770,8 @@ def hook_menu():
   # Reports:
   items['admin/reports'] = {
     'title' : 'Reports',
-    'description' : 'View reports from system logs and other status information.',
+    'description' : 'View reports from system logs ' + \
+      'and other status information.',
     'page callback' : 'system_admin_menu_block_page',
     'access arguments' : ('access site reports',),
     'weight' : 5,
@@ -661,7 +779,8 @@ def hook_menu():
   }
   items['admin/reports/status'] = {
     'title' : 'Status report',
-    'description' : "Get a status report about your site's operation and any detected problems.",
+    'description' : "Get a status report about your site's " + \
+      "operation and any detected problems.",
     'page callback' : 'system_status',
     'weight' : 10,
     'access arguments' : ('administer site configuration',)
@@ -704,7 +823,8 @@ def blocked_ip_load(iid):
    @return
      The blocked IP address from the database as an array.
   """
-  blocked_ip = inc_database.db_fetch_array(inc_database.db_query("SELECT * FROM {blocked_ips} WHERE iid = %d", iid))
+  blocked_ip = inc_database.db_fetch_array(inc_database.db_query(\
+    "SELECT * FROM {blocked_ips} WHERE iid = %d", iid))
   return blocked_ip
 
 
@@ -713,8 +833,9 @@ def _themes_access(theme_):
   """
    Menu item access callback - only admin or enabled themes can be accessed.
   """
-  return plugin_user.access('administer site configuration') and (theme_.status or theme_.name == inc_bootstrap.variable_get('admin_theme', '0'))
-
+  return plugin_user.access('administer site configuration') and \
+    (theme_.status or theme_.name == \
+    inc_bootstrap.variable_get('admin_theme', '0'))
 
 
 def hook_init():
@@ -722,14 +843,22 @@ def hook_init():
    Implementation of hook_init().
   """
   global custom_theme
-  # Use the administrative theme if the user is looking at a page in the admin/* path.
-  if (inc_path.arg(0) == 'admin' or (inc_bootstrap.variable_get('node_admin_theme', '0') and inc_path.arg(0) == 'node' and (inc_path.arg(1) == 'add' or inc_path.arg(2) == 'edit'))):
+  # Use the administrative theme if the user
+  # is looking at a page in the admin/* path.
+  if (inc_path.arg(0) == 'admin' or \
+      (inc_bootstrap.variable_get('node_admin_theme', '0') and \
+      inc_path.arg(0) == 'node' and (inc_path.arg(1) == 'add' or \
+      inc_path.arg(2) == 'edit'))):
     custom_theme = inc_bootstrap.variable_get('admin_theme', '0')
-    inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') +  '/admin.css', 'module')
+    inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') + \
+    '/admin.css', 'module')
   # Add the CSS for this module.
-  inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') +  '/defaults.css', 'module')
-  inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') +  '/system.css', 'module')
-  inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') +  '/system-menus.css', 'module')
+  inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') +  \
+    '/defaults.css', 'module')
+  inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') + \
+    '/system.css', 'module')
+  inc_common.drupal_add_css(inc_common.drupal_get_path('module', 'system') + \
+    '/system-menus.css', 'module')
   # Get the major version
   version = p.explode('.', VERSION)[0]
   # Emit the META tag in the HTML HEAD section
@@ -746,7 +875,10 @@ def hook_user(type, edit, user, category = None):
   """
   p.Reference.check(user)
   if (type_ == 'form' and category == 'account'):
-    form['theme_select'] = theme_select_form(inc_common.t('Selecting a different theme will change the look and feel of the site.'), (edit['theme'] if p.isset(edit, 'theme') else None), 2)
+    form['theme_select'] = theme_select_form(inc_common.t(
+      'Selecting a different theme will ' + \
+      'change the look and feel of the site.'), \
+      (edit['theme'] if p.isset(edit, 'theme') else None), 2)
     if (inc_bootstrap.variable_get('configurable_timezones', 1)):
       zones = _zonelist()
       form['timezone'] = {
@@ -758,9 +890,13 @@ def hook_user(type, edit, user, category = None):
       form['timezone']['timezone'] = {
         '#type' : 'select',
         '#title' : inc_common.t('Time zone'),
-        '#default_value' : (edit['timezone'] if p.strlen(edit['timezone']) else inc_common.variable_get('date_default_timezone', 0)),
+        '#default_value' : (edit['timezone'] if \
+          p.strlen(edit['timezone']) else \
+          inc_common.variable_get('date_default_timezone', 0)),
         '#options' : zones,
-        '#description' : inc_common.t('Select your current local time. Dates and times throughout this site will be displayed using this time zone.'),
+        '#description' : inc_common.t('Select your current local time. ' + \
+          'Dates and times throughout this site will be displayed using ' + \
+          'this time zone.'),
       }
     return form
 
