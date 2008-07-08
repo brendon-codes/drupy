@@ -249,7 +249,7 @@ Common functions that many Drupy plugins will need to reference.
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="base.includes.common-module.html#drupal_set_header" class="summary-sig-name">drupal_set_header</a>(<span class="summary-sig-arg">header_</span>=<span class="summary-sig-default">None</span>)</span><br />
-      Set an HTTP response p.header for the current page.</td>
+      Set an HTTP response php.header for the current page.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="base.includes.common-pysrc.html#drupal_set_header">source&nbsp;code</a></span>
             
@@ -426,7 +426,7 @@ Common functions that many Drupy plugins will need to reference.
         <tr>
           <td><span class="summary-sig"><a href="base.includes.common-module.html#drupal_http_request" class="summary-sig-name">drupal_http_request</a>(<span class="summary-sig-arg">url</span>,
         <span class="summary-sig-arg">headers</span>=<span class="summary-sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>,
-        <span class="summary-sig-arg">method</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">p.GET</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">method</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">GET</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">data</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">None</span>)</span><br />
       Perform an HTTP request.</td>
@@ -1082,7 +1082,7 @@ since PHP generates single backslashes for file paths on Windows systems.</td>
         <tr>
           <td><span class="summary-sig"><a href="base.includes.common-module.html#drupal_add_js" class="summary-sig-name">drupal_add_js</a>(<span class="summary-sig-arg">data</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">type_</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">plugin</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">scope</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">p.header</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">scope</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">php.header</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">defer</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">cache</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">preprocess</span>=<span class="summary-sig-default">True</span>)</span><br />
@@ -1102,7 +1102,7 @@ since PHP generates single backslashes for file paths on Windows systems.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="base.includes.common-module.html#drupal_get_js" class="summary-sig-name">drupal_get_js</a>(<span class="summary-sig-arg">scope</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">p.header</code><code class="variable-quote">'</code></span>,
+          <td><span class="summary-sig"><a href="base.includes.common-module.html#drupal_get_js" class="summary-sig-name">drupal_get_js</a>(<span class="summary-sig-arg">scope</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">php.header</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">javascript</span>=<span class="summary-sig-default">None</span>)</span><br />
       Returns a themed presentation of all JavaScript code for the current page.</td>
           <td align="right" valign="top">
@@ -1933,9 +1933,9 @@ This function can be called as long the headers aren't sent.
     </td>
   </tr></table>
   
-  Set an HTTP response p.header for the current page.
+  Set an HTTP response php.header for the current page.
 
-Note: When sending a Content-Type p.header, always include a 'charset' type,
+Note: When sending a Content-Type php.header, always include a 'charset' type,
 too. This is necessary to avoid security bugs (e.g. UTF-7 XSS).
   <dl class="fields">
   </dl>
@@ -2011,7 +2011,7 @@ Parse an array into a valid urlencoded query string.
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>query</code></strong> - The array to be processed e.g. p.GET.</li>
+        <li><strong class="pname"><code>query</code></strong> - The array to be processed e.g. php.GET.</li>
         <li><strong class="pname"><code>exclude</code></strong> - The array filled with keys to be excluded. Use parent[child] to exclude
   nested items.</li>
         <li><strong class="pname"><code>parent</code></strong> - Should not be passed, only used in recursive calls.</li>
@@ -2072,8 +2072,8 @@ URL is formatted correctly.
 
 Usually the redirected URL is constructed from this function's input
 parameters. However you may override that behavior by setting a
-<em>destination</em> in either the p.REQUEST-array (i.e. by using
-the query string of an URI) or the p.REQUEST['edit']-array (i.e. by
+<em>destination</em> in either the php.REQUEST-array (i.e. by using
+the query string of an URI) or the php.REQUEST['edit']-array (i.e. by
 using a hidden form field). This is used to direct the user back to
 the proper page after completing a form. For example, after editing
 a post on the 'admin/content/node'-page or after having logged on using the
@@ -2117,7 +2117,7 @@ statement in your menu callback.
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">drupal_http_request</span>(<span class="sig-arg">url</span>,
         <span class="sig-arg">headers</span>=<span class="sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>,
-        <span class="sig-arg">method</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">p.GET</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">method</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">GET</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">data</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">retry</span>=<span class="sig-default">None</span>)</span>
   </h3>
@@ -2129,12 +2129,12 @@ statement in your menu callback.
   Perform an HTTP request.
 
 This is a flexible and powerful HTTP client implementation. Correctly handles
-p.GET, p.POST, PUT or any other HTTP requests. Handles redirects.
+php.GET, php.POST, PUT or any other HTTP requests. Handles redirects.
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>url</code></strong> - A string containing a fully qualified URI.</li>
-        <li><strong class="pname"><code>headers</code></strong> - An array containing an HTTP p.header : value pair.</li>
+        <li><strong class="pname"><code>headers</code></strong> - An array containing an HTTP php.header : value pair.</li>
         <li><strong class="pname"><code>method</code></strong> - A string defining the HTTP request to use.</li>
         <li><strong class="pname"><code>data</code></strong> - A string containing data to include in the request.</li>
         <li><strong class="pname"><code>retry</code></strong> - An integer representing how many times to retry the request in case of a
@@ -2142,22 +2142,23 @@ p.GET, p.POST, PUT or any other HTTP requests. Handles redirects.
     </ul></dd>
     <dt>Returns:</dt>
         <dd>An object containing the HTTP request headers, response code, headers,
-  data and redirect status.
-
-DRUPY(BC):
+  data and redirect status.</dd>
+  </dl>
+<div class="fields">      <p><strong>Note:</strong>
+        DRUPY:
  This function has been modified to use urllib2.
  Although it does not act exactly as before, it is
  still good enough to get the job done.
  Return object should look like this:
-   result
+   result:
      Str error
      Int code
      Str request
      Dict headers
      Int redirect_code
-     Str redirect_url</dd>
-  </dl>
-</td></tr></table>
+     Str redirect_url
+      </p>
+</div></td></tr></table>
 </div>
 <a name="drupal_error_handler"></a>
 <div>
@@ -3136,7 +3137,7 @@ returns the stylesheet content with all url() paths corrected.
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">drupal_add_js</span>(<span class="sig-arg">data</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">type_</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">plugin</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">scope</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">p.header</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">scope</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">php.header</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">defer</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">cache</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">preprocess</span>=<span class="sig-default">True</span>)</span>
@@ -3183,7 +3184,7 @@ performed using this function:
   can, however, specify any value. It is treated as a reference to a JavaScript
   file. Defaults to 'plugin'.</li>
         <li><strong class="pname"><code>scope</code></strong> - (optional) The location in which you want to place the script. Possible
-  values are 'p.header' and 'footer' by default. If your theme implements
+  values are 'php.header' and 'footer' by default. If your theme implements
   different locations, however, you can also use these.</li>
         <li><strong class="pname"><code>defer</code></strong> - (optional) If set to True, the defer attribute is set on the <script> tag.
   Defaults to False. This parameter is not used with type == 'setting'.</li>
@@ -3207,7 +3208,7 @@ performed using this function:
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">drupal_get_js</span>(<span class="sig-arg">scope</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">p.header</code><code class="variable-quote">'</code></span>,
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">drupal_get_js</span>(<span class="sig-arg">scope</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">php.header</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">javascript</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
@@ -3225,7 +3226,7 @@ JavaScript code. If running update.php, all preprocessing is disabled.
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>scope</code></strong> - (optional) The scope for which the JavaScript rules should be returned.
-  Defaults to 'p.header'.</li>
+  Defaults to 'php.header'.</li>
         <li><strong class="pname"><code>javascript</code></strong> - (optional) An array with all JavaScript code. Defaults to the default
   JavaScript array for the given scope.</li>
     </ul></dd>
@@ -3364,7 +3365,7 @@ We use HTML-safe strings, i.e. with <, > and & escaped.
   Return data in JSON format.
 
 This function should be used for JavaScript callback functions returning
-data in JSON format. It sets the p.header for JavaScript output.
+data in JSON format. It sets the php.header for JavaScript output.
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -3425,9 +3426,9 @@ Notes:
   
   Returns a string of highly randomized bytes (over the full 8-bit range).
 
-This function is better than simply calling p.mt_rand() or any other built-in
+This function is better than simply calling php.mt_rand() or any other built-in
 PHP function because it can return a long string of bytes (compared to < 4
-bytes normally from p.mt_rand()) and uses the best available pseudo-random source.
+bytes normally from php.mt_rand()) and uses the best available pseudo-random source.
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -4079,7 +4080,7 @@ This is also called from update.php.
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jun 27 18:26:11 2008
+    Generated by Epydoc 3.0.1 on Tue Jul  8 14:26:46 2008
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
