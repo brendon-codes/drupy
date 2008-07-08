@@ -44,8 +44,8 @@
 #
 
 from lib.drupy import DrupyPHP as php
-import bootstrap as inc_bootstrap
-import plugin as inc_plugin
+import bootstrap as lib_bootstrap
+import plugin as lib_plugin
 
 
 def drupal_init_path():
@@ -55,7 +55,7 @@ def drupal_init_path():
   if (php.isset(php.GET, 'q') and not php.empty(php.GET['q'])):
     php.GET['q'] = drupal_get_normal_path(php.trim(php.GET['q'], '/'))
   else:
-    php.GET['q'] = drupal_get_normal_path(inc_bootstrap.variable_get('site_frontpage', 'node'))
+    php.GET['q'] = drupal_get_normal_path(lib_bootstrap.variable_get('site_frontpage', 'node'))
 
 
 def drupal_lookup_path(action, path_ = '', path_language = ''):
@@ -84,10 +84,10 @@ def drupal_lookup_path(action, path_ = '', path_language = ''):
   php.static(drupal_lookup_path, 'no_src', {})
   php.static(drupal_lookup_path, 'count', None)
   # map is an array with language keys, holding arrays of Drupal paths to alias relations
-  path_language =  (path_language if (path_language != '') else inc_bootstrap.language_.language)
+  path_language =  (path_language if (path_language != '') else lib_bootstrap.language_.language)
   # Use $count to avoid looking up paths in subsequent calls if there simply are no aliases
   if (drupal_lookup_path.count is None):
-    drupal_lookup_path.count = inc_database.db_result(inc_database.db_query('SELECT COUNT(pid) FROM {url_alias}'));
+    drupal_lookup_path.count = lib_database.db_result(lib_database.db_query('SELECT COUNT(pid) FROM {url_alias}'));
   if (action == 'wipe' ):
     drupal_lookup_path._map = {}
     drupal_lookup_path.no_src = {}

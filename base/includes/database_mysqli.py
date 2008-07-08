@@ -50,8 +50,8 @@
 
 from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyMySQL
-import bootstrap as inc_bootstrap
-import database as inc_database
+import bootstrap as lib_bootstrap
+import database as lib_database
 
 def db_status_report(phase):
   """
@@ -114,7 +114,7 @@ def _db_query(query, debug = 0):
    Helper function for db_query().
   """
   global active_db, queries, user
-  if (inc_bootstrap.variable_get('dev_query', 0)):
+  if (lib_bootstrap.variable_get('dev_query', 0)):
     usec,sec = php.explode(' ', php.microtime())
     timer = float(usec) + float(sec)
     # If devel.plugin query logging is enabled, prepend a comment with the username and calling function
@@ -126,8 +126,8 @@ def _db_query(query, debug = 0):
     # php.str_replace() to prevent SQL injection via username or anonymous name.
     name = php.str_replace(['*', '/'], '', name)
     query = '/* ' +  name  + ' : ' . bt[2]['function'] + ' */ ' + query
-  result = DrupyMySQL.mysqli_query(inc_database.active_db, query)
-  if (inc_bootstrap.variable_get('dev_query', 0)):
+  result = DrupyMySQL.mysqli_query(lib_database.active_db, query)
+  if (lib_bootstrap.variable_get('dev_query', 0)):
     query = bt[2]['function'] +  "\n"  + query
     usec,sec = php.explode(' ', php.microtime())
     stop = float(usec) + float(sec)
@@ -135,12 +135,12 @@ def _db_query(query, debug = 0):
     queries.append( [query, diff] )
   if (debug):
     print '<p>query: ' +  query  + '<br />error:' + DrupyMySQL.mysqli_error(active_db) + '</p>'
-  if (not DrupyMySQL.mysqli_errno(inc_database.active_db)):
+  if (not DrupyMySQL.mysqli_errno(lib_database.active_db)):
     return result
   else:
     # Indicate to drupal_error_handler that this is a database error.
     DB_ERROR = True
-    php.trigger_error(inc_bootstrap.check_plain(DrupyMySQL.mysqli_error(inc_database.active_db) +  "\nquery: "  + query), php.E_USER_WARNING)
+    php.trigger_error(lib_bootstrap.check_plain(DrupyMySQL.mysqli_error(lib_database.active_db) +  "\nquery: "  + query), php.E_USER_WARNING)
     return False
 
 
@@ -204,7 +204,7 @@ def db_error():
   """
    Determine whether the previous query caused an error.
   """
-  return DrupyMySQL.mysqli_errno(inc_database.active_db)
+  return DrupyMySQL.mysqli_errno(lib_database.active_db)
 
 
 
@@ -213,7 +213,7 @@ def db_affected_rows():
   """
    Determine the number of rows changed by the preceding query.
   """
-  return DrupyMySQL.mysqli_affected_rows(inc_database.active_db)
+  return DrupyMySQL.mysqli_affected_rows(lib_database.active_db)
 
 
 
@@ -313,7 +313,7 @@ def db_encode_blob(data):
    @return
     Encoded data.
   """
-  return "'" +  DrupyMySQL.mysqli_real_escape_string(inc_database.active_db, data)  + "'"
+  return "'" +  DrupyMySQL.mysqli_real_escape_string(lib_database.active_db, data)  + "'"
 
 
 
@@ -333,7 +333,7 @@ def db_escape_string(text):
   """
    Prepare user input for use in a database query, preventing SQL injection attacks.
   """
-  return DrupyMySQL.mysqli_real_escape_string(inc_database.active_db, text)
+  return DrupyMySQL.mysqli_real_escape_string(lib_database.active_db, text)
 
 
 
@@ -419,11 +419,11 @@ def db_query(query, *args):
      A database query result resource, or False if the query was not
      executed correctly.
   """
-  query = inc_database.db_prefix_tables(query)
+  query = lib_database.db_prefix_tables(query)
   if (php.isset(args, 0) and php.is_array(args[0])): # 'All arguments in one array' syntax
     args = args[0]
-  inc_database._db_query_callback(args, True)
-  query = php.preg_replace_callback(inc_database.DB_QUERY_REGEXP, inc_database._db_query_callback, query)
+  lib_database._db_query_callback(args, True)
+  query = php.preg_replace_callback(lib_database.DB_QUERY_REGEXP, lib_database._db_query_callback, query)
   return _db_query(query)
 
 
@@ -895,7 +895,7 @@ def db_escape_string(data):
   """
    Wrapper to escape a string
   """
-  return DrupyMySQL.mysqli_real_escape_string(inc_database.active_db, data)
+  return DrupyMySQL.mysqli_real_escape_string(lib_database.active_db, data)
 
 
 

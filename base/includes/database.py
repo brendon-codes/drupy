@@ -42,7 +42,7 @@
 #
 from lib.drupy import DrupyPHP as php
 from sites.default import settings
-import bootstrap as inc_bootstrap
+import bootstrap as lib_bootstrap
 import database_mysqli as db
 
 #
@@ -209,7 +209,7 @@ def _db_error_page(error = ''):
      The error message to be appended if 'display_errors' is on.
   """
   global db_type;
-  inc_bootstrap.drupal_maintenance_theme();
+  lib_bootstrap.drupal_maintenance_theme();
   drupal_set_header('HTTP/1.1 503 Service Unavailable');
   drupal_set_title('Site off-line');
   message = '<p>The site is currently not available due to technical problems. Please try again later. Thank you for your understanding.</p>';

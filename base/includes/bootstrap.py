@@ -42,14 +42,14 @@
 from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyImport
 from sites.default import settings
-import cache as inc_cache
-import database as inc_database
-import session as inc_session
-import theme_maintenance as inc_theme_maintenance
-import plugin as inc_plugin
-import path as inc_path
-import common as inc_common
-import language as inc_language
+import cache as lib_cache
+import database as lib_database
+import session as lib_session
+import theme_maintenance as lib_theme_maintenance
+import plugin as lib_plugin
+import path as lib_path
+import common as lib_common
+import language as lib_language
 
 
 #
@@ -470,7 +470,7 @@ def conf_init():
   if (php.count(php.explode('.', settings.cookie_domain)) > 2 and not php.is_numeric(php.str_replace('.', '', settings.cookie_domain))):
     php.ini_set('session.cookie_domain', settings.cookie_domain);
   #print session_name;
-  inc_session.sess_name('SESS' + php.md5(session_name_));
+  lib_session.sess_name('SESS' + php.md5(session_name_));
 
 
 
@@ -504,7 +504,7 @@ def drupal_get_filename(type_, name, filename = None):
      The filename of the requested item.
   """
   php.static(drupal_get_filename, 'files', {})
-  file = inc_database.db_result(inc_database.db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, type_))
+  file = lib_database.db_result(lib_database.db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, type_))
   if (not php.isset(drupal_get_filename.files, type_)):
     drupal_get_filename.files[type_] = {}
   if (filename != None and php.file_exists(filename)):
@@ -549,18 +549,18 @@ def variable_init(conf_ = {}):
    file.
   """  
   # NOTE: caching the variables improves performance by 20% when serving cached pages.
-  cached = inc_cache.cache_get('variables', 'cache');
+  cached = lib_cache.cache_get('variables', 'cache');
   if (cached):
     variables = cached.data;
   else:
     variables = {}
-    result = inc_database.db_query('SELECT * FROM {variable}');
+    result = lib_database.db_query('SELECT * FROM {variable}');
     while True:
-      variable = inc_database.db_fetch_object(result);
+      variable = lib_database.db_fetch_object(result);
       if (not variable):
         break;
       variables[variable.name] = php.unserialize(variable.value);
-    inc_cache.cache_set('variables', variables);
+    lib_cache.cache_set('variables', variables);
   for name,value in conf_.items():
     variables[name] = value;
   return variables;
@@ -676,8 +676,8 @@ def bootstrap_invoke_all(hook):
    @param hook
      The name of the bootstrap hook we wish to invoke.
   """
-  for plugin_ in inc_plugin.plugin_list(True, True):
-    inc_plugin.plugin_invoke(plugin_, hook);
+  for plugin_ in lib_plugin.plugin_list(True, True):
+    lib_plugin.plugin_invoke(plugin_, hook);
 
 
 
@@ -959,8 +959,8 @@ def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, link = N
     'timestamp'   : php.time_(),
   }
   # Call the logging hooks to log/process the message
-  for plugin_ in inc_plugin.plugin_implements('watchdog', True):
-    inc_plugin.plugin_invoke(plugin_, 'watchdog', log_message);
+  for plugin_ in lib_plugin.plugin_implements('watchdog', True):
+    lib_plugin.plugin_invoke(plugin_, 'watchdog', log_message);
 
 
 def drupal_set_message(message = None, type = 'status', repeat = True):
@@ -1057,7 +1057,7 @@ def drupal_is_denied(ip):
     return php.in_array(ip, blocked_ips)
   else:
     sql = "SELECT 1 FROM {blocked_ips} WHERE ip = '%s'";
-    return (inc_database.db_result(inc_database.db_query(sql, ip)) != False)
+    return (lib_database.db_result(lib_database.db_query(sql, ip)) != False)
 
 
 
@@ -1135,7 +1135,7 @@ def _drupal_bootstrap(phase):
       exit();
   elif phase == DRUPAL_BOOTSTRAP_DATABASE:
     # Initialize the default database.
-    inc_database.db_set_active();
+    lib_database.db_set_active();
     # Register autoload functions so that we can access classes and interfaces.
     # spl_autoload_register('drupal_autoload_class')
     # spl_autoload_register('drupal_autoload_interface')
@@ -1172,10 +1172,10 @@ def _drupal_bootstrap(phase):
     drupal_init_language();
   elif phase == DRUPAL_BOOTSTRAP_PATH:
     # Initialize php.GET['q'] prior to loading plugins and invoking hook_init().
-    #inc_path.drupal_init_path();
+    #lib_path.drupal_init_path();
     pass
   elif phase == DRUPAL_BOOTSTRAP_FULL:
-    inc_common._drupal_bootstrap_full();
+    lib_common._drupal_bootstrap_full();
 
 
 
@@ -1196,7 +1196,7 @@ def drupal_maintenance_theme():
   
    @see _drupal_maintenance_theme()
   """
-  inc_theme_maintenance._drupal_maintenance_theme();
+  lib_theme_maintenance._drupal_maintenance_theme();
 
 
 def get_t():
@@ -1221,7 +1221,7 @@ def drupal_init_language():
   if (variable_get('language_count', 1) == 1):
     language_ = language_default();
   else:
-    language_ = inc_language.language_initialize();
+    language_ = lib_language.language_initialize();
 
 
 
@@ -1550,7 +1550,7 @@ def registry_get_hook_implementations_cache():
   """
   php.static(registry_get_hook_implementations_cache, 'implementations')
   if (registry_get_hook_implementations_cache.implementations == None):
-    cache = inc_cache.cache_get('hooks', 'cache_registry')
+    cache = lib_cache.cache_get('hooks', 'cache_registry')
     if (cache):
       registry_get_hook_implementations_cache.implementations = cache.data;
     else:

@@ -38,9 +38,9 @@
 
 from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyImport
-import bootstrap as inc_bootstrap
-import database as inc_database
-import cache as inc_cache
+import bootstrap as lib_bootstrap
+import database as lib_database
+import cache as lib_cache
 #import install as inc_install
 
 def plugin_load_all():
@@ -48,7 +48,7 @@ def plugin_load_all():
    Load all the plugins that have been enabled in the system table.
   """
   for plugin_ in plugin_list(True, False):
-    inc_bootstrap.drupal_load('plugin', plugin_)
+    lib_bootstrap.drupal_load('plugin', plugin_)
 
 
 def plugin_iterate(function, argument = ''):
@@ -87,19 +87,19 @@ def plugin_list(refresh = False, bootstrap = True, sort = False, fixed_list = No
     plugin_list.list_ = {}
     if (fixed_list):
       for name,plugin in fixed_list.items():
-        inc_bootstrap.drupal_get_filename('plugin', name, plugin['filename'])
+        lib_bootstrap.drupal_get_filename('plugin', name, plugin['filename'])
         plugin_list.list_[name] = name
     else:
       if (bootstrap):
-        result = inc_database.db_query("SELECT name, filename FROM {system} WHERE type = 'plugin' AND status = 1 AND bootstrap = 1 ORDER BY weight ASC, filename ASC")
+        result = lib_database.db_query("SELECT name, filename FROM {system} WHERE type = 'plugin' AND status = 1 AND bootstrap = 1 ORDER BY weight ASC, filename ASC")
       else:
-        result = inc_database.db_query("SELECT name, filename FROM {system} WHERE type = 'plugin' AND status = 1 ORDER BY weight ASC, filename ASC")
+        result = lib_database.db_query("SELECT name, filename FROM {system} WHERE type = 'plugin' AND status = 1 ORDER BY weight ASC, filename ASC")
       while True:
-        plugin_ = inc_database.db_fetch_object(result)
+        plugin_ = lib_database.db_fetch_object(result)
         if (plugin_ == None or plugin_ == False):
           break
         if (DrupyImport.exists(plugin_.filename)):
-          inc_bootstrap.drupal_get_filename('plugin', plugin_.name, plugin_.filename)
+          lib_bootstrap.drupal_get_filename('plugin', plugin_.name, plugin_.filename)
           plugin_list.list_[plugin_.name] = plugin_.name
   if (sort):
     if (plugin_list.sorted_list == None):
@@ -370,11 +370,11 @@ def plugin_hook(plugin_, hook):
      implemented in that plugin.
   """
   function = hook;
-  if (inc_bootstrap.MAINTENANCE_MODE is True):
-    return php.function_exists(function, inc_bootstrap.loaded_plugins[plugin_]);
+  if (lib_bootstrap.MAINTENANCE_MODE is True):
+    return php.function_exists(function, lib_bootstrap.loaded_plugins[plugin_]);
   else:
-    return inc_bootstrap.drupal_function_exists(function, \
-      inc_bootstrap.loaded_plugins[plugin_]);
+    return lib_bootstrap.drupal_function_exists(function, \
+      lib_bootstrap.loaded_plugins[plugin_]);
 
 
 
@@ -397,17 +397,17 @@ def plugin_implements(hook, sort = False, refresh = False):
   php.static(plugin_implements, 'implementations', {})
   if (refresh):
     plugin_implements.implementations = {}
-  elif (inc_bootstrap.MAINTENANCE_MODE is False and php.empty(plugin_implements.implementations)):
-    cache = inc_cache.cache_get('hooks', 'cache_registry')
+  elif (lib_bootstrap.MAINTENANCE_MODE is False and php.empty(plugin_implements.implementations)):
+    cache = lib_cache.cache_get('hooks', 'cache_registry')
     if (cache):
       plugin_implements.implementations = cache.data;
-    plugin_implements.implementations = inc_bootstrap.registry_get_hook_implementations_cache()
+    plugin_implements.implementations = lib_bootstrap.registry_get_hook_implementations_cache()
   if (not php.isset(plugin_implements.implementations, hook)):
     plugin_implements.implementations[hook] = []
     for plugin_ in plugin_list():
       if (plugin_hook(plugin_, hook)):
         plugin_implements.implementations[hook].append( plugin_ )
-  inc_bootstrap.registry_cache_hook_implementations({'hook' : hook, 'plugins' : plugin_implements.implementations[hook]});
+  lib_bootstrap.registry_cache_hook_implementations({'hook' : hook, 'plugins' : plugin_implements.implementations[hook]});
   # The explicit cast forces a copy to be made. This is needed because
   # implementations[hook] is only a reference to an element of
   # implementations and if there are nested foreaches (due to nested node
@@ -458,8 +458,8 @@ def plugin_invoke_all(*args):
   del(args[0])
   return_ = []
   for plugin_ in plugin_implements(hook):
-    if (inc_bootstrap.drupal_function_exists(hook, inc_bootstrap.loaded_plugins[plugin_])):
-      function = DrupyImport.getFunction(inc_bootstrap.loaded_plugins[plugin_], hook)
+    if (lib_bootstrap.drupal_function_exists(hook, lib_bootstrap.loaded_plugins[plugin_])):
+      function = DrupyImport.getFunction(lib_bootstrap.loaded_plugins[plugin_], hook)
       result = php.call_user_func_array(function, args);
       if (result is not None and php.is_array(result)):
         return_ = p.array_merge_recursive(return_, result);

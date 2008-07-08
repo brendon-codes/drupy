@@ -38,8 +38,8 @@
 
 
 from lib.drupy import DrupyPHP as php
-import bootstrap as inc_bootstrap
-import database as inc_database
+import bootstrap as lib_bootstrap
+import database as lib_database
 
 def cache_get(cid, table = 'cache'):
   """
@@ -54,13 +54,13 @@ def cache_get(cid, table = 'cache'):
    @return The cache or FALSE on failure.
   """
   # Garbage collection necessary when enforcing a minimum cache lifetime
-  cache_flush = inc_bootstrap.variable_get('cache_flush', 0);
+  cache_flush = lib_bootstrap.variable_get('cache_flush', 0);
   if (cache_flush and (cache_flush + variable_get('cache_lifetime', 0) <= time())):
     # Reset the variable immediately to prevent a meltdown in heavy load situations.
     variable_set('cache_flush', 0);
     # Time to php.flush old cache data
-    inc_database.db_query("DELETE FROM {" + table + "} WHERE expire != %d AND expire <= %d", CACHE_PERMANENT, cache_flush);
-  cache = inc_database.db_fetch_object(inc_database.db_query("SELECT data, created, headers, expire, serialized FROM {" + table + "} WHERE cid = '%s'", cid));
+    lib_database.db_query("DELETE FROM {" + table + "} WHERE expire != %d AND expire <= %d", CACHE_PERMANENT, cache_flush);
+  cache = lib_database.db_fetch_object(lib_database.db_query("SELECT data, created, headers, expire, serialized FROM {" + table + "} WHERE cid = '%s'", cid));
   if (php.isset(cache, 'data')):
     # If the data is permanent or we're not enforcing a minimum cache lifetime
     # always return the cached data.
@@ -132,13 +132,13 @@ def cache_set(cid, data, table = 'cache', expire = None, headers = None):
      A string containing HTTP php.header information for cached pages.
   """
   if expire is None:
-    expire = inc_bootstrap.CACHE_PERMANENT
+    expire = lib_bootstrap.CACHE_PERMANENT
   serialized = 0;
   if (php.is_object(data) or php.is_array(data)):
     data = php.serialize(data);
     serialized = 1;
   created = php.time_();
-  inc_database.db_query("UPDATE {" + table + "} SET data = %b, created = %d, expire = %d, headers = '%s', serialized = %d WHERE cid = '%s'", data, created, expire, headers, serialized, cid);
+  lib_database.db_query("UPDATE {" + table + "} SET data = %b, created = %d, expire = %d, headers = '%s', serialized = %d WHERE cid = '%s'", data, created, expire, headers, serialized, cid);
   #if (not db_affected_rows()):
     #db_query("INSERT INTO {" + table + "} (cid, data, created, expire, headers, serialized) VALUES ('%s', %b, %d, %d, '%s', %d)", cid, data, created, expire, headers, serialized);
 

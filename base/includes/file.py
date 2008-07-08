@@ -610,7 +610,7 @@ def file_validate_extensions(file, extensions):
   """
   errors = []
   # Bypass validation for uid  = 1.
-  if (inc_bootstrap.user.uid != 1):
+  if (lib_bootstrap.user.uid != 1):
     regex = '/\.(' + ereg_replace(' +', '|', php.preg_quote(extensions)) + ')$/i'
     if (not php.preg_match(regex, file.filename)):
       errors.append( t('Only files with the following extensions are allowed: %files-allowed.', {'%files-allowed' : extensions}) )
@@ -636,7 +636,7 @@ def file_validate_size(file, file_limit = 0, user_limit = 0):
   """
   errors = []
   # Bypass validation for uid  = 1.
-  if (inc_bootstrap.user.uid != 1):
+  if (lib_bootstrap.user.uid != 1):
     if (file_limit and file.filesize > file_limit):
       errors.append( t('The file is %filesize exceeding the maximum file size of %maxsize.', {'%filesize' : format_size(file.filesize), '%maxsize' : format_size(file_limit)}) )
     total_size = file_space_used(user.uid) + file.filesize
