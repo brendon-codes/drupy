@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # $Id: bootstrap.inc,v 1.212 2008/06/26 11:29:20 dries Exp $
 
 """
@@ -36,6 +35,8 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
+
 #
 # Includes
 #
@@ -50,7 +51,6 @@ import plugin as lib_plugin
 import path as lib_path
 import common as lib_common
 import language as lib_language
-
 
 #
 # Global variables
@@ -256,7 +256,8 @@ def timer_start(name):
     timers[name] = {}
   (usec, sec) = php.explode(' ', php.microtime());
   timers[name]['start'] = float(usec) + float(sec);
-  timers[name]['count'] = ((timers[name]['count'] + 1) if php.isset(timers[name],'count') else 1);
+  timers[name]['count'] = ((timers[name]['count'] + 1) if \
+    php.isset(timers[name],'count') else 1);
 
 
 
@@ -432,13 +433,16 @@ def conf_init():
       parts['path'] = '';
     base_path_ = parts['path'] + '/';
     # Build base_root (everything until first slash after "scheme://").
-    base_root = php.substr(base_url, 0, php.strlen(base_url) - php.strlen(parts['path']));
+    base_root = php.substr(base_url, 0, php.strlen(base_url) - \
+      php.strlen(parts['path']));
   else:
     # Create base URL
-    base_root = ('https' if (php.isset(php.SERVER, 'HTTPS') and php.SERVER['HTTPS'] == 'on') else 'http');
+    base_root = ('https' if (php.isset(php.SERVER, 'HTTPS') and \
+      php.SERVER['HTTPS'] == 'on') else 'http');
     # As php.SERVER['HTTP_HOST'] is user input, ensure it only contains
     # characters allowed in hostnames.
-    base_root += '://' + php.preg_replace('/[^a-z0-9-:._]/i', '', php.SERVER['HTTP_HOST']);
+    base_root += '://' + php.preg_replace('/[^a-z0-9-:._]/i', '', \
+      php.SERVER['HTTP_HOST']);
     base_url = base_root;
     # php.SERVER['SCRIPT_NAME'] can, in contrast to php.SERVER['PHP_SELF'], not
     # be modified by a visitor.
@@ -466,8 +470,10 @@ def conf_init():
   settings.cookie_domain = php.explode(':', settings.cookie_domain);
   settings.cookie_domain = '.' + settings.cookie_domain[0];
   # Per RFC 2109, cookie domains must contain at least one dot other than the
-  # first. For hosts such as 'localhost' or IP Addresses we don't set a cookie domain.
-  if (php.count(php.explode('.', settings.cookie_domain)) > 2 and not php.is_numeric(php.str_replace('.', '', settings.cookie_domain))):
+  # first. For hosts such as 'localhost' or IP Addresses we don't set a
+  # cookie domain.
+  if (php.count(php.explode('.', settings.cookie_domain)) > 2 and not \
+      php.is_numeric(php.str_replace('.', '', settings.cookie_domain))):
     php.ini_set('session.cookie_domain', settings.cookie_domain);
   #print session_name;
   lib_session.sess_name('SESS' + php.md5(session_name_));
@@ -504,7 +510,9 @@ def drupal_get_filename(type_, name, filename = None):
      The filename of the requested item.
   """
   php.static(drupal_get_filename, 'files', {})
-  file = lib_database.db_result(lib_database.db_query("SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", name, type_))
+  file = lib_database.db_result(lib_database.db_query(\
+    "SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", \
+     name, type_))
   if (not php.isset(drupal_get_filename.files, type_)):
     drupal_get_filename.files[type_] = {}
   if (filename != None and php.file_exists(filename)):
@@ -523,7 +531,8 @@ def drupal_get_filename(type_, name, filename = None):
     # not established or the requested file is not found.
     config = conf_path();
     dir_ = ('themes/engines' if (type_ == 'theme_engine') else (type_ + 's'));
-    file = (("%(name)s.engine" % {'name':name}) if (type_ == 'theme_engine') else ("%(name)s.type" % {'name':name}));
+    file = (("%(name)s.engine" % {'name':name}) if \
+      (type_ == 'theme_engine') else ("%(name)s.type" % {'name':name}));
     fileVals = {'name':name, 'file':file, 'dir':dir_, 'config':config};
     fileChecker = [
       "config/dir/file" % fileVals,
@@ -545,10 +554,11 @@ def variable_init(conf_ = {}):
    Load the persistent variable table.
   
    The variable table is composed of values that have been saved in the table
-   with variable_set() as well as those explicitly specified in the configuration
-   file.
+   with variable_set() as well as those explicitly specified
+   in the configuration file.
   """  
-  # NOTE: caching the variables improves performance by 20% when serving cached pages.
+  # NOTE: caching the variables improves performance by 20% when serving
+  # cached pages.
   cached = lib_cache.cache_get('variables', 'cache');
   if (cached):
     variables = cached.data;
@@ -612,9 +622,11 @@ def variable_set(name, value):
      of serialization as necessary.
   """
   serialized_value = php.serialize(value);
-  db_query("UPDATE {variable} SET value = '%s' WHERE name = '%s'", serialized_value, name);
+  db_query("UPDATE {variable} SET value = '%s' WHERE name = '%s'", \
+    serialized_value, name);
   if (db_affected_rows() == 0):
-    db_query("INSERT INTO {variable} (name, value) VALUES ('%s', '%s')", name, serialized_value);
+    db_query("INSERT INTO {variable} (name, value) VALUES ('%s', '%s')", \
+      name, serialized_value);
   cache_clear_all('variables', 'cache');
   settings.conf[name] = value;
 
@@ -655,7 +667,8 @@ def page_get_cache():
      (whether it was started in this request or not).
   """
   cache = None;
-  if (user == None and php.SERVER['php.REQUEST_METHOD'] == 'php.GET' and php.count(drupal_set_message()) == 0):
+  if (user == None and php.SERVER['php.REQUEST_METHOD'] == 'php.GET' and \
+      php.count(drupal_set_message()) == 0):
     cache = cache_get(base_root + request_uri(), 'cache_page');
     if (php.empty(cache)):
       ob_start()
@@ -770,18 +783,21 @@ def drupal_page_cache_header(cache):
       and if_none_match == etag # etag must match
       and if_modified_since == last_modified):  # if-modified-since must match
     php.header('HTTP/1.1 304 Not Modified');
-    # All 304 responses must send an etag if the 200 response for the same object contained an etag
+    # All 304 responses must send an etag if the 200 response for the same
+    # object contained an etag
     php.header("Etag: %(etag)s" % {'etag':etag});
     exit();
   # Send appropriate response:
-  php.header("Last-Modified: %(last_modified)s" % {'last_modified':last_modified});
+  php.header("Last-Modified: %(last_modified)s" % \
+    {'last_modified':last_modified});
   php.header("Etag: %(etag)s" % {'etag':etag});
   # The following headers force validation of cache:
   php.header("Expires: Sun, 19 Nov 1978 05:00:00 GMT");
   php.header("Cache-Control: must-revalidate");
   if (variable_get('page_compression', True)):
     # Determine if the browser accepts gzipped data.
-    if (php.strpos(php.SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') == False and php.function_exists('gzencode')):
+    if (php.strpos(php.SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') == False and \
+        php.function_exists('gzencode')):
       # Strip the gzip php.header and run uncompress.
       cache.data = php.gzinflate(php.substr(php.substr(cache.data, 10), 0, -8));
     elif (php.function_exists('gzencode')):
@@ -838,7 +854,8 @@ def check_plain(text):
    Uses drupal_validate_utf8 to prevent cross site scripting attacks on
    Internet Explorer 6.
   """
-  return (php.htmlspecialchars(text, php.ENT_QUOTES) if drupal_validate_utf8(text) else '');
+  return (php.htmlspecialchars(text, php.ENT_QUOTES) if \
+    drupal_validate_utf8(text) else '');
 
 
 
@@ -924,7 +941,8 @@ def request_uri():
 
 
 
-def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, link = None):
+def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, \
+    link = None):
   """
    Log a system message.
   
@@ -990,7 +1008,8 @@ def drupal_set_message(message = None, type = 'status', repeat = True):
     if (repeat or not php.in_array(message, php.SESSION['messages'][type])):
       php.SESSION['messages'][type].append( message );
   # messages not set when DB connection fails
-  return  (php.SESSION['messages'] if php.isset(php.SESSION, 'messages') else None);
+  return  (php.SESSION['messages'] if php.isset(php.SESSION, 'messages') else \
+    None);
 
 
 def drupal_get_messages(type = None, clear_queue = True):
@@ -1094,15 +1113,17 @@ def drupal_bootstrap(phase):
    @param phase
      A constant. Allowed values are:
        DRUPAL_BOOTSTRAP_CONFIGURATION: initialize configuration.
-       DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE: try to call a non-database cache fetch routine.
+       DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE: try to call a non-database cache
+         fetch routine.
        DRUPAL_BOOTSTRAP_DATABASE: initialize database layer.
        DRUPAL_BOOTSTRAP_ACCESS: identify and reject banned hosts.
        DRUPAL_BOOTSTRAP_SESSION: initialize session handling.
-       DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE: load bootstrap.inc and plugin.inc, start
-         the variable system and try to serve a page from the cache.
+       DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE: load bootstrap.inc and plugin.inc,
+         start the variable system and try to serve a page from the cache.
        DRUPAL_BOOTSTRAP_LANGUAGE: identify the language used on the page.
        DRUPAL_BOOTSTRAP_PATH: set php.GET['q'] to Drupal path of request.
-       DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix input data.
+       DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix
+         input data.
   """
   # DRUPY(BC): Why were these set as static vars?
   # No longer needed. 
@@ -1146,11 +1167,14 @@ def _drupal_bootstrap(phase):
       print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
       exit()
   elif phase == DRUPAL_BOOTSTRAP_SESSION:
-    php.session_set_save_handler('sess_open', 'sess_close', 'sess_read', 'sess_write', 'sess_destroy_sid', 'sess_gc');
+    php.session_set_save_handler('sess_open', 'sess_close', 'sess_read', \
+      'sess_write', 'sess_destroy_sid', 'sess_gc');
     php.session_start();
   elif phase == DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
-    # Initialize configuration variables, using values from settings.php if available.
-    settings.conf = variable_init( ({} if (settings.conf == None) else settings.conf) );
+    # Initialize configuration variables, using values from settings.php
+    # if available.
+    settings.conf = variable_init( ({} if (settings.conf == None) else \
+      settings.conf) );
     # Load plugin handling.
     cache_mode = variable_get('cache', CACHE_DISABLED);
     # Get the page from the cache.
@@ -1216,7 +1240,8 @@ def drupal_init_language():
     Choose a language for the current page, based on site and user preferences.
   """
   global language_
-  # Ensure the language is correctly returned, even without multilanguage support.
+  # Ensure the language is correctly returned, even without
+  # multilanguage support.
   # Useful for eg. XML/HTML 'lang' attributes.
   if (variable_get('language_count', 1) == 1):
     language_ = language_default();
@@ -1245,7 +1270,8 @@ def language_list(field = 'language', reset = False):
   # Init language list
   if (languages_list.languages == None):
     if (variable_get('language_count', 1) > 1 or plugin_exists('locale')):
-      result = db_query('SELECT# FROM {languages} ORDER BY weight ASC, name ASC');
+      result = db_query(\
+        'SELECT# FROM {languages} ORDER BY weight ASC, name ASC');
       while True:
         row = db_fetch_object(result);
         if row == None:
@@ -1288,7 +1314,8 @@ def language_default(property = None):
     'weight' : 0,
     'javascript' : ''
   }));
-  return (getattr(language_local, property) if (property != None) else language_local);
+  return (getattr(language_local, property) if (property != None) else \
+    language_local);
 
 
 
@@ -1316,7 +1343,8 @@ def ip_address(reset=False):
   php.static(ip_address, 'ip_address')
   if (ip_address.ip_address is None or reset):
     ip_address.ip_address = php.SERVER['REMOTE_ADDR'];
-    if (variable_get('reverse_proxy', 0) and php.array_key_exists('HTTP_X_FORWARDED_FOR', php.SERVER)):
+    if (variable_get('reverse_proxy', 0) and \
+        php.array_key_exists('HTTP_X_FORWARDED_FOR', php.SERVER)):
       # If an array of known reverse proxy IPs is provided, then trust
       # the XFF php.header if request really comes from one of them.
       reverse_proxy_addresses = variable_get('reverse_proxy_addresses', []);
@@ -1324,7 +1352,8 @@ def ip_address(reset=False):
           php.in_array(ip_address.ip_address, reverse_proxy_addresses)):
         # If there are several arguments, we need to check the most
         # recently added one, i.e. the last one.
-        ip_address.ip_address = php.array_pop(php.explode(',', php.SERVER['HTTP_X_FORWARDED_FOR']));
+        ip_address.ip_address = php.array_pop(\
+          php.explode(',', php.SERVER['HTTP_X_FORWARDED_FOR']));
       # When Drupal is run in a cluster environment, REMOTE_ADDR contains the IP
       # address of a server in the cluster, while the IP address of the client is
       # stored in HTTP_X_CLUSTER_CLIENT_IP.
@@ -1332,10 +1361,7 @@ def ip_address(reset=False):
         ip_address.ip_address = php.SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
   return ip_address.ip_address;
 
-#
-# @ingroup registry
-# @{
-#  
+
 
 
 #
@@ -1414,7 +1440,9 @@ def _registry_check_code(type_, name):
   """
    Helper for registry_check_{interface, class}.
   """
-  file = db_result(db_query("SELECT filename FROM {registry} WHERE name = '%s' AND type = '%s'", name, type_))
+  file = db_result(db_query(\
+    "SELECT filename FROM {registry} WHERE name = '%s' AND type = '%s'", \
+    name, type_))
   if (file):
     php.require_once(file)
     registry_mark_code(type_, name)
@@ -1472,7 +1500,8 @@ def drupal_rebuild_code_registry():
 
 
 
-def registry_cache_hook_implementations(hook, write_to_persistent_cache = False):
+def registry_cache_hook_implementations(hook, \
+    write_to_persistent_cache = False):
   """
    Save hook implementations cache.
   
@@ -1484,11 +1513,13 @@ def registry_cache_hook_implementations(hook, write_to_persistent_cache = False)
   php.static(registry_cache_hook_implementations, 'implementations', {})
   if (hook):
     # Newer is always better, so overwrite anything that's come before.
-    registry_cache_hook_implementations.implementations[hook['hook']] = hook['plugins']
+    registry_cache_hook_implementations.implementations[hook['hook']] = \
+      hook['plugins']
   if (write_to_persistent_cache == True):
     # Only write this to cache if the implementations data we are going to cache
     # is different to what we loaded earlier in the request.
-    if (registry_cache_hook_implementations.implementations != registry_get_hook_implementations_cache()):
+    if (registry_cache_hook_implementations.implementations != \
+        registry_get_hook_implementations_cache()):
       cache_set('hooks', implementations, 'cache_registry');
 
 
@@ -1506,10 +1537,12 @@ def registry_cache_path_files():
     type_sql = []
     params = []
     for type,names in used_code.items():
-      type_sql.append( "(name IN (" +  db_placeholders(names, 'varchar')  + ") AND type = '%s')" )
+      type_sql.append( "(name IN (" +  db_placeholders(names, 'varchar')  + \
+        ") AND type = '%s')" )
       params = php.array_merge(params, names)
       params.append( type )
-    res = db_query("SELECT DISTINCT filename FROM {registry} WHERE " +  php.implode(' OR ', type_sql), params)
+    res = db_query("SELECT DISTINCT filename FROM {registry} WHERE " +  \
+      php.implode(' OR ', type_sql), params)
     while True:
       row = db_fetch_object(res)
       if (row == None):
@@ -1521,7 +1554,8 @@ def registry_cache_path_files():
       # is different to what we loaded earlier in the request.
       if (files != registry_load_path_files(True)):
         menu = menu_get_item();
-        cache_set('registry:' + menu['path'], php.implode(';', files), 'cache_registry');
+        cache_set('registry:' + menu['path'], php.implode(';', files), \
+          'cache_registry');
 
 
 
@@ -1559,6 +1593,3 @@ def registry_get_hook_implementations_cache():
 
 
 
-#
-# @} End of "ingroup registry".
-#

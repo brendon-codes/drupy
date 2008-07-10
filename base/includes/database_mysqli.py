@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # Id: database.mysqli.inc,v 1.57 2008/04/14 17:48:33 dries Exp $
 
 """
@@ -40,13 +39,10 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
 
 # Maintainers of this file should consult:
 # http://www.php.net/manual/en/ref.mysqli.php
-#
-# @ingroup database
-# @{
-#
 
 from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyMySQL

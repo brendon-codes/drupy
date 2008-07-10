@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # $Id: cache.inc,v 1.19 2008/06/18 03:36:23 dries Exp $
 
 """
@@ -36,6 +35,7 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
 
 from lib.drupy import DrupyPHP as php
 import bootstrap as lib_bootstrap
@@ -43,7 +43,8 @@ import database as lib_database
 
 def cache_get(cid, table = 'cache'):
   """
-   Return data from the persistent cache. Data may be stored as either plain text or as serialized data.
+   Return data from the persistent cache. Data may be stored as 
+   either plain text or as serialized data.
    cache_get will automatically return unserialized objects and arrays.
   
    @param cid
@@ -55,16 +56,23 @@ def cache_get(cid, table = 'cache'):
   """
   # Garbage collection necessary when enforcing a minimum cache lifetime
   cache_flush = lib_bootstrap.variable_get('cache_flush', 0);
-  if (cache_flush and (cache_flush + variable_get('cache_lifetime', 0) <= time())):
-    # Reset the variable immediately to prevent a meltdown in heavy load situations.
+  if (cache_flush and (cache_flush + \
+      variable_get('cache_lifetime', 0) <= time())):
+    # Reset the variable immediately to prevent a meltdown in heavy
+    # load situations.
     variable_set('cache_flush', 0);
     # Time to php.flush old cache data
-    lib_database.db_query("DELETE FROM {" + table + "} WHERE expire != %d AND expire <= %d", CACHE_PERMANENT, cache_flush);
-  cache = lib_database.db_fetch_object(lib_database.db_query("SELECT data, created, headers, expire, serialized FROM {" + table + "} WHERE cid = '%s'", cid));
+    lib_database.db_query(\
+      "DELETE FROM {" + table + "} WHERE expire != %d AND expire <= %d", \
+      CACHE_PERMANENT, cache_flush);
+  cache = lib_database.db_fetch_object(lib_database.db_query(\
+    "SELECT data, created, headers, expire, serialized " + \
+    "FROM {" + table + "} WHERE cid = '%s'", cid));
   if (php.isset(cache, 'data')):
     # If the data is permanent or we're not enforcing a minimum cache lifetime
     # always return the cached data.
-    if (cache.expire == CACHE_PERMANENT or not variable_get('cache_lifetime', 0)):
+    if (cache.expire == CACHE_PERMANENT or not \
+        variable_get('cache_lifetime', 0)):
       cache.data = db_decode_blob(cache.data);
       if (cache.serialized):
         cache.data = php.unserialize(cache.data);
@@ -115,7 +123,8 @@ def cache_set(cid, data, table = 'cache', expire = None, headers = None):
    @param cid
      The cache ID of the data to store.
    @param data
-     The data to store in the cache. Complex data types will be automatically serialized before insertion.
+     The data to store in the cache. Complex data types will be
+     automatically serialized before insertion.
      Strings will be stored as plain text and not serialized.
    @param table
      The table table to store the data in. Valid core values are 'cache_filter',
@@ -138,9 +147,14 @@ def cache_set(cid, data, table = 'cache', expire = None, headers = None):
     data = php.serialize(data);
     serialized = 1;
   created = php.time_();
-  lib_database.db_query("UPDATE {" + table + "} SET data = %b, created = %d, expire = %d, headers = '%s', serialized = %d WHERE cid = '%s'", data, created, expire, headers, serialized, cid);
+  lib_database.db_query(
+    "UPDATE {" + table + "} SET data = %b, created = %d, expire = %d, " + \
+    "headers = '%s', serialized = %d WHERE cid = '%s'", \
+    data, created, expire, headers, serialized, cid);
   #if (not db_affected_rows()):
-    #db_query("INSERT INTO {" + table + "} (cid, data, created, expire, headers, serialized) VALUES ('%s', %b, %d, %d, '%s', %d)", cid, data, created, expire, headers, serialized);
+    #db_query("INSERT INTO {" + table + "} (cid, data, created,
+    #expire, headers, serialized) VALUES ('%s', %b, %d, %d, '%s', %d)",
+    #cid, data, created, expire, headers, serialized);
 
 
 
@@ -185,11 +199,15 @@ def cache_clear_all(cid = None, table = None, wildcard = False):
       elif (thisTime > (cache_flush + variable_get('cache_lifetime', 0))):
         # Clear the cache for everyone, cache_flush_delay seconds have
         # passed since the first request to clear the cache.
-        db_query("DELETE FROM {" + table + "} WHERE expire != %d AND expire < %d", CACHE_PERMANENT, thisTime);
+        db_query(\
+          "DELETE FROM {" + table + "} WHERE expire != %d AND expire < %d", \
+          CACHE_PERMANENT, thisTime);
         variable_set('cache_flush', 0);
     else:
       # No minimum cache lifetime, php.flush all temporary cache entries now.
-      db_query("DELETE FROM {" + table + "} WHERE expire != %d AND expire < %d", CACHE_PERMANENT, thisTime);
+      db_query(\
+        "DELETE FROM {" + table + "} WHERE expire != %d AND expire < %d", \
+        CACHE_PERMANENT, thisTime);
   else:
     if (wildcard):
       if (cid == '*'):
