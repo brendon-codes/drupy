@@ -38,8 +38,9 @@
     USA
 """
 
-from lib.drupy import DrupyPHP as php
+__version__ = "$Revision: 1 $"
 
+from lib.drupy import DrupyPHP as php
 
 #
 # Markers used by theme_mark() and node_mark() to designate content.

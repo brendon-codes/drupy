@@ -36,6 +36,7 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
 
 #
 # Imports
@@ -410,7 +411,8 @@ def session_start():
    @return Bool
   """
   global SESSION
-  SESSION = session.SessionObject(os.environ, type='file', data_dir='/tmp')._session()
+  SESSION = session.SessionObject(os.environ, \
+                                  type='file', data_dir='/tmp')._session()
   header(SESSION.cookie)
   return True
 
@@ -947,11 +949,13 @@ def parse_url(url, port = 80):
    @return Dict
   """
   scheme = url[0:url.find("://")]
-  if scheme not in ( \
-    'file', 'ftp', 'gopher', 'hd1', 'http', 'https', 'imap', 'mailto', 'mms', \
-    'news', 'nntp', 'prospero', 'rsync', 'rtsp', 'rtspu', 'sftp', 'shttp', \
-    'sip', 'sips', 'snews', 'svn', 'svn+ssh', 'telnet', 'wais' \
-  ):
+  if scheme not in (\
+                    'file', 'ftp', 'gopher', 'hd1', 'http', 'https', \
+                    'imap', 'mailto', 'mms', \
+                    'news', 'nntp', 'prospero', 'rsync', 'rtsp', 'rtspu', \
+                    'sftp', 'shttp', \
+                    'sip', 'sips', 'snews', 'svn', 'svn+ssh', \
+                    'telnet', 'wais'):
     no_scheme = True
     url = url.replace(scheme, 'http', 1)
   else:
@@ -1119,7 +1123,10 @@ def uniqid(prefix = None, more_entropy = False):
   if prefix != None:
     random.seed(prefix)
   for i in range(0, num):
-    out += random.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+    out += random.choice(\
+                         'abcdefghijklmnopqrstuvwxyz' + \
+                         'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + \
+                         '0123456789')
   return out
 
 

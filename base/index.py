@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # $Id: index.php,v 1.94 2007/12/26 08:46:48 dries Exp $
 
 """
@@ -13,7 +12,7 @@
   @note Drupy is a port of the Drupal project.
   @note This file was ported from Drupal's index.php
   @note
-    THIS FILE IS NOT YET FUNCTIONAL.
+    THIS FILE IS NOT FUNCTIONAL.
     TO SEE A RUNNING INSTANCE OF DRUPY.
     PLEASE RUN DRUPY.PY AS A CGI OR CLI
   @author Brendon Crawford
@@ -42,6 +41,8 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
+
 from lib.drupy import DrupyPHP as php
 from includes import bootstrap as lib_bootstrap
 from includes import menu as lib_menu
@@ -49,7 +50,7 @@ from includes import common as lib_common
 from includes import theme as lib_theme
 
 print
-print "THIS FILE IS NOT YET FUNCTIONAL"
+print "THIS FILE IS NOT FUNCTIONAL"
 print "TO SEE A RUNNING INSTANCE OF DRUPY"
 print "PLEASE RUN DRUPY.PY AS A CGI OR CLI"
 print

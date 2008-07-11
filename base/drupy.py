@@ -33,6 +33,8 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
+
 import time
 import re
 import sys
@@ -41,15 +43,24 @@ from lib.drupy import DrupyImport
 from includes import bootstrap as lib_bootstrap
 
 phases = (
-  (lib_bootstrap.DRUPAL_BOOTSTRAP_CONFIGURATION,    'DRUPAL_BOOTSTRAP_CONFIGURATION'),
-  (lib_bootstrap.DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE, 'DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE'),
-  (lib_bootstrap.DRUPAL_BOOTSTRAP_DATABASE,         'DRUPAL_BOOTSTRAP_DATABASE'),
-  (lib_bootstrap.DRUPAL_BOOTSTRAP_ACCESS,           'DRUPAL_BOOTSTRAP_ACCESS'),
-  (lib_bootstrap.DRUPAL_BOOTSTRAP_SESSION,          'DRUPAL_BOOTSTRAP_SESSION'),
-  (lib_bootstrap.DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE,  'DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE'),
-  (lib_bootstrap.DRUPAL_BOOTSTRAP_LANGUAGE,         'DRUPAL_BOOTSTRAP_LANGUAGE'),
-  (lib_bootstrap.DRUPAL_BOOTSTRAP_PATH,             'DRUPAL_BOOTSTRAP_PATH'),
-  (lib_bootstrap.DRUPAL_BOOTSTRAP_FULL,             'DRUPAL_BOOTSTRAP_FULL')
+  (lib_bootstrap.DRUPAL_BOOTSTRAP_CONFIGURATION, \
+   'DRUPAL_BOOTSTRAP_CONFIGURATION'),
+  (lib_bootstrap.DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE, \
+   'DRUPAL_BOOTSTRAP_EARLY_PAGE_CACHE'),
+  (lib_bootstrap.DRUPAL_BOOTSTRAP_DATABASE, \
+   'DRUPAL_BOOTSTRAP_DATABASE'),
+  (lib_bootstrap.DRUPAL_BOOTSTRAP_ACCESS, \
+   'DRUPAL_BOOTSTRAP_ACCESS'),
+  (lib_bootstrap.DRUPAL_BOOTSTRAP_SESSION, \
+   'DRUPAL_BOOTSTRAP_SESSION'),
+  (lib_bootstrap.DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE, \
+   'DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE'),
+  (lib_bootstrap.DRUPAL_BOOTSTRAP_LANGUAGE, \
+   'DRUPAL_BOOTSTRAP_LANGUAGE'),
+  (lib_bootstrap.DRUPAL_BOOTSTRAP_PATH, \
+   'DRUPAL_BOOTSTRAP_PATH'),
+  (lib_bootstrap.DRUPAL_BOOTSTRAP_FULL, \
+   'DRUPAL_BOOTSTRAP_FULL')
 );
 
 which_phase = phases[8];
@@ -60,7 +71,8 @@ out_plugins = php.print_r(lib_bootstrap.loaded_plugins, True)
 out_plugins_html = php.htmlspecialchars(out_plugins)
 out_vars = php.print_r(vars(), True)
 out_vars = re.sub('[a-zA-Z0-9_\.-]+@.+?\.[a-zA-Z]+', '********', out_vars)
-out_vars = re.sub('[a-zA-Z0-9]{32}', '********************************', out_vars)
+out_vars = re.sub('[a-zA-Z0-9]{32}', \
+                  '********************************', out_vars)
 out_vars = php.htmlspecialchars(out_vars)
 out_mods = php.print_r(DrupyImport.modules(), True)
 out_mods = php.htmlspecialchars(out_mods)
@@ -80,9 +92,12 @@ if php.SERVER['WEB']:
   print "</head>"
   print "<body>"
   print "<h1>Drupy Bootstrap Diagnostic Status</h1>"
-  print "<h2>Bootstrap: Completed Phase '%s' (%s)</h2>" % (which_phase[1],which_phase[0])
+  print "<h2>Bootstrap: Completed Phase '%s' (%s)</h2>" % \
+    (which_phase[1],which_phase[0])
   print "<h3>Generated: %s</h3>" % stamp
-  print "<h4 style='color:blue;'>The following Drupy plugins are loaded. A Drupy plugin is the equivalent of a Drupal module.</h4>"
+  print "<h4 style='color:blue;'>"
+  print "The following Drupy plugins are loaded. "
+  print "A Drupy plugin is the equivalent of a Drupal module.</h4>"
   print "<pre style='background-color:yellow;'>%s</pre>" % out_plugins_html
   print "<h4 style='color:blue;'>Global Scope Objects</h4>"
   print "<pre style='background-color:yellow;'>%s</pre>" % out_vars
@@ -95,7 +110,8 @@ if php.SERVER['WEB']:
 #
 else:
   print "Drupy Bootstrap Diagnostic Status"
-  print "Bootstrap: Completed Phase '%s' (%s)" % (which_phase[1],which_phase[0])
+  print "Bootstrap: Completed Phase '%s' (%s)" % \
+    (which_phase[1],which_phase[0])
   print "Generated: %s" % stamp
   print
   print "The following Drupy plugins are loaded."
