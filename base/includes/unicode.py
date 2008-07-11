@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # $Id: unicode.inc,v 1.31 2008/06/18 03:36:23 dries Exp $
 
 """
@@ -35,6 +34,8 @@
     Boston, MA  02110-1301,
     USA
 """
+
+__version__ = "$Revision: 1 $"
 
 from lib.drupy import DrupyPHP as php
 from xml.dom import minidom
@@ -109,8 +110,10 @@ def drupal_xml_parser_create(data):
   """
    Prepare a new XML parser.
   
-   This is a wrapper around xml_parser_create() which extracts the encoding from
-   the XML data first and sets the output encoding to UTF-8+ This function should
+   This is a wrapper around xml_parser_create() which extracts the
+   encoding from
+   the XML data first and sets the output encoding to UTF-8+ This
+   function should
    be used instead of xml_parser_create(), because PHP 4's XML parser doesn't
    check the input encoding itself+ "Starting from PHP 5, the input encoding is
    automatically detected, so that the encoding parameter specifies only the
@@ -161,8 +164,8 @@ def drupal_truncate_bytes(string_, len_):
   
    Use this function whenever you want to chop off a string at an unsure
    location+ On the other hand, if you're sure that you're splitting on a
-   character boundary (e.g+ after using strpos() or similar), you can safely use
-   substr() instead.
+   character boundary (e.g+ after using strpos() or similar),
+   you can safely use substr() instead.
   
    @param string
      The string to truncate.
@@ -177,7 +180,8 @@ def drupal_truncate_bytes(string_, len_):
     return substr(string_, 0, len_);
   while True:
     len -= 1;
-    if (not (len_ >= 0 and ord(string_[len_]) >= 0x80 and ord(string_[len_]) < 0xC0) ):
+    if (not (len_ >= 0 and ord(string_[len_]) >= 0x80 and \
+        ord(string_[len_]) < 0xC0) ):
       break;
   return substr(string_, 0, len_);
 
@@ -204,7 +208,8 @@ def truncate_utf8(string_, len_, wordsafe = False, dots = False):
   if (wordsafe):
     string_ = drupal_substr(string_, 0, len_ + 1); # leave one more character
     last_space = strrpos(string_, ' ');
-    if (last_space != False and last_space > 0): # space exists AND is not on position 0
+    # space exists AND is not on position 0
+    if (last_space != False and last_space > 0): 
       string_ = substr(string_, 0, last_space);
     else:
       string_ = drupal_substr(string_, 0, len_);
@@ -220,7 +225,8 @@ def mime_header_encode(string_):
    Encodes MIME/HTTP header values that contain non-ASCII, UTF-8 encoded
    characters.
   
-   For example, mime_header_encode('test.txt') returns "=?UTF-8?B?dMOpc3QudHh0?=". (where the 'e' is acute)
+   For example, mime_header_encode('test.txt')
+   returns "=?UTF-8?B?dMOpc3QudHh0?=". (where the 'e' is acute)
   
    See http://www.rfc-editor.org/rfc/rfc2047.txt for more information.
   
@@ -245,14 +251,18 @@ def mime_header_encode(string_):
   return string_;
 
 
-def mime_header_decode(header):
+def mime_header_decode(header_):
   """
    Complement to mime_header_encode
   """
-  # First step: encoded chunks followed by other encoded chunks (need to collapse whitespace)
-  header = preg_replace_callback('/=\?([^?]+)\?(Q|B)\?([^?]+|\?(?!=))\?=\s+(?==\?)/', '_mime_header_decode', header);
+  # First step: encoded chunks followed by
+  # other encoded chunks (need to collapse whitespace)
+  header_ = php.preg_replace_callback(\
+    '/=\?([^?]+)\?(Q|B)\?([^?]+|\?(?!=))\?=\s+(?==\?)/', \
+    '_mime_header_decode', header_);
   # Second step: remaining chunks (do not collapse whitespace)
-  return preg_replace_callback('/=\?([^?]+)\?(Q|B)\?([^?]+|\?(?!=))\?=/', '_mime_header_decode', header);
+  return php.preg_replace_callback(\
+    '/=\?([^?]+)\?(Q|B)\?([^?]+|\?(?!=))\?=/', '_mime_header_decode', header_);
 
 
 
@@ -264,7 +274,8 @@ def _mime_header_decode(matches):
   # 1: Character set name
   # 2: Escaping method (Q or B)
   # 3: Encoded data
-  data = (base64_decode(matches[3]) if (matches[2] == 'B') else str_replace('_', ' ', quoted_printable_decode(matches[3])));
+  data = (base64_decode(matches[3]) if (matches[2] == 'B') else \
+    str_replace('_', ' ', quoted_printable_decode(matches[3])));
   if (strtolower(matches[1]) != 'utf-8'):
     data = drupal_convert_to_utf8(data, matches[1]);
   return data;
@@ -274,7 +285,8 @@ def _mime_header_decode(matches):
 def decode_entities(text, exclude = []):
   """
    Decode all HTML entities (including numerical ones) to regular UTF-8 bytes.
-   Double-escaped entities will only be decoded once ("&amp;lt;" becomes "&lt;", not "<").
+   Double-escaped entities will only be decoded once
+   ("&amp;lt;" becomes "&lt;", not "<").
   
    @param text
      The text to decode entities in.
@@ -290,8 +302,10 @@ def decode_entities(text, exclude = []):
       decode_entities.table[k.lower()] = v;
   def _this_decode_entities(m):
     matches = m.groups();
-    return _decode_entities( matches[1], matches[2], matches[0], decode_entities.table, exclude);
-  # Use a regexp to select all entities in one pass, to avoid decoding double-escaped entities twice.
+    return _decode_entities( matches[1], matches[2], matches[0], \
+      decode_entities.table, exclude);
+  # Use a regexp to select all entities in one pass, to avoid decoding
+  # double-escaped entities twice.
   pat = re.compile('(&(#x?)?([A-Za-z0-9]+);)', re.I);
   return pat.sub(_this_decode_entities, text);
 
@@ -341,12 +355,13 @@ def drupal_strtoupper(text):
   """
   global multibyte;
   if (multibyte == UNICODE_MULTIBYTE):
-    return mb_strtoupper(text);
+    return php.mb_strtoupper(text);
   else:
     # Use C-locale for ASCII-only uppercase
-    text = strtoupper(text);
+    text = php.strtoupper(text);
     # Case flip Latin-1 accented letters
-    text = preg_replace_callback('/\xC3[\xA0-\xB6\xB8-\xBE]/', _unicode_caseflip, text);
+    text = php.preg_replace_callback('/\xC3[\xA0-\xB6\xB8-\xBE]/', \
+      _unicode_caseflip, text);
     return text;
 
 
@@ -363,7 +378,8 @@ def drupal_strtolower(text):
     # Use C-locale for ASCII-only lowercase
     text = strtolower(text);
     # Case flip Latin-1 accented letters
-    text = preg_replace_callback('/\xC3[\x80-\x96\x98-\x9E]/', _unicode_caseflip, text);
+    text = preg_replace_callback(\
+      '/\xC3[\x80-\x96\x98-\x9E]/', _unicode_caseflip, text);
     return text;
 
 
@@ -397,7 +413,8 @@ def drupal_substr(text, start, length = None):
   """
   global multibyte;
   if (multibyte == UNICODE_MULTIBYTE):
-    return (mb_substr(text, start) if (length == None) else mb_substr(text, start, length));
+    return (php.mb_substr(text, start) if \
+      (length == None) else mb_substr(text, start, length));
   else:
     strlen_ = strlen(text);
     # Find the starting byte offset

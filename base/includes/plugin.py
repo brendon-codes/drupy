@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # $Id: plugin.inc,v 1.120 2008/05/13 17:38:42 dries Exp $
 
 """
@@ -36,6 +35,8 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
+
 from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyImport
 import bootstrap as lib_bootstrap
@@ -59,7 +60,8 @@ def plugin_iterate(function, argument = ''):
     p.call_user_func(function, name, argument)
 
 
-def plugin_list(refresh = False, bootstrap = True, sort = False, fixed_list = None):
+def plugin_list(refresh = False, bootstrap = True, sort = False, \
+    fixed_list = None):
   """
    Collect a list of all loaded plugins. During the bootstrap, return only
    vital plugins. See bootstrap.inc
@@ -71,10 +73,12 @@ def plugin_list(refresh = False, bootstrap = True, sort = False, fixed_list = No
      Whether to return the reduced set of plugins loaded in "bootstrap mode"
      for cached pages. See bootstrap.inc.
    @param sort
-     By default, plugins are ordered by weight and filename, settings this option
+     By default, plugins are ordered by weight and filename,
+     settings this option
      to True, plugin list will be ordered by plugin name.
    @param fixed_list
-     (Optional) Override the plugin list with the given plugins. Stays until the
+     (Optional) Override the plugin list with the given plugins.
+     Stays until the
      next call with refresh = True.
    @return
      An associative array whose keys and values are the names of all loaded
@@ -91,15 +95,22 @@ def plugin_list(refresh = False, bootstrap = True, sort = False, fixed_list = No
         plugin_list.list_[name] = name
     else:
       if (bootstrap):
-        result = lib_database.db_query("SELECT name, filename FROM {system} WHERE type = 'plugin' AND status = 1 AND bootstrap = 1 ORDER BY weight ASC, filename ASC")
+        result = lib_database.db_query(\
+          "SELECT name, filename FROM {system} " + \
+          "WHERE type = 'plugin' AND status = 1 AND " + \
+          "bootstrap = 1 ORDER BY weight ASC, filename ASC")
       else:
-        result = lib_database.db_query("SELECT name, filename FROM {system} WHERE type = 'plugin' AND status = 1 ORDER BY weight ASC, filename ASC")
+        result = lib_database.db_query(\
+          "SELECT name, filename FROM {system} " + \
+          "WHERE type = 'plugin' AND status = 1 " + \
+          "ORDER BY weight ASC, filename ASC")
       while True:
         plugin_ = lib_database.db_fetch_object(result)
         if (plugin_ == None or plugin_ == False):
           break
         if (DrupyImport.exists(plugin_.filename)):
-          lib_bootstrap.drupal_get_filename('plugin', plugin_.name, plugin_.filename)
+          lib_bootstrap.drupal_get_filename('plugin', \
+            plugin_.name, plugin_.filename)
           plugin_list.list_[plugin_.name] = plugin_.name
   if (sort):
     if (plugin_list.sorted_list == None):
@@ -132,7 +143,8 @@ def plugin_rebuild_cache():
   }
   for filename,file in files.items():
     # Look for the info file.
-    file.info = drupal_parse_info_file(php.dirname(file.filename) +  '/'  + file.name + '.info')
+    file.info = drupal_parse_info_file(php.dirname(file.filename) +  '/'  + \
+      file.name + '.info')
     # Skip plugins that don't provide info.
     if (php.empty(file.info)):
       del(files[filename])
@@ -149,12 +161,22 @@ def plugin_rebuild_cache():
         bootstrap = 1
         break
     # Update the contents of the system table:
-    if (php.isset(file, 'status') or (php.isset(file, 'old_filename') and file.old_filename != file.filename)):
-      db_query("UPDATE {system} SET info = '%s', name = '%s', filename = '%s', bootstrap = %d WHERE filename = '%s'", php.serialize(files[filename].info), file.name, file.filename, bootstrap, file.old_filename)
+    if (php.isset(file, 'status') or (php.isset(file, 'old_filename') and \
+        file.old_filename != file.filename)):
+      db_query(\
+        "UPDATE {system} SET info = '%s', name = '%s', " + \
+        "filename = '%s', bootstrap = %d WHERE filename = '%s'", \
+        php.serialize(files[filename].info), file.name, \
+        file.filename, bootstrap, file.old_filename)
     else:
       # This is a new plugin.
       files[filename].status = 0
-      db_query("INSERT INTO {system} (name, info, type, filename, status, bootstrap) VALUES ('%s', '%s', '%s', '%s', %d, %d)", file.name, php.serialize(files[filename].info), 'plugin', file.filename, 0, bootstrap)
+      db_query(\
+        "INSERT INTO {system} (name, info, type, " + \
+        "filename, status, bootstrap) VALUES " + \
+        "('%s', '%s', '%s', '%s', %d, %d)", \
+        file.name, php.serialize(files[filename].info), \
+        'plugin', file.filename, 0, bootstrap)
   files = _plugin_build_dependencies(files)
   return files
 
@@ -184,15 +206,18 @@ def _plugin_build_dependencies(files):
     for filename,file in files.items():
       # We will modify this object (plugin A, see doxygen for plugin A, B, C).
       file = files[filename]
-      if (php.isset(file.info, 'dependencies') and php.is_array(file.info, 'dependencies')):
+      if (php.isset(file.info, 'dependencies') and \
+          php.is_array(file.info, 'dependencies')):
         for dependency_name in file.info['dependencies']:
           # This is a nonexistent plugin.
-          if (dependency_name == '-circular-' or not php.isset(files[dependency_name])):
+          if (dependency_name == '-circular-' or \
+              not php.isset(files[dependency_name])):
             continue
           # dependency_name is plugin B (again, see doxygen).
           files[dependency_name].info['dependents'][filename] = filename
           dependency = files[dependency_name]
-          if (php.isset(dependency.info['dependencies']) and php.is_array(dependency.info['dependencies'])):
+          if (php.isset(dependency.info['dependencies']) and \
+              php.is_array(dependency.info['dependencies'])):
             # Let's find possible C plugins.
             for candidate in dependency.info['dependencies']:
               if (array_search(candidate, file.info['dependencies']) == False):
@@ -201,10 +226,16 @@ def _plugin_build_dependencies(files):
                   # As a plugin name can not contain dashes, this makes
                   # impossible to switch on the plugin.
                   candidate = '-circular-'
-                  # Do not display the message or add -circular- more than once.
-                  if (array_search(candidate, file.info['dependencies']) != False):
+                  # Do not display the message or add -circular-
+                  # more than once.
+                  if (array_search(candidate, \
+                      file.info['dependencies']) != False):
                     continue
-                  drupal_set_message(t('%plugin is part of a circular dependency + This is not supported and you will not be able to switch it on.', {'%plugin' : file.info['name']}), 'error')
+                  drupal_set_message(\
+                    t('%plugin is part of a circular dependency. ' + \
+                      'This is not supported and you will not ' + \
+                      'be able to switch it on.', \
+                      {'%plugin' : file.info['name']}), 'error')
                 else:
                   # We added a new dependency to plugin A. The next loop will
                   # be able to use this as "B plugin" thus finding even
@@ -283,10 +314,14 @@ def plugin_enable(plugin_list_):
   """
   invoke_plugins = []
   for plugin_ in plugin_list_:
-    existing = db_fetch_object(db_query("SELECT status FROM {system} WHERE type = '%s' AND name = '%s'", 'plugin', plugin))
+    existing = db_fetch_object(db_query(\
+      "SELECT status FROM {system} " + \
+      "WHERE type = '%s' AND name = '%s'", 'plugin', plugin))
     if (existing.status == 0):
       plugin_load_install(plugin_)
-      db_query("UPDATE {system} SET status = %d WHERE type = '%s' AND name = '%s'", 1, 'plugin', plugin_)
+      db_query(\
+        "UPDATE {system} SET status = %d " + \
+        "WHERE type = '%s' AND name = '%s'", 1, 'plugin', plugin_)
       drupal_load('plugin', plugin_)
       invoke_plugins.append( plugin )
   if (not php.empty(invoke_plugins)):
@@ -300,7 +335,9 @@ def plugin_enable(plugin_list_):
     # We check for the existence of node_access_needs_rebuild() since
     # at install time, plugin_enable() could be called while node.plugin
     # is not enabled yet.
-    if (drupal_function_exists('node_access_needs_rebuild') and not node_access_needs_rebuild() and plugin_hook(plugin_, 'node_grants')):
+    if (drupal_function_exists('node_access_needs_rebuild') and \
+        not node_access_needs_rebuild() and \
+        plugin_hook(plugin_, 'node_grants')):
       node_access_needs_rebuild(True)
 
 
@@ -316,11 +353,14 @@ def plugin_disable(plugin_list_):
   for plugin_ in plugin_list_:
     if (plugin_exists(plugin_)):
       # Check if node_access table needs rebuilding.
-      if (not node_access_needs_rebuild() and plugin_hook(plugin_, 'node_grants')):
+      if (not node_access_needs_rebuild() and plugin_hook(plugin_, \
+          'node_grants')):
         node_access_needs_rebuild(True)
       plugin_load_install(plugin_)
       plugin_invoke(plugin_, 'disable')
-      db_query("UPDATE {system} SET status = %d WHERE type = '%s' AND name = '%s'", 0, 'plugin', plugin_)
+      db_query(\
+        "UPDATE {system} SET status = %d " + \
+        "WHERE type = '%s' AND name = '%s'", 0, 'plugin', plugin_)
       invoke_plugins.append(plugin)
   if (not php.empty(invoke_plugins)):
     # Refresh the plugin list to exclude the disabled plugins.
@@ -329,7 +369,8 @@ def plugin_disable(plugin_list_):
     drupal_rebuild_code_registry();
   # If there remains no more node_access plugin, rebuilding will be
   # straightforward, we can do it right now.
-  if (node_access_needs_rebuild() and php.count(plugin_implements('node_grants')) == 0):
+  if (node_access_needs_rebuild() and \
+      php.count(plugin_implements('node_grants')) == 0):
     node_access_rebuild()
 
 
@@ -341,18 +382,21 @@ def plugin_disable(plugin_list_):
 # Allow plugins to interact with the Drupal core.
 #  
 # Drupal's plugin system is based on the concept of "hooks". A hook is a PHP
-# function that is named foo_bar(), where "foo" is the name of the plugin (whose
+# function that is named foo_bar(), where "foo"
+# is the name of the plugin (whose
 # filename is thus foo.plugin) and "bar" is the name of the hook. Each hook has
 # a defined set of parameters and a specified result type.
 # 
-# To extend Drupal, a plugin need simply implement a hook. When Drupal wishes to
+# To extend Drupal, a plugin need simply implement a hook. When Drupal
+# wishes to
 # allow intervention from plugins, it determines which plugins implement a hook
 # and call that hook in all enabled plugins that implement it.
 # 
 # The available hooks to implement are explained here in the Hooks section of
 # the developer documentation. The string "hook" is used as a placeholder for
 # the plugin name is the hook definitions. For example, if the plugin file is
-# called example.plugin, then hook_help() as implemented by that plugin would be
+# called example.plugin, then hook_help() as implemented by that plugin
+# would be
 # defined as example_help().
 #
 
@@ -371,7 +415,7 @@ def plugin_hook(plugin_, hook):
   """
   function = hook;
   if (lib_bootstrap.MAINTENANCE_MODE is True):
-    return php.function_exists(function, lib_bootstrap.loaded_plugins[plugin_]);
+    return php.function_exists(function, lib_bootstrap.loaded_plugins[plugin_])
   else:
     return lib_bootstrap.drupal_function_exists(function, \
       lib_bootstrap.loaded_plugins[plugin_]);
@@ -385,7 +429,8 @@ def plugin_implements(hook, sort = False, refresh = False):
    @param hook
      The name of the hook (e.g. "help" or "menu").
    @param sort
-     By default, plugins are ordered by weight and filename, settings this option
+     By default, plugins are ordered by weight and filename,
+     settings this option
      to True, plugin list will be ordered by plugin name.
    @param refresh
      For internal use only: Whether to force the stored list of hook
@@ -397,17 +442,20 @@ def plugin_implements(hook, sort = False, refresh = False):
   php.static(plugin_implements, 'implementations', {})
   if (refresh):
     plugin_implements.implementations = {}
-  elif (lib_bootstrap.MAINTENANCE_MODE is False and php.empty(plugin_implements.implementations)):
+  elif (not lib_bootstrap.MAINTENANCE_MODE and \
+      php.empty(plugin_implements.implementations)):
     cache = lib_cache.cache_get('hooks', 'cache_registry')
     if (cache):
       plugin_implements.implementations = cache.data;
-    plugin_implements.implementations = lib_bootstrap.registry_get_hook_implementations_cache()
+    plugin_implements.implementations = \
+      lib_bootstrap.registry_get_hook_implementations_cache()
   if (not php.isset(plugin_implements.implementations, hook)):
     plugin_implements.implementations[hook] = []
     for plugin_ in plugin_list():
       if (plugin_hook(plugin_, hook)):
         plugin_implements.implementations[hook].append( plugin_ )
-  lib_bootstrap.registry_cache_hook_implementations({'hook' : hook, 'plugins' : plugin_implements.implementations[hook]});
+  lib_bootstrap.registry_cache_hook_implementations({'hook' : hook, \
+    'plugins' : plugin_implements.implementations[hook]});
   # The explicit cast forces a copy to be made. This is needed because
   # implementations[hook] is only a reference to an element of
   # implementations and if there are nested foreaches (due to nested node
@@ -458,8 +506,10 @@ def plugin_invoke_all(*args):
   del(args[0])
   return_ = []
   for plugin_ in plugin_implements(hook):
-    if (lib_bootstrap.drupal_function_exists(hook, lib_bootstrap.loaded_plugins[plugin_])):
-      function = DrupyImport.getFunction(lib_bootstrap.loaded_plugins[plugin_], hook)
+    if (lib_bootstrap.drupal_function_exists(hook, \
+        lib_bootstrap.loaded_plugins[plugin_])):
+      function = DrupyImport.getFunction(\
+        lib_bootstrap.loaded_plugins[plugin_], hook)
       result = php.call_user_func_array(function, args);
       if (result is not None and php.is_array(result)):
         return_ = p.array_merge_recursive(return_, result);

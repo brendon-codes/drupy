@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # $Id: file.inc,v 1.126 2008/06/18 03:36:23 dries Exp $
 
 """
@@ -36,11 +35,11 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
+
 from lib.drupy import DrupyPHP as php
 
 #
-# @defgroup file File interface
-# @{
 # Common file handling functions.
 #
 

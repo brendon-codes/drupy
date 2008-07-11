@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # Id: session.inc,v 1.48 2008/04/16 11:35:51 dries Exp $
 
 """
@@ -36,6 +35,8 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
+
 from lib.drupy import DrupyPHP as php
 
 def sess_open(save_path, session_name):
@@ -46,16 +47,20 @@ def sess_close():
 
 def sess_read(key):
   global user
-  # Write and Close handlers are called after destructing objects since PHP 5.0.5
+  # Write and Close handlers are called after destructing objects
+  # since PHP 5.0.5
   # Thus destructors can use sessions but session handler can't use objects.
   # So we are moving session closure before destructing objects.
   register_shutdown_function('session_write_close')
-  # Handle the case of first time visitors and clients that don't store cookies (eg. web crawlers).
+  # Handle the case of first time visitors and clients that don't
+  # store cookies (eg. web crawlers).
   if (not php.isset(_COOKIE, php.session_name())):
     user = drupal_anonymous_user()
     return ''
-  # Otherwise, if the session is still active, we have a record of the client's session in the database.
-  user = db_fetch_object(db_query("SELECT u.*, s.* FROM {users} u INNER JOIN {sessions} s ON u.uid = s.uid WHERE s.sid = '%s'", key))
+  # Otherwise, if the session is still active, we have a record of 
+  # the client's session in the database.
+  user = db_fetch_object(db_query("SELECT u.*, s.* FROM {users} u " + \
+    "INNER JOIN {sessions} s ON u.uid = s.uid WHERE s.sid = '%s'", key))
   # We found the client's session record and they are an authenticated user
   if (user and user.uid > 0):
     # This is done to unserialize the data member of user
@@ -63,7 +68,9 @@ def sess_read(key):
     # Add roles element to user
     user.roles = array()
     user.roles[DRUPAL_AUTHENTICATED_RID] = 'authenticated user'
-    result = db_query("SELECT r.rid, r.name FROM {role} r INNER JOIN {users_roles} ur ON ur.rid = r.rid WHERE ur.uid = %d", user.uid)
+    result = db_query("SELECT r.rid, r.name FROM {role} r " + 
+      "INNER JOIN {users_roles} ur ON ur.rid = r.rid WHERE ur.uid = %d", \
+      user.uid)
     while True:
       role = db_fetch_object(result)
       if role == None:
@@ -79,24 +86,35 @@ def sess_read(key):
 
 def sess_write(key, value):
   global user
-  # If saving of session data is disabled or if the client doesn't have a session,
+  # If saving of session data is disabled or if the client
+  # doesn't have a session,
   # and one isn't being created (value), do nothing.
-  if (not session_save_session() or (php.empty(_COOKIE[php.session_name()]) and php.empty(value))):
+  if (not session_save_session() or \
+      (php.empty(_COOKIE[php.session_name()]) and php.empty(value))):
     return True
-  result = db_result(db_query("SELECT COUNT(*) FROM {sessions} WHERE sid = '%s'", key))
+  result = db_result(db_query("SELECT COUNT(*) FROM {sessions} " + \
+    "WHERE sid = '%s'", key))
   if (not result):
     # Only save session data when when the browser sends a cookie. This keeps
     # crawlers out of session table. This reduces memory and server load,
     # and gives more useful statistics. We can't eliminate anonymous session
     # table rows without breaking "Who's Online" block.
     if (user.uid or value or php.count(_COOKIE)):
-      db_query("INSERT INTO {sessions} (sid, uid, cache, hostname, session, timestamp) VALUES ('%s', %d, %d, '%s', '%s', %d)", key, user.uid, (user.cache if php.isset(user, 'cache') else ''), ip_address(), value, drupy_time())
+      db_query("INSERT INTO {sessions} (sid, uid, cache, hostname, session, " \
+        "timestamp) VALUES ('%s', %d, %d, '%s', '%s', %d)", \
+        key, user.uid, (user.cache if php.isset(user, 'cache') else \
+        ''), ip_address(), value, drupy_time())
   else:
-    db_query("UPDATE {sessions} SET uid = %d, cache = %d, hostname = '%s', session = '%s', timestamp = %d WHERE sid = '%s'", user.uid, (user.cache if php.isset(user, 'cache') else ''), ip_address(), value, drupy_time(), key)
+    db_query("UPDATE {sessions} SET uid = %d, cache = %d, " + \
+      "hostname = '%s', session = '%s', timestamp = %d WHERE sid = '%s'", \
+      user.uid, (user.cache if php.isset(user, 'cache') else \
+      ''), ip_address(), value, drupy_time(), key)
     # Last access time is updated no more frequently than once every 180 seconds.
     # This reduces contention in the users table.
-    if (user.uid and drupy_time() - user.access > variable_get('session_write_interval', 180)):
-      db_query("UPDATE {users} SET access = %d WHERE uid = %d", time(), user.uid)
+    if (user.uid and drupy_time() - user.access > \
+        variable_get('session_write_interval', 180)):
+      db_query("UPDATE {users} SET access = %d WHERE uid = %d", \
+        php.time_(), user.uid)
   return True
 
 
@@ -107,12 +125,14 @@ def sess_regenerate():
   """
   old_session_id = session_id()
   session_regenerate_id()
-  db_query("UPDATE {sessions} SET sid = '%s' WHERE sid = '%s'", session_id(), old_session_id)
+  db_query("UPDATE {sessions} SET sid = '%s' WHERE sid = '%s'", \
+    session_id(), old_session_id)
 
 
 def sess_count(timestamp = 0, anonymous = True):
   """
-   Counts how many users have sessions. Can count either anonymous sessions, authenticated sessions, or both.
+   Counts how many users have sessions. Can count either anonymous 
+   sessions, authenticated sessions, or both.
   
    @param int timestamp
      A Unix timestamp representing a point of time in the past.
@@ -120,17 +140,20 @@ def sess_count(timestamp = 0, anonymous = True):
    @param int anonymous
      True counts only anonymous users.
      False counts only authenticated users.
-     Any other value will return the count of both authenticated and anonymous users.
+     Any other value will return the count of both
+     authenticated and anonymous users.
    @return  int
      The number of users with sessions.
   """
   query = (' AND uid = 0' if anonymous else ' AND uid > 0')
-  return db_result(db_query('SELECT COUNT(sid) AS count FROM {sessions} WHERE timestamp >= %d' +  query, timestamp))
+  return db_result(db_query('SELECT COUNT(sid) AS count FROM {sessions} ' + \
+    'WHERE timestamp >= %d' +  query, timestamp))
 
 
 def sess_destroy_sid(sid):
   """
-   Called by PHP session handling with the PHP session ID to end a user's session.
+   Called by PHP session handling with the PHP session ID to
+   end a user's session.
   
    @param  string sid
      the session id
@@ -166,12 +189,16 @@ def session_save_session(status = None):
   """
    Determine whether to save session data of the current request.
   
-   This function allows the caller to temporarily disable writing of session data,
-   should the request end while performing potentially dangerous operations, such as
-   manipulating the global user object.  See http://drupal.org/node/218104 for usage
+   This function allows the caller to temporarily disable
+   writing of session data,
+   should the request end while performing potentially dangerous
+   operations, such as
+   manipulating the global user object.
+   See http://drupal.org/node/218104 for usage
   
    @param status
-     Disables writing of session data when False, (re-)enables writing when True.
+     Disables writing of session data when False,
+     (re-)enables writing when True.
    @return
      False if writing session data has been disabled. Otherwise, True.
   """

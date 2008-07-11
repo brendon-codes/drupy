@@ -57,11 +57,14 @@ def db_status_report(phase):
   version = db_version()
   form['mysql'] = {
     'title' : t('MySQL database'),
-    'value' : (l(version, 'admin/reports/status/sql') if (phase == 'runtime') else version),
+    'value' : (l(version, 'admin/reports/status/sql') if \
+      (phase == 'runtime') else version),
   }
   if (version_compare(version, DRUPAL_MINIMUM_MYSQL) < 0):
     form['mysql']['severity'] = REQUIREMENT_ERROR
-    form['mysql']['description'] = t('Your MySQL Server is too old + Drupal requires at least MySQL %version.', {'%version' : DRUPAL_MINIMUM_MYSQL})
+    form['mysql']['description'] = t(\
+      'Your MySQL Server is too old + Drupal requires at least ' + \
+      'MySQL %version.', {'%version' : DRUPAL_MINIMUM_MYSQL})
   return form
 
 
@@ -94,7 +97,9 @@ def db_connect(url):
   url['path'] = php.urldecode(url['path'])
   if (not php.isset(url, 'port')):
     url['port'] = None
-  connection  = DrupyMySQL.mysqli_real_connect(url['host'], url['user'], url['pass'], php.substr(url['path'], 1), url['port'], '', DrupyMySQL.MYSQLI_CLIENT_FOUND_ROWS)
+  connection  = DrupyMySQL.mysqli_real_connect(\
+    url['host'], url['user'], url['pass'], php.substr(url['path'], 1), \
+    url['port'], '', DrupyMySQL.MYSQLI_CLIENT_FOUND_ROWS)
   if (DrupyMySQL.mysqli_connect_errno() > 0):
     _db_error_page(DrupyMySQL.mysqli_connect_error())
   # Force UTF-8.
@@ -113,13 +118,17 @@ def _db_query(query, debug = 0):
   if (lib_bootstrap.variable_get('dev_query', 0)):
     usec,sec = php.explode(' ', php.microtime())
     timer = float(usec) + float(sec)
-    # If devel.plugin query logging is enabled, prepend a comment with the username and calling function
-    # to the SQL string. This is useful when running mysql's SHOW PROCESSLIST to learn what exact
+    # If devel.plugin query logging is enabled, prepend a comment 
+    # with the username and calling function
+    # to the SQL string. This is useful when running mysql's 
+    # SHOW PROCESSLIST to learn what exact
     # code is issueing the slow query.
     bt = debug_backtrace()
     # t() may not be available yet so we don't wrap 'Anonymous'
-    name = (user.name if (user.uid > 0) else variable_get('anonymous', 'Anonymous'))
-    # php.str_replace() to prevent SQL injection via username or anonymous name.
+    name = (user.name if (user.uid > 0) else \
+      variable_get('anonymous', 'Anonymous'))
+    # php.str_replace() to prevent SQL injection via username
+    # or anonymous name.
     name = php.str_replace(['*', '/'], '', name)
     query = '/* ' +  name  + ' : ' . bt[2]['function'] + ' */ ' + query
   result = DrupyMySQL.mysqli_query(lib_database.active_db, query)
@@ -130,13 +139,16 @@ def _db_query(query, debug = 0):
     diff = stop - timer
     queries.append( [query, diff] )
   if (debug):
-    print '<p>query: ' +  query  + '<br />error:' + DrupyMySQL.mysqli_error(active_db) + '</p>'
+    print '<p>query: ' +  query  + '<br />error:' + \
+      DrupyMySQL.mysqli_error(active_db) + '</p>'
   if (not DrupyMySQL.mysqli_errno(lib_database.active_db)):
     return result
   else:
     # Indicate to drupal_error_handler that this is a database error.
     DB_ERROR = True
-    php.trigger_error(lib_bootstrap.check_plain(DrupyMySQL.mysqli_error(lib_database.active_db) +  "\nquery: "  + query), php.E_USER_WARNING)
+    php.trigger_error(lib_bootstrap.check_plain(\
+      DrupyMySQL.mysqli_error(lib_database.active_db) +  \
+      "\nquery: "  + query), php.E_USER_WARNING)
     return False
 
 
@@ -148,7 +160,8 @@ def db_fetch_object(result):
    @param result
      A database query result resource, as returned from db_query().
    @return
-     An object representing the next row of the result, or False. The attributes
+     An object representing the next row of the result,
+     or False. The attributes
      of this object are the table fields selected by the query.
   """
   if (result):
@@ -188,7 +201,8 @@ def db_result(result):
      The resulting field or False.
   """
   if (result and DrupyMySQL.mysqli_num_rows(result) > 0):
-    # The DrupyMySQL.mysqli_fetch_row function has an optional second parameter row
+    # The DrupyMySQL.mysqli_fetch_row function has an optional second
+    # parameter row
     # but that can't be used for compatibility with Oracle, DB2, etc.
     array_ = DrupyMySQL.mysqli_fetch_row(result)
     return array_[0]
@@ -218,9 +232,9 @@ def db_query_range(query):
    Runs a limited-range query in the active database.
   
    Use this as a substitute for db_query() when a subset of the query is to be
-   returned.
-   User-supplied arguments to the query should be passed in as separate parameters
-   so that they can be properly escaped to avoid SQL injection attacks.
+   returned. User-supplied arguments to the query should be passed in as
+   separate parameters so that they can be properly escaped to avoid SQL
+   injection attacks.
   
    @param query
      A string containing an SQL query.
@@ -245,10 +259,12 @@ def db_query_range(query):
   from_ = php.array_pop(args)
   php.array_shift(args)
   query = db_prefix_tables(query)
-  if (php.isset(args, 0) and php.is_array(args, 0)): # 'All arguments in one array' syntax
+  # 'All arguments in one array' syntax
+  if (php.isset(args, 0) and php.is_array(args, 0)): 
     args = args[0]
   _db_query_callback(args, True)
-  query = php.preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', query)
+  query = php.preg_replace_callback(DB_QUERY_REGEXP, \
+    '_db_query_callback', query)
   query += ' LIMIT ' +  int(from_)  + ', ' . int(count)
   return _db_query(query)
 
@@ -262,7 +278,8 @@ def db_query_temporary(query):
    Use this as a substitute for db_query() when the results need to stored
    in a temporary table. Temporary tables exist for the duration of the page
    request.
-   User-supplied arguments to the query should be passed in as separate parameters
+   User-supplied arguments to the query should be passed in as
+   separate parameters
    so that they can be properly escaped to avoid SQL injection attacks.
   
    Note that if you need to know how many results were returned, you should do
@@ -291,11 +308,14 @@ def db_query_temporary(query):
   args = func_get_args()
   tablename = php.array_pop(args)
   php.array_shift(args)
-  query = php.preg_replace('/^SELECT/i', 'CREATE TEMPORARY TABLE ' +  tablename  + ' Engine=HEAP SELECT', db_prefix_tables(query))
-  if (php.isset(args, 0) and php.is_array(args, 0)): # 'All arguments in one array' syntax
+  query = php.preg_replace('/^SELECT/i', 'CREATE TEMPORARY TABLE ' +  \
+    tablename  + ' Engine=HEAP SELECT', db_prefix_tables(query))
+  # 'All arguments in one array' syntax
+  if (php.isset(args, 0) and php.is_array(args, 0)): 
     args = args[0]
   _db_query_callback(args, True)
-  query = php.preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', query)
+  query = php.preg_replace_callback(DB_QUERY_REGEXP, \
+    '_db_query_callback', query)
   return _db_query(query)
 
 
@@ -309,7 +329,8 @@ def db_encode_blob(data):
    @return
     Encoded data.
   """
-  return "'" +  DrupyMySQL.mysqli_real_escape_string(lib_database.active_db, data)  + "'"
+  return "'" +  DrupyMySQL.mysqli_real_escape_string(lib_database.active_db, \
+    data)  + "'"
 
 
 
@@ -327,7 +348,8 @@ def db_decode_blob(data):
 
 def db_escape_string(text):
   """
-   Prepare user input for use in a database query, preventing SQL injection attacks.
+   Prepare user input for use in a database query, preventing
+   SQL injection attacks.
   """
   return DrupyMySQL.mysqli_real_escape_string(lib_database.active_db, text)
 
@@ -353,31 +375,40 @@ def db_table_exists(table):
   """
    Check if a table exists.
   """
-  return bool(db_fetch_object(db_query("SHOW TABLES LIKE '{" +  db_escape_table(table)  + "}'")))
+  return bool(lib_database.db_fetch_object(\
+    lib_database.db_query("SHOW TABLES LIKE '{" +  \
+    lib_database.db_escape_table(table)  + "}'")))
 
 
 def db_column_exists(table, column):
   """
    Check if a column exists in the given table.
   """
-  return bool(db_fetch_object(db_query("SHOW COLUMNS FROM {" +  db_escape_table(table)  + "} LIKE '" + db_escape_table(column) + "'")))
+  return bool(lib_database.db_fetch_object(\
+    lib_database.db_query("SHOW COLUMNS FROM {" + \
+    lib_database.db_escape_table(table)  + "} LIKE '" + \
+    lib_database.db_escape_table(column) + "'")))
 
 
 def db_distinct_field(table, field, query):
   """
    Wraps the given table.field entry with a DISTINCT(). The wrapper is added to
-   the SELECT list entry of the given query and the resulting query is returned.
-   This function only applies the wrapper if a DISTINCT doesn't already exist in
-   the query.
+   the SELECT list entry of the given query and the resulting query is
+   returned. This function only applies the wrapper if a DISTINCT doesn't
+   already exist in the query.
   
    @param table Table containing the field to set as DISTINCT
    @param field Field to set as DISTINCT
    @param query Query to apply the wrapper to
-   @return SQL query with the DISTINCT wrapper surrounding the given table.field.
+   @return SQL query with the DISTINCT wrapper surrounding the given
+   table.field.
   """
   field_to_select = 'DISTINCT(' +  table  + '.' + field + ')'
-  # (?<not text) is a negative look-behind (no need to rewrite queries that already use DISTINCT).
-  return php.preg_replace('/(SELECT.*)(?:' +  table  + '\.|\s)(?<not DISTINCT\()(?<not DISTINCT\(' + table + '\.)' + field + '(.*FROM )/AUsi', '\1 ' + field_to_select + '\2', query)
+  # (?<not text) is a negative look-behind
+  # (no need to rewrite queries that already use DISTINCT).
+  return php.preg_replace('/(SELECT.*)(?:' +  table  + \
+    '\.|\s)(?<not DISTINCT\()(?<not DISTINCT\(' + table + '\.)' + field + \
+    '(.*FROM )/AUsi', '\1 ' + field_to_select + '\2', query)
 
 
 
@@ -416,10 +447,12 @@ def db_query(query, *args):
      executed correctly.
   """
   query = lib_database.db_prefix_tables(query)
-  if (php.isset(args, 0) and php.is_array(args[0])): # 'All arguments in one array' syntax
+  # 'All arguments in one array' syntax
+  if (php.isset(args, 0) and php.is_array(args[0])): 
     args = args[0]
   lib_database._db_query_callback(args, True)
-  query = php.preg_replace_callback(lib_database.DB_QUERY_REGEXP, lib_database._db_query_callback, query)
+  query = php.preg_replace_callback(lib_database.DB_QUERY_REGEXP, \
+    lib_database._db_query_callback, query)
   return _db_query(query)
 
 
@@ -459,13 +492,16 @@ def db_create_table_sql(name, table):
 def _db_create_keys_sql(spec):
   keys = {}
   if (not php.empty(spec['primary key'])):
-    keys.append( 'PRIMARY KEY (' +  _db_create_key_sql(spec['primary key'])  + ')' )
+    keys.append( 'PRIMARY KEY (' +  \
+      _db_create_key_sql(spec['primary key'])  + ')' )
   if (not php.empty(spec['unique keys'])):
     for key,fields in spec['unique keys'].items():
-      keys.append( 'UNIQUE KEY ' +  key  + ' (' + _db_create_key_sql(fields) + ')' )
+      keys.append( 'UNIQUE KEY ' +  key  + \
+        ' (' + _db_create_key_sql(fields) + ')' )
   if (not php.empty(spec['indexes'])):
     for index,fields in spec['indexes'].items():
-      keys.append( 'INDEX ' +  index  + ' (' + _db_create_key_sql(fields) + ')' )
+      keys.append( 'INDEX ' +  index  + ' (' + \
+        _db_create_key_sql(fields) + ')' )
   return keys
 
 
@@ -587,7 +623,8 @@ def db_rename_table(ret, table, new_name):
      The new name for the table.
   """
   php.Reference.check(ref)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} RENAME TO {' + new_name + '}') )
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} RENAME TO {' + \
+    new_name + '}') )
 
 
 
@@ -641,9 +678,11 @@ def db_add_field(ret, table, field, spec, keys_new = []):
   ret.val.append( update_sql(query) )
   if (php.isset(spec, 'initial')):
     # All this because update_sql does not support %-placeholders.
-    sql = 'UPDATE {' +  table  + '} SET ' + field + ' = ' + db_type_placeholder(spec['type'])
+    sql = 'UPDATE {' +  table  + '} SET ' + field + ' = ' + \
+      db_type_placeholder(spec['type'])
     result = db_query(sql, spec['initial'])
-    ret.val.append( {'success' : result != False, 'query' : check_plain(sql +  ' ('  + spec['initial'] + ')')})
+    ret.val.append( {'success' : result != False, \
+      'query' : check_plain(sql +  ' ('  + spec['initial'] + ')')})
   if (fixNone):
     spec['not None'] = True
     db_change_field(ret.val, table, field, field, spec)
@@ -683,7 +722,8 @@ def db_field_set_default(ret, table, field, default):
     default = 'None'
   else:
     default = ("'default'" if is_string(default) else default)
-  ret.append( update_sql('ALTER TABLE {' +  table  + '} ALTER COLUMN ' + field + ' SET DEFAULT ' + default) )
+  ret.append( update_sql('ALTER TABLE {' +  table  + \
+    '} ALTER COLUMN ' + field + ' SET DEFAULT ' + default) )
 
 
 
@@ -699,7 +739,8 @@ def db_field_set_no_default(ret, table, field):
      The field to be altered.
   """
   php.Reference.check(ret)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} ALTER COLUMN ' + field + ' DROP DEFAULT') )
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + \
+    '} ALTER COLUMN ' + field + ' DROP DEFAULT') )
 
 
 
@@ -716,7 +757,8 @@ def db_add_primary_key(ret, table, fields):
      Fields for the primary key.
   """
   php.Reference.check(ret)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} ADD PRIMARY KEY (' + _db_create_key_sql(fields) +  ')') )
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + \
+    '} ADD PRIMARY KEY (' + _db_create_key_sql(fields) +  ')') )
 
 
 
@@ -730,7 +772,8 @@ def db_drop_primary_key(ret, table):
      The table to be altered.
   """
   php.Reference.check(ret)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} DROP PRIMARY KEY') )
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + \
+    '} DROP PRIMARY KEY') )
 
 
 
@@ -748,7 +791,8 @@ def db_add_unique_key(ret, table, name, fields):
      An array of field names.
   """
   php.Reference.check(ret)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} ADD UNIQUE KEY ' + name +  ' ('  + _db_create_key_sql(fields) + ')') )
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + \
+    '} ADD UNIQUE KEY ' + name +  ' ('  + _db_create_key_sql(fields) + ')') )
 
 
 
@@ -764,7 +808,8 @@ def db_drop_unique_key(ret, table, name):
      The name of the key.
   """
   php.Reference.check(ret)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} DROP KEY ' + name) )
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + \
+    '} DROP KEY ' + name) )
 
 
 
@@ -782,7 +827,8 @@ def db_add_index(ret, table, name, fields):
      An array of field names.
   """
   php.Reference.check(ret)
-  query = 'ALTER TABLE {' +  table  + '} ADD INDEX ' + name + ' (' + _db_create_key_sql(fields) + ')'
+  query = 'ALTER TABLE {' +  table  + '} ADD INDEX ' + name + \
+    ' (' + _db_create_key_sql(fields) + ')'
   ret.val.append( update_sql(query) )
 
 
@@ -799,7 +845,8 @@ def db_drop_index(ret, table, name):
      The name of the index.
   """
   php.Reference.check(ret)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} DROP INDEX ' + name) )
+  ret.val.append( update_sql('ALTER TABLE {' +  table  + \
+    '} DROP INDEX ' + name) )
 
 
 
@@ -837,7 +884,8 @@ def db_change_field(ret, table, field, field_new, spec, keys_new = []):
   
    On PostgreSQL, changing a field definition involves adding a new field
    and dropping an old one which* causes any indices, primary keys and
-   sequences (from serial-type fields) that use the changed field to be dropped.
+   sequences (from serial-type fields) that use the changed field to be
+   dropped.
   
    On MySQL, all type 'serial' fields must be part of at least one key
    or index as soon as they are created.  You cannot use
@@ -858,7 +906,8 @@ def db_change_field(ret, table, field, field_new, spec, keys_new = []):
    @param field
      Name of the field to change.
    @param field_new
-     New name for the field (set to the same as field if you don't want to change the name).
+     New name for the field (set to the same as field if you don't want to
+     change the name).
    @param spec
      The field specification for the new field.
    @param keys_new
