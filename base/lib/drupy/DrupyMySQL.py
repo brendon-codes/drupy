@@ -33,6 +33,8 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
+
 import MySQLdb
 from lib.drupy import DrupyPHP as p 
 from lib.drupy import DrupyHelper

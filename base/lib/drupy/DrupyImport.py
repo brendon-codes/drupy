@@ -33,6 +33,8 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
+
 import os
 import cgi
 import cgitb

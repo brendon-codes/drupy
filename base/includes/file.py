@@ -113,7 +113,8 @@ def file_create_url(path):
     path = php.trim(php.substr(path, php.strlen(file_directory_path())), '\\/')
   dls = variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC);
   if dls == FILE_DOWNLOADS_PUBLIC:
-    return GLOBALS['base_url'] + '/' + file_directory_path() + '/' + php.str_replace('\\', '/', path)
+    return GLOBALS['base_url'] + '/' + file_directory_path() + '/' + \
+      php.str_replace('\\', '/', path)
   elif dls == FILE_DOWNLOADS_PRIVATE:
     return url('system/files/' + path, {'absolute' : True})
 
@@ -133,10 +134,12 @@ def file_create_path(dest = 0):
   file_path = file_directory_path()
   if (dest == 0):
     return file_path
-  # file_check_location() checks whether the destination is inside the Drupal files directory.
+  # file_check_location() checks whether the destination is inside the
+  # Drupal files directory.
   if (file_check_location(dest, file_path)):
     return dest
-  # check if the destination is instead inside the Drupal temporary files directory.
+  # check if the destination is instead inside the Drupal temporary
+  # files directory.
   elif (file_check_location(dest, file_directory_temp())):
     return dest
   # Not found, try again with prefixed directory path.
@@ -165,30 +168,51 @@ def file_check_directory(directory, mode = 0, form_item = None):
   # Check if directory exists.
   if (not php.is_dir(directory.val)):
     if ((mode & FILE_CREATE_DIRECTORY) and mkdir(directory.val) != False):
-      drupal_set_message(t('The directory %directory has been created.', {'%directory' : directory.val}))
+      drupal_set_message(t('The directory %directory has been created.', \
+        {'%directory' : directory.val}))
       chmod(directory.val, 0775); # Necessary for non-webserver users.
     else:
       if (form_item):
-        form_set_error(form_item, t('The directory %directory does not exist.', {'%directory' : directory.val}))
+        form_set_error(form_item, \
+          t('The directory %directory does not exist.', \
+          {'%directory' : directory.val}))
       return False
   # Check to see if the directory is writable.
   if (not php.is_writable(directory.val)):
     if ((mode & FILE_MODIFY_PERMISSIONS) and chmod(directory.val, 0775)):
-      drupal_set_message(t('The permissions of directory %directory have been changed to make it writable.', {'%directory' : directory.val}))
+      drupal_set_message(t('The permissions of directory %directory ' + \
+        'have been changed to make it writable.', \
+        {'%directory' : directory.val}))
     else:
-      form_set_error(form_item, t('The directory %directory is not writable', {'%directory' : directory.val}))
-      watchdog('file system', 'The directory %directory is not writable, because it does not have the correct permissions set.', {'%directory' : directory.val}, WATCHDOG_ERROR)
+      form_set_error(form_item, t('The directory %directory is not writable', \
+        {'%directory' : directory.val}))
+      watchdog('file system', 'The directory %directory is not writable, ' + \
+        'because it does not have the correct permissions set.', \
+        {'%directory' : directory.val}, WATCHDOG_ERROR)
       return False
-  if ((file_directory_path() == directory.val or file_directory_temp() == directory.val) and not php.is_file("directory/.htaccess")):
-    htaccess_lines = "SetHandler Drupal_Security_Do_Not_Remove_See_SA_2006_006\nOptions None\nOptions +FollowSymLinks"
+  if ((file_directory_path() == directory.val or \
+      file_directory_temp() == directory.val) and \
+      not php.is_file("directory/.htaccess")):
+    htaccess_lines = \
+      "SetHandler Drupal_Security_Do_Not_Remove_See_SA_2006_006\n" + \
+      "Options None\nOptions +FollowSymLinks"
     fp = fopen("directory/.htaccess", 'w')
     if (fp and fputs(fp, htaccess_lines)):
       fclose(fp)
       chmod(directory.val + '/.htaccess', 0664)
     else:
-      variables = {'%directory' : directory.val, 'not htaccess' : '<br />' + nl2br(check_plain(htaccess_lines))}
-      form_set_error(form_item, t("Security warning: Couldn't write + htaccess file + Please create a .htaccess file in your %directory directory which contains the following lines: <code>not htaccess</code>", variables))
-      watchdog('security', "Security warning: Couldn't write + htaccess file + Please create a .htaccess file in your %directory directory which contains the following lines: <code>not htaccess</code>", variables, WATCHDOG_ERROR)
+      variables = {'%directory' : directory.val, \
+        '!htaccess' : '<br />' + php.nl2br(check_plain(htaccess_lines))}
+      form_set_error(form_item, t("Security warning: " + \
+        "Couldn't write + htaccess file. " + \
+        "Please create a .htaccess file in your " + \
+        "%directory directory which contains the following lines: " + \
+        "<code>!htaccess</code>", variables))
+      watchdog('security', "Security warning: Couldn't write " + \
+        ".htaccess file. Please create a .htaccess file in " + \
+        "your %directory directory which contains the " + \
+        "following lines: <code>not htaccess</code>", \
+        variables, WATCHDOG_ERROR)
   return True
 
 
@@ -223,7 +247,8 @@ def file_check_location(source, directory = ''):
   
    @code
      // Returns False:
-     file_check_location('/www/example.com/files/../../../etc/passwd', '/www/example.com/files')
+     file_check_location('/www/example.com/files/../../../etc/passwd', \
+       '/www/example.com/files')
    @endcode
   
    @param source A string set to the file to check.
@@ -245,11 +270,13 @@ def file_check_location(source, directory = ''):
 
 def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
   """
-   Copies a file to a new location + This is a powerful function that in many ways
+   Copies a file to a new location.
+   This is a powerful function that in many ways
    performs like an advanced version of copy().
    - Checks if source and dest are valid and readable/writable.
    - Performs a file copy if source is not equal to dest.
-   - If file already exists in dest either the call will error out, replace the
+   - If file already exists in dest either the call will
+     error out, replace the
      file or rename the file based on the replace parameter.
   
    @param source A string specifying the file location of the original file.
@@ -259,7 +286,8 @@ def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
      If this value is omitted, Drupal's 'files' directory will be used.
    @param replace Replace behavior when the destination file already exists.
      - FILE_EXISTS_REPLACE - Replace the existing file
-     - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is unique
+     - FILE_EXISTS_RENAME - Append _{incrementing number} until
+       the filename is unique
      - FILE_EXISTS_ERROR - Do nothing and return False.
    @return True for success, False for failure.
   """
@@ -269,9 +297,17 @@ def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
   basename = file_check_path(directory)
   # Make sure we at least have a valid directory.
   if (basename == False):
-    source.val = (source.val.filepath if php.is_object(source.val) else source.val)
-    drupal_set_message(t('The selected file %file could not be uploaded, because the destination %directory is not properly configured.', {'%file' : source, '%directory' : dest}), 'error')
-    watchdog('file system', 'The selected file %file could not be uploaded, because the destination %directory could not be found, or because its permissions do not allow the file to be written.', {'%file' : source.val, '%directory' : dest}, WATCHDOG_ERROR)
+    source.val = (source.val.filepath if php.is_object(source.val) else \
+      source.val)
+    drupal_set_message(t('The selected file %file could not be ' + \
+      'uploaded, because the destination %directory is not ' + \
+      'properly configured.', \
+      {'%file' : source, '%directory' : dest}), 'error')
+    watchdog('file system', 'The selected file %file could not ' + \
+      'be uploaded, because the destination %directory could ' + \
+      'not be found, or because its permissions do ' + \
+      'not allow the file to be written.', \
+      {'%file' : source.val, '%directory' : dest}, WATCHDOG_ERROR)
     return False
   # Process a file upload object.
   if (php.is_object(source.val)):
@@ -281,21 +317,29 @@ def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
       basename = file.filename
   source.val = realpath(source.val)
   if (not php.file_exists(source.val)):
-    drupal_set_message(t('The selected file %file could not be copied, because no file by that name exists + Please check that you supplied the correct filename.', {'%file' : source.val}), 'error')
+    drupal_set_message(t('The selected file %file could not be copied, ' + \
+      'because no file by that name exists. ' + \
+      'Please check that you supplied the correct filename.', \
+      {'%file' : source.val}), 'error')
     return False
-  # If the destination file is not specified then use the filename of the source file.
+  # If the destination file is not specified then use the filename
+  # of the source file.
   basename = (basename if basename else basename(source.val))
   dest = directory + '/' + basename
   # Make sure source and destination filenames are not the same, makes no sense
-  # to copy it if they are + In fact copying the file will most likely result in
+  # to copy it if they are + In fact copying the file will most
+  # likely result in
   # a 0 byte file + Which is bad. Real bad.
   if (source.val != realpath(dest)):
     dest = file_destination(dest, replace)
     if (not dest):
-      drupal_set_message(t('The selected file %file could not be copied, because a file by that name already exists in the destination.', {'%file' : source.val}), 'error')
+      drupal_set_message(t('The selected file %file could not be copied, ' + \
+        'because a file by that name already exists in the destination.', \
+        {'%file' : source.val}), 'error')
       return False
     if (not copy(source.val, dest)):
-      drupal_set_message(t('The selected file %file could not be copied.', {'%file' : source.val}), 'error')
+      drupal_set_message(t('The selected file %file could not be copied.', \
+        {'%file' : source.val}), 'error')
       return False
     # Give everyone read access so that FTP'd users or
     # non-webserver users can see/read these files,
@@ -332,7 +376,9 @@ def file_destination(destination, replace):
       directory = php.dirname(destination)
       destination = file_create_filename(basename, directory)
     elif replace == FILE_EXISTS_ERROR:
-      drupal_set_message(t('The selected file %file could not be copied, because a file by that name already exists in the destination.', {'%file' : destination}), 'error')
+      drupal_set_message(t('The selected file %file could not be copied, \
+        because a file by that name already exists in the destination.', \
+        {'%file' : destination}), 'error')
       return False
   return destination
 
@@ -352,17 +398,21 @@ def file_move(source, dest = 0, replace = FILE_EXISTS_RENAME):
      If this value is omitted, Drupal's 'files' directory will be used.
    @param replace Replace behavior when the destination file already exists.
      - FILE_EXISTS_REPLACE - Replace the existing file
-     - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is unique
+     - FILE_EXISTS_RENAME - Append _{incrementing number} until the
+       filename is unique
      - FILE_EXISTS_ERROR - Do nothing and return False.
    @return True for success, False for failure.
   """
   php.Reference.check(source)
-  path_original = (source.val.filepath if php.is_object(source.val) else source.val)
+  path_original = (source.val.filepath if \
+    php.is_object(source.val) else source.val)
   if (file_copy(source.val, dest, replace)):
-    path_current = (source.val.filepath if php.is_object(source.val) else source.val)
+    path_current = (source.val.filepath if \
+      php.is_object(source.val) else source.val)
     if (path_original == path_current or file_delete(path_original)):
       return True
-    drupal_set_message(t('The removal of the original file %file has failed.', {'%file' : path_original}), 'error')
+    drupal_set_message(t('The removal of the original file %file ' + \
+      'has failed.', {'%file' : path_original}), 'error')
   return False
 
 
@@ -393,11 +443,13 @@ def file_munge_filename(filename, extensions, alerts = True):
     # of allowed extensions.
     for filename_part in filename_parts:
       new_filename += '.' + filename_part
-      if (not php.in_array(filename_part, whitelist) and php.preg_match("/^[a-zA-Z]{2,5}\d?$/", filename_part)):
+      if (not php.in_array(filename_part, whitelist) and \
+          php.preg_match("/^[a-zA-Z]{2,5}\d?$/", filename_part)):
         new_filename += '_'
     filename = new_filename + '.' + final_extension
     if (alerts and original != filename):
-      drupal_set_message(t('For security reasons, your upload has been renamed to %filename.', {'%filename' : filename}))
+      drupal_set_message(t('For security reasons, your upload has ' + \
+        'been renamed to %filename.', {'%filename' : filename}))
   return filename
 
 
@@ -461,16 +513,19 @@ def file_space_used(uid = None):
      by all files.
   """
   if (uid != None):
-    return drupy_int(db_result(db_query('SELECT SUM(filesize) FROM {files} WHERE uid = %d', uid)))
+    return drupy_int(db_result(db_query(\
+      'SELECT SUM(filesize) FROM {files} WHERE uid = %d', uid)))
   return drupy_int(db_result(db_query('SELECT SUM(filesize) FROM {files}')))
 
 
-def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXISTS_RENAME):
+def file_save_upload(source, validators = {}, dest = False, \
+    replace = FILE_EXISTS_RENAME):
   """
    Saves a file upload to a new location + The source file is validated as a
    proper upload and handled as such.
   
-   The file will be added to the files table as a temporary file + Temporary files
+   The file will be added to the files table as a temporary file.
+   Temporary files
    are periodically cleaned + To make the file permanent file call
    file_set_status() to change its status.
   
@@ -481,7 +536,8 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
      file + The keys are function names and the values arrays of callback
      parameters which will be passed in after the user and file objects + The
      functions should return an array of error messages, an empty array
-     indicates that the file passed validation + The functions will be called in
+     indicates that the file passed validation.
+     The functions will be called in
      the order specified.
    @param dest
      A string containing the directory source should be copied to + If this is
@@ -491,7 +547,8 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
      destination directory should overwritten + A False value will generate a
      new, unique filename in the destination directory.
    @return
-     An object containing the file information, or False in the event of an error.
+     An object containing the file information, or False
+     in the event of an error.
   """
   php.static(file_save_upload, 'upload_cache', {})
   # Add in our check of the the file name length.
@@ -511,31 +568,37 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
     elif p.FILES['files']['error'][source] == UPLOAD_ERR_INI_SIZE or \
         p.FILES['files']['error'][source] == UPLOAD_ERR_FORM_SIZE:
       drupal_set_message(t(\
-        'The file %file could not be saved, because it exceeds %maxsize, ' +
+        'The file %file could not be saved, because it exceeds %maxsize, ' + \
         'the maximum allowed size for uploads.', \
-        {'%file' : source, '%maxsize' : format_size(file_upload_max_size())}), 'error')
+        {'%file' : source, '%maxsize' : \
+        format_size(file_upload_max_size())}), 'error')
       return False
     elif p.FILES['files']['error'][source] == UPLOAD_ERR_PARTIAL or \
         p.FILES['files']['error'][source] == UPLOAD_ERR_NO_FILE:
-      drupal_set_message(t('The file %file could not be saved, because the upload did not complete.', {'%file' : source}), 'error')
+      drupal_set_message(t('The file %file could not be saved, ' + \
+        'because the upload did not complete.', {'%file' : source}), 'error')
       return False
     # Unknown error
     else:
-      drupal_set_message(t('The file %file could not be saved + An unknown error has occurred.', {'%file' : source}), 'error')
+      drupal_set_message(t('The file %file could not be saved. ' + \
+        'An unknown error has occurred.', {'%file' : source}), 'error')
       return False
     # Build the list of non-munged extensions.
     # @todo: this should not be here + we need to figure out the right place.
     extensions = ''
     for rid,name in user.roles.items():
       extensions += ' ' + variable_get("upload_extensions_rid",
-      variable_get('upload_extensions_default', 'jpg jpeg gif png txt html doc xls pdf ppt pps odt ods odp'))
+      variable_get('upload_extensions_default', \
+        'jpg jpeg gif png txt html doc xls pdf ppt pps odt ods odp'))
     # Begin building file object.
     file = php.stdClass()
-    file.filename = file_munge_filename(php.trim(basename(FILES['files']['name'][source]), '.'), extensions)
+    file.filename = file_munge_filename(php.trim(\
+      basename(p.FILES['files']['name'][source]), '.'), extensions)
     file.filepath = p.FILES['files']['tmp_name'][source]
     file.filemime = p.FILES['files']['type'][source]
     # Rename potentially executable files, to help prevent exploits.
-    if (php.preg_match('/\.(php|pl|py|cgi|asp|js)$/i', file.filename) and (php.substr(file.filename, -4) != '.txt')):
+    if (php.preg_match('/\.(php|pl|py|cgi|asp|js)$/i', file.filename) and \
+        (php.substr(file.filename, -4) != '.txt')):
       file.filemime = 'text/plain'
       file.filepath += '.txt'
       file.filename += '.txt'
@@ -544,7 +607,8 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
     if (php.empty(dest) or file_check_path(dest) == False):
       dest = file_directory_temp()
     file.source = source
-    file.destination = file_destination(file_create_path(dest + '/' + file.filename), replace)
+    file.destination = file_destination(file_create_path(dest + '/' + \
+      file.filename), replace)
     file.filesize = FILES['files']['size'][source]
     # Call the validation functions.
     errors = {}
@@ -553,19 +617,25 @@ def file_save_upload(source, validators = {}, dest = False, replace = FILE_EXIST
       errors = php.array_merge(errors, function(*args))
     # Check for validation errors.
     if (not php.empty(errors)):
-      message = t('The selected file %name could not be uploaded.', {'%name' : file.filename})
+      message = t('The selected file %name could not be uploaded.', \
+        {'%name' : file.filename})
       if (php.count(errors) > 1):
         message += '<ul><li>' + php.implode('</li><li>', errors) + '</li></ul>'
       else:
         message += ' ' + php.array_pop(errors)
       form_set_error(source, message)
       return False
-    # Move uploaded files from PHP's upload_tmp_dir to Drupal's temporary directory.
+    # Move uploaded files from PHP's upload_tmp_dir to
+    # Drupal's temporary directory.
     # This overcomes open_basedir restrictions for future file operations.
     file.filepath = file.destination
-    if (not move_uploaded_file(p.FILES['files']['tmp_name'][source], file.filepath)):
-      form_set_error(source, t('File upload error + Could not move uploaded file.'))
-      watchdog('file', 'Upload error + Could not move uploaded file %file to destination %destination.', {'%file' : file.filename, '%destination' : file.filepath})
+    if (not move_uploaded_file(p.FILES['files']['tmp_name'][source], \
+        file.filepath)):
+      form_set_error(source, t('File upload error. ' + \
+        'Could not move uploaded file.'))
+      watchdog('file', 'Upload error + Could not move uploaded file ' + \
+        '%file to destination %destination.', \
+        {'%file' : file.filename, '%destination' : file.filepath})
       return False
     # If we made it this far it's safe to record this file in the database.
     file.uid = user.uid
@@ -590,7 +660,8 @@ def file_validate_name_length(file):
   """
   errors = []
   if (php.strlen(file.filename) > 255):
-    errors.append( t('Its name exceeds the 255 characters limit + Please rename the file and try again.') )
+    errors.append( t('Its name exceeds the 255 characters limit. ' + \
+      'Please rename the file and try again.') )
   return errors
 
 
@@ -605,14 +676,17 @@ def file_validate_extensions(file, extensions):
    @param extensions
      A string with a space separated
    @return
-     An array + If the file extension is not allowed, it will contain an error message.
+     An array + If the file extension is not allowed,
+     it will contain an error message.
   """
   errors = []
   # Bypass validation for uid  = 1.
   if (lib_bootstrap.user.uid != 1):
-    regex = '/\.(' + ereg_replace(' +', '|', php.preg_quote(extensions)) + ')$/i'
+    regex = '/\.(' + ereg_replace(' +', '|', \
+      php.preg_quote(extensions)) + ')$/i'
     if (not php.preg_match(regex, file.filename)):
-      errors.append( t('Only files with the following extensions are allowed: %files-allowed.', {'%files-allowed' : extensions}) )
+      errors.append( t('Only files with the following extensions ' + \
+        'are allowed: %files-allowed.', {'%files-allowed' : extensions}) )
   return errors
 
 
@@ -625,22 +699,30 @@ def file_validate_size(file, file_limit = 0, user_limit = 0):
    @param file
      A Drupal file object.
    @param file_limit
-     An integer specifying the maximum file size in bytes + Zero indicates that
+     An integer specifying the maximum file size in bytes.
+     Zero indicates that
      no limit should be enforced.
    @param $user_limit
-     An integer specifying the maximum number of bytes the user is allowed + Zero
-     indicates that no limit should be enforced.
+     An integer specifying the maximum number of bytes the user is allowed .
+     Zero indicates that no limit should be enforced.
    @return
-     An array + If the file size exceeds limits, it will contain an error message.
+     An array + If the file size exceeds limits,
+     it will contain an error message.
   """
   errors = []
   # Bypass validation for uid  = 1.
   if (lib_bootstrap.user.uid != 1):
     if (file_limit and file.filesize > file_limit):
-      errors.append( t('The file is %filesize exceeding the maximum file size of %maxsize.', {'%filesize' : format_size(file.filesize), '%maxsize' : format_size(file_limit)}) )
+      errors.append( t('The file is %filesize exceeding the ' + \
+        'maximum file size of %maxsize.', \
+        {'%filesize' : format_size(file.filesize), \
+        '%maxsize' : format_size(file_limit)}) )
     total_size = file_space_used(user.uid) + file.filesize
     if (user_limit and total_size > user_limit):
-      errors.append( t('The file is %filesize which would exceed your disk quota of %quota.', {'%filesize' : format_size(file.filesize), '%quota' : format_size(user_limit)}) )
+      errors.append( t('The file is %filesize which would exceed ' + \
+        'your disk quota of %quota.', \
+        {'%filesize' : format_size(file.filesize), \
+        '%quota' : format_size(user_limit)}) )
   return errors
 
 
@@ -658,27 +740,31 @@ def file_validate_is_image(file):
   php.Reference.check(file)
   errors = []
   info = image_get_info(file.val.filepath)
-  if (not info or not php.isset(info, 'extension') or php.empty(info['extension'])):
+  if (not info or not php.isset(info, 'extension') or \
+      php.empty(info['extension'])):
     errors.append( t('Only JPEG, PNG and GIF images are allowed.') )
   return errors
 
 
 
 
-def file_validate_image_resolution(file, maximum_dimensions = 0, minimum_dimensions = 0):
+def file_validate_image_resolution(file, maximum_dimensions = 0, \
+    minimum_dimensions = 0):
   """
    If the file is an image verify that its dimensions are within the specified
    maximum and minimum dimensions + Non-image files will be ignored.
   
    @param file
-     A Drupal file object + This function may resize the file affecting its size.
+     A Drupal file object + This function may resize the file
+     affecting its size.
    @param maximum_dimensions
      An optional string in the form WIDTHxHEIGHT e.g + '640x480' or '85x85'. If
      an image toolkit is installed the image will be resized down to these
      dimensions + A value of 0 indicates no restriction on size, so resizing
      will be attempted.
    @param minimum_dimensions
-     An optional string in the form WIDTHxHEIGHT + This will check that the image
+     An optional string in the form WIDTHxHEIGHT.
+     This will check that the image
      meets a minimum size + A value of 0 indicates no restriction.
    @return
      An array + If the file is an image and did not meet the requirements, it
@@ -694,19 +780,26 @@ def file_validate_image_resolution(file, maximum_dimensions = 0, minimum_dimensi
       width, height = php.explode('x', maximum_dimensions)
       if (info['width'] > width or info['height'] > height):
         # Try to resize the image to fit the dimensions.
-        if (image_get_toolkit() and image_scale(file.val.filepath, file.val.filepath, width, height)):
-          drupal_set_message(t('The image was resized to fit within the maximum allowed dimensions of %dimensions pixels.', {'%dimensions' : maximum_dimensions}))
+        if (image_get_toolkit() and image_scale(file.val.filepath, \
+            file.val.filepath, width, height)):
+          drupal_set_message(t('The image was resized to fit within ' + \
+            'the maximum allowed dimensions of %dimensions pixels.', \
+            {'%dimensions' : maximum_dimensions}))
           # Clear the cached filesize and refresh the image information.
           clearstatcache()
           info = image_get_info(file.val.filepath)
           file.val.filesize = info['file_size']
         else:
-          errors.append( t('The image is too large; the maximum dimensions are %dimensions pixels.', {'%dimensions' : maximum_dimensions}) )
+          errors.append( t('The image is too large; the maximum ' + \
+            'dimensions are %dimensions pixels.', \
+            {'%dimensions' : maximum_dimensions}) )
     if (minimum_dimensions):
       # Check that it is larger than the given dimensions.
       width, height = php.explode('x', minimum_dimensions)
       if (info['width'] < width or info['height'] < height):
-        errors.append( t('The image is too small; the minimum dimensions are %dimensions pixels.', {'%dimensions' : minimum_dimensions}) )
+        errors.append( t('The image is too small; the ' + \
+          'minimum dimensions are %dimensions pixels.', \
+          {'%dimensions' : minimum_dimensions}) )
   return errors
 
 
@@ -719,7 +812,8 @@ def file_save_data(data, dest, replace = FILE_EXISTS_RENAME):
    @param dest A string containing the destination location.
    @param replace Replace behavior when the destination file already exists.
      - FILE_EXISTS_REPLACE - Replace the existing file
-     - FILE_EXISTS_RENAME - Append _{incrementing number} until the filename is unique
+     - FILE_EXISTS_RENAME - Append _{incrementing number}
+       until the filename is unique
      - FILE_EXISTS_ERROR - Do nothing and return False.
   
    @return A string containing the resulting filename or False on error
@@ -749,7 +843,8 @@ def file_set_status(file, status):
        status.
   """
   php.Reference.check(file)
-  if (db_query('UPDATE {files} SET status = %d WHERE fid = %d', status, file.val.fid)):
+  if (db_query('UPDATE {files} SET status = %d WHERE fid = %d', \
+      status, file.val.fid)):
     file.val.status = status
     return True
   return False
@@ -807,7 +902,8 @@ def file_download():
 
 
 
-def file_scan_directory(dir, mask, nomask = ['.', '..', 'CVS'], callback = 0, recurse = True, key = 'filename', min_depth = 0, depth = 0):
+def file_scan_directory(dir, mask, nomask = ['.', '..', 'CVS'], \
+    callback = 0, recurse = True, key = 'filename', min_depth = 0, depth = 0):
   """
    Finds all files that match a given mask in a given directory.
    Directories and files beginning with a period are excluded; this
@@ -833,14 +929,16 @@ def file_scan_directory(dir, mask, nomask = ['.', '..', 'CVS'], callback = 0, re
    @param min_depth
      Minimum depth of directories to return files from.
    @param depth
-     Current depth of recursion + This parameter is only used internally and should not be passed.
+     Current depth of recursion + This parameter is only used
+     internally and should not be passed.
   
    @return
      An associative array (keyed on the provided key) of objects with
      "path", "basename", and "name" members corresponding to the
      matching files.
   """
-  key = (key if php.in_array(key, array('filename', 'basename', 'name')) else 'filename')
+  key = (key if php.in_array(key, \
+    array('filename', 'basename', 'name')) else 'filename')
   files = []
   handle = opendir(dir)
   if (php.is_dir(dir) and handle):
@@ -850,10 +948,13 @@ def file_scan_directory(dir, mask, nomask = ['.', '..', 'CVS'], callback = 0, re
         break
       if (not php.in_array(file, nomask) and file[0] != '.'):
         if (php.is_dir("dir/file") and recurse):
-          # Give priority to files in this folder by merging them in after any subdirectory files.
-          files = php.array_merge(file_scan_directory("dir/file", mask, nomask, callback, recurse, key, min_depth, depth + 1), files)
+          # Give priority to files in this folder by
+          # merging them in after any subdirectory files.
+          files = php.array_merge(file_scan_directory("dir/file", \
+            mask, nomask, callback, recurse, key, min_depth, depth + 1), files)
         elif (depth >= min_depth and ereg(mask, file)):
-          # Always use this match over anything already set in files with the same $key.
+          # Always use this match over anything already
+          # set in files with the same $key.
           filename = "dir/file"
           basename = basename(file)
           name = php.substr(basename, 0, strrpos(basename, '.'))
@@ -891,8 +992,11 @@ def file_directory_temp():
     for directory in directories:
       if (not temporary_directory and php.is_dir(directory)):
         temporary_directory = directory
-    # if a directory has been found, use it, otherwise default to 'files/tmp' or 'files\\tmp'
-    temporary_directory = (temporary_directory if (temporary_directory != None) else (file_directory_path() +  path_delimiter + 'tmp'))
+    # if a directory has been found, use it,
+    # otherwise default to 'files/tmp' or 'files\\tmp'
+    temporary_directory = (temporary_directory if \
+      (temporary_directory != None) else \
+      (file_directory_path() +  path_delimiter + 'tmp'))
     variable_set('file_directory_temp', temporary_directory)
   return temporary_directory
 
@@ -912,17 +1016,15 @@ def file_upload_max_size():
    Determine the maximum file upload size by querying the PHP settings.
   
    @return
-     A file size limit in bytes based on the PHP upload_max_filesize and post_max_size
+     A file size limit in bytes based on the PHP
+     upload_max_filesize and post_max_size
   """
   php.static(file_upload_max_size, 'max_size', -1)
   if (file_upload_max_size.max_size < 0):
     upload_max = parse_size(ini_get('upload_max_filesize'))
     post_max = parse_size(ini_get('post_max_size'))
-    file_upload_max_size.max_size = (upload_max if (upload_max < post_max) else post_max)
+    file_upload_max_size.max_size = (upload_max if \
+      (upload_max < post_max) else post_max)
   return max_size
 
 
-
-#
-# @} End of "defgroup file".
-#

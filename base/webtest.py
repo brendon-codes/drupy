@@ -33,5 +33,7 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
+
 print "Content-Type: text/plain; Charset=UTF-8;\r\n\r\n"
 print "Page Loaded."
