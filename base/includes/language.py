@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # Id: language.inc,v 1.16 2008/04/14 17:48:33 dries Exp $
 
 """
@@ -36,6 +35,8 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
+
 from lib.drupy import DrupyPHP as php
 import bootstrap as lib_bootstrap
 
@@ -45,7 +46,8 @@ def language_initialize():
     Choose a language for the page, based on language negotiation settings.
   """
   # Configured presentation language mode.
-  mode = variable_get('language_negotiation', lib_bootstrap.LANGUAGE_NEGOTIATION_NONE)
+  mode = variable_get('language_negotiation', \
+    lib_bootstrap.LANGUAGE_NEGOTIATION_NONE)
   # Get a list of enabled languages.
   languages = lib_bootstrap.language_list('enabled')
   languages = languages[1]
@@ -54,7 +56,8 @@ def language_initialize():
   elif mode == lib_bootstrap.LANGUAGE_NEGOTIATION_DOMAIN:
     for language in languages:
       parts = php.parse_url(language.domain)
-      if (not php.empty(parts['host']) and (_SERVER['php.SERVER_NAME'] == parts['host'])):
+      if (not php.empty(parts['host']) and \
+          (_SERVER['php.SERVER_NAME'] == parts['host'])):
         return language
     return language_default()
   elif mode == lib_bootstrap.LANGUAGE_NEGOTIATION_PATH_DEFAULT or \
@@ -73,7 +76,8 @@ def language_initialize():
       # If we did not found the language by prefix, choose the default.
       return language_default()
   # User language.
-  if (lib_bootstrap.user.uid and php.isset(languages[lib_bootstrap.user.language])):
+  if (lib_bootstrap.user.uid and \
+      php.isset(languages[lib_bootstrap.user.language])):
     return languages[lib_bootstrap.user.language]
   # Browser accept-language parsing.
   language = language_from_browser()
@@ -97,8 +101,10 @@ def language_from_browser():
       # The language part is either a code or a code with a quality.
       # We cannot do anything with a * code, so it is skipped.
       # If the quality is missing, it is assumed to be 1 according to the RFC.
-      if (php.preg_match("not ([a-z-]+)(;q=([0-9\\.]+))?not ", php.trim(browser_accept[i]), found)):
-        browser_langs[found[1]] = (float(found[3]) if php.isset(found, 3) else 1.0)
+      if (php.preg_match("not ([a-z-]+)(;q=([0-9\\.]+))?not ", \
+          php.trim(browser_accept[i]), found)):
+        browser_langs[found[1]] = (float(found[3]) if \
+          php.isset(found, 3) else 1.0)
   # Order the codes by quality
   arsort(browser_langs)
   # Try to find the first preferred language we have
@@ -119,7 +125,8 @@ def language_url_rewrite(path, options):
     # Language can be passed as an option, or we go for current language.
     if (not php.isset(options, 'language')):
       options['language'] = lib_bootstrap.language_
-    lang_type = variable_get('language_negotiation', lib_bootstrap.LANGUAGE_NEGOTIATION_NONE)
+    lang_type = variable_get('language_negotiation', \
+      lib_bootstrap.LANGUAGE_NEGOTIATION_NONE)
     if lang_type == lib_bootstrap.LANGUAGE_NEGOTIATION_NONE:
       # No language dependent path allowed in this mode.
       del(options['language'])

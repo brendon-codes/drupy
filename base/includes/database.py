@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # $Id: database.inc,v 1.94 2008/04/20 18:23:21 dries Exp $
 
 """
@@ -36,6 +35,7 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
 
 #
 # Includes
@@ -75,14 +75,16 @@ def update_sql(sql):
    differently for different servers and provide basic security checks.
   
    Most Drupal database queries are performed by a call to db_query() or
-   db_query_range(). Module authors should also consider using pager_query() for
+   db_query_range(). Module authors should also consider using
+   pager_query() for
    queries that return results that need to be presented on multiple pages, and
    tablesort_sql() for generating appropriate queries for sortable tables.
   
    For example, one might wish to return a list of the most recent 10 nodes
    authored by a given user. Instead of directly issuing the SQL query
    @code
-     SELECT n.title, n.body, n.created FROM node n WHERE n.uid = uid LIMIT 0, 10;
+     SELECT n.title, n.body, n.created FROM node n WHERE n.uid = uid \
+       LIMIT 0, 10;
    @endcode
    one would instead call the Drupal functions:
    @code
@@ -95,7 +97,8 @@ def update_sql(sql):
    Curly braces are used around "node" to provide table prefixing via
    db_prefix_tables(). The explicit use of a user ID is pulled out into an
    argument passed to db_query() so that SQL injection attacks from user input
-   can be caught and nullified. The LIMIT syntax varies between database servers,
+   can be caught and nullified. The LIMIT syntax varies between database
+   servers,
    so that is abstracted into db_query_range() arguments. Finally, note the
    common pattern of iterating over the result set using db_fetch_object().
   
@@ -120,8 +123,8 @@ def db_prefix_tables(sql):
   
    Queries sent to Drupal should wrap all table names in curly brackets. This
    function searches for this syntax and adds Drupal's table prefix to all
-   tables, allowing Drupal to coexist with other systems in the same database if
-   necessary.
+   tables, allowing Drupal to coexist with other systems in the same
+   database if necessary.
   
    @param sql
      A string containing a partial or entire SQL query.
@@ -160,7 +163,8 @@ def db_set_active(name = 'default'):
      The name assigned to the newly active database connection. If omitted, the
      default connection will be made active.
   
-   @return the name of the previously active database or FALSE if non was found.
+   @return the name of the previously active database or FALSE if non was
+   found.
   
    @todo BC: Need to eventually resolve the database importing mechanism here
    right now we are statically loading mysql at the top, but eventually we need
@@ -175,7 +179,9 @@ def db_set_active(name = 'default'):
   if (not php.isset(db_set_active.db_conns, name)):
     # Initiate a new connection, using the named DB URL specified.
     if (isinstance(settings.db_url, dict)):
-      connect_url = (settings.db_url[name] if php.array_key_exists(name, settings.db_url) else settings.db_url['default']);
+      connect_url = (settings.db_url[name] if \
+        php.array_key_exists(name, settings.db_url) else \
+        settings.db_url['default']);
     else:
       connect_url = settings.db_url;
     db_type = php.substr(connect_url, 0, php.strpos(connect_url, '://'));
@@ -183,7 +189,9 @@ def db_set_active(name = 'default'):
     #try:
     #  import db file here
     #except ImportError:
-    #  _db_error_page("The database type '" + db_type + "' is unsupported. Please use either 'mysql' or 'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
+    #  _db_error_page("The database type '" + db_type + \
+    #    "' is unsupported. Please use either 'mysql' or " + \
+    #    "'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
     db_set_active.db_conns[name] = db.db_connect(connect_url);
     # We need to pass around the simpletest database prefix in the request
     # and we put that in the user_agent php.header.
@@ -212,10 +220,17 @@ def _db_error_page(error = ''):
   lib_bootstrap.drupal_maintenance_theme();
   drupal_set_header('HTTP/1.1 503 Service Unavailable');
   drupal_set_title('Site off-line');
-  message = '<p>The site is currently not available due to technical problems. Please try again later. Thank you for your understanding.</p>';
-  message += '<hr /><p><small>If you are the maintainer of this site, please check your database settings in the <code>settings.php</code> file and ensure that your hosting provider\'s database server is running. For more help, see the <a href="http://drupal.org/node/258">handbook</a>, or contact your hosting provider.</small></p>';
+  message = '<p>The site is currently not available due to technical ' + \
+    'problems. Please try again later. Thank you for your understanding.</p>';
+  message += '<hr /><p><small>If you are the maintainer of this site, ' + \
+    'please check your database settings in the ' + \
+    '<code>settings.php</code> file and ensure that your hosting ' + \
+    'provider\'s database server is running. For more help, ' + \
+    'see the <a href="http://drupal.org/node/258">handbook</a>, or ' + \
+    'contact your hosting provider.</small></p>';
   if (error and ini_get('display_errors')):
-    message += '<p><small>The ' + theme('placeholder', db_type) + ' error was: ' + theme('placeholder', error) + '.</small></p>';
+    message += '<p><small>The ' + theme('placeholder', db_type) + \
+      ' error was: ' + theme('placeholder', error) + '.</small></p>';
   print theme('maintenance_page', message);
   exit();
 
@@ -236,8 +251,10 @@ def _db_query_callback(match, init = False):
   if (init):
     _db_query_callback.args = list(match);
     return;
-  if match[1] == '%d': # We must use type casting to int to convert FALSE/NULL/(TRUE?)
-    return str(int(php.array_shift(_db_query_callback.args))); # We don't need db_escape_string as numbers are db-safe
+  # We must use type casting to int to convert FALSE/NULL/(TRUE?)
+  if match[1] == '%d': 
+    # We don't need db_escape_string as numbers are db-safe
+    return str(int(php.array_shift(_db_query_callback.args))); 
   elif match[1] == '%s':
     return db.db_escape_string(php.array_shift(_db_query_callback.args));
   elif match[1] == '%%':
@@ -261,7 +278,8 @@ def db_placeholders(arguments, type = 'int'):
      The Schema API type of a field (e.g. 'int', 'text', or 'varchar').
   """
   placeholder = db_type_placeholder(type);
-  return php.implode(',', php.array_fill(0, php.count(arguments), placeholder));
+  return php.implode(',', php.array_fill(0, php.count(arguments), \
+    placeholder));
 
 
 #

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # $Id: path.inc,v 1.24 2008/06/24 22:12:15 dries Exp $
 
 
@@ -37,6 +36,8 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
+
 #
 # These functions are not loaded for cached pages, but plugins that need
 #  to use them in hook_init() or hook exit() can make them available, by
@@ -55,7 +56,8 @@ def drupal_init_path():
   if (php.isset(php.GET, 'q') and not php.empty(php.GET['q'])):
     php.GET['q'] = drupal_get_normal_path(php.trim(php.GET['q'], '/'))
   else:
-    php.GET['q'] = drupal_get_normal_path(lib_bootstrap.variable_get('site_frontpage', 'node'))
+    php.GET['q'] = drupal_get_normal_path( \
+      lib_bootstrap.variable_get('site_frontpage', 'node'))
 
 
 def drupal_lookup_path(action, path_ = '', path_language = ''):
@@ -72,7 +74,8 @@ def drupal_lookup_path(action, path_ = '', path_language = ''):
    @param path
      The path to investigate for corresponding aliases or system URLs.
    @param path_language
-     Optional language code to search the path with. Defaults to the page language.
+     Optional language code to search the path with.
+     Defaults to the page language.
      If there's no path defined for that language it will search paths without
      language.
   
@@ -83,11 +86,15 @@ def drupal_lookup_path(action, path_ = '', path_language = ''):
   php.static(drupal_lookup_path, 'map_', {})
   php.static(drupal_lookup_path, 'no_src', {})
   php.static(drupal_lookup_path, 'count', None)
-  # map is an array with language keys, holding arrays of Drupal paths to alias relations
-  path_language =  (path_language if (path_language != '') else lib_bootstrap.language_.language)
-  # Use $count to avoid looking up paths in subsequent calls if there simply are no aliases
+  # map is an array with language keys, holding arrays of Drupal
+  # paths to alias relations
+  path_language =  (path_language if (path_language != '') else \
+    lib_bootstrap.language_.language)
+  # Use $count to avoid looking up paths in subsequent
+  # calls if there simply are no aliases
   if (drupal_lookup_path.count is None):
-    drupal_lookup_path.count = lib_database.db_result(lib_database.db_query('SELECT COUNT(pid) FROM {url_alias}'));
+    drupal_lookup_path.count = lib_database.db_result( \
+      lib_database.db_query('SELECT COUNT(pid) FROM {url_alias}'));
   if (action == 'wipe' ):
     drupal_lookup_path._map = {}
     drupal_lookup_path.no_src = {}
@@ -96,18 +103,25 @@ def drupal_lookup_path(action, path_ = '', path_language = ''):
       if (php.isset(drupal_lookup_path.map_[path_language], path_)):
         return drupal_lookup_path.map_[path_language][path_]
       # Get the most fitting result falling back with alias without language
-      alias = db_result(db_query("SELECT dst FROM {url_alias} WHERE src = '%s' AND language IN('%s', '') ORDER BY language DESC", path_, path_language));
+      alias = db_result(db_query(\
+        "SELECT dst FROM {url_alias} " + \
+        "WHERE src = '%s' AND language IN('%s', '') " + \
+        "ORDER BY language DESC", path_, path_language));
       drupal_lookup_path._map[path_language][path_] = alias
       return alias
     # Check no_src for this path in case we've already determined that there
     # isn't a path that has this alias
-    elif (action == 'source' and not php.isset(drupal_lookup_path.no_src[path_language], path_)):
+    elif (action == 'source' and not \
+        php.isset(drupal_lookup_path.no_src[path_language], path_)):
       # Look for the value path within the cached map
       src = ''
       src = array_search(path, drupal_lookup_path.map_[path_language])
       if (not php.isset(drupal_lookup_path.map_, path_language) or not src):
         # Get the most fitting result falling back with alias without language
-        src = db_result(db_query("SELECT src FROM {url_alias} WHERE dst = '%s' AND language IN('%s', '') ORDER BY language DESC", path_, path_language))
+        src = db_result(db_query(\
+          "SELECT src FROM {url_alias} " + \
+          "WHERE dst = '%s' AND language IN('%s', '') " + \
+          "ORDER BY language DESC", path_, path_language))
         if (src):
           drupal_lookup_path.map_[path_language][src] = path_
         else:
@@ -199,13 +213,15 @@ def arg(index = None, path = None):
 
 def drupal_get_title():
   """
-   Get the title of the current page, for display on the page and in the title bar.
+   Get the title of the current page, for display on
+   the page and in the title bar.
   
    @return
      The current page's title.
   """
   title = drupal_set_title();
-  # during a bootstrap, menu.inc is not included and thus we cannot provide a title
+  # during a bootstrap, menu.inc is not included
+  # and thus we cannot provide a title
   if (title == None and php.function_exists('menu_get_active_title')):
     title = check_plain(menu_get_active_title());
   return title;
@@ -213,7 +229,8 @@ def drupal_get_title():
 
 def drupal_set_title(title = None):
   """
-   Set the title of the current page, for display on the page and in the title bar.
+   Set the title of the current page, for display on the
+   page and in the title bar.
   
    @param title
      Optional string value to assign to the page title; or if set to NULL
@@ -233,11 +250,13 @@ def drupal_is_front_page():
    Check if the current page is the front page.
   
    @return
-     Boolean value: TRUE if the current page is the front page; FALSE if otherwise.
+     Boolean value: TRUE if the current page is the front page;
+     FALSE if otherwise.
   """
   # As drupal_init_path updates php.GET['q'] with the 'site_frontpage' path,
   # we can check it against the 'site_frontpage' variable.
-  return (php.GET['q'] == drupal_get_normal_path(variable_get('site_frontpage', 'node')));
+  return (php.GET['q'] == \
+    drupal_get_normal_path(variable_get('site_frontpage', 'node')));
 
 
 def drupal_match_path(path_, patterns):
