@@ -271,7 +271,7 @@ def _theme_process_registry(cache, name, type_, theme_, path):
   php.Reference.check(cache);
   function = name + '_theme';
   if (php.function_exists(function)):
-    result = function(cache.val, type_, theme_, path);
+    result = function(cache, type_, theme_, path);
     for hook,info in result.items():
       result[hook]['type'] = type_;
       result[hook]['theme path'] = path;
@@ -296,13 +296,13 @@ def _theme_process_registry(cache, name, type_, theme_, path):
       # If 'arguments' have been defined previously, carry them forward.
       # This should happen if a theme overrides a Drupal defined theme
       # function, for example.
-      if (not php.isset(info, 'arguments') and php.isset(cache.val, hook)):
+      if (not php.isset(info, 'arguments') and php.isset(cache, hook)):
         result[hook]['arguments'] = cache[hook]['arguments'];
       # Likewise with theme paths. These are used for
       # template naming suggestions.
       # Theme implementations can occur in multiple paths.
       # Suggestions should follow.
-      if (not php.isset(info, 'theme paths') and php.isset(cache.val, hook)):
+      if (not php.isset(info, 'theme paths') and php.isset(cache, hook)):
         result[hook]['theme paths'] = cache[hook]['theme paths'];
       # Check for sub-directories.
       result[hook]['theme paths'].append( info['path'] if \
@@ -346,13 +346,13 @@ def _theme_process_registry(cache, name, type_, theme_, path):
         # Flag not needed inside the registry.
         del(result[hook]['override preprocess functions']);
       elif (php.isset(cache[hook], 'preprocess functions') and \
-          php.is_array(cache.val[hook]['preprocess functions'])):
+          php.is_array(cache[hook]['preprocess functions'])):
         info['preprocess functions'] = \
           php.array_merge(cache[hook]['preprocess functions'], \
           info['preprocess functions']);
       result[hook]['preprocess functions'] = info['preprocess functions'];
     # Merge the newly created theme hooks into the existing cache.
-    cache.val = php.array_merge(cache.val, result);
+    php.array_merge(cache, result, True);
 
 
 
@@ -602,10 +602,10 @@ def theme():
     # from a list. The order is FILO, so this array is ordered from
     # least appropriate first to most appropriate last.
     suggestions = {};
-    if (php.isset(variables_.val, 'template_files')):
-      suggestions = variables_.val['template_files'];
-    if (php.isset(variables_.val, 'template_file')):
-      suggestions.append( variables_.val['template_file'] );
+    if (php.isset(variables_, 'template_files')):
+      suggestions = variables_['template_files'];
+    if (php.isset(variables_, 'template_file')):
+      suggestions.append( variables_['template_file'] );
     if (suggestions):
       template_file = drupal_discover_template(info['theme paths'], \
         suggestions, extension);
@@ -1558,27 +1558,27 @@ def template_preprocess(variables_, hook):
     (template_preprocess.count[hook] \
       if (php.isset(template_preprocess.count, hook) and \
         is_int(template_preprocess.count[hook])) else 1);
-  variables_.val['zebra'] = ('odd' if \
+  variables_['zebra'] = ('odd' if \
     ((template_preprocess.count[hook] % 2) > 1) else 'even');
   template_preprocess.count[hook] += 1;
-  variables_.val['id'] = template_preprocess.count[hook];
+  variables_['id'] = template_preprocess.count[hook];
   # Tell all templates where they are located+
   variables['directory'] = path_to_theme();
   # Set default variables that depend on the database+
   variables['is_admin']            = False;
-  variables_.val['is_front']            = False;
-  variables_.val['logged_in']           = False;
-  variables_.val['db_is_active'] = db_is_active() ;
-  if (variables_.val['db_is_active'] and not php.defined('MAINTENANCE_MODE')):
+  variables_['is_front']            = False;
+  variables_['logged_in']           = False;
+  variables_['db_is_active'] = db_is_active() ;
+  if (variables_['db_is_active'] and not php.defined('MAINTENANCE_MODE')):
     # Check for administrators+
     if (user_access('access administration pages')):
-      variables_.val['is_admin'] = True;
+      variables_['is_admin'] = True;
     # Flag front page status+
     variables['is_front'] = drupal_is_front_page();
     # Tell all templates by which kind of user they're viewed+
     variables['logged_in'] = (lib_bootstrap.user.uid > 0);
     # Provide user object to all templates
-    variables_.val['user'] = lib_bootstrap.user;
+    variables_['user'] = lib_bootstrap.user;
 
 
 
@@ -1612,21 +1612,21 @@ def template_preprocess_page(variables_):
   for region in php.array_keys(regions):
     # Prevent left and right regions from rendering blocks when
     # 'show_blocks' == False+
-    if (not (not variables_.val['show_blocks'] and \
+    if (not (not variables_['show_blocks'] and \
         (region == 'left' or region == 'right'))):
       blocks = theme('blocks', region);
     else:
       blocks = '';
     # Assign region to a region variable+
     if (php.isset(variables, region)):
-      variables_.val[region] += blocks
+      variables_[region] += blocks
     else:
-      variables_.val[region] = blocks;
+      variables_[region] = blocks;
   # Set up layout variable+
   variables['layout'] = 'none';
-  if (not php.empty(variables_.val['left'])):
-    variables_.val['layout'] = 'left';
-  if (not php.empty(variables_.val['right'])):
+  if (not php.empty(variables_['left'])):
+    variables_['layout'] = 'left';
+  if (not php.empty(variables_['right'])):
     variables['layout'] = ('both' if \
       (variables['layout'] == 'left') else 'right');
   # Set mission when viewing the frontpage+
@@ -1642,58 +1642,58 @@ def template_preprocess_page(variables_):
     head_title = [variable_get('site_name', 'Drupal')];
     if (variable_get('site_slogan', '')):
       head_title.append( variable_get('site_slogan', '') );
-  variables_.val['head_title']        = php.implode(' | ', head_title);
-  variables_.val['base_path']         = base_path();
-  variables_.val['front_page']        = url();
-  variables_.val['breadcrumb']        = theme('breadcrumb', \
+  variables_['head_title']        = php.implode(' | ', head_title);
+  variables_['base_path']         = base_path();
+  variables_['front_page']        = url();
+  variables_['breadcrumb']        = theme('breadcrumb', \
     drupal_get_breadcrumb());
-  variables_.val['feed_icons']        = drupal_get_feeds();
-  variables_.val['footer_message']    = \
+  variables_['feed_icons']        = drupal_get_feeds();
+  variables_['footer_message']    = \
     filter_xss_admin(variable_get('site_footer', False));
-  variables_.val['head']              = drupal_get_html_head();
-  variables_.val['help']              = theme('help');
-  variables_.val['language']          = language;
-  variables_.val['language'].dir      = ('rtl' if \
+  variables_['head']              = drupal_get_html_head();
+  variables_['help']              = theme('help');
+  variables_['language']          = language;
+  variables_['language'].dir      = ('rtl' if \
     (php.isset(language, 'direction') and \
      not php.empty(language.direction)) else 'ltr');
-  variables_.val['logo']              = theme_get_setting('logo');
-  variables_.val['messages']          = (theme('status_messages') if \
+  variables_['logo']              = theme_get_setting('logo');
+  variables_['messages']          = (theme('status_messages') if \
     variables['show_messages'] else '');
-  variables_.val['mission']           = (mission if (mission != None) else '');
-  variables_.val['main_menu']         = (lib_menu.menu_main_menu() if \
+  variables_['mission']           = (mission if (mission != None) else '');
+  variables_['main_menu']         = (lib_menu.menu_main_menu() if \
     theme_get_setting('toggle_main_menu') else []);
-  variables_.val['secondary_menu']    = (lib_menu.menu_secondary_menu() if \
+  variables_['secondary_menu']    = (lib_menu.menu_secondary_menu() if \
     theme_get_setting('toggle_secondary_menu') else []);
-  variables_.val['search_box']        = \
+  variables_['search_box']        = \
     (drupal_get_form('search_theme_form') if \
     theme_get_setting('toggle_search') else '');
-  variables_.val['site_name']         = \
+  variables_['site_name']         = \
     (variable_get('site_name', 'Drupal') if \
     theme_get_setting('toggle_name') else '');
-  variables_.val['site_slogan']       = \
+  variables_['site_slogan']       = \
     (variable_get('site_slogan', '') if \
     theme_get_setting('toggle_slogan') else '');
-  variables_.val['css']               = drupal_add_css();
-  variables_.val['styles']            = drupal_get_css();
-  variables_.val['scripts']           = drupal_get_js();
-  variables_.val['tabs']              = theme('menu_local_tasks');
-  variables_.val['title']             = drupal_get_title();
+  variables_['css']               = drupal_add_css();
+  variables_['styles']            = drupal_get_css();
+  variables_['scripts']           = drupal_get_js();
+  variables_['tabs']              = theme('menu_local_tasks');
+  variables_['title']             = drupal_get_title();
   # Closure should be filled last+
-  variables_.val['closure']           = theme('closure');
+  variables_['closure']           = theme('closure');
   node = lib_menu.menu_get_object();
   if (node):
-    variables_.val['node'] = node;
+    variables_['node'] = node;
   # Compile a list of classes that are going to be applied to the body element+
   # This allows advanced theming based on context
   # (home page, node of certain type, etc.)+
   body_classes = [];
   # Add a class that tells us whether we're on the front page or not+
   body_classes.append( ('front' if \
-    variables_.val['is_front'] else 'not-front') );
+    variables_['is_front'] else 'not-front') );
   # Add a class that tells us whether
   # the page is viewed by an authenticated user or not+
   body_classes.append( ('logged-in' if \
-    variables_.val['logged_in'] else 'not-logged-in') );
+    variables_['logged_in'] else 'not-logged-in') );
   # Add arg(0) to make it possible to theme
   # the page depending on the current page
   # type (e.g+ node, admin, user, etc.)
@@ -1705,18 +1705,18 @@ def template_preprocess_page(variables_):
     php.preg_replace('not [^abcdefghijklmnopqrstuvwxyz0-9-_]+not s', '', \
     'page-'+ form_clean_id(drupal_strtolower(arg(0)))) );
   # If on an individual node page, add the node type+
-  if (php.isset(variables_.val, 'node') and variables_.val['node'].type):
+  if (php.isset(variables_, 'node') and variables_['node'].type):
     body_classes.append( 'node-type-'+ \
-      form_clean_id(variables_.val['node'].type) );
+      form_clean_id(variables_['node'].type) );
   # Add information about the number of sidebars+
-  if (variables_.val['layout'] == 'both'):
+  if (variables_['layout'] == 'both'):
     body_classes.append( 'two-sidebars' );
-  elif (variables_.val['layout'] == 'none'):
+  elif (variables_['layout'] == 'none'):
     body_classes.append( 'no-sidebars' );
   else:
-    body_classes.append( 'one-sidebar sidebar-'+ variables_.val['layout'] );
+    body_classes.append( 'one-sidebar sidebar-'+ variables_['layout'] );
   # Implode with spaces+
-  variables_.val['body_classes'] = php.implode(' ', body_classes);
+  variables_['body_classes'] = php.implode(' ', body_classes);
   # Build a list of suggested template files in order of specificity+ One
   # suggestion is made for every element of the current path, though
   # numeric elements are not carried to subsequent suggestions+ For example,
@@ -1742,7 +1742,7 @@ def template_preprocess_page(variables_):
   if (drupal_is_front_page()):
     suggestions.append( 'page-front' );
   if (not php.empty(suggestions)):
-    variables_.val['template_files'] = suggestions;
+    variables_['template_files'] = suggestions;
 
 
 
@@ -1762,39 +1762,39 @@ def template_preprocess_node(variables_):
    @see node.tpl.php
   """
   php.Reference.check(variables);
-  node = variables_.val['node'];
+  node = variables_['node'];
   if (plugin_exists('taxonomy')):
-    variables_.val['taxonomy'] = taxonomy_link('taxonomy terms', node);
+    variables_['taxonomy'] = taxonomy_link('taxonomy terms', node);
   else:
-    variables_.val['taxonomy'] = {};
-  if (variables_.val['teaser'] and node.teaser):
-    variables_.val['content'] = node.teaser;
+    variables_['taxonomy'] = {};
+  if (variables_['teaser'] and node.teaser):
+    variables_['content'] = node.teaser;
   elif (php.isset(node, 'body')):
-    variables_.val['content'] = node.body;
+    variables_['content'] = node.body;
   else:
-    variables_.val['content'] = '';
-  variables_.val['date']      = format_date(node.created);
-  variables_.val['links']     = (theme('links', node.links, \
+    variables_['content'] = '';
+  variables_['date']      = format_date(node.created);
+  variables_['links']     = (theme('links', node.links, \
     {'class' : 'links inline'}) if (not php.empty(node.links)) else '');
-  variables_.val['name']      = theme('username', node);
-  variables_.val['node_url']  = url('node/'+ node.nid);
-  variables_.val['terms']     = theme('links', variables_.val['taxonomy'], \
+  variables_['name']      = theme('username', node);
+  variables_['node_url']  = url('node/'+ node.nid);
+  variables_['terms']     = theme('links', variables_['taxonomy'], \
     {'class' : 'links inline'});
-  variables_.val['title']     = check_plain(node.title);
+  variables_['title']     = check_plain(node.title);
   # Flatten the node object's member fields+
-  variables_.val = php.array_merge(drupy_array(node), variables_.val);
+  variables_ = php.array_merge(drupy_array(node), variables_);
   # Display info only on certain node types+
   if (theme_get_setting('toggle_node_info_'+ node.type_)):
-    variables_.val['submitted'] = theme('node_submitted', node);
-    variables_.val['picture'] = (theme('user_picture', node) if \
+    variables_['submitted'] = theme('node_submitted', node);
+    variables_['picture'] = (theme('user_picture', node) if \
       theme_get_setting('toggle_node_user_picture') else '');
   else:
-    variables_.val['submitted'] = '';
-    variables_.val['picture'] = '';
+    variables_['submitted'] = '';
+    variables_['picture'] = '';
   # Clean up name so there are no underscores+
-  variables_.val['template_files'].append( 'node-' + \
+  variables_['template_files'].append( 'node-' + \
     php.str_replace('_', '-', node.type_) )
-  variables_.val['template_files'].append( 'node-' + node.nid )
+  variables_['template_files'].append( 'node-' + node.nid )
 
 
 
@@ -1819,22 +1819,22 @@ def template_preprocess_block(variables_):
   php.Reference.check(variables_);
   # All blocks get an independent counter for each region+
   if (not php.isset(template_preprocess_block.block_counter, \
-      variables_.val['block'].region)):
-    template_preprocess_block.block_counter[variables_.val['block'].region] = 1
+      variables_['block'].region)):
+    template_preprocess_block.block_counter[variables_['block'].region] = 1
   # Same with zebra striping+
-  variables_.val['block_zebra'] = ('odd' if \
-    ((template_preprocess_block.block_counter[variables_.val['block'].region] \
+  variables_['block_zebra'] = ('odd' if \
+    ((template_preprocess_block.block_counter[variables_['block'].region] \
     % 2) > 0) else 'even');
-  variables_.val['block_id'] = \
-    template_preprocess_block.block_counter[variables_.val['block'].region];
-  template_preprocess_block.block_counter[variables_.val['block'].region] += 1;
-  variables_.val['template_files'].append( \
-    'block-'+ variables_.val['block'].region );
-  variables_.val['template_files'].append( \
-    'block-'+ variables_.val['block'].plugin );
-  variables_.val['template_files'].append( \
-    'block-'+ variables_.val['block'].plugin +'-'+ \
-    variables_.val['block'].delta );
+  variables_['block_id'] = \
+    template_preprocess_block.block_counter[variables_['block'].region];
+  template_preprocess_block.block_counter[variables_['block'].region] += 1;
+  variables_['template_files'].append( \
+    'block-'+ variables_['block'].region );
+  variables_['template_files'].append( \
+    'block-'+ variables_['block'].plugin );
+  variables_['template_files'].append( \
+    'block-'+ variables_['block'].plugin +'-'+ \
+    variables_['block'].delta );
 
 
 

@@ -262,17 +262,17 @@ def template_preprocess_maintenance_page(variables):
   for region in php.array_keys(regions):
     # Assign region to a region variable.
     region_content = drupal_get_content(region)
-    if php.isset(variables.val, region):
-      variables.val[region] += region_content
+    if php.isset(variables, region):
+      variables[region] += region_content
     else:
       variables[region] = region_content
   # Setup layout variable.
-  variables.val['layout'] = 'none'
-  if (not php.empty(variables.val['left'])):
+  variables['layout'] = 'none'
+  if (not php.empty(variables['left'])):
     variables['layout'] = 'left'
   if (not php.empty(variables['right'])):
-    variables.val['layout'] = ('both' if \
-      (variables.val['layout'] == 'left') else 'right')
+    variables['layout'] = ('both' if \
+      (variables['layout'] == 'left') else 'right')
   # Construct page title
   if (drupal_get_title()):
     head_title = [strip_tags(drupal_get_title()), \
@@ -281,53 +281,53 @@ def template_preprocess_maintenance_page(variables):
     head_title = [variable_get('site_name', 'Drupal')]
     if (variable_get('site_slogan', '')):
       head_title.append( variable_get('site_slogan', '') )
-  variables.val['head_title']        = php.implode(' | ', head_title)
-  variables.val['base_path']         = base_path()
-  variables.val['front_page']        = url()
-  variables.val['breadcrumb']        = ''
-  variables.val['feed_icons']        = ''
-  variables.val['footer_message']    = \
+  variables['head_title']        = php.implode(' | ', head_title)
+  variables['base_path']         = base_path()
+  variables['front_page']        = url()
+  variables['breadcrumb']        = ''
+  variables['feed_icons']        = ''
+  variables['footer_message']    = \
     filter_xss_admin(variable_get('site_footer', FALSE))
-  variables.val['head']              = drupal_get_html_head()
-  variables.val['help']              = ''
-  variables.val['language']          = language
-  variables.val['language'].dir     = ('rtl' if language.direction else 'ltr')
-  variables.val['logo']              = theme_get_setting('logo');
-  variables.val['messages']          = (theme('status_messages') if \
-    variables.val['show_messages'] else '')
-  variables.val['mission']           = '';
-  variables.val['main_menu']         = [];
-  variables.val['secondary_menu']    = [];
-  variables.val['search_box']        = '';
-  variables.val['site_name']         = \
+  variables['head']              = drupal_get_html_head()
+  variables['help']              = ''
+  variables['language']          = language
+  variables['language'].dir     = ('rtl' if language.direction else 'ltr')
+  variables['logo']              = theme_get_setting('logo');
+  variables['messages']          = (theme('status_messages') if \
+    variables['show_messages'] else '')
+  variables['mission']           = '';
+  variables['main_menu']         = [];
+  variables['secondary_menu']    = [];
+  variables['search_box']        = '';
+  variables['site_name']         = \
     (variable_get('site_name', 'Drupal') if \
     theme_get_setting('toggle_name')  else '')
-  variables.val['site_slogan']       = (variable_get('site_slogan', '') if \
+  variables['site_slogan']       = (variable_get('site_slogan', '') if \
     theme_get_setting('toggle_slogan') else '')
-  variables.val['css']               = drupal_add_css()
-  variables.val['styles']            = drupal_get_css()
-  variables.val['scripts']           = drupal_get_js()
-  variables.val['tabs']              = ''
-  variables.val['title']             = drupal_get_title();
-  variables.val['closure']           = ''
+  variables['css']               = drupal_add_css()
+  variables['styles']            = drupal_get_css()
+  variables['scripts']           = drupal_get_js()
+  variables['tabs']              = ''
+  variables['title']             = drupal_get_title();
+  variables['closure']           = ''
   # Compile a list of classes that are going to be applied to the body element.
   body_classes = []
   body_classes.append( 'in-maintenance' )
-  if (php.isset(variables.val, 'db_is_active') and \
-      not variables.val['db_is_active']):
+  if (php.isset(variables, 'db_is_active') and \
+      not variables['db_is_active']):
     body_classes.append( 'db-offline' )
-  if (variables.val['layout'] == 'both'):
+  if (variables['layout'] == 'both'):
     body_classes.append( 'two-sidebars' )
-  elif (variables.val['layout'] == 'none'):
+  elif (variables['layout'] == 'none'):
     body_classes.append( 'no-sidebars' )
   else:
-    body_classes.append( 'one-sidebar sidebar-'  + variables.val['layout'] )
-  variables.val['body_classes'] = php.implode(' ', body_classes)
+    body_classes.append( 'one-sidebar sidebar-'  + variables['layout'] )
+  variables['body_classes'] = php.implode(' ', body_classes)
   # Dead databases will show error messages so supplying this template will
   # allow themers to override the page and the content completely.
-  if (php.isset(variables.val, 'db_is_active') and \
-      not variables.val['db_is_active']):
-    variables.val['template_file'] = 'maintenance-page-offline';
+  if (php.isset(variables, 'db_is_active') and \
+      not variables['db_is_active']):
+    variables['template_file'] = 'maintenance-page-offline';
 
 
 

@@ -297,61 +297,61 @@ def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
   basename = file_check_path(directory)
   # Make sure we at least have a valid directory.
   if (basename == False):
-    source.val = (source.val.filepath if php.is_object(source.val) else \
-      source.val)
+    if hasattr(source, 'filepath'):
+      source._ = source.filepath
     drupal_set_message(t('The selected file %file could not be ' + \
       'uploaded, because the destination %directory is not ' + \
       'properly configured.', \
-      {'%file' : source, '%directory' : dest}), 'error')
+      {'%file' : source._, '%directory' : dest}), 'error')
     watchdog('file system', 'The selected file %file could not ' + \
       'be uploaded, because the destination %directory could ' + \
       'not be found, or because its permissions do ' + \
       'not allow the file to be written.', \
-      {'%file' : source.val, '%directory' : dest}, WATCHDOG_ERROR)
+      {'%file' : source._, '%directory' : dest}, WATCHDOG_ERROR)
     return False
   # Process a file upload object.
-  if (php.is_object(source.val)):
-    file = source.val
-    source.val = file.filepath
+  if (php.is_object(source._)):
+    file = source._
+    source._ = file.filepath
     if (not basename):
       basename = file.filename
-  source.val = realpath(source.val)
-  if (not php.file_exists(source.val)):
+  source._ = php.realpath(source._)
+  if (not php.file_exists(source._)):
     drupal_set_message(t('The selected file %file could not be copied, ' + \
       'because no file by that name exists. ' + \
       'Please check that you supplied the correct filename.', \
-      {'%file' : source.val}), 'error')
+      {'%file' : source._}), 'error')
     return False
   # If the destination file is not specified then use the filename
   # of the source file.
-  basename = (basename if basename else basename(source.val))
-  dest = directory + '/' + basename
+  basename = (basename if basename else basename(source._))
+  dest._ = directory + '/' + basename
   # Make sure source and destination filenames are not the same, makes no sense
   # to copy it if they are + In fact copying the file will most
   # likely result in
   # a 0 byte file + Which is bad. Real bad.
-  if (source.val != realpath(dest)):
-    dest = file_destination(dest, replace)
-    if (not dest):
+  if (source._ != php.realpath(dest._)):
+    dest._ = file_destination(dest._, replace)
+    if (not dest._):
       drupal_set_message(t('The selected file %file could not be copied, ' + \
         'because a file by that name already exists in the destination.', \
-        {'%file' : source.val}), 'error')
+        {'%file' : source._}), 'error')
       return False
-    if (not copy(source.val, dest)):
+    if (not copy(source._, dest._)):
       drupal_set_message(t('The selected file %file could not be copied.', \
-        {'%file' : source.val}), 'error')
+        {'%file' : source._}), 'error')
       return False
     # Give everyone read access so that FTP'd users or
     # non-webserver users can see/read these files,
     # and give group write permissions so group members
     # can alter files uploaded by the webserver.
-    chmod(dest, 0664)
+    chmod(dest._, 0664)
   if (php.isset(file) and php.is_object(file)):
     file.filename = basename
-    file.filepath = dest
-    source.val = file
+    file.filepath = dest._
+    source._ = file
   else:
-    source.val = dest
+    source._ = dest
   return True # Everything went ok.
 
 
@@ -404,11 +404,12 @@ def file_move(source, dest = 0, replace = FILE_EXISTS_RENAME):
    @return True for success, False for failure.
   """
   php.Reference.check(source)
-  path_original = (source.val.filepath if \
-    php.is_object(source.val) else source.val)
-  if (file_copy(source.val, dest, replace)):
-    path_current = (source.val.filepath if \
-      php.is_object(source.val) else source.val)
+  if hasattr(source, 'filepath'):
+    source._ = source.filepath
+  path_original = source._
+  if (file_copy(source._, dest, replace)):
+    path_current = (source.filepath if hasattr(source, 'filepath') else \
+      source._)
     if (path_original == path_current or file_delete(path_original)):
       return True
     drupal_set_message(t('The removal of the original file %file ' + \
@@ -737,9 +738,8 @@ def file_validate_is_image(file):
    @return
      An array + If the file is not an image, it will contain an error message.
   """
-  php.Reference.check(file)
   errors = []
-  info = image_get_info(file.val.filepath)
+  info = image_get_info(file.filepath)
   if (not info or not php.isset(info, 'extension') or \
       php.empty(info['extension'])):
     errors.append( t('Only JPEG, PNG and GIF images are allowed.') )
@@ -773,22 +773,22 @@ def file_validate_image_resolution(file, maximum_dimensions = 0, \
   php.Reference.check(file)
   errors = []
   # Check first that the file is an image.
-  info = image_get_info(file.val.filepath)
+  info = image_get_info(file.filepath)
   if (info):
     if (maximum_dimensions):
       # Check that it is smaller than the given dimensions.
       width, height = php.explode('x', maximum_dimensions)
       if (info['width'] > width or info['height'] > height):
         # Try to resize the image to fit the dimensions.
-        if (image_get_toolkit() and image_scale(file.val.filepath, \
-            file.val.filepath, width, height)):
+        if (image_get_toolkit() and image_scale(file.filepath, \
+            file.filepath, width, height)):
           drupal_set_message(t('The image was resized to fit within ' + \
             'the maximum allowed dimensions of %dimensions pixels.', \
             {'%dimensions' : maximum_dimensions}))
           # Clear the cached filesize and refresh the image information.
           clearstatcache()
-          info = image_get_info(file.val.filepath)
-          file.val.filesize = info['file_size']
+          info = image_get_info(file.filepath)
+          file.filesize = info['file_size']
         else:
           errors.append( t('The image is too large; the maximum ' + \
             'dimensions are %dimensions pixels.', \
@@ -844,8 +844,8 @@ def file_set_status(file, status):
   """
   php.Reference.check(file)
   if (db_query('UPDATE {files} SET status = %d WHERE fid = %d', \
-      status, file.val.fid)):
-    file.val.status = status
+      status, file.fid)):
+    file.status = status
     return True
   return False
 

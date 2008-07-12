@@ -432,7 +432,7 @@ def _menu_load_objects(item, map_):
     load_functions_unserialized = php.unserialize(load_functions)
     if (load_functions_unserialized):
       load_functions = load_functions_unserialized
-    path_map = map_.val
+    path_map = map_
     for index,function in load_functions.items():
       if (function):
         value = (path_map[index] if php.isset(path_map, index) else '')
@@ -441,7 +441,7 @@ def _menu_load_objects(item, map_):
           # 'load arguments' in the hook_menu() entry, but they need
           # some processing. In this case the function is the key to the
           # load_function array, and the value is the list of arguments.
-          function, args = each(function)
+          function, args = php.each(function)
           load_functions[index] = function
           # Some arguments are placeholders for dynamic items to process.
           for i,arg in args.items():
@@ -462,11 +462,12 @@ def _menu_load_objects(item, map_):
           return_ = function(value)
         # If callback returned an error or there is no callback, trigger 404.
         if (return_ == False):
-          item.val['access'] = False
-          map_.val = False
+          item['access'] = False
+          for i in range(len(map_)):
+            map_.pop()
           return False
-        map.val[index] = return_
-    item.val['load_functions'] = load_functions
+        map[index] = return_
+    item['load_functions'] = load_functions
   return True
 
 
@@ -485,21 +486,21 @@ def _menu_check_access(item, map_):
   php.Reference.check(item)
   # Determine access callback, which will decide whether or not the current
   # user has access to this path.
-  callback = (0 if php.empty(item.val['access_callback']) else \
-    php.trim(item.val['access_callback']))
+  callback = (0 if php.empty(item['access_callback']) else \
+    php.trim(item['access_callback']))
   # Check for a True or False value.
   if (php.is_numeric(callback)):
-    item.val['access'] = p.bool_(callback)
+    item['access'] = p.bool_(callback)
   else:
-    arguments = menu_unserialize(item.val['access_arguments'], map_)
+    arguments = menu_unserialize(item['access_arguments'], map_)
     # As call_user_func_array is quite slow and user_access is a very common
     # callback, it is worth making a special case for it.
     if (callback == 'user_access'):
-      item.val['access'] = (user_access(arguments[0]) if \
+      item['access'] = (user_access(arguments[0]) if \
         (php.count(arguments) == 1) else \
         user_access(arguments[0], arguments[1]))
     else:
-      item.val['access'] = callback(*arguments)
+      item['access'] = callback(*arguments)
 
 
 
@@ -530,40 +531,40 @@ def _menu_item_localize(item, map_, link_translate = False):
     (link title attribute) matches the description, it is translated as well.
   """
   php.Reference.check(item)
-  callback = item.val['title_callback']
-  item.val['localized_options'] = item.val['options']
+  callback = item['title_callback']
+  item['localized_options'] = item['options']
   # If we are not doing link translation or if the title matches the
   # link title of its router item, localize it.
-  if (not link_translate or (not php.empty(item.val['title']) and \
-      (item.val['title'] == item.val['link_title']))):
+  if (not link_translate or (not php.empty(item['title']) and \
+      (item['title'] == item['link_title']))):
     # t() is a special case. Since it is used very close to all the time,
     # we handle it directly instead of using indirect, slower methods.
     if (callback == 't'):
-      if (php.empty(item.val['title_arguments'])):
-        item.val['title'] = t(item.val['title'])
+      if (php.empty(item['title_arguments'])):
+        item['title'] = t(item['title'])
       else:
-        item.val['title'] = t(item.val['title'], \
-          menu_unserialize(item.val['title_arguments'], map_))
+        item['title'] = t(item['title'], \
+          menu_unserialize(item['title_arguments'], map_))
     elif (callback):
-      if (php.empty(item.val['title_arguments'])):
-        item.val['title'] = callback(item.val['title'])
+      if (php.empty(item['title_arguments'])):
+        item['title'] = callback(item['title'])
       else:
-        item.val['title'] = \
-          callback(*menu_unserialize(item.val['title_arguments'], map_))
+        item['title'] = \
+          callback(*menu_unserialize(item['title_arguments'], map_))
       # Avoid calling check_plain again on l() function.
       if (callback == 'check_plain'):
-        item.val['localized_options']['html'] = True
+        item['localized_options']['html'] = True
   elif (link_translate):
-    item.val['title'] = item.val['link_title']
+    item['title'] = item['link_title']
   # Translate description, see the motivation above.
-  if (not php.empty(item.val['description'])):
-    original_description = item.val['description']
-    item.val['description'] = t(item.val['description'])
+  if (not php.empty(item['description'])):
+    original_description = item['description']
+    item['description'] = t(item['description'])
     if (link_translate and \
         php.isset(item['options']['attributes'], 'title') and \
           item['options']['attributes']['title'] == original_description):
-      item.val['localized_options']['attributes']['title'] = \
-        item.val['description']
+      item['localized_options']['attributes']['title'] = \
+        item['description']
 
 
 
@@ -599,23 +600,23 @@ def _menu_translate(router_item, map_, to_arg = False):
   """
   php.Reference.check(router_item)
   path_map = map_
-  if (not _menu_load_objects(router_item.val, map_)):
+  if (not _menu_load_objects(router_item, map_)):
     # An error occurred loading an object.
-    router_item.val['access'] = False
+    router_item['access'] = False
     return False
   if (to_arg):
-    _menu_link_map_translate(path_map, router_item.val['to_arg_functions'])
+    _menu_link_map_translate(path_map, router_item['to_arg_functions'])
   # Generate the link path for the page request or local tasks.
-  link_map = php.explode('/', router_item.val['path'])
-  for i in range(router_item.val['number_parts']):
+  link_map = php.explode('/', router_item['path'])
+  for i in range(router_item['number_parts']):
     if (link_map[i] == '%'):
       link_map[i] = path_map[i]
-  router_item.val['href'] = php.implode('/', link_map)
-  router_item.val['options'] = {}
-  _menu_check_access(router_item.val, map_)
+  router_item['href'] = php.implode('/', link_map)
+  router_item['options'] = {}
+  _menu_check_access(router_item, map_)
   # For performance, don't localize an item the user can't access.
-  if (router_item.val['access']):
-    _menu_item_localize(router_item.val, map_)
+  if (router_item['access']):
+    _menu_item_localize(router_item, map_)
   return map_
 
 
@@ -636,12 +637,12 @@ def _menu_link_map_translate(map_, to_arg_functions):
     to_arg_functions = php.unserialize(to_arg_functions)
     for index,function in to_arg_functions.items():
       # Translate place-holders into real values.
-      arg = function((map_.val[index] if \
-        (not php.empty(map_.val[index])) else ''), map_.val, index)
+      arg = function((map_[index] if \
+        (not php.empty(map_[index])) else ''), map_, index)
       if (not php.empty(map[index]) or php.isset(arg)):
-        map_.val[index] = arg
+        map_[index] = arg
       else:
-        del(map_.val[index])
+        del(map_[index])
 
 
 
@@ -667,38 +668,38 @@ def _menu_link_translate(item):
     to item['localized_options'] by _menu_item_localize().
   """
   php.Reference.check(item)
-  item.val['options'] = php.unserialize(item.val['options'])
-  if (item.val['external']):
-    item.val['access'] = 1
+  item['options'] = php.unserialize(item['options'])
+  if (item['external']):
+    item['access'] = 1
     map_ = {}
-    item.val['href'] = item.val['link_path']
-    item.val['title'] = item.val['link_title']
-    item.val['localized_options'] = item.val['options']
+    item['href'] = item['link_path']
+    item['title'] = item['link_title']
+    item['localized_options'] = item['options']
   else:
-    map_ = php.explode('/', item.val['link_path'])
-    _menu_link_map_translate(map_, item.val['to_arg_functions'])
-    item.val['href'] = php.implode('/', map_)
+    map_ = php.explode('/', item['link_path'])
+    _menu_link_map_translate(map_, item['to_arg_functions'])
+    item['href'] = php.implode('/', map_)
     # Note - skip callbacks without real values for their arguments.
-    if (php.strpos(item.val['href'], '%') != False):
-      item.val['access'] = False
+    if (php.strpos(item['href'], '%') != False):
+      item['access'] = False
       return False
     # menu_tree_check_access() may set this ahead of time for links to nodes.
-    if (not php.isset(item.val['access'])):
-      if (not _menu_load_objects(item.val, map_)):
+    if (not php.isset(item['access'])):
+      if (not _menu_load_objects(item, map_)):
         # An error occurred loading an object.
-        item.val['access'] = False
+        item['access'] = False
         return False
       _menu_check_access(item, map)
-    _menu_item_localize(item.val, map_, True)
+    _menu_item_localize(item, map_, True)
     # For performance, don't localize a link the user can't access.
-    if (item.val['access']):
-      _menu_item_localize(item.val, map_, True)
+    if (item['access']):
+      _menu_item_localize(item, map_, True)
   # Allow other customizations - e.g. adding a
   # page-specific query string to the
   # options array. For performance reasons we only invoke this hook if the link
   # has the 'alter' flag set in the options array.
-  if (not php.empty(item.val['options']['alter'])):
-    drupal_alter('translated_menu_link', item.val, map_)
+  if (not php.empty(item['options']['alter'])):
+    drupal_alter('translated_menu_link', item, map_)
   return map_
 
 
@@ -1016,15 +1017,14 @@ def menu_tree_collect_node_links(tree, node_links):
   """
   php.Reference.check(tree)
   php.Reference.check(node_links)
-  for key,v in tree.val.items():
-    if (tree.val[key]['link']['router_path'] == 'node/%'):
+  for key,v in tree.items():
+    if (tree[key]['link']['router_path'] == 'node/%'):
       nid = php.substr(tree[key]['link']['link_path'], 5)
       if (php.is_numeric(nid)):
-        node_links.val[nid][tree[key]['link']['mlid']] = \
-          php.Reference(tree.val[key]['link'])
-        tree.val[key]['link']['access'] = False
-    if (tree.val[key]['below']):
-      menu_tree_collect_node_links(tree[key]['below'], node_links.val)
+        node_links[nid][tree[key]['link']['mlid']] = tree[key]['link']
+        tree[key]['link']['access'] = False
+    if (tree[key]['below']):
+      menu_tree_collect_node_links(tree[key]['below'], node_links)
 
 
 
@@ -1048,7 +1048,7 @@ def menu_tree_check_access(tree, node_links = {}):
       nid = node['nid']
       for mlid,link in node_links[nid].items():
         node_links[nid][mlid]['access'] = True
-  _menu_tree_check_access(tree.val)
+  _menu_tree_check_access(tree)
   return
 
 
@@ -1059,21 +1059,21 @@ def _menu_tree_check_access(tree):
   """
   php.Reference.check(tree)
   new_tree = {}
-  for key,v in tree.val.items():
-    item = php.Reference(tree.val[key]['link'])
+  for key,v in tree.items():
+    item = tree[key]['link']
     _menu_link_translate(item)
-    if (item.val['access']):
-      if (tree.val[key]['below']):
-        _menu_tree_check_access(tree.val[key]['below'])
+    if (item['access']):
+      if (tree[key]['below']):
+        _menu_tree_check_access(tree[key]['below'])
       # The weights are made a uniform 5 digits by adding 50000 as an offset.
       # After _menu_link_translate(), item['title'] has
       # the localized link title.
       # Adding the mlid to the end of the index insures that it is unique.
       new_tree[(50000 + item['weight']) +  ' '  + \
-        item['title'] + ' ' + item['mlid']] = tree.val[key]
+        item['title'] + ' ' + item['mlid']] = tree[key]
   # Sort siblings in the tree based on the weights and localized titles.
   ksort(new_tree)
-  tree.val = new_tree
+  php.array_merge(tree, new_tree, True)
 
 
 
@@ -1888,13 +1888,13 @@ def menu_link_save(item):
   """
   php.Reference.check(item)
   menu = menu_router_build()
-  drupal_alter('menu_link', item.val, menu)
+  drupal_alter('menu_link', item, menu)
   # This is the easiest way to handle the unique internal path '<front>',
   # since a path marked as external does not need to match a router path.
-  item.val['_external'] = menu_path_is_external(item.val['link_path'])  or \
-    item.val['link_path'] == '<front>'
+  item['_external'] = menu_path_is_external(item['link_path'])  or \
+    item['link_path'] == '<front>'
   # Load defaults.
-  item.val += {
+  php.array_merge(item, {
     'menu_name': 'navigation',
     'weight': 0,
     'link_title': '',
@@ -1905,28 +1905,28 @@ def menu_link_save(item):
     'plugin': 'menu',
     'customized': 0,
     'updated': 0,
-  }
+  }, True)
   existing_item = False
-  if (php.isset(item.val, 'mlid')):
+  if (php.isset(item, 'mlid')):
     existing_item = db_fetch_array(db_query(\
-      "SELECT * FROM {menu_links} WHERE mlid = %d", item.val['mlid']))
-  if (php.isset(item.val, 'plid')):
+      "SELECT * FROM {menu_links} WHERE mlid = %d", item['mlid']))
+  if (php.isset(item, 'plid')):
     parent = db_fetch_array(db_query(\
-      "SELECT * FROM {menu_links} WHERE mlid = %d", item.val['plid']))
+      "SELECT * FROM {menu_links} WHERE mlid = %d", item['plid']))
   else:
     # Find the parent - it must be unique.
-    parent_path = item.val['link_path']
+    parent_path = item['link_path']
     where = "WHERE link_path = '%s'"
     # Only links derived from router items should have plugin == 'system', and
     # we want to find the parent even if it's in a different menu.
-    if (item.val['plugin'] == 'system'):
+    if (item['plugin'] == 'system'):
       where += " AND plugin = '%s'"
       arg2 = 'system'
     else:
-      # If not derived from a router item.val, we
+      # If not derived from a router item, we
       # respect the specified menu name.
       where += " AND menu_name = '%s'"
-      arg2 = item.val['menu_name']
+      arg2 = item['menu_name']
     while True:
       parent = False
       parent_path = php.substr(parent_path, 0, strrpos(parent_path, '/'))
@@ -1939,14 +1939,14 @@ def menu_link_save(item):
       if not (parent == False and parent_path):
         break
   if (parent != False):
-    item.val['menu_name'] = parent['menu_name']
-  menu_name = item.val['menu_name']
+    item['menu_name'] = parent['menu_name']
+  menu_name = item['menu_name']
   # Menu callbacks need to be in the links table for breadcrumbs, but can't
-  # be parents if they are generated directly from a router item.val.
+  # be parents if they are generated directly from a router item.
   if (php.empty(parent['mlid']) or parent['hidden'] < 0):
-    item.val['plid'] =  0
+    item['plid'] =  0
   else:
-    item.val['plid'] = parent['mlid']
+    item['plid'] = parent['mlid']
   if (not existing_item):
     db_query( \
       "INSERT INTO {menu_links} ( " + \
@@ -1958,46 +1958,46 @@ def menu_link_save(item):
       "'%s', %d, '%s', " + \
       "%d, %d, %d, " + \
       "%d, %d,'%s', '%s', '%s', %d, %d)",
-      item.val['menu_name'], item.val['plid'], item.val['link_path'],
-      item.val['hidden'], item.val['_external'], item.val['has_children'],
-      item.val['expanded'], item.val['weight'],
-      item.val['plugin'],  item.val['link_title'], \
-        php.serialize(item.val['options']),
-      item.val['customized'], item.val['updated'])
-    item.val['mlid'] = db_last_insert_id('menu_links', 'mlid')
-  if (not item.val['plid']):
-    item.val['p1'] = item.val['mlid']
+      item['menu_name'], item['plid'], item['link_path'],
+      item['hidden'], item['_external'], item['has_children'],
+      item['expanded'], item['weight'],
+      item['plugin'],  item['link_title'], \
+        php.serialize(item['options']),
+      item['customized'], item['updated'])
+    item['mlid'] = db_last_insert_id('menu_links', 'mlid')
+  if (not item['plid']):
+    item['p1'] = item['mlid']
     for i in range(2, MENU_MAX_DEPTH + 1):
-      item.val["pi"] = 0
-    item.val['depth'] = 1
+      item["pi"] = 0
+    item['depth'] = 1
   else:
     # Cannot add beyond the maximum depth.
-    if (item.val['has_children'] and existing_item):
+    if (item['has_children'] and existing_item):
       limit = MENU_MAX_DEPTH - menu_link_children_relative_depth(existing_item) - 1
     else:
       limit = MENU_MAX_DEPTH - 1
     if (parent['depth'] > limit):
       return False
-    item.val['depth'] = parent['depth'] + 1
-    _menu_link_parents_set(item.val, parent)
+    item['depth'] = parent['depth'] + 1
+    _menu_link_parents_set(item, parent)
   # Need to check both plid and menu_name, since plid can be 0 in any menu.
-  if (existing_item and (item.val['plid'] != existing_item['plid'] or \
+  if (existing_item and (item['plid'] != existing_item['plid'] or \
       menu_name != existing_item['menu_name'])):
-    _menu_link_move_children(item.val, existing_item)
+    _menu_link_move_children(item, existing_item)
   # Find the callback. During the menu update we store empty paths to be
   # fixed later, so we skip this.
   if (not php.isset(_SESSION, 'system_update_6021') and \
-      (php.empty(item.val['router_path'])  or \
+      (php.empty(item['router_path'])  or \
       not existing_item or \
-      (existing_item['link_path'] != item.val['link_path']))):
-    if (item.val['_external']):
-      item.val['router_path'] = ''
+      (existing_item['link_path'] != item['link_path']))):
+    if (item['_external']):
+      item['router_path'] = ''
     else:
       # Find the router path which will serve this path.
-      item.val['parts'] = php.explode('/', \
-        item.val['link_path'], MENU_MAX_PARTS)
-      item.val['router_path'] = \
-        _menu_find_router_path(menu, item.val['link_path'])
+      item['parts'] = php.explode('/', \
+        item['link_path'], MENU_MAX_PARTS)
+      item['router_path'] = \
+        _menu_find_router_path(menu, item['link_path'])
   db_query( \
     "UPDATE {menu_links} SET " + \
     "menu_name = '%s', plid = %d, link_path = '%s', " + \
@@ -2007,23 +2007,23 @@ def menu_link_save(item):
     "p5 = %d, p6 = %d, p7 = %d, p8 = %d, p9 = %d, " + \
     "plugin = '%s', link_title = '%s', options = '%s', " + \
     "customized = %d WHERE mlid = %d", \
-    item.val['menu_name'], item.val['plid'], item.val['link_path'], \
-    item.val['router_path'], item.val['hidden'], item.val['_external'], \
-    item.val['has_children'], \
-    item.val['expanded'], item.val['weight'],  item.val['depth'], \
-    item.val['p1'], item.val['p2'], item.val['p3'], item.val['p4'], \
-    item.val['p5'], item.val['p6'], item.val['p7'], item.val['p8'], \
-    item.val['p9'], \
-    item.val['plugin'],  item.val['link_title'], \
-    php.serialize(item.val['options']), \
-    item.val['customized'], item.val['mlid'])
+    item['menu_name'], item['plid'], item['link_path'], \
+    item['router_path'], item['hidden'], item['_external'], \
+    item['has_children'], \
+    item['expanded'], item['weight'],  item['depth'], \
+    item['p1'], item['p2'], item['p3'], item['p4'], \
+    item['p5'], item['p6'], item['p7'], item['p8'], \
+    item['p9'], \
+    item['plugin'],  item['link_title'], \
+    php.serialize(item['options']), \
+    item['customized'], item['mlid'])
   # Check the has_children status of the parent.
-  _menu_update_parental_status(item.val)
+  _menu_update_parental_status(item)
   menu_cache_clear(menu_name)
   if (existing_item and menu_name != existing_item['menu_name']):
     menu_cache_clear(existing_item['menu_name'])
   _menu_clear_page_cache()
-  return item.val['mlid']
+  return item['mlid']
 
 
 
@@ -2237,18 +2237,18 @@ def _menu_link_parents_set(item, parent):
   """
   php.Reference.check(item)
   i = 1
-  while (i < item.val['depth']):
+  while (i < item['depth']):
     p = 'p' + i
     i += 1
-    item.val[p] = parent[p]
+    item[p] = parent[p]
   p = 'p' +  i
   i += 1
   # The parent (p1 - p9) corresponding to the depth always equals the mlid.
-  item.val[p] = item.val['mlid']
+  item[p] = item['mlid']
   while (i <= MENU_MAX_DEPTH):
     p = 'p' + i
     i += 1
-    item.val[p] = 0
+    item[p] = 0
 
 
 

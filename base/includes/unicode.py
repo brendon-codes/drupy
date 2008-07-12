@@ -130,9 +130,9 @@ def drupal_xml_parser_create(data):
   php.Reference.check(data);
   # Default XML encoding is UTF-8
   encoding = 'utf-8';
-  data.val = unicode(data.val, encoding);
+  data._ = unicode(data._, encoding);
   try:
-    return minidom.parseString(data.val);
+    return minidom.parseString(data._);
   except ExpatError, TypeError:
     return False
 
