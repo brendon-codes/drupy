@@ -3116,9 +3116,9 @@ def drupal_write_record(table, object_, update = []):
     # No changes requested.
     # If we began with an array, convert back so we don't surprise the caller.
     if (array_):
-      php.array_merge(php.array_(tmp), object_, True)
+      php.array_merge(object_, php.array_(tmp), True)
     else:
-      php.object_merge(tmp, object_, True)
+      php.object_merge(object_, tmp, True)
     return;
   # Build the SQL.
   query = '';
@@ -3150,9 +3150,9 @@ def drupal_write_record(table, object_, update = []):
     return_ = False
   # If we began with an array, convert back so we don't surprise the caller.
   if (array_):
-    php.array_merge(php.array_(tmp), object_, True)
+    php.array_merge(object_, php.array_(tmp), True)
   else:
-    php.object_merge(tmp, object_, True)
+    php.object_merge(object_, tmp, True)
   return return_;
 
 
