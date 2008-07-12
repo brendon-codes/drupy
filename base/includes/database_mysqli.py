@@ -623,7 +623,7 @@ def db_rename_table(ret, table, new_name):
      The new name for the table.
   """
   php.Reference.check(ref)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} RENAME TO {' + \
+  ret.append( update_sql('ALTER TABLE {' +  table  + '} RENAME TO {' + \
     new_name + '}') )
 
 
@@ -638,7 +638,7 @@ def db_drop_table(ret, table):
      The table to be dropped.
   """
   php.Reference.check(ref)
-  ret.val = update_sql('DROP TABLE {' +  table  + '}')
+  php.array_merge( update_sql('DROP TABLE {' +  table  + '}'), ret, True )
 
 
 
@@ -675,17 +675,17 @@ def db_add_field(ret, table, field, spec, keys_new = []):
   query += _db_create_field_sql(field, _db_process_field(spec))
   if (php.count(keys_new)):
     query += ', ADD ' +  php.implode(', ADD ', _db_create_keys_sql(keys_new))
-  ret.val.append( update_sql(query) )
+  ret.append( update_sql(query) )
   if (php.isset(spec, 'initial')):
     # All this because update_sql does not support %-placeholders.
     sql = 'UPDATE {' +  table  + '} SET ' + field + ' = ' + \
       db_type_placeholder(spec['type'])
     result = db_query(sql, spec['initial'])
-    ret.val.append( {'success' : result != False, \
+    ret.append( {'success' : result != False, \
       'query' : check_plain(sql +  ' ('  + spec['initial'] + ')')})
   if (fixNone):
     spec['not None'] = True
-    db_change_field(ret.val, table, field, field, spec)
+    db_change_field(ret, table, field, field, spec)
 
 
 
@@ -701,7 +701,7 @@ def db_drop_field(ret, table, field):
      The field to be dropped.
   """
   php.Reference.check(ret)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + '} DROP ' + field) )
+  ret.append( update_sql('ALTER TABLE {' +  table  + '} DROP ' + field) )
 
 
 def db_field_set_default(ret, table, field, default):
@@ -739,7 +739,7 @@ def db_field_set_no_default(ret, table, field):
      The field to be altered.
   """
   php.Reference.check(ret)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + \
+  ret.append( update_sql('ALTER TABLE {' +  table  + \
     '} ALTER COLUMN ' + field + ' DROP DEFAULT') )
 
 
@@ -757,7 +757,7 @@ def db_add_primary_key(ret, table, fields):
      Fields for the primary key.
   """
   php.Reference.check(ret)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + \
+  ret.append( update_sql('ALTER TABLE {' +  table  + \
     '} ADD PRIMARY KEY (' + _db_create_key_sql(fields) +  ')') )
 
 
@@ -772,7 +772,7 @@ def db_drop_primary_key(ret, table):
      The table to be altered.
   """
   php.Reference.check(ret)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + \
+  ret.append( update_sql('ALTER TABLE {' +  table  + \
     '} DROP PRIMARY KEY') )
 
 
@@ -808,7 +808,7 @@ def db_drop_unique_key(ret, table, name):
      The name of the key.
   """
   php.Reference.check(ret)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + \
+  ret.append( update_sql('ALTER TABLE {' +  table  + \
     '} DROP KEY ' + name) )
 
 
@@ -829,7 +829,7 @@ def db_add_index(ret, table, name, fields):
   php.Reference.check(ret)
   query = 'ALTER TABLE {' +  table  + '} ADD INDEX ' + name + \
     ' (' + _db_create_key_sql(fields) + ')'
-  ret.val.append( update_sql(query) )
+  ret.append( update_sql(query) )
 
 
 
@@ -845,7 +845,7 @@ def db_drop_index(ret, table, name):
      The name of the index.
   """
   php.Reference.check(ret)
-  ret.val.append( update_sql('ALTER TABLE {' +  table  + \
+  ret.append( update_sql('ALTER TABLE {' +  table  + \
     '} DROP INDEX ' + name) )
 
 
@@ -920,7 +920,7 @@ def db_change_field(ret, table, field, field_new, spec, keys_new = []):
     _db_create_field_sql(field_new, _db_process_field(spec))
   if (php.count(keys_new) > 0):
     sql += ', ADD ' +  php.implode(', ADD ', _db_create_keys_sql(keys_new))
-  ret.val.append( update_sql(sql) )
+  ret.append( update_sql(sql) )
 
 
 def db_last_insert_id(table, field):

@@ -164,34 +164,34 @@ def file_check_directory(directory, mode = 0, form_item = None):
    @return False when directory not found, or True when directory exists.
   """
   php.Reference.check(directory);
-  directory.val = php.rtrim(directory.val, '/\\')
+  directory._ = php.rtrim(directory._, '/\\')
   # Check if directory exists.
-  if (not php.is_dir(directory.val)):
-    if ((mode & FILE_CREATE_DIRECTORY) and mkdir(directory.val) != False):
+  if (not php.is_dir(directory._)):
+    if ((mode & FILE_CREATE_DIRECTORY) and mkdir(directory._) != False):
       drupal_set_message(t('The directory %directory has been created.', \
-        {'%directory' : directory.val}))
-      chmod(directory.val, 0775); # Necessary for non-webserver users.
+        {'%directory' : directory._}))
+      chmod(directory._, 0775); # Necessary for non-webserver users.
     else:
       if (form_item):
         form_set_error(form_item, \
           t('The directory %directory does not exist.', \
-          {'%directory' : directory.val}))
+          {'%directory' : directory._}))
       return False
   # Check to see if the directory is writable.
-  if (not php.is_writable(directory.val)):
-    if ((mode & FILE_MODIFY_PERMISSIONS) and chmod(directory.val, 0775)):
+  if (not php.is_writable(directory._)):
+    if ((mode & FILE_MODIFY_PERMISSIONS) and chmod(directory._, 0775)):
       drupal_set_message(t('The permissions of directory %directory ' + \
         'have been changed to make it writable.', \
-        {'%directory' : directory.val}))
+        {'%directory' : directory._}))
     else:
       form_set_error(form_item, t('The directory %directory is not writable', \
-        {'%directory' : directory.val}))
+        {'%directory' : directory._}))
       watchdog('file system', 'The directory %directory is not writable, ' + \
         'because it does not have the correct permissions set.', \
-        {'%directory' : directory.val}, WATCHDOG_ERROR)
+        {'%directory' : directory._}, WATCHDOG_ERROR)
       return False
-  if ((file_directory_path() == directory.val or \
-      file_directory_temp() == directory.val) and \
+  if ((file_directory_path() == directory._ or \
+      file_directory_temp() == directory._) and \
       not php.is_file("directory/.htaccess")):
     htaccess_lines = \
       "SetHandler Drupal_Security_Do_Not_Remove_See_SA_2006_006\n" + \
@@ -199,9 +199,9 @@ def file_check_directory(directory, mode = 0, form_item = None):
     fp = fopen("directory/.htaccess", 'w')
     if (fp and fputs(fp, htaccess_lines)):
       fclose(fp)
-      chmod(directory.val + '/.htaccess', 0664)
+      chmod(directory._ + '/.htaccess', 0664)
     else:
-      variables = {'%directory' : directory.val, \
+      variables = {'%directory' : directory._, \
         '!htaccess' : '<br />' + php.nl2br(check_plain(htaccess_lines))}
       form_set_error(form_item, t("Security warning: " + \
         "Couldn't write + htaccess file. " + \
