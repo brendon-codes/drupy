@@ -3051,8 +3051,8 @@ def drupal_write_record(table, object_, update = []):
   """
    Save a record to the database based upon the schema.
   
-   Default values are filled in for missing items, and 'serial' (auto increment)
-   types are filled in with IDs.
+   Default values are filled in for missing items, and 'serial'
+   (auto increment) types are filled in with IDs.
   
    @param table
      The name of the table; this must exist in schema API.
@@ -3080,10 +3080,11 @@ def drupal_write_record(table, object_, update = []):
   if php.empty(schema):
     return False
   # Convert to an object if needed.
-  if (php.is_array(object_.val)):
-    object_.val = php.object_(object_.val);
+  if (php.is_array(object_)):
+    tmp = php.object_(object_);
     array_ = True;
   else:
+    tmp = php.clone(object_)
     array_ = False;
   fields = defs = values = serials = placeholders = [];
   # Go through our schema, build SQL, and when inserting, fill in defaults for
@@ -3093,29 +3094,31 @@ def drupal_write_record(table, object_, update = []):
     if (info['type'] == 'serial' and php.count(update)):
       continue;
     # For inserts, populate defaults from Schema if not already provided
-    if (not php.isset(object_.val, field) and not \
+    if (not php.isset(tmp, field) and not \
         php.count(update) and php.isset(info, 'default')):
-      setattr(object_.val, field, info['default']);
+      setattr(tmp, field, info['default']);
     # Track serial fields so we can helpfully populate them after the query.
     if (info['type'] == 'serial'):
       serials.append( field );
       # Ignore values for serials when inserting data. Unsupported.
-      delattr(object_.val, field);
+      delattr(tmp, field);
     # Build arrays for the fields, placeholders, and values in our query.
-    if (php.isset(object_.val, field)):
+    if (php.isset(tmp, field)):
       fields.append( field );
       placeholders.append( db_type_placeholder(info['type']) );
       if (php.empty(info['serialize'])):
-        values.append( getattr( object_.val, field ) );
-      elif (not php.empty(getattr( object_.val, field ))):
-        values.append( php.serialize( getattr(object_.val, field) ) );
+        values.append( getattr( tmp, field ) );
+      elif (not php.empty(getattr( tmp, field ))):
+        values.append( php.serialize( getattr(tmp, field) ) );
       else:
         values.append( '' );
   if (php.empty(fields)):
     # No changes requested.
     # If we began with an array, convert back so we don't surprise the caller.
     if (array_):
-      object_.val = drupy_array(object_.val);
+      php.array_merge(php.array_(tmp), object_, True)
+    else:
+      php.object_merge(tmp, object_, True)
     return;
   # Build the SQL.
   query = '';
@@ -3133,7 +3136,7 @@ def drupal_write_record(table, object_, update = []):
     for key in update:
       conditions.append( key + " = " + \
         db_type_placeholder(schema['fields'][key]['type']) );
-      values.append( object_.val.key );
+      values.append( tmp.key );
     query = "UPDATE {" + table + "} SET query WHERE " + \
       php.implode(' AND ', conditions);
     return_ = SAVED_UPDATED;
@@ -3142,12 +3145,14 @@ def drupal_write_record(table, object_, update = []):
     if (not php.empty(serials)):
       # Get last insert ids and fill them in.
       for field in serials:
-        setattr( object.val, field, db_last_insert_id(table, field) );
+        setattr( tmp, field, db_last_insert_id(table, field) );
   else:
     return_ = False
   # If we began with an array, convert back so we don't surprise the caller.
-  if (not php.empty(array_)):
-    object_.val = drupy_array(object_.val);
+  if (array_):
+    php.array_merge(php.array_(tmp), object_, True)
+  else:
+    php.object_merge(tmp, object_, True)
   return return_;
 
 
@@ -3306,9 +3311,9 @@ def drupal_explode_tags(tags):
   # This regexp allows the following types of user input:
   # this, "somecompany, llc", "and ""this"" w,o.rks", foo bar
   regexp = '%(?:^|,\ *)("(?>[^"]*)(?>""[^"]* )*"|(?: [^",]*))%x';
-  matches = php.Reference()
+  matches = []
   php.preg_match_all(regexp, tags, matches);
-  typed_tags = array_unique(matches.val[1]);
+  typed_tags = array_unique(matches[1]);
   tags = [];
   for tag in typed_tags:
     # If a user has escaped a term (to demonstrate that it is a group,
