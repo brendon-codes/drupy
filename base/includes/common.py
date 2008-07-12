@@ -959,9 +959,9 @@ def parse_size(size):
     'm' : 1048576, # 1024 * 1024
     'g' : 1073741824, # 1024 * 1024 * 1024
   };
-  match = php.Reference()
+  match = []
   if (php.preg_match('/([0-9]+)\s*(k|m|g)?(b?(ytes?)?)/i', size, match) > 0):
-    return match.val[1] * suffixes[drupal_strtolower(match.val[2])];
+    return match[1] * suffixes[drupal_strtolower(match[2])];
 
 
 
@@ -1642,10 +1642,10 @@ def drupal_build_css_cache(types, filename):
     # http://www.w3.org/TR/REC-CSS2/cascade.html#at-import,
     # @import rules must proceed any other style, so we move those to the top.
     regexp = '/@import[^;]+;/i';
-    matches = php.Reference()
+    matches = []
     php.preg_match_all(regexp, data, matches);
     data = php.preg_replace(regexp, '', data);
-    data = php.implode('', matches.val[0]) . data;
+    data = php.implode('', matches[0]) . data;
     # Create the CSS file.
     file_save_data(data, csspath + '/' + filename, FILE_EXISTS_REPLACE);
   return csspath + '/' + filename;
@@ -2504,9 +2504,9 @@ def drupal_alter(type_, data, *additional_args_):
   # of a flexible
   # drupal_alter() function, and the limitations of func_get_args().
   # @todo: Remove this in Drupal 7.
-  if (php.is_array(data.val) and php.isset(data.val['__drupal_alter_by_ref'])):
-    by_ref_parameters = data.val['__drupal_alter_by_ref'];
-    del(data.val['__drupal_alter_by_ref']);
+  if (php.is_array(data) and php.isset(data['__drupal_alter_by_ref'])):
+    by_ref_parameters = data['__drupal_alter_by_ref'];
+    del(data['__drupal_alter_by_ref']);
   else:
     by_ref_parameters = None;
   # Hang onto a reference to the data array so that it isn't blown away later.
@@ -2540,75 +2540,77 @@ def drupal_render(elements):
      The rendered HTML.
   """
   php.Reference.check(elements);
-  if (elements.val == None or (php.isset(elements.val, '#access') and not \
-      elements.val['#access'])):
+  if (php.empty(elements) or (php.isset(elements, '#access') and not \
+      elements['#access'])):
     return None;
   # If the default values for this element haven't been loaded yet, populate
   # them.
-  if (not php.isset(elements.val, '#defaults_loaded') or not \
-      elements.val['#defaults_loaded']):
-    info = _element_info(elements.val['#type']);
-    if ((not php.empty(elements.val['#type'])) and (info)):
-      elements.val += info;
+  if (not php.isset(elements, '#defaults_loaded') or not \
+      elements['#defaults_loaded']):
+    info = _element_info(elements['#type']);
+    if ((not php.empty(elements['#type'])) and info):
+      for ik,iv in info.items():
+        elements[ik] = iv;
   # Make any final changes to the element before it is rendered. This means
   # that the element or the children can be altered or corrected before the
   # element is rendered into the final text.
-  if (php.isset(elements.val, '#pre_render')):
-    for function in elements.val['#pre_render']:
+  if (php.isset(elements, '#pre_render')):
+    for function in elements['#pre_render']:
       if (drupal_function_exists(function)):
-        elements.val = function(elements.val);
+        for ek,ev in function(elements).items():
+          elements[ek] = ev
   content = '';
   # Either the elements did not go through form_builder or one of the children
   # has a #weight.
-  if (not php.isset(elements.val, '#sorted')):
-    php.uasort(elements.val, element_sort);
-  elements.val = php.array_merge(elements.val, \
-    {'#title' : None, '#description' : None});
-  if (not php.isset(elements.val['#children'])):
-    children = element_children(elements.val);
+  if (not php.isset(elements, '#sorted')):
+    php.uasort(elements, element_sort);
+  elements['#title'] = None
+  elements['#description'] = None
+  if (not php.isset(elements['#children'])):
+    children = element_children(elements);
 # Render all the children that use a theme function */
-    if (php.isset(elements.val, '#theme') and \
-        php.empty(elements.val['#theme_used'])):
-      elements.val['#theme_used'] = True;
+    if (php.isset(elements, '#theme') and \
+        php.empty(elements['#theme_used'])):
+      elements['#theme_used'] = True;
       previous = {};
       for key in ['#value', '#type', '#prefix', '#suffix']:
-        previous[key] = (elements.val[key] if \
-          php.isset(elements.val, key) else None);
+        previous[key] = (elements[key] if \
+          php.isset(elements, key) else None);
       # If we rendered a single element, then we will skip the renderer.
       if (php.empty(children)):
-        elements.val['#printed'] = True;
+        elements['#printed'] = True;
       else:
-        elements.val['#value'] = '';
-      elements.val['#type'] = 'markup';
-      del(elements.val['#prefix'])
-      del(elements.val['#suffix']);
-      content = theme(elements.val['#theme'], elements.val);
+        elements['#value'] = '';
+      elements['#type'] = 'markup';
+      del(elements['#prefix'])
+      del(elements['#suffix']);
+      content = theme(elements['#theme'], elements);
       for key in ['#value', '#type', '#prefix', '#suffix']:
-        elements.val[key] = (previous[key] if \
+        elements[key] = (previous[key] if \
           php.isset(previous, key) else None);
     # render each of the children using drupal_render and concatenate them */
     if (php.empty(content)):
       for key in children:
-        content += drupal_render(elements.val[key]);
+        content += drupal_render(elements[key]);
   if (not php.empty(content)):
-    elements.val['#children'] = content;
+    elements['#children'] = content;
   # Until now, we rendered the children, here we render the element itself
-  if (not php.isset(elements.val, '#printed')):
-    content = theme((elements.val['#type'] if not \
-      php.empty(elements.val['#type']) else 'markup'), elements.val);
-    elements.val['#printed'] = True;
+  if (not php.isset(elements, '#printed')):
+    content = theme((elements['#type'] if not \
+      php.empty(elements['#type']) else 'markup'), elements);
+    elements['#printed'] = True;
   if (not php.empty(content)):
     # Filter the outputted content and make any last changes before the
     # content is sent to the browser. The changes are made on content
     # which allows the output'ed text to be filtered.
-    if (php.isset(elements.val, '#post_render')):
-      for function in elements.val['#post_render']:
+    if (php.isset(elements, '#post_render')):
+      for function in elements['#post_render']:
         if (drupal_function_exists(function)):
-          content = function(content, elements.val);
-    prefix = (elements.val['#prefix'] if \
-      php.isset(elements.val, '#prefix') else '');
-    suffix = (elements.val['#suffix'] if \
-      php.isset(elements.val, '#suffix') else '');
+          content = function(content, elements);
+    prefix = (elements['#prefix'] if \
+      php.isset(elements, '#prefix') else '');
+    suffix = (elements['#suffix'] if \
+      php.isset(elements, '#suffix') else '');
     return prefix + content + suffix;
 
 
@@ -3013,11 +3015,11 @@ def _drupal_initialize_schema(plugin, schema):
   """
   php.Reference.check(schema);
   # Set the name and plugin key for all tables.
-  for name,table in schema.val.items():
+  for name,table in schema.items():
     if (php.empty(table['plugin'])):
-      schema.val[name]['plugin'] = plugin;
+      schema[name]['plugin'] = plugin;
     if (not php.isset(table, 'name')):
-      schema.val[name]['name'] = name;
+      schema[name]['name'] = name;
 
 
 
