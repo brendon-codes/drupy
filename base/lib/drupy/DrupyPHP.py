@@ -146,7 +146,7 @@ class Reference:
    Wrapper to setup a reference object
   """
   def __init__(self, item = None):
-    self.val = item
+    self._ = item
   
   @staticmethod
   def check(data):
@@ -156,7 +156,10 @@ class Reference:
      @raise Exception 
      @return Bool
     """
-    if not isinstance(data, Reference) or not hasattr(data, 'val'):
+    if (not isinstance(data, Reference) and \
+        not isinstance(data, dict) and \
+        not isintance(data, list)) or \
+        not hasattr(data, '_'):
       raise Exception, "Argument must be an object and must contain a 'val' property."
     else:
       return True
@@ -439,7 +442,7 @@ def define(name, val = None):
       isinstance(val, int) or \
       isinstance(val, float) or \
       isinstance(val, bool) or \
-      val == None:
+      val is None:
     v['val'] = val
   elif isinstance(val, str):
     v['val'] = "'%s'" % val
@@ -586,6 +589,8 @@ def is_dir(filename):
   """
    Checks file is directory
    @param filename Str
+   @param inplace Bool
+   @param empty_source Bool
    @return Bool
   """
   return os.path.isdir(filename)
@@ -597,14 +602,20 @@ def is_dir(filename):
 # @param Dict,List a2
 # @return Dict,List
 #
-def array_merge(a1, a2):
+def array_merge(a1, a2, inplace=False, empty_source=False):
   """
    Merges lists
    @param a1 Dict,List
    @param a2 Dict,List
    @return Dict,List 
   """ 
-  out = copy.deepcopy(a1)
+  if inplace:
+    out = a1
+  else:
+    out = copy.deepcopy(a1)
+  if empty_source:
+    for i in range(len(out)):
+      out.pop()
   for k in a2:
     out[k] = a2[k]
   return out
@@ -644,8 +655,8 @@ def isset(obj, val = None, searchGlobal = False, data = {}):
   """
   sVal = None
   # First check for single None value
-  if val == None:
-    return (obj != None)
+  if val is None:
+    return (obj is not None)
   # Check object|list|dict > property|index|key
   else:
     # Dict
@@ -790,38 +801,9 @@ def empty(val):
   """
    Checks for empty
    @param obj Any
-   @param searchGlobal Bool
-   @param val Str
    @return Bool
   """
-  # Boolean
-  if \
-      isinstance(val, bool) and \
-      (val == False):
-    return True
-  # None
-  elif \
-      val == None:
-    return True
-  # Lists
-  elif \
-      isinstance(val, list) or \
-      isinstance(val, tuple) or \
-      isinstance(val, dict):
-    return (len(val) <= 0)
-  # Numbers
-  elif \
-      isinstance(val, int) or \
-      isinstance(val, float):
-    return (val <= 0)
-  # String
-  elif \
-      isinstance(val, str):
-    return (val.strip() == '')
-  # Anything else
-  else:
-    return False
-
+  return (not val) 
 
 
 def strtr(text, items):
@@ -863,7 +845,7 @@ def array_slice(items, a1, a2 = None):
    @param a2 Int
    @return Mixed
   """
-  if (a2 == None):
+  if (a2 is None):
     return items[a1:]
   else:
     return items[a1:a2]
@@ -1073,9 +1055,7 @@ def preg_match(pat, subject, match = None):
     Reference.check(match)
   reg = __preg_setup(pat)
   searcher = reg.search(subject)
-  if searcher == None:
-    if match != None:
-      match.val = []
+  if searcher is None:
     return 0
   else:
     g = list(searcher.groups())
@@ -1104,11 +1084,11 @@ def preg_match_all(pat, subject, matches = None):
       out[i] = []
       for j in g:
         out[i].append(j.group(i))
-    matches.val = out
+    array_merge(matches, out, True, True)
     return len(g)
   else:
     out = [[]]
-    matches.val = out
+    array_merge(matches, out, True, True)
     return 0
 
 
@@ -1268,7 +1248,7 @@ def is_null(val):
    Is null
    @param val Any
   """
-  return (val == None)
+  return (val is None)
 
 
 def strpos(haystack, needle):
@@ -1329,7 +1309,7 @@ def gmdate(format, stamp = None):
    @param stamp Int
    @return Str
   """
-  if stamp == None:
+  if stamp is None:
     stamp = time.time()
   dt = datetime.datetime.utcfromtimestamp(stamp)
   return dt.strftime(format)
