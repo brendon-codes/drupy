@@ -1412,7 +1412,7 @@ def drupal_eval(code):
 
 
 
-def drupal_get_path(type, name):
+def drupal_get_path(type_, name):
   """
    Returns the path to a system item (plugin, theme, etc.).
   
@@ -1424,7 +1424,7 @@ def drupal_get_path(type, name):
    @return
      The path to the requested item.
   """
-  return php.dirname(drupal_get_filename(type, name));
+  return lib_bootstrap.drupal_get_filename(type_, name)
 
 
 
@@ -2442,8 +2442,7 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
    @return
      An array of file objects of the specified type.
   """
-  global profile;
-  config = conf_path();
+  config = lib_bootstrap.conf_path();
   # When this function is called during Drupal's initial 
   # installation process,
   # the name of the profile that's about to be installed is stored
@@ -2452,26 +2451,24 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
   # table contains the name of the current profile, and we can call
   # variable_get()
   # to determine what one is active.
-  if (profile == None):
-    profile = variable_get('install_profile', 'default');
+  if (lib_theme.profile is None):
+    lib_theme.profile = lib_bootstrap.variable_get('install_profile', 'default');
   searchdir = [directory];
-  files = [];
+  files = {};
   # Always search sites/all/* as well as the global directories
-  searchdir.append( 'sites/all/' + directory );
+  searchdir.append( 'sites/all/%s' % directory );
   # The 'profiles' directory contains pristine collections of plugins and
   # themes as organized by a distribution.  It is pristine in the same way
   # that /plugins is pristine for core; users should avoid changing anything
   # there in favor of sites/all or sites/<domain> directories.
-  if (php.file_exists("profiles/%(profile)s/directory" % \
-      {'profile' : profile})):
-    searchdir.append( "profiles/%(profile)s/directory" % \
-      {'profile' : profile} );
-  if (php.file_exists("%(config)s/directory" % {'config':config})):
-    searchdir.append( "%(config)s/directory" % {'config':config} );
+  if (php.file_exists("profiles/%s/%s" % (lib_theme.profile, directory) )):
+    searchdir.append( "profiles/%s/%s" % (lib_theme.profile, directory) )
+  if (php.file_exists("%s/%s" % (config, directory))):
+    searchdir.append( "%s/%s" % (config, directory) );
   # Get current list of items
-  for dir in searchdir:
-    files = php.array_merge(files, file_scan_directory(dir, mask, \
-      ['.', '..', 'CVS'], 0, True, key, min_depth));
+  for dir_ in searchdir:
+    files = php.array_merge(files, lib_file.file_scan_directory(dir_, mask, \
+      ('.', '..', 'CVS'), 0, True, key, min_depth));
   return files;
 
 

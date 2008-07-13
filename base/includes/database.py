@@ -240,7 +240,7 @@ def db_is_active():
    Returns a boolean depending on the availability of the database.
   """
   global active_db;
-  return (active_db == None);
+  return (active_db is not None);
 
 
 def _db_query_callback(match, init = False):

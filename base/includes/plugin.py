@@ -44,6 +44,8 @@ import database as lib_database
 import cache as lib_cache
 #import install as inc_install
 
+loaded_plugins = {}
+
 def plugin_load_all():
   """
    Load all the plugins that have been enabled in the system table.
@@ -413,12 +415,13 @@ def plugin_hook(plugin_, hook):
      True if the plugin is both installed and enabled, and the hook is
      implemented in that plugin.
   """
+  global loaded_plugins
   function = hook;
   if (lib_bootstrap.MAINTENANCE_MODE is True):
-    return php.function_exists(function, lib_bootstrap.loaded_plugins[plugin_])
+    return php.function_exists(function, loaded_plugins[plugin_])
   else:
     return lib_bootstrap.drupal_function_exists(function, \
-      lib_bootstrap.loaded_plugins[plugin_]);
+      loaded_plugins[plugin_]);
 
 
 
@@ -501,15 +504,16 @@ def plugin_invoke_all(*args):
      An array of return values of the hook implementations. If plugins return
      arrays from their implementations, those are merged into one array.
   """
+  global loaded_plugins
   args = list(args)
-  hook = args[0]
+  hook = 'hook_%s' % args[0]
   del(args[0])
   return_ = []
   for plugin_ in plugin_implements(hook):
     if (lib_bootstrap.drupal_function_exists(hook, \
-        lib_bootstrap.loaded_plugins[plugin_])):
+        loaded_plugins[plugin_])):
       function = DrupyImport.getFunction(\
-        lib_bootstrap.loaded_plugins[plugin_], hook)
+        loaded_plugins[plugin_], hook)
       result = php.call_user_func_array(function, args);
       if (result is not None and php.is_array(result)):
         return_ = p.array_merge_recursive(return_, result);

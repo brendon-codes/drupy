@@ -199,12 +199,12 @@ def arg(index = None, path = None):
      The component specified by index, or NULL if the specified component was
      not found.
   """
-  php.static(arg, 'arguments')
-  if (path == None):
+  php.static(arg, 'arguments', {})
+  if (path is None):
     path = php.GET['q'];
   if (not php.isset(arg.arguments, path)):
     arg.arguments[path] = php.explode('/', path);
-  if (index == None):
+  if (index is None):
     return arg.arguments[path];
   if (php.isset(arg.arguments[path], index)):
     return arg.arguments[path][index];
