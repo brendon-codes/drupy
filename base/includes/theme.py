@@ -42,6 +42,7 @@ __version__ = "$Revision: 1 $"
 
 from lib.drupy import DrupyPHP as php
 import bootstrap as lib_bootstrap
+import common as lib_common
 import database as lib_database
 import plugin as lib_plugin
 
@@ -105,7 +106,7 @@ def init_theme():
   # Find all our ancestor themes and put them in an array.
   base_theme = [];
   ancestor = theme_;
-  while (ancestor and php.isset(themes[ancestor].base_theme)):
+  while (ancestor and php.isset(themes[ancestor], 'base_theme')):
     new_base_theme = themes[themes[ancestor].base_theme];
     base_theme.append(new_base_theme);
     ancestor = themes[ancestor].base_theme;
@@ -113,13 +114,13 @@ def init_theme():
 
 
 
-def _init_theme(theme_, base_theme = [], registry_callback = \
+def _init_theme(this_theme, base_theme = [], registry_callback = \
     '_theme_load_registry'):
   """
    Initialize the theme system given already loaded information. This
    function is useful to initialize a theme when no database is present.
   
-   @param theme
+   @param this_theme
      An object with the following information:
        filename
          The .info file for this theme. The 'path' to
@@ -141,9 +142,9 @@ def _init_theme(theme_, base_theme = [], registry_callback = \
      The callback to invoke to set the theme registry.
   """
   global theme_info, base_theme_info, theme_engine, theme_path;
-  theme_info = theme_;
+  theme_info = this_theme;
   base_theme_info = base_theme;
-  theme_path = php.dirname(theme.filename);
+  theme_path = php.dirname(this_theme.filename);
   # Prepare stylesheets from this theme as well as all ancestor themes.
   # We work it this way so that we can have child themes override parent
   # theme stylesheets easily.
@@ -152,17 +153,19 @@ def _init_theme(theme_, base_theme = [], registry_callback = \
   for base in base_theme:
     if (not php.empty(base.stylesheets)):
       for media,stylesheets in base.stylesheets.items():
+        final_stylesheets[media] = {}
         for name,stylesheet in stylesheets.items():
           final_stylesheets[media][name] = stylesheet;
   # Add stylesheets used by this theme.
-  if (not php.empty(theme.stylesheets)):
-    for media,stylesheets in theme.stylesheets.items():
+  if (not php.empty(this_theme.stylesheets)):
+    for media,stylesheets in this_theme.stylesheets.items():
+      final_stylesheets[media] = {}
       for name,stylesheet in stylesheets.items():
         final_stylesheets[media][name] = stylesheet;
   # And now add the stylesheets properly
   for media,stylesheets in final_stylesheets.items():
     for stylesheet in stylesheets:
-      drupal_add_css(stylesheet, 'theme', media);
+      lib_common.drupal_add_css(stylesheet, 'theme', media);
   # Do basically the same as the above for scripts
   final_scripts = {};
   # Grab scripts from base theme
@@ -171,22 +174,22 @@ def _init_theme(theme_, base_theme = [], registry_callback = \
       for name,script in base.scripts.items():
         final_scripts[name] = script;
   # Add scripts used by this theme.
-  if (not php.empty(theme_.scripts)):
-    for name,script in theme_.scripts.items():
+  if (not php.empty(this_theme.scripts)):
+    for name,script in this_theme.scripts.items():
       final_scripts[name] = script;
   # Add scripts used by this theme.
   for script in final_scripts:
     drupal_add_js(script, 'theme');
   theme_engine = None;
   # Initialize the theme.
-  if (php.isset(theme_, 'engine')):
+  if (php.isset(this_theme, 'engine')):
     # Include the engine.
-    php.include_once( './' + theme_.owner );
+    php.include_once( './' + this_theme.owner );
     theme_engine = theme.engine;
     if (php.function_exists(theme_engine + '_init')):
       for base in base_theme:
         call_user_func(theme_engine + '_init', base);
-      call_user_func(theme_engine + '_init', theme);
+      call_user_func(theme_engine + '_init', this_theme);
   else:
     # include non-engine theme files
     for base in base_theme:
@@ -194,10 +197,10 @@ def _init_theme(theme_, base_theme = [], registry_callback = \
       if (not php.empty(base.owner)):
         php.include_once( './'  + base.owner );
     # and our theme gets one too.
-    if (not php.empty(theme.owner)):
-      php.include_once( './' + theme.owner );
+    if (not php.empty(this_theme.owner)):
+      php.include_once( './' + this_theme.owner );
     if (drupal_function_exists(registry_callback)):
-      registry_callback(theme_, base_theme, theme_engine)
+      registry_callback(this_theme, base_theme, theme_engine)
 
 
 
@@ -423,7 +426,6 @@ def list_themes(refresh = False):
    @return
      An array of the currently available themes.
   """
-  global theme_
   php.static(list_themes, 'list_', {})
   if (refresh):
     list_themes.list_ = {};
@@ -435,35 +437,38 @@ def list_themes(refresh = False):
       result = lib_database.db_query(\
         "SELECT * FROM {system} WHERE type = '%s'", 'theme');
       while True:
-        theme_ = lib_database.db_fetch_object(result);
-        print theme_.filename
-        php.flush()
-        exit(1)
-        if theme_ == False or theme_ is None:
+        this_theme = lib_database.db_fetch_object(result);
+        if this_theme == False or this_theme is None:
           break;
-        if (php.file_exists(theme_.filename)):
-          theme_.info = php.unserialize(theme_.info);
-          themes.append( theme_ );
+        if (php.file_exists(this_theme.filename)):
+          this_theme.info = php.unserialize(this_theme.info);
+          #php.print_r( dir(theme_) )
+          #php.flush()
+          #exit(1)
+          themes.append( this_theme );
     else:
       # Scan the installation when the database should not be read.
       themes = lib_plugin.loaded_plugins['system']._theme_data();
-    for theme_ in themes:
-      for media,stylesheets in theme_.info['stylesheets']:
-        for stylesheet,path in stylesheets:
+    for i_theme in themes:
+      i_theme.stylesheets = {}
+      i_theme.scripts = {}
+      for media,stylesheets in i_theme.info['stylesheets'].items():
+        i_theme.stylesheets[media] = {}
+        for stylesheet,path in stylesheets.items():
           if (php.file_exists(path)):
-            theme_.stylesheets[media][stylesheet] = path;
-      for script,path in theme.info['scripts'].items():
+            i_theme.stylesheets[media][stylesheet] = path;
+      for script,path in i_theme.info['scripts'].items():
         if (php.file_exists(path)):
-          theme_.scripts[script] = path;
-      if (php.isset(theme_.info, 'engine')):
-        theme_.engine = theme_.info['engine'];
-      if (php.isset(theme_.info, 'base theme')):
-        theme_.base_theme = theme_.info['base theme'];
+          i_theme.scripts[script] = path;
+      if (php.isset(i_theme.info, 'engine')):
+        i_theme.engine = i_theme.info['engine'];
+      if (php.isset(i_theme.info, 'base theme')):
+        i_theme.base_theme = i_theme.info['base theme'];
       # Status is normally retrieved from the database. Add zero values when
       # read from the installation directory to prevent notices.
-      if (not php.isset(theme_, 'status')):
-        theme_.status = 0;
-      list_themes.list_[theme_.name] = theme_;
+      if (not php.isset(i_theme, 'status')):
+        i_theme.status = 0;
+      list_themes.list_[i_theme.name] = i_theme;
   return list_themes.list_;
 
 
