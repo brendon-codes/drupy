@@ -938,33 +938,29 @@ def file_scan_directory(dir, mask, nomask = ['.', '..', 'CVS'], \
      matching files.
   """
   key = (key if php.in_array(key, \
-    array('filename', 'basename', 'name')) else 'filename')
+    ('filename', 'basename', 'name')) else 'filename')
   files = []
-  handle = opendir(dir)
-  if (php.is_dir(dir) and handle):
-    while True:
-      file = readdir(handle)
-      if (file == None or file == False):
-        break
+  if php.is_dir(dir):
+    dir_files = php.scandir(dir)
+    for file in dir_files:
       if (not php.in_array(file, nomask) and file[0] != '.'):
-        if (php.is_dir("dir/file") and recurse):
+        if (php.is_dir("%s/%s" % (dir, file)) and recurse):
           # Give priority to files in this folder by
           # merging them in after any subdirectory files.
-          files = php.array_merge(file_scan_directory("dir/file", \
+          files = php.array_merge(file_scan_directory("%s/%s" % (dir, file), \
             mask, nomask, callback, recurse, key, min_depth, depth + 1), files)
         elif (depth >= min_depth and ereg(mask, file)):
           # Always use this match over anything already
           # set in files with the same $key.
-          filename = "dir/file"
-          basename = basename(file)
-          name = php.substr(basename, 0, strrpos(basename, '.'))
+          filename = "%s/%s" % (dir, file)
+          basename_ = php.basename(file)
+          name = php.substr(basename_, 0, php.strrpos(basename_, '.'))
           files[key] = php.stdClass()
           files[key].filename = filename
-          files[key].basename = basename
+          files[key].basename = basename_
           files[key].name = name
           if (callback):
             callback(filename)
-    closedir(handle)
   return files
 
 

@@ -61,7 +61,6 @@ base_root = None
 base_url = None
 language_ = None
 timers = None
-loaded_plugins = {}
 
 #
 # Maintenance Mode
@@ -398,7 +397,7 @@ def conf_path(require_settings = True, reset = False):
    @return
      The path of the matching directory.
   """
-  pass
+  return 'sites/default'
 
 
 
@@ -491,9 +490,9 @@ def drupal_get_filename(type_, name, filename = None):
    configuration. For example, a plugin 'foo' may legally be be located
    in any of these three places:
   
-   plugins/foo/foo.plugin
-   sites/all/plugins/foo/foo.plugin
-   sites/example.com/plugins/foo/foo.plugin
+   plugins/foo/__init__.py
+   sites/all/plugins/foo/__init__.py
+   sites/example.com/plugins/foo/__init__.py
   
    Calling drupal_get_filename('plugin', 'foo') will give you one of
    the above, depending on where the plugin is located.
@@ -515,7 +514,7 @@ def drupal_get_filename(type_, name, filename = None):
      name, type_))
   if (not php.isset(drupal_get_filename.files, type_)):
     drupal_get_filename.files[type_] = {}
-  if (filename != None and php.file_exists(filename)):
+  if (filename is not None and php.file_exists(filename)):
     drupal_get_filename.files[type_][name] = filename;
   elif (php.isset(drupal_get_filename.files[type_], name)):
     # nothing
@@ -524,22 +523,27 @@ def drupal_get_filename(type_, name, filename = None):
   # the database.  This is required because this def is called both
   # before we have a database connection (i.e. during installation) and
   # when a database connection fails.
-  elif (db_is_active() and (file and php.file_exists(file))):
+  elif (lib_database.db_is_active() and (file and php.file_exists(file))):
     drupal_get_filename.files[type_][name] = file;
   else:
     # Fallback to searching the filesystem if the database connection is
     # not established or the requested file is not found.
     config = conf_path();
-    dir_ = ('themes/engines' if (type_ == 'theme_engine') else (type_ + 's'));
-    file = (("%(name)s.engine" % {'name':name}) if \
-      (type_ == 'theme_engine') else ("%(name)s.type" % {'name':name}));
+    if type_ == 'theme_engine':
+      dir_ = 'themes/engines'
+      file = "%s.engine" % name
+    else:
+      dir_ = '%ss' % type_
+      file = "__init__.py"
     fileVals = {'name':name, 'file':file, 'dir':dir_, 'config':config};
-    fileChecker = [
-      "config/dir/file" % fileVals,
-      "config/dir/name/file" % fileVals,
-      "dir/file" % fileVals,
-      "dir/name/file" % fileVals
-    ];
+    fileChecker = (
+      # DRUPY: This is not used
+      # "%(config)s/%(dir)s/%(file)s" % fileVals,
+      "%(config)s/%(dir)s/%(name)s/%(file)s" % fileVals,
+      # DRUPY: This is not used
+      #"%(dir)s/%(file)s" % fileVals,
+      "%(dir)s/%(name)s/%(file)s" % fileVals
+    )
     for file_ in fileChecker:
       if (php.file_exists(file_)):
         drupal_get_filename.files[type_][name] = file_;
@@ -719,7 +723,6 @@ def drupal_load(type_, name):
    @return
      TRUE if the item is loaded or has already been loaded.
   """
-  global loaded_plugins
   php.static(drupal_load, 'files', {})
   if (not php.isset(drupal_load.files, type)):
     drupal_load.files[type_] = {}
@@ -728,7 +731,7 @@ def drupal_load(type_, name):
   else:
     filename = drupal_get_filename(type_, name);
     if (filename != False):
-      loaded_plugins[name] = DrupyImport.import_file(filename)
+      lib_plugin.loaded_plugins[name] = DrupyImport.import_file(filename)
       drupal_load.files[type_][name] = True;
       return True;
     else:

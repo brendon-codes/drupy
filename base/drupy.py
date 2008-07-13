@@ -41,6 +41,8 @@ import sys
 from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyImport
 from includes import bootstrap as lib_bootstrap
+from includes import plugin as lib_plugin
+
 
 phases = (
   (lib_bootstrap.DRUPAL_BOOTSTRAP_CONFIGURATION, \
@@ -63,11 +65,14 @@ phases = (
    'DRUPAL_BOOTSTRAP_FULL')
 );
 
+if 'q' not in php.GET:
+  php.GET['q'] = 'node'
+
 which_phase = phases[8];
 lib_bootstrap.drupal_bootstrap(which_phase[0]);
 stamp, revised = time.strftime("%c GMT||%m/%d/%Y", time.gmtime()).split('||')
 
-out_plugins = php.print_r(lib_bootstrap.loaded_plugins, True)
+out_plugins = php.print_r(lib_plugin.loaded_plugins, True)
 out_plugins_html = php.htmlspecialchars(out_plugins)
 out_vars = php.print_r(vars(), True)
 out_vars = re.sub('[a-zA-Z0-9_\.-]+@.+?\.[a-zA-Z]+', '********', out_vars)

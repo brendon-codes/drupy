@@ -41,6 +41,9 @@
 __version__ = "$Revision: 1 $"
 
 from lib.drupy import DrupyPHP as php
+import bootstrap as lib_bootstrap
+import database as lib_database
+import plugin as lib_plugin
 
 #
 # Markers used by theme_mark() and node_mark() to designate content.
@@ -62,25 +65,37 @@ MARK_NEW = 1
 #
 MARK_UPDATED = 2
 
+
 #
-# @} End of "Content markers".
+# GLOBALS
 #
+theme_ = None
+profile = None
+custom_theme = None
+
+
 
 def init_theme():
   """
    Initialize the theme system by loading the theme.
   """
-  global theme_, user, custom_theme, theme_key;
+  global custom_theme
+  global theme_key
+  global theme_
   # If theme is already set, assume the others are set, too, and do nothing
-  if (theme_ != None):
+  if (theme_ is not None):
     return True;
-  drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE);
+  lib_bootstrap.drupal_bootstrap(lib_bootstrap.DRUPAL_BOOTSTRAP_DATABASE);
   themes = list_themes();
   # Only select the user selected theme if it is available in the
   # list of enabled themes.
-  theme_ = (user.theme if (not php.empty(user.theme) and not \
-    php.empty(themes[user.theme].status)) else \
-    variable_get('theme_default', 'garland'));
+  if (lib_bootstrap.user is not None and \
+      isset(lib_bootstrap.user, 'theme') and \
+      not php.empty(lib_bootstrap.user.theme) and \
+      not php.empty(themes[lib_bootstrap.user.theme].status)):
+    theme_ = lib_bootstrap.user.theme
+  else:
+    theme_ = lib_bootstrap.variable_get('theme_default', 'garland')
   # Allow plugins to override the present theme... only select custom theme
   # if it is available in the list of installed themes.
   theme_ = (custom_theme if (custom_theme and themes[custom_theme]) else \
@@ -408,25 +423,30 @@ def list_themes(refresh = False):
    @return
      An array of the currently available themes.
   """
-  php.static(list_themes, '_list', [])
+  global theme_
+  php.static(list_themes, 'list_', {})
   if (refresh):
-    list_themes.list_ = [];
+    list_themes.list_ = {};
   if (php.empty(list_themes.list_)):
     themes = [];
     # Extract from the database only when it is available.
     # Also check that the site is not in the middle of an install or update.
-    if (db_is_active() and not php.defined('MAINTENANCE_MODE')):
-      result = db_query("SELECT * FROM {system} WHERE type = '%s'", 'theme');
+    if (lib_database.db_is_active() and not lib_bootstrap.MAINTENANCE_MODE):
+      result = lib_database.db_query(\
+        "SELECT * FROM {system} WHERE type = '%s'", 'theme');
       while True:
-        theme_ = db_fetch_object(result);
-        if theme_ == False or theme_ == None:
+        theme_ = lib_database.db_fetch_object(result);
+        print theme_.filename
+        php.flush()
+        exit(1)
+        if theme_ == False or theme_ is None:
           break;
         if (php.file_exists(theme_.filename)):
           theme_.info = php.unserialize(theme_.info);
           themes.append( theme_ );
     else:
       # Scan the installation when the database should not be read.
-      themes = _system_theme_data();
+      themes = lib_plugin.loaded_plugins['system']._theme_data();
     for theme_ in themes:
       for media,stylesheets in theme_.info['stylesheets']:
         for stylesheet,path in stylesheets:
@@ -447,7 +467,7 @@ def list_themes(refresh = False):
   return list_themes.list_;
 
 
-def theme():
+def theme(*args):
   
   """
    Generate the themed output.
@@ -539,7 +559,6 @@ def theme():
   global theme_path;
   global theme_engine;
   php.static(theme, 'hooks')
-  args = func_get_args();
   hook = php.array_shift(args);
   if (theme.hooks == None):
     init_theme();

@@ -3,7 +3,8 @@
 # Id: system.module,v 1.604 2008/06/28 12:37:52 dries Exp $
 
 """
-  Configuration system that lets administrators modify the workings of the site.
+  Configuration system that lets administrators
+  modify the workings of the site.
 
   @package system
   @see <a href='http://drupy.net'>Drupy Homepage</a>
@@ -44,6 +45,7 @@ from includes import menu as lib_menu
 #from includes import tablesort as inc_tablesort
 #from includes import form as inc_form
 from includes import theme as lib_theme
+from includes import path as lib_path
 #from includes import mail as inc_mail
 #from plugins import user as plugin_user
 #from plugins import node as plugin_node
@@ -850,15 +852,15 @@ def hook_init():
       lib_path.arg(0) == 'node' and (lib_path.arg(1) == 'add' or \
       lib_path.arg(2) == 'edit'))):
     custom_theme = lib_bootstrap.variable_get('admin_theme', '0')
-    lib_common.drupal_add_css(lib_common.drupal_get_path('module', 'system') + \
-    '/admin.css', 'module')
+    lib_common.drupal_add_css(lib_common.drupal_get_path('plugin', 'system') + \
+    '/admin.css', 'plugin')
   # Add the CSS for this module.
-  lib_common.drupal_add_css(lib_common.drupal_get_path('module', 'system') +  \
-    '/defaults.css', 'module')
-  lib_common.drupal_add_css(lib_common.drupal_get_path('module', 'system') + \
-    '/system.css', 'module')
-  lib_common.drupal_add_css(lib_common.drupal_get_path('module', 'system') + \
-    '/system-menus.css', 'module')
+  lib_common.drupal_add_css(lib_common.drupal_get_path('plugin', 'system') +  \
+    '/defaults.css', 'plugin')
+  lib_common.drupal_add_css(lib_common.drupal_get_path('plugin', 'system') + \
+    '/system.css', 'plugin')
+  lib_common.drupal_add_css(lib_common.drupal_get_path('plugin', 'system') + \
+    '/system-menus.css', 'plugin')
   # Get the major version
   version = php.explode('.', VERSION)[0]
   # Emit the META tag in the HTML HEAD section
