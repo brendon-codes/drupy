@@ -41,6 +41,7 @@
 __version__ = "$Revision: 1 $"
 
 from lib.drupy import DrupyPHP as php
+from lib.drupy import DrupyImport
 import bootstrap as lib_bootstrap
 import common as lib_common
 import database as lib_database
@@ -73,6 +74,7 @@ MARK_UPDATED = 2
 theme_ = None
 profile = None
 custom_theme = None
+loaded_themes = {}
 
 
 
@@ -142,6 +144,7 @@ def _init_theme(this_theme, base_theme = [], registry_callback = \
      The callback to invoke to set the theme registry.
   """
   global theme_info, base_theme_info, theme_engine, theme_path;
+  global loaded_themes
   theme_info = this_theme;
   base_theme_info = base_theme;
   theme_path = php.dirname(this_theme.filename);
@@ -184,12 +187,14 @@ def _init_theme(this_theme, base_theme = [], registry_callback = \
   # Initialize the theme.
   if (php.isset(this_theme, 'engine')):
     # Include the engine.
-    php.include_once( './' + this_theme.owner );
-    theme_engine = theme.engine;
-    if (php.function_exists(theme_engine + '_init')):
+    loaded_themes[this_theme.engine] = DrupyImport.import_file(this_theme.owner)
+    theme_engine = this_theme.engine;
+    if (php.function_exists('hook_init', loaded_themes[this_theme.engine])):
       for base in base_theme:
-        call_user_func(theme_engine + '_init', base);
-      call_user_func(theme_engine + '_init', this_theme);
+        php.call_user_func('hook_init', base);
+      this_hook = DrupyImport.getFunction(loaded_themes[this_theme.engine],
+        'hook_init')
+      php.call_user_func(this_hook, this_theme);
   else:
     # include non-engine theme files
     for base in base_theme:

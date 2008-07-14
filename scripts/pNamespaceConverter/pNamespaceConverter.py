@@ -1,19 +1,19 @@
 #!/usr/bin/env python
-# $Id: phptemplate.engine,v 1.70 2008/04/14 17:48:45 dries Exp $
 
 """
-  Handles integration of templates written in pure php
-  with the Drupal theme system.
+  Converts DrupyPHP namespaces
 
-  @package includes
+  @package pNamespaceConverter
   @see <a href='http://drupy.net'>Drupy Homepage</a>
   @see <a href='http://drupal.org'>Drupal Homepage</a>
   @note Drupy is a port of the Drupal project.
-  @note This file was ported from Drupal's includes/module.inc
+  @note
+    This should be run after an initial php2py conversion to bring the PHP
+    functions into a namespace
   @author Brendon Crawford
   @copyright 2008 Brendon Crawford
   @contact message144 at users dot sourceforge dot net
-  @created 2008-01-10
+  @created 2008-06-19
   @version 0.1
   @note License:
 
@@ -36,28 +36,36 @@
     USA
 """
 
-__version__ = "$Revision: 1 $"
+import re
+import sys
+from lib.drupy import DrupyPHP
 
-from lib.drupy import DrupyPHP as php
-from lib.drupy import DrupyImport
-from includes import theme as lib_theme
+prefix_find = 'p\.'
+prefix_replace = 'php.'
 
-def hook_init(template):
-  file = php.dirname(template.filename) + '/template.py'
-  if (php.file_exists(file)):
-    lib_theme.loaded_themes['template'] = DrupyImport.import_file(file)
+f = open(sys.argv[1], 'r+')
+data = f.read()
+
+for k,v in vars(DrupyPHP).items():
+  t = type(v).__name__
+  # Module
+  if (t == 'module'):
+    continue
+  # Function
+  elif (t == 'function'):
+    pat = r'(?<![a-zA-Z0-9_\.])%s(%s)(?=\()' % (prefix_find,k)
+  # Variable
+  else:
+    pat = r'(?<![a-zA-Z0-9_\.])%s(%s)(?![a-zA-Z])' % (prefix_find,k)
+  rep = r'%s\1' % prefix_replace
+  data = re.sub(pat, rep, data)
 
 
+f.truncate(0)
+f.seek(0)
+f.write(data)
+f.close()
 
-def hook_theme(existing, type_, this_theme, path_):
-  """
-    Implementation of hook_theme to tell Drupal what templates the engine
-    and the current theme use. The $existing argument will contain hooks
-    pre-defined by Drupal so that we can use that information if
-    we need to.
-  """
-  templates = drupal_find_theme_functions(existing, ('phptemplate', this_theme));
-  templates += drupal_find_theme_templates(existing, '.tpl.php', path_);
-  return templates
+print "Success"
 
 

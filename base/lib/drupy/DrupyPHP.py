@@ -523,6 +523,20 @@ def call_user_func_array(func, args):
   return func(*tuple(args))
 
 
+def call_user_func(func, arg):
+  """
+   Call user func
+   @param func Function
+   @param arg Mixed
+   @return Unknown
+  """
+  if callable(func):
+    return func(arg)
+  else:
+    return eval(func)(arg)
+  
+
+
 def array_filter(item, func):
   """
    Array filter
