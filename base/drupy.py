@@ -42,6 +42,7 @@ from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyImport
 from includes import bootstrap as lib_bootstrap
 from includes import plugin as lib_plugin
+from includes import theme as lib_theme
 
 
 phases = (
@@ -74,11 +75,16 @@ stamp, revised = time.strftime("%c GMT||%m/%d/%Y", time.gmtime()).split('||')
 
 out_plugins = php.print_r(lib_plugin.loaded_plugins, True)
 out_plugins_html = php.htmlspecialchars(out_plugins)
+
+out_themes = php.print_r(lib_theme.loaded_themes, True)
+out_themes_html = php.htmlspecialchars(out_themes)
+
 out_vars = php.print_r(vars(), True)
 out_vars = re.sub('[a-zA-Z0-9_\.-]+@.+?\.[a-zA-Z]+', '********', out_vars)
 out_vars = re.sub('[a-zA-Z0-9]{32}', \
                   '********************************', out_vars)
 out_vars = php.htmlspecialchars(out_vars)
+
 out_mods = php.print_r(DrupyImport.modules(), True)
 out_mods = php.htmlspecialchars(out_mods)
 
@@ -102,8 +108,14 @@ if php.SERVER['WEB']:
   print "<h3>Generated: %s</h3>" % stamp
   print "<h4 style='color:blue;'>"
   print "The following Drupy plugins are loaded. "
-  print "A Drupy plugin is the equivalent of a Drupal module.</h4>"
+  print "A Drupy plugin is the equivalent of a Drupal module."
+  print "</h4>"
   print "<pre style='background-color:yellow;'>%s</pre>" % out_plugins_html
+  print "<h4 style='color:blue;'>"
+  print "The following theme and template modules are loaded. "
+  print "drupytemplate is the equivalent of Drupal's phptemplate"
+  print "</h4>"
+  print "<pre style='background-color:yellow;'>%s</pre>" % out_themes_html
   print "<h4 style='color:blue;'>Global Scope Objects</h4>"
   print "<pre style='background-color:yellow;'>%s</pre>" % out_vars
   print "<h4 style='color:blue;'>Loaded Python Modules</h4>"
@@ -123,6 +135,11 @@ else:
   print "A Drupy plugin is the equivalent of a Drupal plugin"
   print
   print out_plugins
+  print
+  print "The following Drupy theme and template modules are loaded."
+  print "drupytemplate is the equivalent of Drupal's phptemplate"
+  print
+  print out_themes
   print
   print "You may now query any Drupal Bootstrap object."
   print
