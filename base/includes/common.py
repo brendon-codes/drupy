@@ -1498,7 +1498,6 @@ def drupal_add_css(path = None, type = 'plugin', media = 'all', \
    @return
      An array of CSS files.
   """
-  global language;
   php.static(drupal_add_css, 'css', {})
   # Create an array of CSS files for each media type first,
   # since each type needs to be served
@@ -1510,7 +1509,8 @@ def drupal_add_css(path = None, type = 'plugin', media = 'all', \
       drupal_add_css.css[media] = {'plugin' : {}, 'theme' : {}};
     drupal_add_css.css[media][type][path] = preprocess;
     # If the current language is RTL, add the CSS file with RTL overrides.
-    if (php.defined('LANGUAGE_RTL') and language.direction == LANGUAGE_RTL):
+    if (php.defined('LANGUAGE_RTL') and \
+        lib_bootstrap.language.direction == LANGUAGE_RTL):
       rtl_path = php.str_replace('.css', '-rtl.css', path);
       if (php.file_exists(rtl_path)):
         drupal_add_css.css[media][type][rtl_path] = preprocess;

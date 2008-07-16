@@ -731,7 +731,7 @@ def drupal_load(type_, name):
   else:
     filename = drupal_get_filename(type_, name);
     if (filename != False):
-      lib_plugin.loaded_plugins[name] = DrupyImport.import_file(filename)
+      lib_plugin.plugins[name] = DrupyImport.import_file(filename)
       drupal_load.files[type_][name] = True;
       return True;
     else:
