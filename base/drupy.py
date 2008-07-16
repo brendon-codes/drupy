@@ -73,10 +73,10 @@ which_phase = phases[8];
 lib_bootstrap.drupal_bootstrap(which_phase[0]);
 stamp, revised = time.strftime("%c GMT||%m/%d/%Y", time.gmtime()).split('||')
 
-out_plugins = php.print_r(lib_plugin.loaded_plugins, True)
+out_plugins = php.print_r(lib_plugin.plugins, True)
 out_plugins_html = php.htmlspecialchars(out_plugins)
 
-out_themes = php.print_r(lib_theme.loaded_themes, True)
+out_themes = php.print_r(lib_theme.processors, True)
 out_themes_html = php.htmlspecialchars(out_themes)
 
 out_vars = php.print_r(vars(), True)
@@ -112,7 +112,7 @@ if php.SERVER['WEB']:
   print "</h4>"
   print "<pre style='background-color:yellow;'>%s</pre>" % out_plugins_html
   print "<h4 style='color:blue;'>"
-  print "The following theme and template modules are loaded. "
+  print "The following theme processors are loaded. "
   print "drupytemplate is the equivalent of Drupal's phptemplate"
   print "</h4>"
   print "<pre style='background-color:yellow;'>%s</pre>" % out_themes_html
@@ -136,7 +136,7 @@ else:
   print
   print out_plugins
   print
-  print "The following Drupy theme and template modules are loaded."
+  print "The following Drupy theme processors are loaded."
   print "drupytemplate is the equivalent of Drupal's phptemplate"
   print
   print out_themes

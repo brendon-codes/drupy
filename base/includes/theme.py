@@ -74,7 +74,7 @@ MARK_UPDATED = 2
 theme_ = None
 profile = None
 custom_theme = None
-loaded_themes = {}
+processors = {}
 
 
 
@@ -144,7 +144,7 @@ def _init_theme(this_theme, base_theme = [], registry_callback = \
      The callback to invoke to set the theme registry.
   """
   global theme_info, base_theme_info, theme_engine, theme_path;
-  global loaded_themes
+  global engine
   theme_info = this_theme;
   base_theme_info = base_theme;
   theme_path = php.dirname(this_theme.filename);
@@ -187,12 +187,12 @@ def _init_theme(this_theme, base_theme = [], registry_callback = \
   # Initialize the theme.
   if (php.isset(this_theme, 'engine')):
     # Include the engine.
-    loaded_themes[this_theme.engine] = DrupyImport.import_file(this_theme.owner)
+    processors[this_theme.engine] = DrupyImport.import_file(this_theme.owner)
     theme_engine = this_theme.engine;
-    if (php.function_exists('hook_init', loaded_themes[this_theme.engine])):
+    if (php.function_exists('hook_init', processors[this_theme.engine])):
       for base in base_theme:
         php.call_user_func('hook_init', base);
-      this_hook = DrupyImport.getFunction(loaded_themes[this_theme.engine],
+      this_hook = DrupyImport.getFunction(processors[this_theme.engine],
         'hook_init')
       php.call_user_func(this_hook, this_theme);
   else:
@@ -453,7 +453,7 @@ def list_themes(refresh = False):
           themes.append( this_theme );
     else:
       # Scan the installation when the database should not be read.
-      themes = lib_plugin.loaded_plugins['system']._theme_data();
+      themes = lib_plugin.plugins['system']._theme_data();
     for i_theme in themes:
       i_theme.stylesheets = {}
       i_theme.scripts = {}

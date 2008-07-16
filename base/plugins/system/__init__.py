@@ -11,6 +11,9 @@
   @see <a href='http://drupal.org'>Drupal Homepage</a>
   @note Drupy is a port of the Drupal project.
   @note This file was ported from Drupal's modules/system/system.module
+  @depends plugins.user
+  @depends plugins.node
+  @depends plugins.taxonomy
   @author Brendon Crawford
   @copyright 2008 Brendon Crawford
   @contact message144 at users dot sourceforge dot net
@@ -42,14 +45,11 @@ from includes import database as lib_database
 from includes import bootstrap as lib_bootstrap
 from includes import common as lib_common
 from includes import menu as lib_menu
-#from includes import tablesort as inc_tablesort
-#from includes import form as inc_form
+#from includes import tablesort as lib_tablesort
+#from includes import form as lib_form
 from includes import theme as lib_theme
 from includes import path as lib_path
-#from includes import mail as inc_mail
-#from plugins import user as plugin_user
-#from plugins import node as plugin_node
-#from plugins import taxonomy as plugin_taxonomy
+#from includes import mail as lib_mail
 
 #
 #
@@ -241,7 +241,7 @@ def hook_help(path_, arg):
       'before they may be used. To create an advanced action, select ' + \
       'the action from the drop-down below and click the ' + \
       '<em>Create</em> button.') + '</p>'
-    if (lib_plugin.plugin_exists('trigger')):
+    if (lib_plugin.exists('trigger')):
       output += '<p>' +  t('You may proceed to the ' + \
         '<a href="@url">Triggers</a> page to assign these actions ' + \
         'to system events.', {'@url' : url('admin/build/trigger')})  + '</p>'
@@ -835,7 +835,7 @@ def _themes_access(theme_):
   """
    Menu item access callback - only admin or enabled themes can be accessed.
   """
-  return plugin_user.access('administer site configuration') and \
+  return lib_plugin.plugins['user'].access('administer site configuration') and \
     (theme_.status or theme_.name == \
     lib_bootstrap.variable_get('admin_theme', '0'))
 

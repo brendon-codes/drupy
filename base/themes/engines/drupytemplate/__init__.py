@@ -45,18 +45,18 @@ from includes import theme as lib_theme
 def hook_init(template):
   file = php.dirname(template.filename) + '/template.py'
   if (php.file_exists(file)):
-    lib_theme.loaded_themes['template'] = DrupyImport.import_file(file)
+    lib_theme.processors['template'] = DrupyImport.import_file(file)
 
 
 
 def hook_theme(existing, type_, this_theme, path_):
   """
     Implementation of hook_theme to tell Drupal what templates the engine
-    and the current theme use. The $existing argument will contain hooks
+    and the current theme use. The existing argument will contain hooks
     pre-defined by Drupal so that we can use that information if
     we need to.
   """
-  templates = drupal_find_theme_functions(existing, ('phptemplate', this_theme));
+  templates = drupal_find_theme_functions(existing, ('drupytemplate', this_theme));
   templates += drupal_find_theme_templates(existing, '.tpl.php', path_);
   return templates
 
