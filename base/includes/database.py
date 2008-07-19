@@ -192,7 +192,7 @@ def set_active(name = 'default'):
     #  _db_error_page("The database type '" + db_type + \
     #    "' is unsupported. Please use either 'mysql' or " + \
     #    "'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
-    set_active.db_conns[name] = db.db_connect(connect_url);
+    set_active.db_conns[name] = db.connect(connect_url);
     # We need to pass around the simpletest database prefix in the request
     # and we put that in the user_agent php.header.
     if (php.preg_match("/^simpletest\d+$/", php.SERVER['HTTP_USER_AGENT'])):
@@ -247,22 +247,22 @@ def _query_callback(match, init = False):
   """
    Helper function for db_query().
   """
-  php.static(_db_query_callback, 'args')
+  php.static(_query_callback, 'args')
   if (init):
-    _db_query_callback.args = list(match);
+    _query_callback.args = list(match);
     return;
   # We must use type casting to int to convert FALSE/NULL/(TRUE?)
   if match[1] == '%d': 
     # We don't need db_escape_string as numbers are db-safe
-    return str(int(php.array_shift(_db_query_callback.args))); 
+    return str(int(php.array_shift(_query_callback.args))); 
   elif match[1] == '%s':
-    return db.db_escape_string(php.array_shift(_db_query_callback.args));
+    return db.escape_string(php.array_shift(_query_callback.args));
   elif match[1] == '%%':
     return '%';
   elif match[1] == '%f':
-    return float(php.array_shift(_db_query_callback.args));
+    return float(php.array_shift(_query_callback.args));
   elif match[1] == '%b': # binary data
-    return db.db_encode_blob(php.array_shift(_db_query_callback.args));
+    return db.encode_blob(php.array_shift(_query_callback.args));
 
 
 def placeholders(arguments, type = 'int'):

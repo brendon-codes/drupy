@@ -438,11 +438,11 @@ def list_themes(refresh = False):
     themes = [];
     # Extract from the database only when it is available.
     # Also check that the site is not in the middle of an install or update.
-    if (lib_database.db_is_active() and not lib_bootstrap.MAINTENANCE_MODE):
-      result = lib_database.db_query(\
+    if (lib_database.is_active() and not lib_bootstrap.MAINTENANCE_MODE):
+      result = lib_database.query(\
         "SELECT * FROM {system} WHERE type = '%s'", 'theme');
       while True:
-        this_theme = lib_database.db_fetch_object(result);
+        this_theme = lib_database.fetch_object(result);
         if this_theme == False or this_theme is None:
           break;
         if (php.file_exists(this_theme.filename)):
@@ -1689,9 +1689,9 @@ def template_preprocess_page(variables_):
   variables_['messages']          = (theme('status_messages') if \
     variables['show_messages'] else '');
   variables_['mission']           = (mission if (mission != None) else '');
-  variables_['main_menu']         = (lib_menu.menu_main_menu() if \
+  variables_['main_menu']         = (lib_menu.main_menu() if \
     theme_get_setting('toggle_main_menu') else []);
-  variables_['secondary_menu']    = (lib_menu.menu_secondary_menu() if \
+  variables_['secondary_menu']    = (lib_menu.secondary_menu() if \
     theme_get_setting('toggle_secondary_menu') else []);
   variables_['search_box']        = \
     (drupal_get_form('search_theme_form') if \
@@ -1709,7 +1709,7 @@ def template_preprocess_page(variables_):
   variables_['title']             = drupal_get_title();
   # Closure should be filled last+
   variables_['closure']           = theme('closure');
-  node = lib_menu.menu_get_object();
+  node = lib_menu.get_object();
   if (node):
     variables_['node'] = node;
   # Compile a list of classes that are going to be applied to the body element+

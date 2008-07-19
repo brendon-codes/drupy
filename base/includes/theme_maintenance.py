@@ -70,7 +70,7 @@ def _drupal_maintenance_theme():
   # If theme is already set, assume the others are set too, and do nothing.
   if (theme_ != None):
     return
-  lib_unicode.unicode_check()
+  lib_unicode.check()
   # Install and update pages are 
   # treated differently to prevent theming overrides.
   if (php.defined('MAINTENANCE_MODE') and \
@@ -81,7 +81,7 @@ def _drupal_maintenance_theme():
     plugin_list_ = { 'system' : {}, 'filter' : {} }
     plugin_list_['system']['filename'] = 'plugins/system/system.py'
     plugin_list_['filter']['filename'] = 'plugins/filter/filter.py'
-    lib_plugin.plugin_list(True, False, False, plugin_list_)
+    lib_plugin.list(True, False, False, plugin_list_)
     drupal_load('plugin', 'system')
     drupal_load('plugin', 'filter')
     theme_ = variable_get('maintenance_theme', 'minnelli')

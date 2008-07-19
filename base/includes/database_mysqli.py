@@ -49,7 +49,7 @@ from lib.drupy import DrupyMySQL
 import bootstrap as lib_bootstrap
 import database as lib_database
 
-def db_status_report(phase):
+def status_report(phase):
   """
    Report database status.
   """
@@ -69,7 +69,7 @@ def db_status_report(phase):
 
 
 
-def db_version():
+def version():
   """
    Returns the version of the database server currently in use.
   
@@ -81,7 +81,7 @@ def db_version():
 
 
 
-def db_connect(url):
+def connect(url):
   """
    Initialise a database connection.
   
@@ -375,19 +375,19 @@ def table_exists(table):
   """
    Check if a table exists.
   """
-  return bool(lib_database.db_fetch_object(\
-    lib_database.db_query("SHOW TABLES LIKE '{" +  \
-    lib_database.db_escape_table(table)  + "}'")))
+  return bool(lib_database.fetch_object(\
+    lib_database.query("SHOW TABLES LIKE '{" +  \
+    lib_database.escape_table(table)  + "}'")))
 
 
 def column_exists(table, column):
   """
    Check if a column exists in the given table.
   """
-  return bool(lib_database.db_fetch_object(\
-    lib_database.db_query("SHOW COLUMNS FROM {" + \
-    lib_database.db_escape_table(table)  + "} LIKE '" + \
-    lib_database.db_escape_table(column) + "'")))
+  return bool(lib_database.fetch_object(\
+    lib_database.query("SHOW COLUMNS FROM {" + \
+    lib_database.escape_table(table)  + "} LIKE '" + \
+    lib_database.escape_table(column) + "'")))
 
 
 def distinct_field(table, field, query):
@@ -446,14 +446,14 @@ def query(query, *args):
      A database query result resource, or False if the query was not
      executed correctly.
   """
-  query = lib_database.db_prefix_tables(query)
+  query = lib_database.prefix_tables(query)
   # 'All arguments in one array' syntax
   if (php.isset(args, 0) and php.is_array(args[0])): 
     args = args[0]
-  lib_database._db_query_callback(args, True)
+  lib_database._query_callback(args, True)
   query = php.preg_replace_callback(lib_database.DB_QUERY_REGEXP, \
-    lib_database._db_query_callback, query)
-  return _db_query(query)
+    lib_database._query_callback, query)
+  return _query(query)
 
 
 #
