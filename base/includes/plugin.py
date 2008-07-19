@@ -46,7 +46,7 @@ import cache as lib_cache
 
 plugins = {}
 
-def plugin_load_all():
+def load_all():
   """
    Load all the plugins that have been enabled in the system table.
   """
@@ -54,7 +54,7 @@ def plugin_load_all():
     lib_bootstrap.drupal_load('plugin', plugin_)
 
 
-def plugin_iterate(function, argument = ''):
+def iterate(function, argument = ''):
   """
    Call a function repeatedly with each plugin in turn as an argument.
   """
@@ -62,7 +62,7 @@ def plugin_iterate(function, argument = ''):
     p.call_user_func(function, name, argument)
 
 
-def plugin_list(refresh = False, bootstrap = True, sort = False, \
+def list_(refresh = False, bootstrap = True, sort = False, \
     fixed_list = None):
   """
    Collect a list of all loaded plugins. During the bootstrap, return only
@@ -123,7 +123,7 @@ def plugin_list(refresh = False, bootstrap = True, sort = False, \
 
 
 
-def plugin_rebuild_cache():
+def rebuild_cache():
   """
    Rebuild the database cache of plugin files.
   
@@ -184,7 +184,7 @@ def plugin_rebuild_cache():
 
 
 
-def _plugin_build_dependencies(files):
+def _build_dependencies(files):
   """
    Find dependencies any level deep and fill in dependents information too.
   
@@ -252,7 +252,7 @@ def _plugin_build_dependencies(files):
 
 
 
-def plugin_exists(plugin_):
+def exists(plugin_):
   """
    Determine whether a given plugin exists.
   
@@ -265,7 +265,7 @@ def plugin_exists(plugin_):
   return php.isset(list_, plugin_)
 
 
-def plugin_load_install(plugin_):
+def load_install(plugin_):
   """
    Load a plugin's installation hooks.
   """
@@ -274,7 +274,7 @@ def plugin_load_install(plugin_):
 
 
 
-def plugin_load_include(type_, plugin_, name = None):
+def load_include(type_, plugin_, name = None):
   """
    Load a plugin include file.
   
@@ -296,7 +296,7 @@ def plugin_load_include(type_, plugin_, name = None):
 
 
 
-def plugin_load_all_includes(type_, name = None):
+def load_all_includes(type_, name = None):
   """
    Load an include file for each of the plugins that have been enabled in
    the system table.
@@ -307,7 +307,7 @@ def plugin_load_all_includes(type_, name = None):
 
 
 
-def plugin_enable(plugin_list_):
+def enable(plugin_list_):
   """
    Enable a given list of plugins.
   
@@ -344,7 +344,7 @@ def plugin_enable(plugin_list_):
 
 
 
-def plugin_disable(plugin_list_):
+def disable(plugin_list_):
   """
    Disable a given set of plugins.
   
@@ -403,7 +403,7 @@ def plugin_disable(plugin_list_):
 #
 
 
-def plugin_hook(plugin_, hook):
+def hook(plugin_, hook):
   """
    Determine whether a plugin implements a hook.
   
@@ -424,7 +424,7 @@ def plugin_hook(plugin_, hook):
 
 
 
-def plugin_implements(hook, sort = False, refresh = False):
+def implements(hook, sort = False, refresh = False):
   """
    Determine which plugins are implementing a hook.
   
@@ -468,7 +468,7 @@ def plugin_implements(hook, sort = False, refresh = False):
 
 
 
-def plugin_invoke(*args):
+def invoke(*args):
   """
    Invoke a hook in a particular plugin.
   
@@ -491,7 +491,7 @@ def plugin_invoke(*args):
 
 
 
-def plugin_invoke_all(*args):
+def invoke_all(*args):
   """
    Invoke a hook in all enabled plugins that implement it.
   

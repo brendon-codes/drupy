@@ -110,14 +110,14 @@ def _drupal_maintenance_theme():
 #
 # This builds the registry when the site needs to bypass any database calls.
 #
-def _theme_load_offline_registry(this_theme, \
+def _load_offline_registry(this_theme, \
                                  base_theme = None, theme_engine = None):
   registry = _theme_build_registry(this_theme, base_theme, theme_engine)
   _theme_set_registry(registry)
 
 
 
-def theme_task_list(items_, active = None):
+def task_list(items_, active = None):
   """
    Return a themed list of maintenance tasks to perform.
   
@@ -137,7 +137,7 @@ def theme_task_list(items_, active = None):
 
 
 
-def theme_install_page(content):
+def install_page(content):
   """
    Generate a themed installation page.
   
@@ -193,7 +193,7 @@ def theme_install_page(content):
 
 
 
-def theme_update_page(content, show_messages = True):
+def update_page(content, show_messages = True):
   """
    Generate a themed update page.
   

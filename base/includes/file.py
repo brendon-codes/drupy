@@ -101,7 +101,7 @@ FILE_STATUS_TEMPORARY = 0
 #
 FILE_STATUS_PERMANENT = 1
 
-def file_create_url(path):
+def create_url(path):
   """
    Create the download path to a file.
   
@@ -120,7 +120,7 @@ def file_create_url(path):
 
 
 
-def file_create_path(dest = 0):
+def create_path(dest = 0):
   """
    Make sure the destination is a complete path and resides in the file system
    directory, if it is not prepend the file system directory.
@@ -149,7 +149,7 @@ def file_create_path(dest = 0):
   return False
 
 
-def file_check_directory(directory, mode = 0, form_item = None):
+def check_directory(directory, mode = 0, form_item = None):
   """
    Check that the directory exists and is writable + Directories need to
    have execute permissions to be considered a directory by FTP servers, etc.
@@ -217,7 +217,7 @@ def file_check_directory(directory, mode = 0, form_item = None):
 
 
 
-def file_check_path(path):
+def check_path(path):
   """
    Checks path to see if it is a directory, or a dir/file.
   
@@ -239,7 +239,7 @@ def file_check_path(path):
 
 
 
-def file_check_location(source, directory = ''):
+def check_location(source, directory = ''):
   """
    Check if a file is really located inside directory + Should be used to make
    sure a file specified is really located within the directory to prevent
@@ -268,7 +268,7 @@ def file_check_location(source, directory = ''):
 
 
 
-def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
+def copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
   """
    Copies a file to a new location.
    This is a powerful function that in many ways
@@ -356,7 +356,7 @@ def file_copy(source, dest = 0, replace = FILE_EXISTS_RENAME):
 
 
 
-def file_destination(destination, replace):
+def destination(destination, replace):
   """
    Determines the destination path for a file depending on how replacement of
    existing files should be handled.
@@ -383,7 +383,7 @@ def file_destination(destination, replace):
   return destination
 
 
-def file_move(source, dest = 0, replace = FILE_EXISTS_RENAME):
+def move(source, dest = 0, replace = FILE_EXISTS_RENAME):
   """
    Moves a file to a new location.
    - Checks if source and dest are valid and readable/writable.
@@ -418,7 +418,7 @@ def file_move(source, dest = 0, replace = FILE_EXISTS_RENAME):
 
 
 
-def file_munge_filename(filename, extensions, alerts = True):
+def munge_filename(filename, extensions, alerts = True):
   """
    Munge the filename as needed for security purposes + For instance the file
    name "exploit.php.pps" would become "exploit.php_.pps".
@@ -455,7 +455,7 @@ def file_munge_filename(filename, extensions, alerts = True):
 
 
 
-def file_unmunge_filename(filename):
+def unmunge_filename(filename):
   """
    Undo the effect of upload_munge_filename().
   
@@ -466,7 +466,7 @@ def file_unmunge_filename(filename):
 
 
 
-def file_create_filename(basename, directory):
+def create_filename(basename, directory):
   """
    Create a full file path from a directory and filename + If a file with the
    specified name already exists, an alternative will be used.
@@ -494,7 +494,7 @@ def file_create_filename(basename, directory):
 
 
 
-def file_delete(path):
+def delete(path):
   """
    Delete a file.
   
@@ -505,7 +505,7 @@ def file_delete(path):
     return p.unlink(path)
 
 
-def file_space_used(uid = None):
+def space_used(uid = None):
   """
    Determine total disk space used by a single user or the whole filesystem.
   
@@ -519,7 +519,7 @@ def file_space_used(uid = None):
   return drupy_int(db_result(db_query('SELECT SUM(filesize) FROM {files}')))
 
 
-def file_save_upload(source, validators = {}, dest = False, \
+def save_upload(source, validators = {}, dest = False, \
     replace = FILE_EXISTS_RENAME):
   """
    Saves a file upload to a new location + The source file is validated as a
@@ -650,7 +650,7 @@ def file_save_upload(source, validators = {}, dest = False, \
 
 
 
-def file_validate_name_length(file):
+def validate_name_length(file):
   """
    Check for files with names longer than we can store in the database.
   
@@ -667,7 +667,7 @@ def file_validate_name_length(file):
 
 
 
-def file_validate_extensions(file, extensions):
+def validate_extensions(file, extensions):
   """
    Check that the filename ends with an allowed extension + This check is not
    enforced for the user #1.
@@ -692,7 +692,7 @@ def file_validate_extensions(file, extensions):
 
 
 
-def file_validate_size(file, file_limit = 0, user_limit = 0):
+def validate_size(file, file_limit = 0, user_limit = 0):
   """
    Check that the file's size is below certain limits + This check is not
    enforced for the user #1.
@@ -729,7 +729,7 @@ def file_validate_size(file, file_limit = 0, user_limit = 0):
 
 
 
-def file_validate_is_image(file):
+def validate_is_image(file):
   """
    Check that the file is recognized by image_get_info() as an image.
   
@@ -748,7 +748,7 @@ def file_validate_is_image(file):
 
 
 
-def file_validate_image_resolution(file, maximum_dimensions = 0, \
+def validate_image_resolution(file, maximum_dimensions = 0, \
     minimum_dimensions = 0):
   """
    If the file is an image verify that its dimensions are within the specified
@@ -804,7 +804,7 @@ def file_validate_image_resolution(file, maximum_dimensions = 0, \
 
 
 
-def file_save_data(data, dest, replace = FILE_EXISTS_RENAME):
+def save_data(data, dest, replace = FILE_EXISTS_RENAME):
   """
    Save a string to the specified destination.
   
@@ -833,7 +833,7 @@ def file_save_data(data, dest, replace = FILE_EXISTS_RENAME):
 
 
 
-def file_set_status(file, status):
+def set_status(file, status):
   """
    Set the status of a file.
   
@@ -850,7 +850,7 @@ def file_set_status(file, status):
   return False
 
 
-def file_transfer(source, headers):
+def transfer(source, headers):
   """
    Transfer file using http to client + Pipes a file through Drupal to the
    client.
@@ -878,7 +878,7 @@ def file_transfer(source, headers):
 
 
 
-def file_download():
+def download():
   """
    Call plugins that implement hook_file_download() to find out if a file is
    accessible and what headers it should be transferred with + If a plugin
@@ -902,7 +902,7 @@ def file_download():
 
 
 
-def file_scan_directory(dir, mask, nomask = ['.', '..', 'CVS'], \
+def scan_directory(dir, mask, nomask = ['.', '..', 'CVS'], \
     callback = 0, recurse = True, key = 'filename', min_depth = 0, depth = 0):
   """
    Finds all files that match a given mask in a given directory.
@@ -965,7 +965,7 @@ def file_scan_directory(dir, mask, nomask = ['.', '..', 'CVS'], \
 
 
 
-def file_directory_temp():
+def directory_temp():
   """
    Determine the default temporary directory.
   
@@ -998,7 +998,7 @@ def file_directory_temp():
 
 
 
-def file_directory_path():
+def directory_path():
   """
    Determine the default 'files' directory.
   
@@ -1007,7 +1007,7 @@ def file_directory_path():
   return variable_get('file_directory_path', conf_path() + '/files')
 
 
-def file_upload_max_size():
+def upload_max_size():
   """
    Determine the maximum file upload size by querying the PHP settings.
   

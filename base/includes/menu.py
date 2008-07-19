@@ -240,7 +240,7 @@ MENU_MAX_PARTS = 7
 MENU_MAX_DEPTH = 9
 
 
-def menu_get_ancestors(parts):
+def get_ancestors(parts):
   """
   @ End of "Menu tree parameters".
   Returns the ancestors (and relevant placeholders) for any given path.
@@ -297,7 +297,7 @@ def menu_get_ancestors(parts):
 
 
 
-def menu_unserialize(data, map):
+def unserialize(data, map):
   """
   The menu system uses serialized arrays stored in the database for
   arguments. However, often these need to change according to the
@@ -329,7 +329,7 @@ def menu_unserialize(data, map):
 
 
 
-def menu_set_item(path, router_item):
+def set_item(path, router_item):
   """
   Replaces the statically cached item for a given path.
   @param path
@@ -344,7 +344,7 @@ def menu_set_item(path, router_item):
 
 
 
-def menu_get_item(path = None, router_item = None):
+def get_item(path = None, router_item = None):
   """
   Get a router item.
 
@@ -389,7 +389,7 @@ def menu_get_item(path = None, router_item = None):
 
 
 
-def menu_execute_active_handler(path = None):
+def execute_active_handler(path = None):
   """
   Execute the page callback associated with the current path
   """
@@ -409,7 +409,7 @@ def menu_execute_active_handler(path = None):
 
 
 
-def _menu_load_objects(item, map_):
+def _load_objects(item, map_):
   """
   Loads objects into the map as defined in the item['load_functions'].
 
@@ -472,7 +472,7 @@ def _menu_load_objects(item, map_):
 
 
 
-def _menu_check_access(item, map_):
+def _check_access(item, map_):
   """
   Check access to a menu item using the access callback
 
@@ -504,7 +504,7 @@ def _menu_check_access(item, map_):
 
 
 
-def _menu_item_localize(item, map_, link_translate = False):
+def _item_localize(item, map_, link_translate = False):
   """
   Localize the router item title using t() or another callback.
 
@@ -568,7 +568,7 @@ def _menu_item_localize(item, map_, link_translate = False):
 
 
 
-def _menu_translate(router_item, map_, to_arg = False):
+def _translate(router_item, map_, to_arg = False):
   """
   Handles dynamic path translation and menu access control.
 
@@ -621,7 +621,7 @@ def _menu_translate(router_item, map_, to_arg = False):
 
 
 
-def _menu_link_map_translate(map_, to_arg_functions):
+def _link_map_translate(map_, to_arg_functions):
   """
   This function translates the path elements in the map using any to_arg
   helper function. These functions take an argument and return an object.
@@ -646,12 +646,12 @@ def _menu_link_map_translate(map_, to_arg_functions):
 
 
 
-def menu_tail_to_arg(arg, map_, index):
+def tail_to_arg(arg, map_, index):
   return php.implode('/', php.array_slice(map_, index))
 
 
 
-def _menu_link_translate(item):
+def _link_translate(item):
   """
   This function is similar to menu_translate_() but does link-specific
   preparation such as always calling to_arg functions
@@ -704,7 +704,7 @@ def _menu_link_translate(item):
 
 
 
-def menu_get_object(type_ = 'node', position = 1, path = None):
+def get_object(type_ = 'node', position = 1, path = None):
   """
   Get a loaded object from a router item.
 
@@ -733,7 +733,7 @@ def menu_get_object(type_ = 'node', position = 1, path = None):
 
 
 
-def menu_tree(menu_name = 'navigation'):
+def tree(menu_name = 'navigation'):
   """
   Render a menu tree based on the current path.
 
@@ -755,7 +755,7 @@ def menu_tree(menu_name = 'navigation'):
 
 
 
-def menu_tree_output(tree):
+def tree_output(tree):
   """
   Returns a rendered menu tree.
 
@@ -790,7 +790,7 @@ def menu_tree_output(tree):
 
 
 
-def menu_tree_all_data(menu_name = 'navigation', item = None):
+def tree_all_data(menu_name = 'navigation', item = None):
   """
   Get the data structure representing a named menu tree.
 
@@ -872,7 +872,7 @@ def menu_tree_all_data(menu_name = 'navigation', item = None):
 
 
 
-def menu_tree_page_data(menu_name = 'navigation'):
+def tree_page_data(menu_name = 'navigation'):
   """
   Get the data structure representing a named
   menu tree, based on the current page.
@@ -1003,7 +1003,7 @@ def menu_tree_page_data(menu_name = 'navigation'):
 
 
 
-def _menu_tree_cid(menu_name, data):
+def _tree_cid(menu_name, data):
   """
   Helper function - compute the real cache ID for menu tree data.
   """
@@ -1011,7 +1011,7 @@ def _menu_tree_cid(menu_name, data):
 
 
 
-def menu_tree_collect_node_links(tree, node_links):
+def tree_collect_node_links(tree, node_links):
   """
   Recursive helper function - collect node links.
   """
@@ -1028,7 +1028,7 @@ def menu_tree_collect_node_links(tree, node_links):
 
 
 
-def menu_tree_check_access(tree, node_links = {}):
+def tree_check_access(tree, node_links = {}):
   """
   Check access and perform other dynamic operations for each link in the tree.
   """
@@ -1053,7 +1053,7 @@ def menu_tree_check_access(tree, node_links = {}):
 
 
 
-def _menu_tree_check_access(tree):
+def _tree_check_access(tree):
   """
   Recursive helper function for menu_tree_check_access()
   """
@@ -1077,7 +1077,7 @@ def _menu_tree_check_access(tree):
 
 
 
-def menu_tree_data(result = None, parents = {}, depth = 1):
+def tree_data(result = None, parents = {}, depth = 1):
   """
   Build the data representing a menu tree.
 
@@ -1096,7 +1096,7 @@ def menu_tree_data(result = None, parents = {}, depth = 1):
 
 
 
-def _menu_tree_data(result, parents, depth, previous_element = ''):
+def _tree_data(result, parents, depth, previous_element = ''):
   """
   Recursive helper function to build the data representing a menu tree.
 
@@ -1213,7 +1213,7 @@ def drupal_help_arg(arg = []):
 
 
 
-def menu_get_active_help():
+def get_active_help():
   """
   Returns the help associated with the active menu item.
   """
@@ -1237,7 +1237,7 @@ def menu_get_active_help():
 
 
 
-def menu_get_names(reset = False):
+def get_names(reset = False):
   """
   Build a list of named menus.
   """
@@ -1254,14 +1254,14 @@ def menu_get_names(reset = False):
 
 
 
-def menu_list_system_menus():
+def list_system_menus():
   """
   Return an array containing the names of system-defined (default) menus.
   """
   return ('navigation', 'main-menu', 'secondary-menu')
 
 
-def menu_main_menu():
+def main_menu():
   """
   Return an array of links to be rendered as the Main menu.
   """
@@ -1269,7 +1269,7 @@ def menu_main_menu():
     variable_get('menu_main_menu_source', 'main-menu'))
 
 
-def menu_secondary_menu():
+def secondary_menu():
   """
   Return an array of links to be rendered as the Secondary links.
   """
@@ -1284,7 +1284,7 @@ def menu_secondary_menu():
       variable_get('menu_secondary_menu_source', 'secondary-menu'), 0)
 
 
-def menu_navigation_links(menu_name, level = 0):
+def navigation_links(menu_name, level = 0):
   """
   Return an array of links for a navigation menu.
 
@@ -1328,7 +1328,7 @@ def menu_navigation_links(menu_name, level = 0):
 
 
 
-def menu_local_tasks(level = 0, return_root = False):
+def local_tasks(level = 0, return_root = False):
   """
   Collects the local tasks (tabs) for a given level.
 
@@ -1448,7 +1448,7 @@ def menu_local_tasks(level = 0, return_root = False):
 
 
 
-def menu_primary_local_tasks():
+def primary_local_tasks():
   """
   Returns the rendered local tasks at the top level.
   """
@@ -1456,7 +1456,7 @@ def menu_primary_local_tasks():
 
 
 
-def menu_secondary_local_tasks():
+def secondary_local_tasks():
   """
   Returns the rendered local tasks at the second level.
   """
@@ -1464,7 +1464,7 @@ def menu_secondary_local_tasks():
 
 
 
-def menu_tab_root_path():
+def tab_root_path():
   """
   Returns the router path, or the path of the parent tab of a default
   local task.
@@ -1491,7 +1491,7 @@ def theme_menu_local_tasks():
 
 
 
-def menu_set_active_menu_name(menu_name = None):
+def set_active_menu_name(menu_name = None):
   """
   Set (or get) the active menu for the current page -
   determines the active trail.
@@ -1506,7 +1506,7 @@ def menu_set_active_menu_name(menu_name = None):
 
 
 
-def menu_get_active_menu_name():
+def get_active_menu_name():
   """
   Get the active menu for the current page - determines the active trail.
   """
@@ -1514,7 +1514,7 @@ def menu_get_active_menu_name():
 
 
 
-def menu_set_active_item(path):
+def set_active_item(path):
   """
   Set the active path, which determines which page is loaded.
 
@@ -1529,7 +1529,7 @@ def menu_set_active_item(path):
 
 
 
-def menu_set_active_trail(new_trail = None):
+def set_active_trail(new_trail = None):
   """
   Set (or get) the active trail for the current page -
   the path to root in the menu tree.
@@ -1583,7 +1583,7 @@ def menu_set_active_trail(new_trail = None):
 
 
 
-def menu_get_active_trail():
+def get_active_trail():
   """
   Get the active trail for the current page - the path to
   root in the menu tree.
@@ -1592,7 +1592,7 @@ def menu_get_active_trail():
 
 
 
-def menu_get_active_breadcrumb():
+def get_active_breadcrumb():
   """
   Get the breadcrumb for the current page, as determined by the active trail.
   """
@@ -1616,7 +1616,7 @@ def menu_get_active_breadcrumb():
 
 
 
-def menu_get_active_title():
+def get_active_title():
   """
   Get the title of the current page, as determined by the active trail.
   """
@@ -1627,7 +1627,7 @@ def menu_get_active_title():
 
 
 
-def menu_link_load(mlid):
+def link_load(mlid):
   """
   Get a menu link by its mlid, access checked and link
   translated for rendering.
@@ -1653,7 +1653,7 @@ def menu_link_load(mlid):
 
 
 
-def menu_cache_clear(menu_name = 'navigation'):
+def cache_clear(menu_name = 'navigation'):
   """
   Clears the cached cached data for a single named menu.
   """
@@ -1669,7 +1669,7 @@ def menu_cache_clear(menu_name = 'navigation'):
 
 
 
-def menu_cache_clear_all():
+def cache_clear_all():
   """
   Clears all cached menu data.  This should be called any time broad changes
   might have been made to the router items or menu links.
@@ -1678,7 +1678,7 @@ def menu_cache_clear_all():
 
 
 
-def menu_rebuild():
+def rebuild():
   """
   (Re)populate the database tables used by various menu functions.
 
@@ -1700,7 +1700,7 @@ def menu_rebuild():
 
 
 
-def menu_router_build(reset = False):
+def router_build(reset = False):
   """
   Collect, alter and store the menu definitions.
   """
@@ -1728,7 +1728,7 @@ def menu_router_build(reset = False):
 
 
 
-def _menu_link_build(item):
+def _link_build(item):
   """
   Builds a link from a router item.
   """
@@ -1751,7 +1751,7 @@ def _menu_link_build(item):
 
 
 
-def _menu_navigation_links_rebuild(menu):
+def _navigation_links_rebuild(menu):
   """
   Helper function to build menu links for the items in the menu router.
   """
@@ -1820,7 +1820,7 @@ def _menu_navigation_links_rebuild(menu):
 
 
 
-def menu_link_delete(mlid, path = None):
+def link_delete(mlid, path = None):
   """
   Delete one or several menu links.
     @param mlid
@@ -1842,7 +1842,7 @@ def menu_link_delete(mlid, path = None):
 
 
 
-def _menu_delete_item(item, force = False):
+def _delete_item(item, force = False):
   """
   Helper function for menu_link_delete; deletes a single menu link.
 
@@ -1871,7 +1871,7 @@ def _menu_delete_item(item, force = False):
 
 
 
-def menu_link_save(item):
+def link_save(item):
   """
   Save a menu link.
 
@@ -2027,7 +2027,7 @@ def menu_link_save(item):
 
 
 
-def _menu_clear_page_cache():
+def _clear_page_cache():
   """
   Helper function to clear the page and block caches
   at most twice per page load.
@@ -2048,7 +2048,7 @@ def _menu_clear_page_cache():
 
 
 
-def _menu_set_expanded_menus():
+def _set_expanded_menus():
   """
   Helper function to update a list of menus with expanded items
   """
@@ -2065,7 +2065,7 @@ def _menu_set_expanded_menus():
 
 
 
-def _menu_find_router_path(menu, link_path):
+def _find_router_path(menu, link_path):
   """
   Find the router path which will serve this path.
 
@@ -2089,7 +2089,7 @@ def _menu_find_router_path(menu, link_path):
 
 
 
-def menu_link_maintain(plugin, op, link_path, link_title):
+def link_maintain(plugin, op, link_path, link_title):
   """
   Insert, update or delete an uncustomized menu link related to a plugin.
 
@@ -2123,7 +2123,7 @@ def menu_link_maintain(plugin, op, link_path, link_title):
 
 
 
-def menu_link_children_relative_depth(item):
+def link_children_relative_depth(item):
   """
   Find the depth of an item's children relative to its depth.
 
@@ -2152,7 +2152,7 @@ def menu_link_children_relative_depth(item):
 
 
 
-def _menu_link_move_children(item, existing_item):
+def _link_move_children(item, existing_item):
   """
   Update the children of a menu link that's being moved.
 
@@ -2213,7 +2213,7 @@ def _menu_link_move_children(item, existing_item):
 
 
 
-def _menu_update_parental_status(item, exclude = False):
+def _update_parental_status(item, exclude = False):
   """
   Check and update the has_children status for the parent of a link.
   """
@@ -2231,7 +2231,7 @@ def _menu_update_parental_status(item, exclude = False):
 
 
 
-def _menu_link_parents_set(item, parent):
+def _link_parents_set(item, parent):
   """
   Helper function that sets the p1..p9 values for a menu link being saved.
   """
@@ -2252,7 +2252,7 @@ def _menu_link_parents_set(item, parent):
 
 
 
-def _menu_router_build(callbacks):
+def _router_build(callbacks):
   """ 
   Helper function to build the router table based on the data from hook_menu.
   """
@@ -2413,7 +2413,7 @@ def _menu_router_build(callbacks):
 #
 # Returns True if a path is external (e.g. http://example.com).
 #
-def menu_path_is_external(path):
+def path_is_external(path):
   colonpos = php.strpos(path, ':')
   return (colonpos != False and not php.preg_match('not [/?#]not ', \
     php.substr(path, 0, colonpos)) and \
@@ -2421,7 +2421,7 @@ def menu_path_is_external(path):
 
 
 
-def _menu_site_is_offline():
+def _site_is_offline():
   """
   Checks whether the site is off-line for maintenance.
 
@@ -2455,7 +2455,7 @@ def _menu_site_is_offline():
 
 
 
-def menu_valid_path(form_item):
+def valid_path(form_item):
   """
   Validates the path of a menu link being created or edited.
 

@@ -39,13 +39,13 @@ __version__ = "$Revision: 1 $"
 
 from lib.drupy import DrupyPHP as php
 
-def sess_open(save_path, session_name):
+def open_(save_path, session_name):
   return True
 
-def sess_close():
+def close():
   return True
 
-def sess_read(key):
+def read(key):
   global user
   # Write and Close handlers are called after destructing objects
   # since PHP 5.0.5
@@ -84,7 +84,7 @@ def sess_read(key):
 
 
 
-def sess_write(key, value):
+def write(key, value):
   global user
   # If saving of session data is disabled or if the client
   # doesn't have a session,
@@ -119,7 +119,7 @@ def sess_write(key, value):
 
 
 
-def sess_regenerate():
+def regenerate():
   """
    Called when an anonymous user becomes authenticated or vice-versa.
   """
@@ -129,7 +129,7 @@ def sess_regenerate():
     session_id(), old_session_id)
 
 
-def sess_count(timestamp = 0, anonymous = True):
+def count(timestamp = 0, anonymous = True):
   """
    Counts how many users have sessions. Can count either anonymous 
    sessions, authenticated sessions, or both.
@@ -150,7 +150,7 @@ def sess_count(timestamp = 0, anonymous = True):
     'WHERE timestamp >= %d' +  query, timestamp))
 
 
-def sess_destroy_sid(sid):
+def destroy_sid(sid):
   """
    Called by PHP session handling with the PHP session ID to
    end a user's session.
@@ -162,7 +162,7 @@ def sess_destroy_sid(sid):
 
 
 
-def sess_destroy_uid(uid):
+def destroy_uid(uid):
   """
    End a specific user's session
   
@@ -174,7 +174,7 @@ def sess_destroy_uid(uid):
 
 
 
-def sess_gc(lifetime):
+def gc(lifetime):
   # Be sure to adjust 'php_value session.gc_maxlifetime' to a large enough
   # value. For example, if you want user sessions to stay in your database
   # for three weeks before deleting them, you need to set gc_maxlifetime
@@ -185,7 +185,7 @@ def sess_gc(lifetime):
 
 
 
-def session_save_session(status = None):
+def save_session(status = None):
   """
    Determine whether to save session data of the current request.
   

@@ -41,7 +41,7 @@ from lib.drupy import DrupyPHP as php
 import bootstrap as lib_bootstrap
 
 
-def language_initialize():
+def initialize():
   """
     Choose a language for the page, based on language negotiation settings.
   """
@@ -88,7 +88,7 @@ def language_initialize():
 
 
 
-def language_from_browser():
+def from_browser():
   """
    Identify language from the Accept-language HTTP php.header we got.
   """
@@ -115,7 +115,7 @@ def language_from_browser():
 
 
 
-def language_url_rewrite(path, options):
+def url_rewrite(path, options):
   """
    Rewrite URL's with language based prefix. Parameters are the same
    as those of the url() function.

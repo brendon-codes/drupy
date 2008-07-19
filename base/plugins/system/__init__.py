@@ -40,6 +40,8 @@
     USA
 """
 
+__version__ = "$Revision: 1 $"
+
 from lib.drupy import DrupyPHP as php
 from includes import database as lib_database
 from includes import bootstrap as lib_bootstrap
