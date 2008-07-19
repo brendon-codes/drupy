@@ -50,7 +50,7 @@ def load_all():
   """
    Load all the plugins that have been enabled in the system table.
   """
-  for plugin_ in plugin_list(True, False):
+  for plugin_ in list_(True, False):
     lib_bootstrap.drupal_load('plugin', plugin_)
 
 
@@ -86,40 +86,40 @@ def list_(refresh = False, bootstrap = True, sort = False, \
      An associative array whose keys and values are the names of all loaded
      plugins.
   """
-  php.static(plugin_list, 'list_', {})
-  php.static(plugin_list, 'sorted_list')
+  php.static(list_, 'list_', {})
+  php.static(list_, 'sorted_list')
   if (refresh or fixed_list):
-    plugin_list.sorted_list = None
-    plugin_list.list_ = {}
+    list_.sorted_list = None
+    list_.list_ = {}
     if (fixed_list):
       for name,plugin in fixed_list.items():
         lib_bootstrap.drupal_get_filename('plugin', name, plugin['filename'])
-        plugin_list.list_[name] = name
+        list_.list_[name] = name
     else:
       if (bootstrap):
-        result = lib_database.db_query(\
+        result = lib_database.query(\
           "SELECT name, filename FROM {system} " + \
           "WHERE type = 'plugin' AND status = 1 AND " + \
           "bootstrap = 1 ORDER BY weight ASC, filename ASC")
       else:
-        result = lib_database.db_query(\
+        result = lib_database.query(\
           "SELECT name, filename FROM {system} " + \
           "WHERE type = 'plugin' AND status = 1 " + \
           "ORDER BY weight ASC, filename ASC")
       while True:
-        plugin_ = lib_database.db_fetch_object(result)
+        plugin_ = lib_database.fetch_object(result)
         if (plugin_ == None or plugin_ == False):
           break
         if (DrupyImport.exists(plugin_.filename)):
           lib_bootstrap.drupal_get_filename('plugin', \
             plugin_.name, plugin_.filename)
-          plugin_list.list_[plugin_.name] = plugin_.name
+          list_.list_[plugin_.name] = plugin_.name
   if (sort):
-    if (plugin_list.sorted_list == None):
-      plugin_list.sorted_list = plugin_list.list_
-      p.ksort(plugin_list.sorted_list)
-    return plugin_list.sorted_list
-  return plugin_list.list_
+    if (list_.sorted_list == None):
+      list_.sorted_list = plugin_list.list_
+      p.ksort(list_.sorted_list)
+    return list_.sorted_list
+  return list_.list_
 
 
 
@@ -424,7 +424,7 @@ def hook(plugin_, hook):
 
 
 
-def implements(hook, sort = False, refresh = False):
+def implements(hook_, sort = False, refresh = False):
   """
    Determine which plugins are implementing a hook.
   
@@ -441,30 +441,30 @@ def implements(hook, sort = False, refresh = False):
    @return
      An array with the names of the plugins which are implementing this hook.
   """
-  php.static(plugin_implements, 'implementations', {})
+  php.static(implements, 'implementations', {})
   if (refresh):
-    plugin_implements.implementations = {}
+    implements.implementations = {}
   elif (not lib_bootstrap.MAINTENANCE_MODE and \
-      php.empty(plugin_implements.implementations)):
-    cache = lib_cache.cache_get('hooks', 'cache_registry')
+      php.empty(implements.implementations)):
+    cache = lib_cache.get('hooks', 'cache_registry')
     if (cache):
-      plugin_implements.implementations = cache.data;
-    plugin_implements.implementations = \
+      implements.implementations = cache.data;
+    implements.implementations = \
       lib_bootstrap.registry_get_hook_implementations_cache()
-  if (not php.isset(plugin_implements.implementations, hook)):
-    plugin_implements.implementations[hook] = []
-    for plugin_ in plugin_list():
-      if (plugin_hook(plugin_, hook)):
-        plugin_implements.implementations[hook].append( plugin_ )
-  lib_bootstrap.registry_cache_hook_implementations({'hook' : hook, \
-    'plugins' : plugin_implements.implementations[hook]});
+  if (not php.isset(implements.implementations, hook)):
+    implements.implementations[hook_] = []
+    for plugin_ in list_():
+      if (hook(plugin_, hook_)):
+        implements.implementations[hook_].append( plugin_ )
+  lib_bootstrap.registry_cache_hook_implementations({'hook' : hook_, \
+    'plugins' : implements.implementations[hook_]});
   # The explicit cast forces a copy to be made. This is needed because
   # implementations[hook] is only a reference to an element of
   # implementations and if there are nested foreaches (due to nested node
   # API calls, for example), they would both manipulate the same array's
   # references, which causes some plugins' hooks not to be called.
   # See also http://www.zend.com/zend/art/ref-count.php.
-  return plugin_implements.implementations[hook]
+  return implements.implementations[hook_]
 
 
 
@@ -508,7 +508,7 @@ def invoke_all(*args):
   hook = 'hook_%s' % args[0]
   del(args[0])
   return_ = []
-  for plugin_ in plugin_implements(hook):
+  for plugin_ in implements(hook):
     if (lib_bootstrap.drupal_function_exists(hook, plugins[plugin_])):
       function = DrupyImport.getFunction(\
         plugins[plugin_], hook)

@@ -827,7 +827,7 @@ def blocked_ip_load(iid):
    @return
      The blocked IP address from the database as an array.
   """
-  blocked_ip = lib_database.db_fetch_array(lib_database.db_query(\
+  blocked_ip = lib_database.fetch_array(lib_database.query(\
     "SELECT * FROM {blocked_ips} WHERE iid = %d", iid))
   return blocked_ip
 
@@ -965,10 +965,10 @@ def admin_menu_block(item):
   """
   content = []
   if (not php.isset(item['mlid'])):
-    item += lib_database.db_fetch_array(lib_database.db_query(\
+    item += lib_database.fetch_array(lib_database.query(\
       "SELECT mlid, menu_name FROM {menu_links} ml " + \
       "WHERE ml.router_path = '%s' AND module = 'system'", item['path']))
-  result = lib_database.db_query(
+  result = lib_database.query(
     "SELECT m.load_functions, m.to_arg_functions, m.access_callback, " + \
     "m.access_arguments, m.page_callback, m.page_arguments, m.title, " + \
     "m.title_callback, m.title_arguments, m.type, m.description, ml.* " + \
@@ -977,10 +977,10 @@ def admin_menu_block(item):
     "WHERE ml.plid = %d AND ml.menu_name = '%s' AND hidden = 0", \
     item['mlid'], item['menu_name'])
   while True:
-    item = lib_database.db_fetch_array(result)
+    item = lib_database.fetch_array(result)
     if not item:
       break
-    lib_menu._menu_link_translate(item)
+    lib_menu._link_translate(item)
     if (not item['access']):
       continue
     # The link 'description' either derived from the hook_menu 'description' or
@@ -1004,7 +1004,7 @@ def admin_theme_submit(form, form_state):
   if (form_state['values']['admin_theme'] and \
       form_state['values']['admin_theme'] != \
       lib_bootstrap.variable_get('admin_theme', '0')):
-    result = lib_database.db_result(lib_database.db_query(\
+    result = lib_database.result(lib_database.query(\
      "SELECT COUNT(*) FROM {blocks} WHERE theme = '%s'", \
       form_state['values']['admin_theme']))
     if (not result):
@@ -1107,11 +1107,11 @@ def get_files_database(files, type):
   """
   php.Reference.check(files)
   # Extract current files from database.
-  result = lib_database.db_query(
+  result = lib_database.query(
     "SELECT filename, name, type, status, schema_version " + \
     "FROM {system} WHERE type = '%s'", type_)
   while True:
-    file = lib_database.db_fetch_object(result)
+    file = lib_database.fetch_object(result)
     if not file:
       break
     if (php.isset(files[file.name]) and php.is_object(files[file.name])):
@@ -1171,11 +1171,11 @@ def theme_data():
   themes = _theme_data()
   # Extract current files from database.
   get_files_database(themes, 'theme')
-  lib_database.db_query("DELETE FROM {system} WHERE type = 'theme'")
+  lib_database.query("DELETE FROM {system} WHERE type = 'theme'")
   for theme_ in themes:
     if (not isset(theme_, 'owner')):
       theme_.owner = ''
-    lib_database.db_query(\
+    lib_database.query(\
       "INSERT INTO {system} (name, owner, info, type, filename, " + \
       "status, bootstrap) VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d)", \
       theme.name, theme.owner, serialize(theme.info), 'theme', \
@@ -1298,7 +1298,7 @@ def region_list(theme_key):
   """
   php.static(region_list, 'list_', {})
   if (not array_key_exists(theme_key, region_list.list_)):
-    info = php.unserialize(lib_database.db_result(lib_database.db_query(\
+    info = php.unserialize(lib_database.result(lib_database.query(\
       "SELECT info FROM {system} WHERE type = 'theme' AND name = '%s'",\
       theme_key)))
     region_list.list_[theme_key] = p.array_map('t', info['regions'])
@@ -1340,14 +1340,14 @@ def initialize_theme_blocks(theme_):
     result = db_query("SELECT * FROM {blocks} WHERE theme = '%s'", \
       default_theme)
     while True:
-      block = lib_database.db_fetch_array(result)
+      block = lib_database.fetch_array(result)
       if not block:
         break
       # If the region isn't supported by the theme,
       # assign the block to the theme's default region.
       if (not php.array_key_exists(block['region'], regions)):
         block['region'] = default_region(theme_)
-      lib_database.db_query(\
+      lib_database.query(\
           "INSERT INTO {blocks} (module, delta, theme, status, weight, " + \
           "region, visibility, pages, custom, cache) VALUES ('%s', '%s', " + \
           "'%s', %d, %d, '%s', %d, '%s', %d, %d)", \
@@ -1409,7 +1409,7 @@ def settings_form_submit(form, form_state):
   else:
     lib_common.drupal_set_message(lib_common.t(\
       'The configuration options have been saved.'))
-  lib_cache.cache_clear_all()
+  lib_cache.clear_all()
   lib_theme.drupal_rebuild_theme_registry()
 
 
@@ -1543,7 +1543,7 @@ def get_module_admin_tasks(plugin):
   admin_access = plugin_user.access('administer permissions')
   admin_tasks = {}
   if (get_module_admin_tasks.items is None):
-    result = lib_database.db_query(
+    result = lib_database.query(
       "SELECT " + \
       "  m.load_functions, m.to_arg_functions, " + \
       "  m.access_callback, m.access_arguments, " + \
@@ -1559,20 +1559,20 @@ def get_module_admin_tasks(plugin):
       "  m.number_parts > 2")
     get_module_admin_tasks.items = {}
     while True:
-      item = lib_database.db_fetch_array(result)
+      item = lib_database.fetch_array(result)
       if not item:
         break
-      lib_menu._menu_link_translate(item)
+      lib_menu._link_translate(item)
       if (item['access']):
         get_module_admin_tasks.items[item['router_path']] = item
   admin_tasks = {}
   admin_task_count = 0
   # Check for permissions.
-  if (lib_plugin.plugin_hook(plugin, 'perm') and admin_access):
+  if (lib_plugin.hook(plugin, 'perm') and admin_access):
     admin_tasks[-1] = lib_common.l(lib_common.t('Configure permissions'), \
       'admin/user/permissions', {'fragment' : 'plugin-' +  plugin})
   # Check for menu items that are admin links.
-  menu_ = lib_plugin.plugin_invoke(plugin, 'menu')
+  menu_ = lib_plugin.invoke(plugin, 'menu')
   if menu_:
     for path_ in php.array_keys(menu_):
       if (php.isset(get_module_admin_tasks.items[path_])):
@@ -1591,13 +1591,13 @@ def hook_cron():
    Remove older rows from flood and batch table. Remove old temporary files.
   """
   # Cleanup the flood.
-  lib_database.db_query('DELETE FROM {flood} WHERE timestamp < %d', \
+  lib_database.query('DELETE FROM {flood} WHERE timestamp < %d', \
     php.time_() - 3600)
   # Cleanup the batch table.
-  lib_database.db_query('DELETE FROM {batch} WHERE timestamp < %d', \
+  lib_database.query('DELETE FROM {batch} WHERE timestamp < %d', \
     php.time_() - 864000)
   # Remove temporary files that are older than DRUPAL_MAXIMUM_TEMP_FILE_AGE.
-  result = lib_database.db_query(
+  result = lib_database.query(
     'SELECT * ' + \
     'FROM {files} ' + \
     'WHERE ' + \
@@ -1606,7 +1606,7 @@ def hook_cron():
     FILE_STATUS_TEMPORARY, \
     php.time_() - DRUPAL_MAXIMUM_TEMP_FILE_AGE)
   while True:
-    file = lib_database.db_fetch_object(result)
+    file = lib_database.fetch_object(result)
     if not file:
       break
     if (php.file_exists(file.filepath)):
@@ -1617,7 +1617,7 @@ def hook_cron():
           'Could not delete temporary file "%path" during garbage collection', \
           {'%path' : file.filepath}, 'error')
         continue
-    lib_database.db_query('DELETE FROM {files} WHERE fid = %d', file.fid)
+    lib_database.query('DELETE FROM {files} WHERE fid = %d', file.fid)
 
 
 
@@ -1700,7 +1700,7 @@ def actions_manage():
     else:
       unconfigurable.append( array_ )
   row = []
-  instances_present = lib_database.db_fetch_object(lib_database.db_query(\
+  instances_present = lib_database.fetch_object(lib_database.query(\
     "SELECT aid FROM {actions} WHERE parameters != ''"))
   header_ = (
     {'data' : lib_common.t('Action type'), 'field' : 'type'},
@@ -1711,7 +1711,7 @@ def actions_manage():
   sql = 'SELECT * FROM {actions}'
   result = pager_query(sql +  inc_tablesort.tablesort_sql(header_), 50)
   while True:
-    action = lib_database.db_fetch_object(result)
+    action = lib_database.fetch_object(result)
     if not action:
       break
     row.append((
@@ -1807,7 +1807,7 @@ def actions_configure(form_state, action = None):
   if (php.is_numeric(action)):
     aid = action
     # Load stored parameter values from database.
-    data = lib_database.db_fetch_object(lib_database.db_query(\
+    data = lib_database.fetch_object(lib_database.query(\
       "SELECT * FROM {actions} WHERE aid = %d", p.intval(aid)))
     edit['actions_description'] = data.description
     edit['actions_type'] = data.type
@@ -2274,7 +2274,7 @@ def check_http_request():
   # try to drupal_http_request() the same page and compare.
   # ob_start()
   path_ = 'admin/reports/request-test'
-  lib_menu.menu_execute_active_handler(path_)
+  lib_menu.execute_active_handler(path_)
   nothing = None
   # nothing = ob_get_contents()
   # ob_end_clean()

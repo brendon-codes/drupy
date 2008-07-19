@@ -62,10 +62,10 @@ def get(cid, table = 'cache'):
     # load situations.
     variable_set('cache_flush', 0);
     # Time to php.flush old cache data
-    lib_database.db_query(\
+    lib_database.query(\
       "DELETE FROM {" + table + "} WHERE expire != %d AND expire <= %d", \
       CACHE_PERMANENT, cache_flush);
-  cache = lib_database.db_fetch_object(lib_database.db_query(\
+  cache = lib_database.fetch_object(lib_database.query(\
     "SELECT data, created, headers, expire, serialized " + \
     "FROM {" + table + "} WHERE cid = '%s'", cid));
   if (php.isset(cache, 'data')):
@@ -147,7 +147,7 @@ def set(cid, data, table = 'cache', expire = None, headers = None):
     data = php.serialize(data);
     serialized = 1;
   created = php.time_();
-  lib_database.db_query(
+  lib_database.query(
     "UPDATE {" + table + "} SET data = %b, created = %d, expire = %d, " + \
     "headers = '%s', serialized = %d WHERE cid = '%s'", \
     data, created, expire, headers, serialized, cid);

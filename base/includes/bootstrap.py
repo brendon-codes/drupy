@@ -509,7 +509,7 @@ def drupal_get_filename(type_, name, filename = None):
      The filename of the requested item.
   """
   php.static(drupal_get_filename, 'files', {})
-  file = lib_database.db_result(lib_database.db_query(\
+  file = lib_database.result(lib_database.query(\
     "SELECT filename FROM {system} WHERE name = '%s' AND type = '%s'", \
      name, type_))
   if (not php.isset(drupal_get_filename.files, type_)):
@@ -523,7 +523,7 @@ def drupal_get_filename(type_, name, filename = None):
   # the database.  This is required because this def is called both
   # before we have a database connection (i.e. during installation) and
   # when a database connection fails.
-  elif (lib_database.db_is_active() and (file and php.file_exists(file))):
+  elif (lib_database.is_active() and (file and php.file_exists(file))):
     drupal_get_filename.files[type_][name] = file;
   else:
     # Fallback to searching the filesystem if the database connection is
@@ -563,18 +563,18 @@ def variable_init(conf_ = {}):
   """  
   # NOTE: caching the variables improves performance by 20% when serving
   # cached pages.
-  cached = lib_cache.cache_get('variables', 'cache');
+  cached = lib_cache.get('variables', 'cache');
   if (cached):
     variables = cached.data;
   else:
     variables = {}
-    result = lib_database.db_query('SELECT * FROM {variable}');
+    result = lib_database.query('SELECT * FROM {variable}');
     while True:
-      variable = lib_database.db_fetch_object(result);
+      variable = lib_database.fetch_object(result);
       if (not variable):
         break;
       variables[variable.name] = php.unserialize(variable.value);
-    lib_cache.cache_set('variables', variables);
+    lib_cache.set('variables', variables);
   for name,value in conf_.items():
     variables[name] = value;
   return variables;
@@ -693,8 +693,8 @@ def bootstrap_invoke_all(hook):
    @param hook
      The name of the bootstrap hook we wish to invoke.
   """
-  for plugin_ in lib_plugin.plugin_list(True, True):
-    lib_plugin.plugin_invoke(plugin_, hook);
+  for plugin_ in lib_plugin.list_(True, True):
+    lib_plugin.invoke(plugin_, hook);
 
 
 
@@ -980,8 +980,8 @@ def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, \
     'timestamp'   : php.time_(),
   }
   # Call the logging hooks to log/process the message
-  for plugin_ in lib_plugin.plugin_implements('watchdog', True):
-    lib_plugin.plugin_invoke(plugin_, 'watchdog', log_message);
+  for plugin_ in lib_plugin.implements('watchdog', True):
+    lib_plugin.invoke(plugin_, 'watchdog', log_message);
 
 
 def drupal_set_message(message = None, type = 'status', repeat = True):
@@ -1079,7 +1079,7 @@ def drupal_is_denied(ip):
     return php.in_array(ip, blocked_ips)
   else:
     sql = "SELECT 1 FROM {blocked_ips} WHERE ip = '%s'";
-    return (lib_database.db_result(lib_database.db_query(sql, ip)) != False)
+    return (lib_database.result(lib_database.query(sql, ip)) != False)
 
 
 
@@ -1184,7 +1184,7 @@ def _drupal_bootstrap(phase):
     cache =  ('' if (cache_mode == CACHE_DISABLED) else page_get_cache());
     # If the skipping of the bootstrap hooks is not enforced, call hook_boot.
     if (cache_mode != CACHE_AGGRESSIVE):
-      bootstrap_invoke_all('boot');
+      invoke_all('boot');
     # If there is a cached page, display it.
     if (cache):
       drupal_page_cache_header(cache);
@@ -1249,7 +1249,7 @@ def drupal_init_language():
   if (variable_get('language_count', 1) == 1):
     language_ = language_default();
   else:
-    language_ = lib_language.language_initialize();
+    language_ = lib_language.initialize();
 
 
 
@@ -1587,7 +1587,7 @@ def registry_get_hook_implementations_cache():
   """
   php.static(registry_get_hook_implementations_cache, 'implementations')
   if (registry_get_hook_implementations_cache.implementations == None):
-    cache = lib_cache.cache_get('hooks', 'cache_registry')
+    cache = lib_cache.get('hooks', 'cache_registry')
     if (cache):
       registry_get_hook_implementations_cache.implementations = cache.data;
     else:

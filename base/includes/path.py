@@ -93,8 +93,8 @@ def drupal_lookup_path(action, path_ = '', path_language = ''):
   # Use $count to avoid looking up paths in subsequent
   # calls if there simply are no aliases
   if (drupal_lookup_path.count is None):
-    drupal_lookup_path.count = lib_database.db_result( \
-      lib_database.db_query('SELECT COUNT(pid) FROM {url_alias}'));
+    drupal_lookup_path.count = lib_database.result( \
+      lib_database.query('SELECT COUNT(pid) FROM {url_alias}'));
   if (action == 'wipe' ):
     drupal_lookup_path._map = {}
     drupal_lookup_path.no_src = {}

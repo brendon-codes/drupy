@@ -2314,13 +2314,13 @@ def _drupal_bootstrap_full():
   # Emit the correct charset HTTP php.header.
   drupal_set_header('Content-Type: text/html; charset=utf-8');
   # Detect string handling method
-  lib_unicode.unicode_check();
+  lib_unicode.check();
   # Load all enabled plugins
-  lib_plugin.plugin_load_all();
+  lib_plugin.load_all();
   # Let all plugins take action before menu system handles the request
   # We do not want this while running update.php.
   if (not php.defined('MAINTENANCE_MODE') or MAINTENANCE_MODE != 'update'):
-    lib_plugin.plugin_invoke_all('init');
+    lib_plugin.invoke_all('init');
 
 
 
@@ -2467,7 +2467,7 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
     searchdir.append( "%s/%s" % (config, directory) );
   # Get current list of items
   for dir_ in searchdir:
-    files = php.array_merge(files, lib_file.file_scan_directory(dir_, mask, \
+    files = php.array_merge(files, lib_file.scan_directory(dir_, mask, \
       ('.', '..', 'CVS'), 0, True, key, min_depth));
   return files;
 

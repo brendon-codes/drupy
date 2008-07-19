@@ -63,7 +63,7 @@ exit(1)
 # default exception handler
 #
 drupal_bootstrap(lib_bootstrap.DRUPAL_BOOTSTRAP_FULL);
-return_ = lib_menu.menu_execute_active_handler();
+return_ = lib_menu.execute_active_handler();
 # Menu status constants are integers; page content is a string.
 if (is_int(return_)):
   if (return_ == lib_menu.MENU_NOT_FOUND):
