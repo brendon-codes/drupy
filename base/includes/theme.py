@@ -209,7 +209,7 @@ def _init_theme(this_theme, base_theme = [], registry_callback = \
 
 
 
-def theme_get_registry(registry = None):
+def get_registry(registry = None):
   """
    Retrieve the stored theme registry. If the theme registry is already
    in memory it will be returned; otherwise it will attempt to load the
@@ -785,7 +785,7 @@ def drupal_find_theme_templates(cache, extension, path):
   return templates;
 
 
-def theme_get_settings(key = None):
+def get_settings(key = None):
   """
    Retrieve an associative array containing the settings for a theme+ *
    The final settings are arrived at by merging the default settings,
@@ -833,7 +833,7 @@ def theme_get_settings(key = None):
 
 
 
-def theme_get_setting(setting_name, refresh = False):
+def get_setting(setting_name, refresh = False):
   """
    Retrieve a setting for the current theme+
    This function is designed for use from within themes & engines
@@ -882,7 +882,7 @@ def theme_get_setting(setting_name, refresh = False):
 
 
 
-def theme_render_template(file, variables):
+def render_template(file, variables):
   """
    Render a system default template, which is essentially a PHP template+ *
    @param file
@@ -906,7 +906,7 @@ def theme_render_template(file, variables):
 # @{
 #
 
-def theme_placeholder(text):
+def placeholder(text):
   """
    Functions and templates that present output to the user, and can be
    implemented by themes
@@ -982,7 +982,7 @@ def theme_placeholder(text):
 
 
 
-def theme_status_messages(display = None):
+def status_messages(display = None):
   """
    Return a themed set of status and/or error messages
    The messages are grouped by type
@@ -1008,7 +1008,7 @@ def theme_status_messages(display = None):
 
 
 
-def theme_links(links, attributes = {'class' : 'links'}):
+def links(links, attributes = {'class' : 'links'}):
   """
    Return a themed set of links+ *
    @param links
@@ -1052,7 +1052,7 @@ def theme_links(links, attributes = {'class' : 'links'}):
 
 
 
-def theme_image(path, alt = '', title = '', attributes = None, getsize = True):
+def image(path, alt = '', title = '', attributes = None, getsize = True):
   """
    Return a themed image+ *
    @param path
@@ -1081,7 +1081,7 @@ def theme_image(path, alt = '', title = '', attributes = None, getsize = True):
 
 
 
-def theme_breadcrumb(breadcrumb):
+def breadcrumb(breadcrumb):
   """
    Return a themed breadcrumb trail+ *
    @param breadcrumb
@@ -1094,7 +1094,7 @@ def theme_breadcrumb(breadcrumb):
 
 
 
-def theme_help():
+def help_():
   """
    Return a themed help message+ *
    @return a string containing the helptext for the current page+
@@ -1105,7 +1105,7 @@ def theme_help():
 
 
 
-def theme_submenu(links):
+def submenu(links):
   """
    Return a themed submenu, typically displayed under the tabs+ *
    @param links
@@ -1114,7 +1114,7 @@ def theme_submenu(links):
   return '<div class="submenu">'+ php.implode(' | ', links) +'</div>';
 
 
-def theme_table(header_, rows, attributes = {}, caption = None, colgroups = {}):
+def table(header_, rows, attributes = {}, caption = None, colgroups = {}):
   """
    Return a themed table.
   
@@ -1281,7 +1281,7 @@ def theme_table(header_, rows, attributes = {}, caption = None, colgroups = {}):
 
 
 
-def theme_table_select_header_cell():
+def table_select_header_cell():
   """
    Returns a php.header cell for tables that have a select all functionality+
   """
@@ -1289,7 +1289,7 @@ def theme_table_select_header_cell():
   return {'class' : 'select-all'};
 
 
-def theme_tablesort_indicator(style):
+def tablesort_indicator(style):
   """
    Return a themed sort icon+ *
    @param style
@@ -1307,7 +1307,7 @@ def theme_tablesort_indicator(style):
 
 
 
-def theme_box(title, content, region = 'main'):
+def box(title, content, region = 'main'):
   """
    Return a themed box+ *
    @param title
@@ -1323,7 +1323,7 @@ def theme_box(title, content, region = 'main'):
   return output;
 
 
-def theme_mark(type = MARK_NEW):
+def mark(type = MARK_NEW):
   """
    Return a themed marker, useful for marking new or updated
    content+ *
@@ -1341,7 +1341,7 @@ def theme_mark(type = MARK_NEW):
 
 
 
-def theme_item_list(items = [], title = None, type = 'ul', attributes = []):
+def item_list(items = [], title = None, type = 'ul', attributes = []):
   """
    Return a themed list of items+ *
    @param items
@@ -1394,7 +1394,7 @@ def theme_item_list(items = [], title = None, type = 'ul', attributes = []):
 
 
 
-def theme_more_help_link(url):
+def more_help_link(url):
   """
    Returns code that emits the 'more help'-link+
   """
@@ -1403,7 +1403,7 @@ def theme_more_help_link(url):
 
 
 
-def theme_xml_icon(url):
+def xml_icon(url):
   """
    Return code that emits an XML icon+ *
    For most use cases, this function has been superseded by theme_feed_icon()
@@ -1416,7 +1416,7 @@ def theme_xml_icon(url):
     return '<a href="'+ check_url(url) +'" class="xml-icon">'+ image +'</a>';
 
 
-def theme_feed_icon(url, title):
+def feed_icon(url, title):
   """
    Return code that emits an feed icon+ *
    @param url
@@ -1428,7 +1428,7 @@ def theme_feed_icon(url, title):
     return '<a href="'+ check_url(url) +'" class="feed-icon">'+ image +'</a>';
 
 
-def theme_more_link(url, title):
+def more_link(url, title):
   """
    Returns code that emits the 'more' link used on blocks+ *
    @param url
@@ -1442,7 +1442,7 @@ def theme_more_link(url, title):
 
 
 
-def theme_closure(main_ = 0):
+def closure(main_ = 0):
   """
    Execute hook_footer() which is run at the end of the page right before the
    close of the body tag+ *
@@ -1455,7 +1455,7 @@ def theme_closure(main_ = 0):
 
 
 
-def theme_blocks(region):
+def blocks(region):
   """
    Return a set of blocks available for the current user+ *
    @param region
@@ -1474,7 +1474,7 @@ def theme_blocks(region):
 
 
 
-def theme_username(object_):
+def username(object_):
   """
    Format a username+ *
    @param object
@@ -1512,7 +1512,7 @@ def theme_username(object_):
 
 
 
-def theme_progress_bar(percent, message):
+def progress_bar(percent, message):
   """
    Return a themed progress bar+ *
    @param percent
@@ -1532,7 +1532,7 @@ def theme_progress_bar(percent, message):
 
 
 
-def theme_indentation(size = 1):
+def indentation(size = 1):
   """
    Create a standard indentation div+ Used for drag and drop tables+ *
    @param size
@@ -1551,7 +1551,7 @@ def theme_indentation(size = 1):
 #
 
 
-def _theme_table_cell(cell, header_ = False):
+def _table_cell(cell, header_ = False):
   attributes = '';
   if (php.is_array(cell)):
     data = (cell['data'] if php.isset(cell, 'data') else '');

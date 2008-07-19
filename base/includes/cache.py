@@ -41,7 +41,7 @@ from lib.drupy import DrupyPHP as php
 import bootstrap as lib_bootstrap
 import database as lib_database
 
-def cache_get(cid, table = 'cache'):
+def get(cid, table = 'cache'):
   """
    Return data from the persistent cache. Data may be stored as 
    either plain text or as serialized data.
@@ -94,7 +94,7 @@ def cache_get(cid, table = 'cache'):
 
 
 
-def cache_set(cid, data, table = 'cache', expire = None, headers = None):
+def set(cid, data, table = 'cache', expire = None, headers = None):
   """
    Store data in the persistent cache.
   
@@ -159,7 +159,7 @@ def cache_set(cid, data, table = 'cache', expire = None, headers = None):
 
 
 
-def cache_clear_all(cid = None, table = None, wildcard = False):
+def clear_all(cid = None, table = None, wildcard = False):
   """
    Expire data from the cache. If called without arguments, expirable
    entries will be cleared from the cache_page and cache_block tables.

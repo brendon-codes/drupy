@@ -110,7 +110,7 @@ def db_connect(url):
 
 
 
-def _db_query(query, debug = 0):
+def _query(query, debug = 0):
   """
    Helper function for db_query().
   """
@@ -153,7 +153,7 @@ def _db_query(query, debug = 0):
 
 
 
-def db_fetch_object(result):
+def fetch_object(result):
   """
    Fetch one result row from the previous query as an object.
   
@@ -171,7 +171,7 @@ def db_fetch_object(result):
 
 
 
-def db_fetch_array(result):
+def fetch_array(result):
   """
    Fetch one result row from the previous query as an array.
   
@@ -188,7 +188,7 @@ def db_fetch_array(result):
 
 
 
-def db_result(result):
+def result(result):
   """
    Return an individual result field from the previous query.
   
@@ -210,7 +210,7 @@ def db_result(result):
 
 
 
-def db_error():
+def error():
   """
    Determine whether the previous query caused an error.
   """
@@ -219,7 +219,7 @@ def db_error():
 
 
 
-def db_affected_rows():
+def affected_rows():
   """
    Determine the number of rows changed by the preceding query.
   """
@@ -227,7 +227,7 @@ def db_affected_rows():
 
 
 
-def db_query_range(query):
+def query_range(query):
   """
    Runs a limited-range query in the active database.
   
@@ -271,7 +271,7 @@ def db_query_range(query):
 
 
 
-def db_query_temporary(query):
+def query_temporary(query):
   """
    Runs a SELECT query and stores its results in a temporary table.
   
@@ -320,7 +320,7 @@ def db_query_temporary(query):
 
 
 
-def db_encode_blob(data):
+def encode_blob(data):
   """
    Returns a properly formatted Binary Large Object value.
   
@@ -334,7 +334,7 @@ def db_encode_blob(data):
 
 
 
-def db_decode_blob(data):
+def decode_blob(data):
   """
    Returns text from a Binary Large OBject value.
   
@@ -346,7 +346,7 @@ def db_decode_blob(data):
   return data
 
 
-def db_escape_string(text):
+def escape_string(text):
   """
    Prepare user input for use in a database query, preventing
    SQL injection attacks.
@@ -355,7 +355,7 @@ def db_escape_string(text):
 
 
 
-def db_lock_table(table):
+def lock_table(table):
   """
    Lock a table.
   """
@@ -364,14 +364,14 @@ def db_lock_table(table):
 
 
 
-def db_unlock_tables():
+def unlock_tables():
   """
    Unlock all locked tables.
   """
   db_query('UNLOCK TABLES')
 
 
-def db_table_exists(table):
+def table_exists(table):
   """
    Check if a table exists.
   """
@@ -380,7 +380,7 @@ def db_table_exists(table):
     lib_database.db_escape_table(table)  + "}'")))
 
 
-def db_column_exists(table, column):
+def column_exists(table, column):
   """
    Check if a column exists in the given table.
   """
@@ -390,7 +390,7 @@ def db_column_exists(table, column):
     lib_database.db_escape_table(column) + "'")))
 
 
-def db_distinct_field(table, field, query):
+def distinct_field(table, field, query):
   """
    Wraps the given table.field entry with a DISTINCT(). The wrapper is added to
    the SELECT list entry of the given query and the resulting query is
@@ -421,7 +421,7 @@ def db_distinct_field(table, field, query):
 #
 
 
-def db_query(query, *args):
+def query(query, *args):
   """
    Runs a basic query in the active database.
   
@@ -461,7 +461,7 @@ def db_query(query, *args):
 # @{
 #
 
-def db_create_table_sql(name, table):
+def create_table_sql(name, table):
   """
    Generate SQL to create a new table from a Drupal schema definition.
   
@@ -489,7 +489,7 @@ def db_create_table_sql(name, table):
 
 
 
-def _db_create_keys_sql(spec):
+def _create_keys_sql(spec):
   keys = {}
   if (not php.empty(spec['primary key'])):
     keys.append( 'PRIMARY KEY (' +  \
@@ -507,7 +507,7 @@ def _db_create_keys_sql(spec):
 
 
 
-def _db_create_key_sql(fields):
+def _create_key_sql(fields):
   ret = []
   for field in fields:
     if (php.is_array(field)):
@@ -517,7 +517,7 @@ def _db_create_key_sql(fields):
   return php.implode(', ', ret)
 
 
-def _db_process_field(field):
+def _process_field(field):
   """
    Set database-engine specific properties for a field.
   
@@ -536,7 +536,7 @@ def _db_process_field(field):
 
 
 
-def _db_create_field_sql(name, spec):
+def _create_field_sql(name, spec):
   """
    Create an SQL string for a field to be used in table creation or alteration.
   
@@ -571,7 +571,7 @@ def _db_create_field_sql(name, spec):
 
 
 
-def db_type_map():
+def type_map():
   """
    This maps a generic data type in combination with its data size
    to the engine-specific data type.
@@ -611,7 +611,7 @@ def db_type_map():
 
 
 
-def db_rename_table(ret, table, new_name):
+def rename_table(ret, table, new_name):
   """
    Rename a table.
   
@@ -628,7 +628,7 @@ def db_rename_table(ret, table, new_name):
 
 
 
-def db_drop_table(ret, table):
+def drop_table(ret, table):
   """
    Drop a table.
   
@@ -642,7 +642,7 @@ def db_drop_table(ret, table):
 
 
 
-def db_add_field(ret, table, field, spec, keys_new = []):
+def add_field(ret, table, field, spec, keys_new = []):
   """
    Add a new field to a table.
   
@@ -689,7 +689,7 @@ def db_add_field(ret, table, field, spec, keys_new = []):
 
 
 
-def db_drop_field(ret, table, field):
+def drop_field(ret, table, field):
   """
    Drop a field.
   
@@ -704,7 +704,7 @@ def db_drop_field(ret, table, field):
   ret.append( update_sql('ALTER TABLE {' +  table  + '} DROP ' + field) )
 
 
-def db_field_set_default(ret, table, field, default):
+def field_set_default(ret, table, field, default):
   """
    Set the default value for a field.
   
@@ -727,7 +727,7 @@ def db_field_set_default(ret, table, field, default):
 
 
 
-def db_field_set_no_default(ret, table, field):
+def field_set_no_default(ret, table, field):
   """
    Set a field to have no default value.
   
@@ -745,7 +745,7 @@ def db_field_set_no_default(ret, table, field):
 
 
 
-def db_add_primary_key(ret, table, fields):
+def add_primary_key(ret, table, fields):
   """
    Add a primary key.
   
@@ -762,7 +762,7 @@ def db_add_primary_key(ret, table, fields):
 
 
 
-def db_drop_primary_key(ret, table):
+def drop_primary_key(ret, table):
   """
    Drop the primary key.
   
@@ -777,7 +777,7 @@ def db_drop_primary_key(ret, table):
 
 
 
-def db_add_unique_key(ret, table, name, fields):
+def add_unique_key(ret, table, name, fields):
   """
    Add a unique key.
   
@@ -796,7 +796,7 @@ def db_add_unique_key(ret, table, name, fields):
 
 
 
-def db_drop_unique_key(ret, table, name):
+def drop_unique_key(ret, table, name):
   """
    Drop a unique key.
   
@@ -813,7 +813,7 @@ def db_drop_unique_key(ret, table, name):
 
 
 
-def db_add_index(ret, table, name, fields):
+def add_index(ret, table, name, fields):
   """
    Add an index.
   
@@ -833,7 +833,7 @@ def db_add_index(ret, table, name, fields):
 
 
 
-def db_drop_index(ret, table, name):
+def drop_index(ret, table, name):
   """
    Drop an index.
   
@@ -850,7 +850,7 @@ def db_drop_index(ret, table, name):
 
 
 
-def db_change_field(ret, table, field, field_new, spec, keys_new = []):
+def change_field(ret, table, field, field_new, spec, keys_new = []):
   """
    Change a field definition.
   
@@ -923,7 +923,7 @@ def db_change_field(ret, table, field, field_new, spec, keys_new = []):
   ret.append( update_sql(sql) )
 
 
-def db_last_insert_id(table, field):
+def last_insert_id(table, field):
   """
    Returns the last insert id.
   
@@ -936,7 +936,7 @@ def db_last_insert_id(table, field):
 
 
 
-def db_escape_string(data):
+def escape_string(data):
   """
    Wrapper to escape a string
   """
@@ -947,5 +947,5 @@ def db_escape_string(data):
 #
 # Aliases
 #
-db_fetch_assoc = db_fetch_array
+fetch_assoc = fetch_array
 

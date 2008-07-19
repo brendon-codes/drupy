@@ -117,7 +117,7 @@ def update_sql(sql):
 
 
 
-def db_prefix_tables(sql):
+def prefix_tables(sql):
   """
    Append a database prefix to all tables in a query.
   
@@ -146,7 +146,7 @@ def db_prefix_tables(sql):
     return php.strtr(sql, {'{' : settings.db_prefix, '}' : ''});
 
 
-def db_set_active(name = 'default'):
+def set_active(name = 'default'):
   """
    Activate a database for future queries.
   
@@ -171,12 +171,12 @@ def db_set_active(name = 'default'):
    to get this figured out 
   """
   global active_db
-  php.static(db_set_active, 'db_conns', {})
-  php.static(db_set_active, 'active_name', False)
+  php.static(set_active, 'db_conns', {})
+  php.static(set_active, 'active_name', False)
   if (settings.db_url == None):
     php.include_once('includes/install.py');
     install_goto('install.py');
-  if (not php.isset(db_set_active.db_conns, name)):
+  if (not php.isset(set_active.db_conns, name)):
     # Initiate a new connection, using the named DB URL specified.
     if (isinstance(settings.db_url, dict)):
       connect_url = (settings.db_url[name] if \
@@ -192,20 +192,20 @@ def db_set_active(name = 'default'):
     #  _db_error_page("The database type '" + db_type + \
     #    "' is unsupported. Please use either 'mysql' or " + \
     #    "'mysqli' for MySQL, or 'pgsql' for PostgreSQL databases.");
-    db_set_active.db_conns[name] = db.db_connect(connect_url);
+    set_active.db_conns[name] = db.db_connect(connect_url);
     # We need to pass around the simpletest database prefix in the request
     # and we put that in the user_agent php.header.
     if (php.preg_match("/^simpletest\d+$/", php.SERVER['HTTP_USER_AGENT'])):
       db_prefix = php.SERVER['HTTP_USER_AGENT'];
-  previous_name = db_set_active.active_name;
+  previous_name = set_active.active_name;
   # Set the active connection.
-  db_set_active.active_name = name;
-  active_db = db_set_active.db_conns[name];
+  set_active.active_name = name;
+  active_db = set_active.db_conns[name];
   return previous_name;
 
 
 
-def _db_error_page(error = ''):
+def _error_page(error = ''):
   """
    Helper function to show fatal database errors.
   
@@ -235,7 +235,7 @@ def _db_error_page(error = ''):
   exit();
 
 
-def db_is_active():
+def is_active():
   """
    Returns a boolean depending on the availability of the database.
   """
@@ -243,7 +243,7 @@ def db_is_active():
   return (active_db is not None);
 
 
-def _db_query_callback(match, init = False):
+def _query_callback(match, init = False):
   """
    Helper function for db_query().
   """
@@ -265,7 +265,7 @@ def _db_query_callback(match, init = False):
     return db.db_encode_blob(php.array_shift(_db_query_callback.args));
 
 
-def db_placeholders(arguments, type = 'int'):
+def placeholders(arguments, type = 'int'):
   """
    Generate placeholders for an array of query arguments of a single type.
   
@@ -291,10 +291,10 @@ def db_placeholders(arguments, type = 'int'):
 #
 # Aliases
 #
-db_result = db.db_result
-db_query = db.db_query
-db_fetch_object = db.db_fetch_object
-db_fetch_assoc = db.db_fetch_assoc
-db_escape_string = db.db_escape_string
+result = db.result
+query = db.query
+fetch_object = db.fetch_object
+fetch_assoc = db.fetch_assoc
+escape_string = db.escape_string
 
 

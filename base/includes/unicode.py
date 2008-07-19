@@ -67,7 +67,7 @@ UNICODE_MULTIBYTE = 1
 """
  Wrapper around _unicode_check().
 """
-def unicode_check():
+def check():
   global multibyte;
   multibyte = _unicode_check()[0];
 
@@ -88,7 +88,7 @@ def _unicode_check():
   return (UNICODE_MULTIBYTE, '');
 
 
-def unicode_requirements():
+def requirements():
   """
    Return Unicode library status and errors.
   """
@@ -384,7 +384,7 @@ def drupal_strtolower(text):
 
 
 
-def _unicode_caseflip(matches):
+def _caseflip(matches):
   """
    Helper function for case conversion of Latin-1.
    Used for flipping U+C0-U+DE to U+E0-U+FD and back.

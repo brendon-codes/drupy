@@ -1159,7 +1159,7 @@ def _drupal_bootstrap(phase):
       exit();
   elif phase == DRUPAL_BOOTSTRAP_DATABASE:
     # Initialize the default database.
-    lib_database.db_set_active();
+    lib_database.set_active();
     # Register autoload functions so that we can access classes and interfaces.
     # spl_autoload_register('drupal_autoload_class')
     # spl_autoload_register('drupal_autoload_interface')
