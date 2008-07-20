@@ -216,10 +216,10 @@ def get_registry(registry = None):
    registry from cache. If this fails, it will construct the registry and
    cache it.
   """
-  php.static(theme_get_registry, 'theme_registry')
-  if (theme_get_registry.theme_registry != None):
-    theme_get_registry.theme_registry = registry;
-  return theme_get_registry.theme_registry;
+  php.static(get_registry, 'theme_registry')
+  if (get_registry.theme_registry != None):
+    get_registry.theme_registry = registry;
+  return get_registry.theme_registry;
 
 
 
@@ -572,7 +572,7 @@ def theme(*args):
   hook = php.array_shift(args);
   if (theme.hooks == None):
     init_theme();
-    theme.hooks = theme_get_registry();
+    theme.hooks = get_registry();
   if (php.is_array(hook)):
     for candidate in hook:
       if (php.isset(hooks, candidate)):
