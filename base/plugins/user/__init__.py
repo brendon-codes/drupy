@@ -38,6 +38,7 @@
 __version__ = "$Revision: 1 $"
 
 from lib.drupy import DrupyPHP as php
+#import password as lib_password
 
 #
 # Maximum length of username text field.
@@ -123,7 +124,7 @@ def hook_theme():
 
 
 
-def user_external_load(authname):
+def external_load(authname):
   result = lib_database.query(\
     "SELECT uid FROM {authmap} WHERE authname = '%s'", authname)
   this_user = lib_database.fetch_array(result)
@@ -134,7 +135,7 @@ def user_external_load(authname):
 
 
 
-def user_external_login(account, edit=[]):
+def external_login(account, edit=[]):
   """
    Perform standard Drupal login operations for a user object.
   
@@ -159,7 +160,7 @@ def user_external_login(account, edit=[]):
   # Check if user is blocked.
   lib_plugin.plugins['user'].login_name_validate(
     form, state, php.array_(account))
-  if (lib_form.form_get_errors()):
+  if (lib_form.get_errors()):
     # Invalid login.
     return False
   # Valid login.
@@ -169,214 +170,186 @@ def user_external_login(account, edit=[]):
 
 
 
-#
-# Fetch a user object.
-#
-# @param array
-#   An associative array of attributes to search for in selecting the
-#   user, such as user name or e-mail address.
-#
-# @return
-#   A fully-loaded user object upon successful user load or False if user
-#   cannot be loaded.
-#
-def user_load(array = array()):
+def load(array_={}):
+  """
+   Fetch a user object.
+  
+   @param array
+     An associative array of attributes to search for in selecting the
+     user, such as user name or e-mail address.
+  
+   @return
+     A fully-loaded user object upon successful user load or False if user
+     cannot be loaded.
+  """
   # Dynamically compose a SQL query:
-  query = array()
-  params = array()
-  if (is_numeric(array)):
-    array = array('uid' : array)
-  }
-  elif (not is_array(array)):
+  query = []
+  params = []
+  if (php.is_numeric(array_)):
+    array_ = {'uid' : array}
+  elif (not php.is_array(array_)):
     return False
-  }
-
-  for key,value in array.items():
+  for key,value in array_.items():
     if (key == 'uid' or key == 'status'):
-      query[] = "key = %d"
-      params[] = value
-    }
+      query.append( "key = %d" )
+      params.append( value )
     elif (key == 'pass'):
-      query[] = "pass = '%s'"
-      params[] = value
-    }
+      query.append( "pass = '%s'" )
+      params.append( value )
     else:
-      query[]= "LOWER(key) = LOWER('%s')"
-      params[] = value
-    }
-  }
-  result = db_query('SELECT * FROM {users} u WHERE ' +  implode(' AND ', query), params)
-  if (user = db_fetch_object(result)):
-    user = drupal_unpack(user)
-    user.roles = array()
-    if (user.uid):
-      user.roles[DRUPAL_AUTHENTICATED_RID] = 'authenticated user'
-    }
+      query.append( "LOWER(key) = LOWER('%s')" )
+      params.append( value )
+  result = lib_database.query('SELECT * FROM {users} u WHERE ' + \
+    php.implode(' AND ', query), params)
+  this_user = db_fetch_object(result)
+  if (this_user):
+    this_user = drupal_unpack(this_user)
+    this_user.roles = {}
+    if (this_user.uid):
+      this_user.roles[DRUPAL_AUTHENTICATED_RID] = 'authenticated user'
     else:
-      user.roles[DRUPAL_ANONYMOUS_RID] = 'anonymous user'
-    }
-    result = db_query('SELECT r.rid, r.name FROM {role} r INNER JOIN {users_roles} ur ON ur.rid = r.rid WHERE ur.uid = %d', user.uid)
-    while (role = db_fetch_object(result)):
-      user.roles[role.rid] = role.name
-    }
-    user_module_invoke('load', array, user)
-  }
+      this_user.roles[DRUPAL_ANONYMOUS_RID] = 'anonymous user'
+    result = lib_database.db_query(\
+      'SELECT r.rid, r.name FROM {role} r ' + \
+      'INNER JOIN {users_roles} ur ON ur.rid = r.rid ' + \
+      'WHERE ur.uid = %d', this_user.uid)
+    while True:
+      role = lib_database.fetch_object(result)
+      if not role:
+        break
+      this_user.roles[role.rid] = role.name
+    module_invoke('load', array_, this_user)
   else:
-    user = False
-  }
+    this_user = False
+  return this_user
 
-  return user
-}
-#
-# Save changes to a user account or add a new user.
-#
-# @param account
-#   The user object for the user to modify or add. If user.uid is
-#   omitted, a new user will be added.
-#
-# @param array
-#   An array of fields and values to save. For example array('name'
-#   : 'My name').  Keys that do not belong to columns in the user-related
-#   tables are added to the a serialized array in the 'data' column
-#   and will be loaded in the user.data array by user_load().
-#   Setting a field to None deletes it from the data column.
-#
-# @param category
-#   (optional) The category for storing profile information in.
-#
-# @return
-#   A fully-loaded user object upon successful save or False if the save failed.
-#
-def user_save(account, array = array(), category = 'account'):
-  table = drupal_get_schema('users')
+
+def save(account, array_={}, category = 'account'):
+  """
+   Save changes to a user account or add a new user.
+  
+   @param account
+     The user object for the user to modify or add. If user.uid is
+     omitted, a new user will be added.
+  
+   @param array
+     An array of fields and values to save. For example array('name'
+     : 'My name').  Keys that do not belong to columns in the user-related
+     tables are added to the a serialized array in the 'data' column
+     and will be loaded in the user.data array by user_load().
+     Setting a field to None deletes it from the data column.
+  
+   @param category
+     (optional) The category for storing profile information in.
+  
+   @return
+     A fully-loaded user object upon successful save or False
+     if the save failed.
+  """
+  table = lib_common.get_schema('users')
   user_fields = table['fields']
-  if (not empty(array['pass'])):
+  if (not php.empty(array_['pass'])):
     # Allow alternate password hashing schemes.
-    require_once variable_get('password_inc', './includes/password.inc')
-    array['pass'] = user_hash_password(trim(array['pass']))
+    array_['pass'] = hash_password(php.trim(array_['pass']))
     # Abort if the hashing failed and returned False.
-    if (not array['pass']):
+    if (not array_['pass']):
       return False
-    }
-  }
   else:
     # Avoid overwriting an existing password with a blank password.
-    unset(array['pass'])
-  }
-
-  if (is_object(account) and account.uid):
-    user_module_invoke('update', array, account, category)
-    data = unserialize(db_result(db_query('SELECT data FROM {users} WHERE uid = %d', account.uid)))
+    del(array_['pass'])
+  if (php.is_object(account) and account.uid > 0):
+    module_invoke('update', array_, account, category)
+    data = php.unserialize(lib_database.result(lib_database.query(\
+      'SELECT data FROM {users} WHERE uid = %d', account.uid)))
     # Consider users edited by an administrator as logged in, if they haven't
     # already, so anonymous users can view the profile (if allowed).
-    if (empty(array['access']) and empty(account.access) and user_access('administer users')):
-      array['access'] = time()
-    }
-    for key,value in array.items():
+    if (php.empty(array_['access']) and php.empty(account.access) and \
+        lib_plugin.plugins['user'].access('administer users')):
+      array_['access'] = php.time_()
+    for key,value in array_.items():
       # Fields that don't pertain to the users or user_roles
       # automatically serialized into the users.data column.
-      if (key != 'roles' and empty(user_fields[key])):
-        if (value == None):
-          unset(data[key])
-        }
+      if (key != 'roles' and ph.empty(user_fields[key])):
+        if (value is None):
+          del(data[key])
         else:
           data[key] = value
-        }
-      }
-    }
-
-    array['data'] = data
-    array['uid'] = account.uid
+    array_['data'] = data
+    array_['uid'] = account.uid
     # Save changes to the users table.
-    success = drupal_write_record('users', array, 'uid')
+    success = lib_common.drupal_write_record('users', array_, 'uid')
     if (not success):
-      # The query failed - better to abort the save than risk further data loss.
+      # The query failed - better to abort the save than risk further
+      # data loss.
       return False
-    }
-
     # Reload user roles if provided.
-    if (isset(array['roles']) and is_array(array['roles'])):
-      db_query('DELETE FROM {users_roles} WHERE uid = %d', account.uid)
-      foreach (array_keys(array['roles']) as rid):
-        if (not in_array(rid, array(DRUPAL_ANONYMOUS_RID, DRUPAL_AUTHENTICATED_RID))):
-          db_query('INSERT INTO {users_roles} (uid, rid) VALUES (%d, %d)', account.uid, rid)
-        }
-      }
-    }
-
+    if (php.isset(php.array_['roles']) and php.is_array(array_['roles'])):
+      lib_database.db_query('DELETE FROM {users_roles} WHERE uid = %d', \
+        account.uid)
+      for rid in php.array_keys(array_['roles']):
+        if (not php.in_array(rid, (DRUPAL_ANONYMOUS_RID, \
+            DRUPAL_AUTHENTICATED_RID))):
+          lin_database.db_query(\
+            'INSERT INTO {users_roles} (uid, rid) VALUES (%d, %d)', \
+            account.uid, rid)
     # Delete a blocked user's sessions to kick them if they are online.
-    if (isset(array['status']) and array['status'] == 0):
-      sess_destroy_uid(account.uid)
-    }
-
+    if (php.isset(array_['status']) and array_['status'] == 0):
+      lib_session.destroy_uid(account.uid)
     # If the password changed, delete all open sessions and recreate
     # the current one.
-    if (not empty(array['pass'])):
-      sess_destroy_uid(account.uid)
-      sess_regenerate()
-    }
-
+    if (not empty(array_['pass'])):
+      lib_session.destroy_uid(account.uid)
+      lib_session.regenerate()
     # Refresh user object.
-    user = user_load(array('uid' : account.uid))
+    this_user = load({'uid' : account.uid})
     # Send emails after we have the new user object.
-    if (isset(array['status']) and array['status'] != account.status):
+    if (php.isset(array_['status']) and array_['status'] != account.status):
       # The user's status is changing; conditionally send notification email.
-      op = array['status'] == 1 ? 'status_activated' : 'status_blocked'
-      _user_mail_notify(op, user)
-    }
-
-    user_module_invoke('after_update', array, user, category)
-  }
+      op = ('status_activated' if (array_['status'] == 1) else \
+        'status_blocked')
+      _mail_notify(op, this_user)
+    module_invoke('after_update', array_, this_user, category)
   else:
     # Allow 'created' to be set by the caller.
-    if (not isset(array['created'])):
-      array['created'] = time()
-    }
+    if (not php.isset(array_['created'])):
+      array_['created'] = php.time_()
     # Consider users created by an administrator as already logged in, so
     # anonymous users can view the profile (if allowed).
-    if (empty(array['access']) and user_access('administer users')):
-      array['access'] = time()
-    }
-
-    success = drupal_write_record('users', array)
+    if (php.empty(array_['access']) and access('administer users')):
+      array_['access'] = php.time_()
+    success = lib_common.drupal_write_record('users', array_)
     if (not success):
       # On a failed INSERT some other existing user's uid may be returned.
       # We must abort to avoid overwriting their account.
       return False
-    }
-
     # Build the initial user object.
-    user = user_load(array('uid' : array['uid']))
-    user_module_invoke('insert', array, user, category)
+    this_user = load({'uid' : array_['uid']})
+    module_invoke('insert', array_, this_user, category)
     # Note, we wait with saving the data column to prevent module-handled
     # fields from being saved there.
-    data = array()
-    for key,value in array.items():
-      if ((key != 'roles') and (empty(user_fields[key])) and (value !== None)):
+    data = []
+    for key,value in array_.items():
+      if ((key != 'roles') and (php.empty(user_fields[key])) and \
+          (value != None)):
         data[key] = value
-      }
-    }
     if (not empty(data)):
-      data_array = array('uid' : user.uid, 'data' : data)
-      drupal_write_record('users', data_array, 'uid')
-    }
-
+      data_array = {'uid' : user.uid, 'data' : data}
+      lib_common.drupal_write_record('users', data_array, 'uid')
     # Save user roles (delete just to be safe).
-    if (isset(array['roles']) and is_array(array['roles'])):
-      db_query('DELETE FROM {users_roles} WHERE uid = %d', array['uid'])
-      foreach (array_keys(array['roles']) as rid):
-        if (not in_array(rid, array(DRUPAL_ANONYMOUS_RID, DRUPAL_AUTHENTICATED_RID))):
-          db_query('INSERT INTO {users_roles} (uid, rid) VALUES (%d, %d)', array['uid'], rid)
-        }
-      }
-    }
-
+    if (php.isset(array_['roles']) and php.is_array(array_['roles'])):
+      lib_database.db_query('DELETE FROM {users_roles} WHERE uid = %d', \
+        array_['uid'])
+      for rid in php.array_keys(array_['roles']): 
+        if (not php.in_array(rid, (DRUPAL_ANONYMOUS_RID, \
+            DRUPAL_AUTHENTICATED_RID))):
+          db_query('INSERT INTO {users_roles} (uid, rid) VALUES (%d, %d)', \
+            array_['uid'], rid)
     # Build the finished user object.
-    user = user_load(array('uid' : array['uid']))
-  }
+    this_user = load({'uid' : array_['uid']})
+  return this_user
 
-  return user
-}
+
+
 #
 # Verify the syntax of the given name.
 #
