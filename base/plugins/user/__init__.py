@@ -350,216 +350,222 @@ def save(account, array_={}, category = 'account'):
 
 
 
-#
-# Verify the syntax of the given name.
-#
-def user_validate_name(name):
+def validate_name(name):
+  """
+   Verify the syntax of the given name.
+  """
   if (not name):
-    return t('You must enter a username.')
-  }
-  if (substr(name, 0, 1) == ' '):
-    return t('The username cannot begin with a space.')
-  }
-  if (substr(name, -1) == ' '):
-    return t('The username cannot end with a space.')
-  }
-  if (strpos(name, '  ') !== False):
-    return t('The username cannot contain multiple spaces in a row.')
-  }
-  if (preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/i', name)):
-    return t('The username contains an illegal character.')
-  }
-  if (preg_match('/[\x{80}-\x{A0}' +          // Non-printable ISO-8859-1 + NBSP
-                   '\x{AD}' +                 // Soft-hyphen
-                   '\x{2000}-\x{200F}' +      // Various space characters
-                   '\x{2028}-\x{202F}' +      // Bidirectional text overrides
-                   '\x{205F}-\x{206F}' +      // Various text hinting characters
-                   '\x{FEFF}' +               // Byte order mark
-                   '\x{FF01}-\x{FF60}' +      // Full-width latin
-                   '\x{FFF9}-\x{FFFD}' +      // Replacement characters
-                   '\x{0}-\x{1F}]/u',        // None byte and control characters
-                   name)):
-    return t('The username contains an illegal character.')
-  }
+    return lib_common.t('You must enter a username.')
+  if (php.substr(name, 0, 1) == ' '):
+    return lib_common.t('The username cannot begin with a space.')
+  if (php.substr(name, -1) == ' '):
+    return lib_common.t('The username cannot end with a space.')
+  if (php.strpos(name, '  ') != False):
+    return lib_common.t(\
+      'The username cannot contain multiple spaces in a row.')
+  if (php.preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/i', name)):
+    return lib_common.t('The username contains an illegal character.')
+  if (php.preg_match(\
+    # Non-printable ISO-8859-1 + NBSP
+    '/[\x{80}-\x{A0}' + \
+    # Soft-hyphen 
+    '\x{AD}' + \
+    # Various space characters
+    '\x{2000}-\x{200F}' + \
+    # Bidirectional text overrides
+    '\x{2028}-\x{202F}' + \
+    # Various text hinting characters
+    '\x{205F}-\x{206F}' + \
+    # Byte order mark
+    '\x{FEFF}' + \
+    # Full-width latin
+    '\x{FF01}-\x{FF60}' + \
+    # Replacement characters
+    '\x{FFF9}-\x{FFFD}' + \
+    # None byte and control characters
+    '\x{0}-\x{1F}]/u',        
+    name)):
+    return lib_common.t('The username contains an illegal character.')
   if (drupal_strlen(name) > USERNAME_MAX_LENGTH):
-    return t('The username %name is too long: it must be %max characters or less.', array('%name' : name, '%max' : USERNAME_MAX_LENGTH))
-  }
-}
+    return lib_common.t(\
+      'The username %name is too long: it must be %max characters or less.', \
+      {'%name' : name, '%max' : USERNAME_MAX_LENGTH})
 
-def user_validate_mail(mail):
+
+
+def validate_mail(mail):
   if (not mail):
-    return t('You must enter an e-mail address.')
-  }
+    return lib_common.t('You must enter an e-mail address.')
   if (not valid_email_address(mail)):
-    return t('The e-mail address %mail is not valid.', array('%mail' : mail))
-  }
-}
+    return lib_common.t('The e-mail address %mail is not valid.', \
+      {'%mail' : mail})
 
-def user_validate_picture(&form, &form_state):
+
+
+def validate_picture(form, form_state):
+  php.Reference.check(form)
+  php.Reference.check(form_state)  
   # If required, validate the uploaded picture.
-  validators = array(
-    'file_validate_is_image' : array(),
-    'file_validate_image_resolution' : array(variable_get('user_picture_dimensions', '85x85')),
-    'file_validate_size' : array(variable_get('user_picture_file_size', '30') * 1024),
-  )
-  if (file = file_save_upload('picture_upload', validators)):
+  validators = {
+    'file_validate_is_image' : [],
+    'file_validate_image_resolution' : \
+      (lib_bootstrap.variable_get('user_picture_dimensions', '85x85')),
+    'file_validate_size' : \
+      (lib_bootstrap.variable_get('user_picture_file_size', '30') * 1024)
+  }
+  file_ = lib_file.save_upload('picture_upload', validators)
+  if (file_):
     # Remove the old picture.
-    if (isset(form_state['values']['_account'].picture) and file_exists(form_state['values']['_account'].picture)):
-      file_delete(form_state['values']['_account'].picture)
-    }
-
+    if (php.isset(form_state['values']['_account'].picture) and \
+        lib_file.exists(form_state['values']['_account'].picture)):
+      lib_file.delete(form_state['values']['_account'].picture)
     # The image was saved using file_save_upload() and was added to the
     # files table as a temporary file. We'll make a copy and let the garbage
     # collector delete the original upload.
-    info = image_get_info(file.filepath)
-    destination = variable_get('user_picture_path', 'pictures') +  '/picture-'  + form['#uid'] . '.' . info['extension']
-    if (file_copy(file, destination, FILE_EXISTS_REPLACE)):
-      form_state['values']['picture'] = file.filepath
-    }
+    info = image_get_info(file_.filepath)
+    destination = lib_bootstrap.variable_get('user_picture_path', \
+      'pictures') + '/picture-'  + form['#uid'] + '.' + info['extension']
+    if (lib_file.copy(file_, destination, FILE_EXISTS_REPLACE)):
+      form_state['values']['picture'] = file_.filepath
     else:
-      form_set_error('picture_upload', t("Failed to upload the picture image; the %directory directory doesn't exist or is not writable.", array('%directory' : variable_get('user_picture_path', 'pictures'))))
-    }
-  }
-}
-#
-# Generate a random alphanumeric password.
-#
-def user_password(length = 10):
+      lib_form.set_error('picture_upload', \
+        lib_common.t("Failed to upload the picture image; " + \
+        "the %directory directory doesn't exist or is not writable.", \
+        {'%directory' : \
+        lib_common.variable_get('user_picture_path', 'pictures')}))
+
+
+def user_password(length=10):
+  """
+   Generate a random alphanumeric password.
+  """
   # This variable contains the list of allowable characters for the
   # password. Note that the number 0 and the letter 'O' have been
   # removed to avoid confusion between the two. The same is True
   # of 'I', 1, and 'l'.
-  allowable_characters = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  allowable_characters = \
+    'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
   # Zero-based count of characters in the allowable list:
-  len = strlen(allowable_characters) - 1
+  len_ = php.strlen(allowable_characters) - 1
   # Declare the password as a blank string.
-  pass = ''
+  pass_ = ''
   # Loop the number of times specified by length.
-  for (i = 0; i < length; i++):
-
+  for i in range(length):
     # Each iteration, pick a random character from the
     # allowable string and append it to the password:
-    pass += allowable_characters[mt_rand(0, len)]
-  }
+    pass_ += allowable_characters[php.mt_rand(0, len_)]
+  return pass_
 
-  return pass
-}
-#
-# Determine the permissions for one or more roles.
-#
-# @param roles
-#   An array whose keys are the role IDs of interest, such as user.roles.
-# @param reset
-#   Optional parameter - if True data in the static variable is rebuilt.
-#
-# @return
-#   An array indexed by role ID. Each value is an array whose keys are the
-#   permission strings for the given role ID.
-#
-def user_role_permissions(roles = array(), reset = False):
-  static stored_permissions = array()
+
+def role_permissions(roles=[], reset=False):
+  """
+   Determine the permissions for one or more roles.
+  
+   @param roles
+     An array whose keys are the role IDs of interest, such as user.roles.
+   @param reset
+     Optional parameter - if True data in the static variable is rebuilt.
+  
+   @return
+     An array indexed by role ID. Each value is an array whose keys are the
+     permission strings for the given role ID.
+  """
+  php.static(role_permissions, 'stored_permissions', {})
   if (reset):
     # Clear the data cached in the static variable.
-    stored_permissions = array()
-  }
-
-  role_permissions = fetch = array()
+    role_permissions.stored_permissions = {}
+  role_permissions_ = fetch = []
   if (roles):
     for rid,name in roles.items():
-      if (isset(stored_permissions[rid])):
-        role_permissions[rid] = stored_permissions[rid]
-      }
+      if (php.isset(role_permissions.stored_permissions[rid])):
+        role_permissions_[rid] = role_permissions.stored_permissions[rid]
       else:
         # Add this rid to the list of those needing to be fetched.
-        fetch[] = rid
+        fetch.append( rid )
         # Prepare in case no permissions are returned.
-        stored_permissions[rid] = array()
-      }
-    }
-
+        role_permissions.stored_permissions[rid] = {}
     if (fetch):
       # Get from the database permissions that were not in the static variable.
       # Only role IDs with at least one permission assigned will return rows.
-      result = db_query("SELECT r.rid, p.permission FROM {role} r INNER JOIN {role_permission} p ON p.rid = r.rid WHERE r.rid IN (" +  db_placeholders(fetch)  + ")", fetch)
-      while (row = db_fetch_array(result)):
-        stored_permissions[row['rid']][row['permission']] = True
-      }
+      result = lib_database.query(\
+        "SELECT r.rid, p.permission FROM {role} r " + \
+        "INNER JOIN {role_permission} p ON p.rid = r.rid " + \
+        "WHERE r.rid IN (" +  lib_database.placeholders(fetch)  + ")", fetch)
+      while True:
+        row = lib_database.fetch_array(result)
+        if not row:
+          break
+        role_permissions.stored_permissions[row['rid']][row['permission']] = \
+          True
       for rid in fetch:
         # For every rid, we know we at least assigned an empty array.
-        role_permissions[rid] = stored_permissions[rid]
-      }
-    }
-  }
+        role_permissions_[rid] = role_permissions.stored_permissions[rid]
+  return role_permissions_
 
-  return role_permissions
-}
-#
-# Determine whether the user has a given privilege.
-#
-# @param string
-#   The permission, such as "administer nodes", being checked for.
-# @param account
-#   (optional) The account to check, if not given use currently logged in user.
-# @param reset
-#   (optional) Resets the user's permissions cache, which will result in a
-#   recalculation of the user's permissions. This is necessary to support
-#   dynamically added user roles.
-#
-# @return
-#   Boolean True if the current user has the requested permission.
-#
-# All permission checks in Drupal should go through this function. This
-# way, we guarantee consistent behavior, and ensure that the superuser
-# can perform all actions.
-#
-def user_access(string, account = None, reset = False):
-  global user
-  static perm = array()
+
+def access(string_, account=None, reset=False):
+  """
+   Determine whether the user has a given privilege.
+  
+   @param string
+     The permission, such as "administer nodes", being checked for.
+   @param account
+     (optional) The account to check,
+     if not given use currently logged in user.
+   @param reset
+     (optional) Resets the user's permissions cache, which will result in a
+     recalculation of the user's permissions. This is necessary to support
+     dynamically added user roles.
+  
+   @return
+     Boolean True if the current user has the requested permission.
+  
+   All permission checks in Drupal should go through this function. This
+   way, we guarantee consistent behavior, and ensure that the superuser
+   can perform all actions.
+  """
+  php.static(access, 'perm', {})
   if (reset):
-    unset(perm)
-  }
-
-  if (is_None(account)):
-    account = user
-  }
-
+    access.perm = {}
+  if (account is None):
+    account = lib_bootstrap.user
   # User #1 has all privileges:
   if (account.uid == 1):
     return True
-  }
-
   # To reduce the number of SQL queries, we cache the user's permissions
   # in a static variable.
-  if (not isset(perm[account.uid])):
-    role_permissions = user_role_permissions(account.roles, reset)
-    perms = array()
+  if (not php.isset(access.perm[account.uid])):
+    role_permissions = role_permissions(account.roles, reset)
+    access.perms = {}
     for one_role in role_permissions:
-      perms += one_role
-    }
-    perm[account.uid] = perms
-  }
+      access.perms += one_role
+    access.perm[account.uid] = access.perms
+  return php.isset(access.perm[account.uid][string])
 
-  return isset(perm[account.uid][string])
-}
-#
-# Checks for usernames blocked by user administration.
-#
-# @return boolean True for blocked users, False for active.
-#
-def user_is_blocked(name):
-  deny = db_fetch_object(db_query("SELECT name FROM {users} WHERE status = 0 AND name = LOWER('%s')", name))
+
+def is_blocked(name):
+  """
+   Checks for usernames blocked by user administration.
+  
+   @return boolean True for blocked users, False for active.
+  """
+  deny = lib_database.fetch_object(\
+    lib_database.query(\
+    "SELECT name FROM {users} WHERE status = 0 AND name = LOWER('%s')", \
+    name))
   return deny
-}
-#
-# Implementation of hook_perm().
-#
-def user_perm():
-   return array(
+
+
+def perm():
+  """
+   Implementation of hook_perm().
+  """
+   return {
      'administer permissions' : t('Manage the permissions assigned to user roles + %warning', array('%warning' : t('Warning: Give to trusted roles only; this permission has security implications.'))),
      'administer users' : t('Manage or block users, and manage their role assignments.'),
      'access user profiles' : t('View profiles of users on the site, which may contain personal information.'),
      'change own username' : t('Select a different username.'),
-   )
+   }
 }
 #
 # Implementation of hook_file_download().
