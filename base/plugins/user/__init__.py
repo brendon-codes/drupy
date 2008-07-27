@@ -556,72 +556,99 @@ def is_blocked(name):
   return deny
 
 
-def perm():
+def hook_perm():
   """
    Implementation of hook_perm().
   """
-   return {
-     'administer permissions' : t('Manage the permissions assigned to user roles + %warning', array('%warning' : t('Warning: Give to trusted roles only; this permission has security implications.'))),
-     'administer users' : t('Manage or block users, and manage their role assignments.'),
-     'access user profiles' : t('View profiles of users on the site, which may contain personal information.'),
-     'change own username' : t('Select a different username.'),
-   }
-}
-#
-# Implementation of hook_file_download().
-#
-# Ensure that user pictures (avatars) are always downloadable.
-#
-def user_file_download(file):
-  if (strpos(file, variable_get('user_picture_path', 'pictures') +  '/picture-') == 0):
-    info = image_get_info(file_create_path(file))
-    return array('Content-type: ' +  info['mime_type'])
+  return {
+    'administer permissions' : lib_common.t(\
+      'Manage the permissions assigned to user roles + %warning', \
+      {'%warning' : lib_common.t(\
+      'Warning: Give to trusted roles only; ' + \
+      'this permission has security implications.')}),
+    'administer users' : lib_common.t(\
+      'Manage or block users, and manage their role assignments.'),
+    'access user profiles' : lib_common.t(\
+      'View profiles of users on the site, ' + \
+      'which may contain personal information.'),
+    'change own username' : t('Select a different username.'),
   }
-}
-#
-# Implementation of hook_search().
-#
-def user_search(op = 'search', keys = None, skip_access_check = False):
-  switch (op):
-    case 'name':
-      if (skip_access_check or user_access('access user profiles')):
-        return t('Users')
-      }
-    case 'search':
-      if (user_access('access user profiles')):
-        find = array()
-        # Replace wildcards with MySQL/PostgreSQL wildcards.
-        keys = preg_replace('not \*+not ', '%', keys)
-        if (user_access('administer users')):
-          # Administrators can also search in the otherwise private email field.
-          result = pager_query("SELECT name, uid, mail FROM {users} WHERE LOWER(name) LIKE LOWER('%%%s%%') OR LOWER(mail) LIKE LOWER('%%%s%%')", 15, 0, None, keys, keys)
-          while (account = db_fetch_object(result)):
-            find[] = array('title' : account.name +  ' ('  + account.mail . ')', 'link' : url('user/' . account.uid, array('absolute' : True)))
-          }
-        }
-        else:
-          result = pager_query("SELECT name, uid FROM {users} WHERE LOWER(name) LIKE LOWER('%%%s%%')", 15, 0, None, keys)
-          while (account = db_fetch_object(result)):
-            find[] = array('title' : account.name, 'link' : url('user/' +  account.uid, array('absolute' : True)))
-          }
-        }
-        return find
-      }
+
+
+def hook_file_download(file):
+  """
+   Implementation of hook_file_download().
+  
+   Ensure that user pictures (avatars) are always downloadable.
+  """
+  if (php.strpos(file, lib_bootstrap.variable_get(\
+      'user_picture_path', 'pictures') +  '/picture-') == 0):
+    info = lib_plugin.plugins['image'].get_info(\
+      lib_plugin.plugins['file'].create_path(file))
+    return ('Content-type: ' +  info['mime_type'],)
+
+
+def hook_search(op = 'search', keys = None, skip_access_check = False):
+  """
+   Implementation of hook_search().
+  """
+  if op == 'name':
+    if (skip_access_check or access('access user profiles')):
+      return lib_common.t('Users')
+  elif op == 'search':
+    if (access('access user profiles')):
+      find = []
+      # Replace wildcards with MySQL/PostgreSQL wildcards.
+      keys = php.preg_replace('not \*+not ', '%', keys)
+      if (access('administer users')):
+        # Administrators can also search in the otherwise private email field.
+        result = lib_database.pager_query(\
+          "SELECT name, uid, mail FROM {users} " + \
+          "WHERE LOWER(name) LIKE LOWER('%%%s%%') OR " + \
+          "LOWER(mail) LIKE LOWER('%%%s%%')", 15, 0, None, keys, keys)
+        while True:
+          account = db_fetch_object(result)
+          if not account:
+            break
+          find.append({
+            'title' : account.name + ' ('  + account.mail + ')', \
+            'link' : \
+              lib_common.url('user/' + account.uid, {'absolute' : True})
+          })
+      else:
+        result = lib_database.pager_query(\
+          "SELECT name, uid FROM {users} " + \
+          "WHERE LOWER(name) LIKE LOWER('%%%s%%')", 15, 0, None, keys)
+        while True:
+          account = db_fetch_object(result)
+          if not account:
+            break;
+          find.append({
+            'title' : account.name,
+            'link' : lib_common.url('user/' +  account.uid, \
+              {'absolute' : True})
+          })
+    return find
+
+
+
+def hook_elements():
+  """
+   Implementation of hook_elements().
+  """
+  return {
+    'user_profile_category' : [],
+    'user_profile_item' : []
   }
-}
-#
-# Implementation of hook_elements().
-#
-def user_elements():
-  return array(
-    'user_profile_category' : array(),
-    'user_profile_item' : array(),
-  )
-}
-#
-# Implementation of hook_user().
-#
-def user_user(type, &edit, &account, category = None):
+
+
+
+def hook_user(type, edit, account, category = None):
+  """
+   Implementation of hook_user().
+  """
+  php.Reference.check(edit)
+  php.Reference.check(account)
   if (type == 'view'):
     account.content['user_picture'] = array(
       '#value' : theme('user_picture', account),
