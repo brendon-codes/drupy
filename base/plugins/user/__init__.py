@@ -643,80 +643,89 @@ def hook_elements():
 
 
 
-def hook_user(type, edit, account, category = None):
+def hook_user(type, edit, account, category=None):
   """
    Implementation of hook_user().
   """
   php.Reference.check(edit)
   php.Reference.check(account)
   if (type == 'view'):
-    account.content['user_picture'] = array(
-      '#value' : theme('user_picture', account),
-      '#weight' : -10,
-    )
-    if (not isset(account.content['summary'])):
-      account.content['summary'] = array()
+    account.content['user_picture'] = {
+      '#value' : lib_theme.theme('user_picture', account),
+      '#weight' : -10
     }
-    account.content['summary'] += array(
+    if (not php.isset(account.content, 'summary')):
+      account.content['summary'] = {}
+    account.content['summary'] += {
       '#type' : 'user_profile_category',
-      '#attributes' : array('class' : 'user-member'),
+      '#attributes' : {'class' : 'user-member'},
       '#weight' : 5,
-      '#title' : t('History'),
-    )
-    account.content['summary']['member_for'] =  array(
+      '#title' : lib_common.t('History')
+    }
+    account.content['summary']['member_for'] = {
       '#type' : 'user_profile_item',
-      '#title' : t('Member for'),
-      '#value' : format_interval(time() - account.created),
-    )
-  }
+      '#title' : lib_theme.t('Member for'),
+      '#value' : format_interval(php.time_() - account.created)
+    }
   if (type == 'form' and category == 'account'):
-    form_state = array()
-    return user_edit_form(form_state, arg(1), edit)
-  }
-
+    form_state = {}
+    return edit_form(form_state, lib_common.arg(1), edit)
   if (type == 'validate' and category == 'account'):
     return _user_edit_validate(arg(1), edit)
-  }
-
   if (type == 'submit' and category == 'account'):
     return _user_edit_submit(arg(1), edit)
-  }
-
   if (type == 'categories'):
-    return array(array('name' : 'account', 'title' : t('Account settings'), 'weight' : 1))
-  }
-}
+    return ({
+      'name' : 'account',
+      'title' : lib_common.t('Account settings'),
+      'weight' : 1
+    },)
 
-def user_login_block():
-  form = array(
-    '#action' : url(_GET['q'], array('query' : drupal_get_destination())),
+
+
+
+
+def login_block():
+  form = {
+    '#action' : lib_common.url(php.GET['q'], \
+      {'query' : drupal_get_destination()}),
     '#id' : 'user-login-form',
-    '#validate' : user_login_default_validators(),
-    '#submit' : array('user_login_submit'),
-  )
-  form['name'] = array('#type' : 'textfield',
+    '#validate' : login_default_validators(),
+    '#submit' : ('user_login_submit',),
+  }
+  form['name'] = {
+    '#type' : 'textfield',
     '#title' : t('Username'),
     '#maxlength' : USERNAME_MAX_LENGTH,
     '#size' : 15,
     '#required' : True,
-  )
-  form['pass'] = array('#type' : 'password',
-    '#title' : t('Password'),
+  }
+  form['pass'] = {
+    '#type' : 'password',
+    '#title' : lib_common.t('Password'),
     '#maxlength' : 60,
     '#size' : 15,
-    '#required' : True,
-  )
-  form['submit'] = array('#type' : 'submit',
-    '#value' : t('Log in'),
-  )
-  items = array()
-  if (variable_get('user_register', 1)):
-    items[] = l(t('Create new account'), 'user/register', array('attributes' : array('title' : t('Create a new user account.'))))
+    '#required' : True
   }
-  items[] = l(t('Request new password'), 'user/password', array('attributes' : array('title' : t('Request new password via e-mail.'))))
-  form['links'] = array('#value' : theme('item_list', items))
+  form['submit'] = {
+    '#type' : 'submit',
+    '#value' : lib_common.t('Log in')
+  }
+  items = {}
+  if (lib_bootstrap.variable_get('user_register', 1)):
+    items.append( lib_common.l(\
+      lib_common.t('Create new account'), 'user/register', \
+      {'attributes' : {'title' : t('Create a new user account.')}}) )
+  items.append( lib_common.l(\
+    t('Request new password'), \
+    'user/password', {'attributes' : \
+    {'title' : lib_common.t('Request new password via e-mail.')}}) )
+  form['links'] = {'#value' : lib_theme.theme('item_list', items)}
   return form
-}
+
+
+
+
 #
 # Implementation of hook_block().
 #
