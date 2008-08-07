@@ -726,116 +726,152 @@ def login_block():
 
 
 
-#
-# Implementation of hook_block().
-#
-def user_block(op = 'list', delta = '', edit = array()):
-  global user
+def hook_block(op='list', delta='', edit=[]):
+  """
+   Implementation of hook_block().
+  """
   if (op == 'list'):
-    blocks['login']['info'] = t('User login')
+    blocks = {
+      'login' : {},
+      'navigation' : {},
+      'new' : {},
+      'online' : {}
+    }
+    blocks['login']['info'] = lib_common.t('User login')
     # Not worth caching.
     blocks['login']['cache'] = BLOCK_NO_CACHE
-    blocks['navigation']['info'] = t('Navigation')
+    blocks['navigation']['info'] = lib_common.t('Navigation')
     # Menu blocks can't be cached because each menu item can have
     # a custom access callback. menu.inc manages its own caching.
     blocks['navigation']['cache'] = BLOCK_NO_CACHE
-    blocks['new']['info'] = t('Who\'s new')
+    blocks['new']['info'] = lib_common.t('Who\'s new')
     # Too dynamic to cache.
-    blocks['online']['info'] = t('Who\'s online')
+    blocks['online']['info'] = lib_common.t('Who\'s online')
     blocks['online']['cache'] = BLOCK_NO_CACHE
     return blocks
-  }
   elif (op == 'configure' and delta == 'new'):
-    form['user_block_whois_new_count'] = array(
+    form['user_block_whois_new_count'] = {
       '#type' : 'select',
-      '#title' : t('Number of users to display'),
-      '#default_value' : variable_get('user_block_whois_new_count', 5),
-      '#options' : drupal_map_assoc(array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)),
-    )
-    return form
-  }
-  elif (op == 'configure' and delta == 'online'):
-    period = drupal_map_assoc(array(30, 60, 120, 180, 300, 600, 900, 1800, 2700, 3600, 5400, 7200, 10800, 21600, 43200, 86400), 'format_interval')
-    form['user_block_seconds_online'] = array('#type' : 'select', '#title' : t('User activity'), '#default_value' : variable_get('user_block_seconds_online', 900), '#options' : period, '#description' : t('A user is considered online for this long after they have last viewed a page.'))
-    form['user_block_max_list_count'] = array('#type' : 'select', '#title' : t('User list length'), '#default_value' : variable_get('user_block_max_list_count', 10), '#options' : drupal_map_assoc(array(0, 5, 10, 15, 20, 25, 30, 40, 50, 75, 100)), '#description' : t('Maximum number of currently online users to display.'))
-    return form
-  }
-  elif (op == 'save' and delta == 'new'):
-    variable_set('user_block_whois_new_count', edit['user_block_whois_new_count'])
-  }
-  elif (op == 'save' and delta == 'online'):
-    variable_set('user_block_seconds_online', edit['user_block_seconds_online'])
-    variable_set('user_block_max_list_count', edit['user_block_max_list_count'])
-  }
-  elif (op == 'view'):
-    block = array()
-    switch (delta):
-      case 'login':
-        # For usability's sake, avoid showing two login forms on one page.
-        if (not user.uid and not (arg(0) == 'user' and not is_numeric(arg(1)))):
-
-          block['subject'] = t('User login')
-          block['content'] = drupal_get_form('user_login_block')
-        }
-        return block
-      case 'navigation':
-        if (menu = menu_tree()):
-          block['subject'] = user.uid ? check_plain(user.name) : t('Navigation')
-          block['content'] = menu
-        }
-        return block
-      case 'new':
-        if (user_access('access content')):
-          # Retrieve a list of new users who have subsequently accessed the site successfully.
-          result = db_query_range('SELECT uid, name FROM {users} WHERE status != 0 AND access != 0 ORDER BY created DESC', 0, variable_get('user_block_whois_new_count', 5))
-          while (account = db_fetch_object(result)):
-            items[] = account
-          }
-          output = theme('user_list', items)
-          block['subject'] = t('Who\'s new')
-          block['content'] = output
-        }
-        return block
-      case 'online':
-        if (user_access('access content')):
-          # Count users active within the defined period.
-          interval = time() - variable_get('user_block_seconds_online', 900)
-          # Perform database queries to gather online user lists.  We use s.timestamp
-          # rather than u.access because it is much faster.
-          anonymous_count = sess_count(interval)
-          authenticated_users = db_query('SELECT DISTINCT u.uid, u.name, s.timestamp FROM {users} u INNER JOIN {sessions} s ON u.uid = s.uid WHERE s.timestamp >= %d AND s.uid > 0 ORDER BY s.timestamp DESC', interval)
-          authenticated_count = 0
-          max_users = variable_get('user_block_max_list_count', 10)
-          items = array()
-          while (account = db_fetch_object(authenticated_users)):
-            if (max_users > 0):
-              items[] = account
-              max_users--
-            }
-            authenticated_count++
-          }
-
-          # Format the output with proper grammar.
-          if (anonymous_count == 1 and authenticated_count == 1):
-            output = t('There is currently %members and %visitors online.', array('%members' : format_plural(authenticated_count, '1 user', '@count users'), '%visitors' : format_plural(anonymous_count, '1 guest', '@count guests')))
-          }
-          else:
-            output = t('There are currently %members and %visitors online.', array('%members' : format_plural(authenticated_count, '1 user', '@count users'), '%visitors' : format_plural(anonymous_count, '1 guest', '@count guests')))
-          }
-
-          # Display a list of currently online users.
-          max_users = variable_get('user_block_max_list_count', 10)
-          if (authenticated_count and max_users):
-            output += theme('user_list', items, t('Online users'))
-          }
-
-          block['subject'] = t('Who\'s online')
-          block['content'] = output
-        }
-        return block
+      '#title' : lib_common.t('Number of users to display'),
+      '#default_value' : \
+        lib_bootstrap.variable_get('user_block_whois_new_count', 5),
+      '#options' : drupal_map_assoc((1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
     }
-  }
-}
+    return form
+  elif (op == 'configure' and delta == 'online'):
+    period = drupal_map_assoc(
+      (30, 60, 120, 180, 300, 600, 900, 1800, 2700, 3600, 5400, 7200, \
+      10800, 21600, 43200, 86400), 'format_interval')
+    form['user_block_seconds_online'] = {
+      '#type' : 'select',
+      '#title' : lib_common.t('User activity'),
+      '#default_value' : \
+        lib_bootstrap.variable_get('user_block_seconds_online', 900),
+      '#options' : period,
+      '#description' : \
+        lib.common.t('A user is considered online for ' + \
+        'this long after they have last viewed a page.')
+    }
+    form['user_block_max_list_count'] = {'#type' : 'select', \
+      '#title' : lib_common.t('User list length'), \
+      '#default_value' : \
+      lib_bootstrap.variable_get('user_block_max_list_count', 10), \
+      '#options' : drupal_map_assoc(\
+      (0, 5, 10, 15, 20, 25, 30, 40, 50, 75, 100)), \
+      '#description' : lib_common.t('Maximum number of ' + \
+      'currently online users to display.')}
+    return form
+  elif (op == 'save' and delta == 'new'):
+    lib_bootstrap.variable_set('user_block_whois_new_count', \
+      edit['user_block_whois_new_count'])
+  elif (op == 'save' and delta == 'online'):
+    lib_bootstrap.variable_set('user_block_seconds_online', \
+      edit['user_block_seconds_online'])
+    lib_bootstrap.variable_set('user_block_max_list_count', \
+      edit['user_block_max_list_count'])
+  elif (op == 'view'):
+    block = {}
+    if delta == 'login':
+      # For usability's sake, avoid showing two login forms on one page.
+      if (lib_bootstrap.user.uid < 1 and not \
+          (lib_path.arg(0) == 'user' and not php.is_numeric(lib_path.arg(1)))):
+        block['subject'] = lib_common.t('User login')
+        block['content'] = drupal_get_form('user_login_block')
+      return block
+    elif delta == 'navigation':
+      menu = lib_menu.tree()
+      if (menu):
+        block['subject'] = (check_plain(lib_bootstrap.user.name) if \
+          (user.uid > 0) else \
+          lib_common.t('Navigation'))
+        block['content'] = menu
+      return block
+    elif delta == 'new':
+      if (access('access content')):
+        # Retrieve a list of new users who have
+        # subsequently accessed the site successfully.
+        result = lib_database.query_range(\
+          'SELECT uid, name FROM {users} ' + \
+          'WHERE status != 0 AND access != 0 ' + \
+          'ORDER BY created DESC', 0, \
+          lib_common.variable_get('user_block_whois_new_count', 5))
+        while True:
+          account = lib_database.fetch_object(result)
+          if not account:
+            break
+          items.append( account )
+        output = lib_theme.theme('user_list', items)
+        block['subject'] = lib_common.t('Who\'s new')
+        block['content'] = output
+      return block
+    elif delta == 'online':
+      if (access('access content')):
+        # Count users active within the defined period.
+        interval = time() - variable_get('user_block_seconds_online', 900)
+        # Perform database queries to gather online user lists.
+        # We use s.timestamp
+        # rather than u.access because it is much faster.
+        anonymous_count = sess_count(interval)
+        authenticated_users = lib_database.query(\
+          'SELECT DISTINCT u.uid, u.name, s.timestamp ' + \
+          'FROM {users} u ' + \
+          'INNER JOIN {sessions} s ON u.uid = s.uid ' + \
+          'WHERE s.timestamp >= %d AND s.uid > 0 ' + \
+          'ORDER BY s.timestamp DESC', interval)
+        authenticated_count = 0
+        max_users = lib_bootstrap.variable_get('user_block_max_list_count', 10)
+        items = []
+        while True:
+          account = lib_database.fetch_object(authenticated_users)
+          if (max_users > 0):
+            items.append( account )
+            max_users -= 1
+          authenticated_count += 1
+        # Format the output with proper grammar.
+        if (anonymous_count == 1 and authenticated_count == 1):
+          output = lib_common.t(\
+            'There is currently %members and %visitors online.', \
+            {'%members' : \
+            format_plural(authenticated_count, '1 user', '@count users'), \
+            '%visitors' : format_plural(anonymous_count, '1 guest', \
+            '@count guests')})
+        else:
+          output = lib_common.t(\
+            'There are currently %members and %visitors online.', \
+            {'%members' : format_plural(authenticated_count, '1 user', \
+            '@count users'), '%visitors' : \
+            format_plural(anonymous_count, '1 guest', '@count guests')})
+        # Display a list of currently online users.
+        max_users = variable_get('user_block_max_list_count', 10)
+        if (authenticated_count and max_users):
+          output += lib_theme.theme('user_list', items, \
+            lib_common.t('Online users'))
+        block['subject'] = lib_common.t('Who\'s online')
+        block['content'] = output
+      return block
+
+
+
 #
 # Process variables for user-picture.tpl.php.
 #
