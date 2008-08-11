@@ -1455,140 +1455,172 @@ def external_login_register(name, module):
 
 
 
-def user_pass_reset_url(account):
-  timestamp = time()
-  return url("user/reset/account.uid/timestamp/" +  user_pass_rehash(account.pass, timestamp, account.login), array('absolute' : True))
-}
+def pass_reset_url(account):
+  timestamp = php.time_()
+  return url("user/reset/account.uid/timestamp/" +  \
+    pass_rehash(account.pass_, timestamp, account.login), {'absolute' : True})
 
-def user_pass_rehash(password, timestamp, login):
-  return md5(timestamp +  password  + login)
-}
 
-def user_edit_form(&form_state, uid, edit, register = False):
-  _user_password_dynamic_validation()
-  admin = user_access('administer users')
+
+def pass_rehash(password, timestamp, login):
+  return php.md5(timestamp +  password  + login)
+
+
+def edit_form(form_state, uid, edit, register=False):
+  php.Reference.check(form_state)
+  _password_dynamic_validation()
+  admin = access('administer users')
   # Account information:
-  form['account'] = array('#type' : 'fieldset',
-    '#title' : t('Account information'),
-    '#weight' : -10,
-  )
-  if (user_access('change own username') or admin or register):
-    form['account']['name'] = array('#type' : 'textfield',
+  form['account'] = {
+    '#type' : 'fieldset',
+    '#title' : lib_common.t('Account information'),
+    '#weight' : -10
+  }
+  if (access('change own username') or admin or register):
+    form['account']['name'] = {
+      '#type' : 'textfield',
       '#title' : t('Username'),
       '#default_value' : edit['name'],
       '#maxlength' : USERNAME_MAX_LENGTH,
-      '#description' : t('Spaces are allowed; punctuation is not allowed except for periods, hyphens, apostrophes, and underscores.'),
-      '#required' : True,
-    )
-  }
-  form['account']['mail'] = array('#type' : 'textfield',
-    '#title' : t('E-mail address'),
+      '#description' : lib_common.t(\
+        'Spaces are allowed; punctuation is not allowed except ' + \
+        'for periods, hyphens, apostrophes, and underscores.'),
+      '#required' : True
+    }
+  form['account']['mail'] = {
+    '#type' : 'textfield',
+    '#title' : lib_common.t('E-mail address'),
     '#default_value' : edit['mail'],
     '#maxlength' : EMAIL_MAX_LENGTH,
-    '#description' : t('A valid e-mail address. All e-mails from the system will be sent to this address. The e-mail address is not made public and will only be used if you wish to receive a new password or wish to receive certain news or notifications by e-mail.'),
-    '#required' : True,
-  )
+    '#description' : lib_common.t(\
+      'A valid e-mail address. All e-mails from the system ' + \
+      'will be sent to this address. The e-mail address is not ' + \
+      'made public and will only be used if you wish to receive a ' + \
+      'new password or wish to receive certain news ' + \
+      'or notifications by e-mail.'),
+    '#required' : True
+  }
   if (not register):
-    form['account']['pass'] = array('#type' : 'password_confirm',
-      '#description' : t('To change the current user password, enter the new password in both fields.'),
-      '#size' : 25,
-    )
-  }
-  elif (not variable_get('user_email_verification', True) or admin):
-    form['account']['pass'] = array(
+    form['account']['pass'] = {
       '#type' : 'password_confirm',
-      '#description' : t('Provide a password for the new account in both fields.'),
+      '#description' : t('To change the current user password, ' + \
+        'enter the new password in both fields.'),
+      '#size' : 25
+    }
+  elif (not lib_bootstrap.variable_get('user_email_verification', True) or \
+        admin):
+    form['account']['pass'] = {
+      '#type' : 'password_confirm',
+      '#description' : lib_common.t(\
+        'Provide a password for the new account in both fields.'),
       '#required' : True,
-      '#size' : 25,
-    )
-  }
+      '#size' : 25
+    }
   if (admin):
-    form['account']['status'] = array(
+    form['account']['status'] = {
       '#type' : 'radios',
-      '#title' : t('Status'),
-      '#default_value' : isset(edit['status']) ? edit['status'] : 1,
-      '#options' : array(t('Blocked'), t('Active'))
-    )
-  }
-  if (user_access('administer permissions')):
-    roles = user_roles(True)
+      '#title' : lib_common.t('Status'),
+      '#default_value' : (edit['status'] if php.isset(edit['status']) else 1),
+      '#options' : (lib_common.t('Blocked'), lib_common.t('Active'))
+    }
+  if (access('administer permissions')):
+    roles_ = roles(True)
     # The disabled checkbox subelement for the 'authenticated user' role
     # must be generated separately and added to the checkboxes element,
     # because of a limitation in D6 FormAPI not supporting a single disabled
     # checkbox within a set of checkboxes.
     # TODO: This should be solved more elegantly. See issue #119038.
-    checkbox_authenticated = array(
+    checkbox_authenticated = {
       '#type' : 'checkbox',
-      '#title' : roles[DRUPAL_AUTHENTICATED_RID],
+      '#title' : roles_[DRUPAL_AUTHENTICATED_RID],
       '#default_value' : True,
-      '#disabled' : True,
-    )
-    unset(roles[DRUPAL_AUTHENTICATED_RID])
-    if (roles):
-      default = empty(edit['roles']) ? array() : array_keys(edit['roles'])
-      form['account']['roles'] = array(
+      '#disabled' : True
+    }
+    del(roles_[DRUPAL_AUTHENTICATED_RID])
+    if (roles_):
+      default = ([] if php.empty(edit['roles']) else \
+        php.array_keys(edit['roles']))
+      form['account']['roles'] = {
         '#type' : 'checkboxes',
-        '#title' : t('Roles'),
+        '#title' : lib_common.t('Roles'),
         '#default_value' : default,
-        '#options' : roles,
+        '#options' : roles_,
         DRUPAL_AUTHENTICATED_RID : checkbox_authenticated,
-      )
-    }
-  }
-
+      }
   # Signature:
-  if (variable_get('user_signatures', 0) and module_exists('comment') and not register):
-    form['signature_settings'] = array(
+  if (lib_bootstrap.variable_get('user_signatures', 0) and \
+      lib_plugin.exists('comment') and not register):
+    form['signature_settings'] = {
       '#type' : 'fieldset',
-      '#title' : t('Signature settings'),
-      '#weight' : 1,
-    )
-    form['signature_settings']['signature'] = array(
+      '#title' : lib_common.t('Signature settings'),
+      '#weight' : 1
+    }
+    form['signature_settings']['signature'] = {
       '#type' : 'textarea',
-      '#title' : t('Signature'),
+      '#title' : lib_common.t('Signature'),
       '#default_value' : edit['signature'],
-      '#description' : t('Your signature will be publicly displayed at the end of your comments.'),
-    )
-  }
-
+      '#description' : lib_common.t('Your signature will be ' + \
+        'publicly displayed at the end of your comments.'),
+    }
   # Picture/avatar:
-  if (variable_get('user_pictures', 0) and not register):
-    form['picture'] = array('#type' : 'fieldset', '#title' : t('Picture'), '#weight' : 1)
-    picture = theme('user_picture', (object)edit)
+  if (lib_bootstrap.variable_get('user_pictures', 0) and not register):
+    form['picture'] = {'#type' : 'fieldset', '#title' : \
+      lib_common.t('Picture'), '#weight' : 1}
+    picture = lib_theme.theme('user_picture', php.object_(edit))
     if (edit['picture']):
-      form['picture']['current_picture'] = array('#value' : picture)
-      form['picture']['picture_delete'] = array('#type' : 'checkbox', '#title' : t('Delete picture'), '#description' : t('Check this box to delete your current picture.'))
-    }
+      form['picture']['current_picture'] = {'#value' : picture}
+      form['picture']['picture_delete'] = {'#type' : 'checkbox', '#title' : \
+        lib_common.t('Delete picture'), '#description' : \
+        lib_common.t('Check this box to delete your current picture.')}
     else:
-      form['picture']['picture_delete'] = array('#type' : 'hidden')
-    }
-    form['picture']['picture_upload'] = array('#type' : 'file', '#title' : t('Upload picture'), '#size' : 48, '#description' : t('Your virtual face or picture. Maximum dimensions are %dimensions and the maximum size is %size kB.', array('%dimensions' : variable_get('user_picture_dimensions', '85x85'), '%size' : variable_get('user_picture_file_size', '30'))) . ' ' . variable_get('user_picture_guidelines', ''))
-    form['#validate'][] = 'user_validate_picture'
-  }
+      form['picture']['picture_delete'] = {'#type' : 'hidden'}
+    form['picture']['picture_upload'] = {'#type' : 'file', '#title' : \
+      lib_common.t('Upload picture'), '#size' : 48, '#description' : \
+      lib_common.t('Your virtual face or picture. Maximum dimensions ' + \
+      'are %dimensions and the maximum size is %size kB.', \
+      {'%dimensions' : \
+      lib_bootstrap.variable_get('user_picture_dimensions', '85x85'), \
+      '%size' : lib_bootstrap.variable_get('user_picture_file_size', \
+      '30')}) + ' ' + lib_bootstrap.variable_get('user_picture_guidelines', \
+      '')}
+    form['#validate'].append('user_validate_picture')
   form['#uid'] = uid
   return form
-}
 
-def _user_edit_validate(uid, &edit):
-  user = user_load(array('uid' : uid))
+
+
+def _edit_validate(uid, edit):
+  php.Reference.check(edit)
+  user_ = load({'uid' : uid})
   # Validate the username:
-  if (user_access('change own username') or user_access('administer users') or not user.uid):
-    if (error = user_validate_name(edit['name'])):
-      form_set_error('name', error)
-    }
-    elif (db_result(db_query("SELECT COUNT(*) FROM {users} WHERE uid != %d AND LOWER(name) = LOWER('%s')", uid, edit['name'])) > 0):
-      form_set_error('name', t('The name %name is already taken.', array('%name' : edit['name'])))
-    }
-  }
-
+  if (access('change own username') or access('administer users') or \
+      not user_.uid):
+    error = validate_name(edit['name'])
+    if error:
+      lib_form.set_error('name', error)
+    elif (lib_database.result(\
+        lib_database.query(\
+        "SELECT COUNT(*) FROM {users} " + \
+        "WHERE uid != %d AND LOWER(name) = LOWER('%s')", uid, \
+        edit['name'])) > 0):
+      lib_form.set_error('name', \
+        lib_common.t('The name %name is already taken.', \
+        {'%name' : edit['name']}))
   # Validate the e-mail address:
-  if (error = user_validate_mail(edit['mail'])):
-    form_set_error('mail', error)
-  }
-  elif (db_result(db_query("SELECT COUNT(*) FROM {users} WHERE uid != %d AND LOWER(mail) = LOWER('%s')", uid, edit['mail'])) > 0):
-    form_set_error('mail', t('The e-mail address %email is already registered + <a href="@password">Have you forgotten your password?</a>', array('%email' : edit['mail'], '@password' : url('user/password'))))
-  }
-}
+  error = validate_mail(edit['mail'])
+  if error:
+    lib_form.set_error('mail', error)
+  elif (lib_database.result(lib_database.query(\
+      "SELECT COUNT(*) FROM {users} " + \
+      "WHERE uid != %d AND LOWER(mail) = LOWER('%s')", uid, \
+      edit['mail'])) > 0):
+    lib_form.set_error('mail', \
+      lib_common.t('The e-mail address %email is already registered. ' + \
+      '<a href="@password">Have you forgotten your password?</a>', \
+      {'%email' : edit['mail'], '@password' : url('user/password')}))
+
+
+
 
 def _user_edit_submit(uid, &edit):
   user = user_load(array('uid' : uid))
