@@ -862,7 +862,7 @@ def hook_block(op='list', delta='', edit=[]):
             '@count users'), '%visitors' : \
             format_plural(anonymous_count, '1 guest', '@count guests')})
         # Display a list of currently online users.
-        max_users = variable_get('user_block_max_list_count', 10)
+        max_users = lib_bootstrap.variable_get('user_block_max_list_count', 10)
         if (authenticated_count and max_users):
           output += lib_theme.theme('user_list', items, \
             lib_common.t('Online users'))
@@ -872,531 +872,588 @@ def hook_block(op='list', delta='', edit=[]):
 
 
 
-#
-# Process variables for user-picture.tpl.php.
-#
-# The variables array contains the following arguments:
-# - account
-#
-# @see user-picture.tpl.php
-#
-def template_preprocess_user_picture(&variables):
+def template_preprocess_user_picture(variables):
+  """
+   Process variables for user-picture.tpl.php.
+  
+   The variables array contains the following arguments:
+   - account
+  
+   @see user-picture.tpl.php
+  """
+  php.Reference.check(variables)
   variables['picture'] = ''
-  if (variable_get('user_pictures', 0)):
+  if (lib_bootstrap.variable_get('user_pictures', 0)):
     account = variables['account']
-    if (not empty(account.picture) and file_exists(account.picture)):
-      picture = file_create_url(account.picture)
-    }
-    elif (variable_get('user_picture_default', '')):
+    if (not php.empty(account.picture) and php.file_exists(account.picture)):
+      picture = lib_file.create_url(account.picture)
+    elif (lib_bootstrap.variable_get('user_picture_default', '')):
       picture = variable_get('user_picture_default', '')
-    }
-
-    if (isset(picture)):
-      alt = t("@user's picture", array('@user' : account.name ? account.name : variable_get('anonymous', t('Anonymous'))))
+    if (php.isset(picture)):
+      alt = lib_common.t("@user's picture", {'@user' : \
+        (account.name if account.name else \
+        lib_bootstrap.variable_get('anonymous', t('Anonymous')))})
       variables['picture'] = theme('image', picture, alt, alt, '', False)
-      if (not empty(account.uid) and user_access('access user profiles')):
-        attributes = array('attributes' : array('title' : t('View user profile.')), 'html' : True)
-        variables['picture'] = l(variables['picture'], "user/account.uid", attributes)
-      }
-    }
-  }
-}
-#
-# Make a list of users.
-#
-# @param users
-#   An array with user objects. Should contain at least the name and uid.
-# @param title
-#  (optional) Title to pass on to theme_item_list().
-#
-# @ingroup themeable
-#
-def theme_user_list(users, title = None):
-  if (not empty(users)):
+      if (not empty(account.uid) and access('access user profiles')):
+        attributes = {'attributes' : {'title' : t('View user profile.')}, \
+          'html' : True}
+        variables['picture'] = lib_common.l(variables['picture'], \
+          "user/account.uid", attributes)
+
+
+
+
+def theme_list(users, title=None):
+  """
+   Make a list of users.
+  
+   @param users
+     An array with user objects. Should contain at least the name and uid.
+   @param title
+    (optional) Title to pass on to theme_item_list().
+  
+   @ingroup themeable
+  """
+  if (not php.empty(users)):
     for user in users:
-      items[] = theme('username', user)
-    }
-  }
-  return theme('item_list', items, title)
-}
+      items.append( lib_theme.theme('username', user) )
+  return lib_theme.theme('item_list', items, title)
 
-def user_is_anonymous():
+
+
+
+def is_anonymous():
   # Menu administrators can see items for anonymous when administering.
-  return not GLOBALS['user'].uid or not empty(GLOBALS['menu_admin'])
-}
+  return not lib_bootstrap.user.uid or not php.empty(lib_bootstrap.menu_admin)
 
-def user_is_logged_in():
-  return (bool)GLOBALS['user'].uid
-}
 
-def user_register_access():
-  return user_is_anonymous() and variable_get('user_register', 1)
-}
+def is_logged_in():
+  return bool(lib_bootstrap.user.uid)
 
-def user_view_access(account):
-  return account and account.uid and
-    (
+
+def register_access():
+  return is_anonymous() and lib_bootstrap.variable_get('user_register', 1)
+
+
+
+def view_access(account):
+  return account and account.uid and \
+    (\
       # Always let users view their own profile.
-      (GLOBALS['user'].uid == account.uid) or
+      (lib_bootstrap.user.uid == account.uid) or \
       # Administrators can view all accounts.
-      user_access('administer users') or
+      access('administer users') or \
       # The user is not blocked and logged in at least once.
-      (account.access and account.status and user_access('access user profiles'))
+      (account.access and account.status and access('access user profiles')) \
     )
-}
-#
-# Access callback for user account editing.
-#
-def user_edit_access(account):
-  return ((GLOBALS['user'].uid == account.uid) or user_access('administer users')) and account.uid > 0
-}
 
-def user_load_self(arg):
-  arg[1] = user_load(GLOBALS['user'].uid)
-  return arg
-}
-#
-# Implementation of hook_menu().
-#
-def user_menu():
-  items['user/autocomplete'] = array(
+
+"""
+ Access callback for user account editing.
+"""
+def edit_access(account):
+  return ((lib_bootstrap.user.uid == account.uid) or \
+    access('administer users')) and account.uid > 0
+
+
+def load_self(arg_):
+  arg_[1] = load(lib_bootstrap.user.uid)
+  return arg_
+
+
+def hook_menu():
+  """
+   Implementation of hook_menu().
+  """
+  items = {}
+  items['user/autocomplete'] = {
     'title' : 'User autocomplete',
     'page callback' : 'user_autocomplete',
     'access callback' : 'user_access',
-    'access arguments' : array('access user profiles'),
-    'type' : MENU_CALLBACK,
-  )
+    'access arguments' : ('access user profiles',),
+    'type' : MENU_CALLBACK
+  }
   # Registration and login pages.
-  items['user'] = array(
+  items['user'] = {
     'title' : 'User account',
     'page callback' : 'user_page',
     'access callback' : True,
-    'type' : MENU_CALLBACK,
-  )
-  items['user/login'] = array(
+    'type' : MENU_CALLBACK
+  }
+  items['user/login'] = {
     'title' : 'Log in',
     'access callback' : 'user_is_anonymous',
-    'type' : MENU_DEFAULT_LOCAL_TASK,
-  )
-  items['user/register'] = array(
+    'type' : MENU_DEFAULT_LOCAL_TASK
+  }
+  items['user/register'] = {
     'title' : 'Create new account',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('user_register'),
+    'page arguments' : ('user_register',),
     'access callback' : 'user_register_access',
-    'type' : MENU_LOCAL_TASK,
-  )
-  items['user/password'] = array(
+    'type' : MENU_LOCAL_TASK
+  }
+  items['user/password'] = {
     'title' : 'Request new password',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('user_pass'),
+    'page arguments' : ('user_pass',),
     'access callback' : 'user_is_anonymous',
-    'type' : MENU_LOCAL_TASK,
-  )
-  items['user/reset/%/%/%'] = array(
+    'type' : MENU_LOCAL_TASK
+  }
+  items['user/reset/%/%/%'] = {
     'title' : 'Reset password',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('user_pass_reset', 2, 3, 4),
+    'page arguments' : ('user_pass_reset', 2, 3, 4),
     'access callback' : True,
-    'type' : MENU_CALLBACK,
-  )
+    'type' : MENU_CALLBACK
+  }
   # User administration pages.
-  items['admin/user'] = array(
+  items['admin/user'] = {
     'title' : 'User management',
-    'description' : "Manage your site's users, groups and access to site features.",
+    'description' : \
+      "Manage your site's users, groups and access to site features.",
     'position' : 'left',
     'page callback' : 'system_admin_menu_block_page',
-    'access arguments' : array('access administration pages'),
-  )
-  items['admin/user/user'] = array(
+    'access arguments' : ('access administration pages',)
+  }
+  items['admin/user/user'] = {
     'title' : 'Users',
     'description' : 'List, add, and edit users.',
     'page callback' : 'user_admin',
-    'page arguments' : array('list'),
-    'access arguments' : array('administer users'),
-  )
-  items['admin/user/user/list'] = array(
+    'page arguments' : ('list',),
+    'access arguments' : ('administer users',),
+  }
+  items['admin/user/user/list'] = {
     'title' : 'List',
     'type' : MENU_DEFAULT_LOCAL_TASK,
-    'weight' : -10,
-  )
-  items['admin/user/user/create'] = array(
+    'weight' : -10
+  }
+  items['admin/user/user/create'] = {
     'title' : 'Add user',
-    'page arguments' : array('create'),
-    'access arguments' : array('administer users'),
-    'type' : MENU_LOCAL_TASK,
-  )
-  items['admin/user/settings'] = array(
+    'page arguments' : ('create',),
+    'access arguments' : ('administer users',),
+    'type' : MENU_LOCAL_TASK
+  }
+  items['admin/user/settings'] = {
     'title' : 'User settings',
-    'description' : 'Configure default behavior of users, including registration requirements, e-mails, and user pictures.',
+    'description' : \
+      'Configure default behavior of users, including registration ' + \
+      'requirements, e-mails, and user pictures.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('user_admin_settings'),
-    'access arguments' : array('administer users'),
-  )
+    'page arguments' : ('user_admin_settings',),
+    'access arguments' : ('administer users',)
+  }
   # Permission administration pages.
-  items['admin/user/permissions'] = array(
+  items['admin/user/permissions'] = {
     'title' : 'Permissions',
-    'description' : 'Determine access to features by selecting permissions for roles.',
+    'description' : 'Determine access to features by ' + \
+      'selecting permissions for roles.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('user_admin_perm'),
-    'access arguments' : array('administer permissions'),
-  )
-  items['admin/user/roles'] = array(
+    'page arguments' : ('user_admin_perm',),
+    'access arguments' : ('administer permissions',)
+  }
+  items['admin/user/roles'] = {
     'title' : 'Roles',
     'description' : 'List, edit, or add user roles.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('user_admin_new_role'),
-    'access arguments' : array('administer permissions'),
-  )
-  items['admin/user/roles/edit'] = array(
+    'page arguments' : ('user_admin_new_role',),
+    'access arguments' : ('administer permissions',)
+  }
+  items['admin/user/roles/edit'] = {
     'title' : 'Edit role',
-    'page arguments' : array('user_admin_role'),
-    'access arguments' : array('administer permissions'),
-    'type' : MENU_CALLBACK,
-  )
-  items['logout'] = array(
+    'page arguments' : ('user_admin_role',),
+    'access arguments' : ('administer permissions',),
+    'type' : MENU_CALLBACK
+  }
+  items['logout'] = {
     'title' : 'Log out',
     'access callback' : 'user_is_logged_in',
     'page callback' : 'user_logout',
-    'weight' : 10,
-  )
-  items['user/%user_uid_optional'] = array(
+    'weight' : 10
+  }
+  items['user/%user_uid_optional'] = {
     'title' : 'My account',
     'title callback' : 'user_page_title',
-    'title arguments' : array(1),
+    'title arguments' : (1,),
     'page callback' : 'user_view',
-    'page arguments' : array(1),
+    'page arguments' : (1,),
     'access callback' : 'user_view_access',
-    'access arguments' : array(1),
-    'parent' : '',
-  )
-  items['user/%user/view'] = array(
+    'access arguments' : (1,),
+    'parent' : ''
+  }
+  items['user/%user/view'] = {
     'title' : 'View',
     'type' : MENU_DEFAULT_LOCAL_TASK,
-    'weight' : -10,
-  )
-  items['user/%user/delete'] = array(
+    'weight' : -10
+  }
+  items['user/%user/delete'] = {
     'title' : 'Delete',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('user_confirm_delete', 1),
+    'page arguments' : ('user_confirm_delete', 1),
     'access callback' : 'user_access',
-    'access arguments' : array('administer users'),
-    'type' : MENU_CALLBACK,
-  )
-  items['user/%user_category/edit'] = array(
+    'access arguments' : ('administer users',),
+    'type' : MENU_CALLBACK
+  }
+  items['user/%user_category/edit'] = {
     'title' : 'Edit',
     'page callback' : 'user_edit',
-    'page arguments' : array(1),
+    'page arguments' : (1,),
     'access callback' : 'user_edit_access',
-    'access arguments' : array(1),
+    'access arguments' : (1,),
     'type' : MENU_LOCAL_TASK,
-    'load arguments' : array('%map', '%index'),
-  )
-  items['user/%user_category/edit/account'] = array(
+    'load arguments' : ('%map', '%index')
+  }
+  items['user/%user_category/edit/account'] = {
     'title' : 'Account',
     'type' : MENU_DEFAULT_LOCAL_TASK,
-    'load arguments' : array('%map', '%index'),
-  )
-  empty_account = new stdClass()
-  if ((categories = _user_categories(empty_account)) and (count(categories) > 1)):
+    'load arguments' : ('%map', '%index')
+  }
+  empty_account = php.stdClass()
+  categories = _user_categories(empty_account)
+  if (categories and (php.count(categories) > 1)):
     for key,category in categories.items():
       # 'account' is already handled by the MENU_DEFAULT_LOCAL_TASK.
       if (category['name'] != 'account'):
-        items['user/%user_category/edit/' +  category['name']] = array(
+        items['user/%user_category/edit/' +  category['name']] = {
           'title callback' : 'check_plain',
-          'title arguments' : array(category['title']),
+          'title arguments' : (category['title'],),
           'page callback' : 'user_edit',
-          'page arguments' : array(1, 3),
-          'access callback' : isset(category['access callback']) ? category['access callback'] : 'user_edit_access',
-          'access arguments' : isset(category['access arguments']) ? category['access arguments'] : array(1),
+          'page arguments' : (1, 3),
+          'access callback' : (category['access callback'] if \
+            php.isset(category['access callback']) else 'user_edit_access'),
+          'access arguments' : (category['access arguments'] if \
+            php.isset(category['access arguments']) else (1,)),
           'type' : MENU_LOCAL_TASK,
           'weight' : category['weight'],
-          'load arguments' : array('%map', '%index'),
-          'tab_parent' : 'user/%/edit',
-        )
-      }
-    }
-  }
+          'load arguments' : ('%map', '%index'),
+          'tab_parent' : 'user/%/edit'
+        }
   return items
-}
 
-def user_init():
-  drupal_add_css(drupal_get_path('module', 'user') +  '/user.css', 'module')
-}
 
-def user_uid_optional_load(arg):
-  return user_load(isset(arg) ? arg : GLOBALS['user'].uid)
-}
-#
-# Return a user object after checking if any profile category in the path exists.
-#
-def user_category_load(uid, &map, index):
-  static user_categories, accounts
+
+def hook_init():
+  lib_common.drupal_add_css(lib_path.drupal_get_path('module', 'user') + \
+    '/user.css', 'module')
+
+
+
+def uid_optional_load(arg):
+  return load((arg_ if php.isset(arg_) else lib_bootstrap.user.uid))
+
+
+
+def category_load(uid, map_, index):
+  """
+   Return a user object after checking if any profile category in
+   the path exists.
+  """
+  php.static(category_load, 'user_categories')
+  php.static(category_load, 'accounts')
+  php.Reference.check(map_)
   # Cache account - this load function will get called for each profile tab.
-  if (not isset(accounts[uid])):
-    accounts[uid] = user_load(uid)
-  }
+  if (not php.isset(category_load.accounts[uid])):
+    category_load.accounts[uid] = load(uid)
   valid = True
-  if (account = accounts[uid]):
+  account = category_load.accounts[uid]
+  if account:
     # Since the path is like user/%/edit/category_name, the category name will
     # be at a position 2 beyond the index corresponding to the % wildcard.
     category_index = index + 2
     # Valid categories may contain slashes, and hence need to be imploded.
-    category_path = implode('/', array_slice(map, category_index))
+    category_path = php.implode('/', php.array_slice(map_, category_index))
     if (category_path):
       # Check that the requested category exists.
       valid = False
-      if (not isset(user_categories)):
-        empty_account = new stdClass()
-        user_categories = _user_categories(empty_account)
-      }
-      for category in user_categories:
+      if (not php.isset(category_load.user_categories)):
+        empty_account = php.stdClass()
+        category_load.user_categories = _categories(empty_account)
+      for category in category_load.user_categories:
         if (category['name'] == category_path):
           valid = True
           # Truncate the map array in case the category name had slashes.
-          map = array_slice(map, 0, category_index)
+          map_ = php.array_slice(map_, 0, category_index)
           # Assign the imploded category name to the last map element.
-          map[category_index] = category_path
+          map_[category_index] = category_path
           break
-        }
-      }
-    }
-  }
-  return valid ? account : False
-}
-#
-# Returns the user id of the currently logged in user.
-#
-def user_uid_optional_to_arg(arg):
+  return (account if valid else False)
+
+
+
+def uid_optional_to_arg(arg_):
+  """
+   Returns the user id of the currently logged in user.
+  """
   # Give back the current user uid when called from eg. tracker, aka.
   # with an empty arg. Also use the current user uid when called from
   # the menu with a % for the current account link.
-  return empty(arg) or arg == '%' ? GLOBALS['user'].uid : arg
-}
-#
-# Menu item title callback - use the user name if it's not the current user.
-#
-def user_page_title(account):
-  if (account.uid == GLOBALS['user'].uid):
-    return t('My account')
-  }
+  return (lib_bootstrap.user.uid if (php.empty(arg_) or arg_ == '%') else arg_)
+
+
+
+def page_title(account):
+  """
+   Menu item title callback - use the user name if it's not the current user.
+  """
+  if (account.uid == lib_bootstrap.user.uid):
+    return lib_common.t('My account')
   return account.name
-}
-#
-# Discover which external authentication module(s) authenticated a username.
-#
-# @param authname
-#   A username used by an external authentication module.
-# @return
-#   An associative array with module as key and username as value.
-#
-def user_get_authmaps(authname = None):
-  result = db_query("SELECT authname, module FROM {authmap} WHERE authname = '%s'", authname)
-  authmaps = array()
+
+
+
+def get_authmaps(authname=None):
+  """
+   Discover which external authentication module(s) authenticated a username.
+  
+   @param authname
+     A username used by an external authentication module.
+   @return
+     An associative array with module as key and username as value.
+  """
+  result = lib_database.query(\
+    "SELECT authname, module FROM {authmap} WHERE authname = '%s'", authname)
+  authmaps = []
   has_rows = False
-  while (authmap = db_fetch_object(result)):
+  while True:
+    authmap = lib_database.fetch_object(result)
+    if not authmap:
+      break
     authmaps[authmap.module] = authmap.authname
     has_rows = True
-  }
-  return has_rows ? authmaps : 0
-}
-#
-# Save mappings of which external authentication module(s) authenticated
-# a user. Maps external usernames to user ids in the users table.
-#
-# @param account
-#   A user object.
-# @param authmaps
-#   An associative array with a compound key and the username as the value.
-#   The key is made up of 'authname_' plus the name of the external authentication
-#   module.
-# @see user_external_login_register()
-#
-def user_set_authmaps(account, authmaps):
+  return (authmaps if has_rows else 0)
+
+
+
+def set_authmaps(account, authmaps):
+  """
+   Save mappings of which external authentication module(s) authenticated
+   a user. Maps external usernames to user ids in the users table.
+  
+   @param account
+     A user object.
+   @param authmaps
+     An associative array with a compound key and the username as the value.
+     The key is made up of 'authname_' plus the name of the
+     external authentication
+     module.
+   @see user_external_login_register()
+  """
   for key,value in authmaps.items():
     module = explode('_', key, 2)
     if (value):
-      db_query("UPDATE {authmap} SET authname = '%s' WHERE uid = %d AND module = '%s'", value, account.uid, module[1])
-      if (not db_affected_rows()):
-        db_query("INSERT INTO {authmap} (authname, uid, module) VALUES ('%s', %d, '%s')", value, account.uid, module[1])
-      }
-    }
+      lib_database.query(\
+        "UPDATE {authmap} SET authname = '%s' " + \
+        "WHERE uid = %d AND module = '%s'", value, account.uid, module[1])
+      if (not lib_database.affected_rows()):
+        lib_database.query(\
+          "INSERT INTO {authmap} (authname, uid, module) " + \
+          "VALUES ('%s', %d, '%s')", value, account.uid, module[1])
     else:
-      db_query("DELETE FROM {authmap} WHERE uid = %d AND module = '%s'", account.uid, module[1])
-    }
-  }
-}
-#
-# Form builder; the main user login form.
-#
-# @ingroup forms
-#
-def user_login(&form_state):
-  global user
-  # If we are already logged on, go to the user page instead.
-  if (user.uid):
-    drupal_goto('user/' +  user.uid)
-  }
+      lib_database.query(\
+        "DELETE FROM {authmap} WHERE uid = %d AND module = '%s'", \
+        account.uid, module[1])
 
+
+
+def login(form_state):
+  """
+   Form builder; the main user login form.
+  
+   @ingroup forms
+  """
+  php.Reference.check(form_state)
+  # If we are already logged on, go to the user page instead.
+  if (lib_bootstrap.user.uid):
+    drupal_goto('user/' + lib_bootstrap.user.uid)
   # Display login form:
-  form['name'] = array('#type' : 'textfield',
-    '#title' : t('Username'),
+  form['name'] = {
+    '#type' : 'textfield',
+    '#title' : lib_common.t('Username'),
     '#size' : 60,
     '#maxlength' : USERNAME_MAX_LENGTH,
     '#required' : True,
-    '#attributes' : array('tabindex' : '1'),
-  )
-  form['name']['#description'] = t('Enter your @s username.', array('@s' : variable_get('site_name', 'Drupal')))
-  form['pass'] = array('#type' : 'password',
-    '#title' : t('Password'),
-    '#description' : t('Enter the password that accompanies your username.'),
+    '#attributes' : {'tabindex' : '1'}
+  }
+  form['name']['#description'] = lib_common.t('Enter your @s username.', \
+    {'@s' : lib_bootstrap.variable_get('site_name', 'Drupal')})
+  form['pass'] = {
+    '#type' : 'password',
+    '#title' : lib_common.t('Password'),
+    '#description' : lib_common.t(\
+      'Enter the password that accompanies your username.'),
     '#required' : True,
-    '#attributes' : array('tabindex' : '2'),
-  )
-  form['#validate'] = user_login_default_validators()
-  form['submit'] = array('#type' : 'submit', '#value' : t('Log in'), '#weight' : 2, '#attributes' : array('tabindex' : '3'))
+    '#attributes' : {'tabindex' : '2'}
+  }
+  form['#validate'] = login_default_validators()
+  form['submit'] = {'#type' : 'submit', '#value' : lib_common.t('Log in'), \
+    '#weight' : 2, '#attributes' : {'tabindex' : '3'}}
   return form
-}
-#
-# Set up a series for validators which check for blocked users,
-# then authenticate against local database, then return an error if
-# authentication fails. Distributed authentication modules are welcome
-# to use hook_form_alter() to change this series in order to
-# authenticate against their user database instead of the local users
-# table.
-#
-# We use three validators instead of one since external authentication
-# modules usually only need to alter the second validator.
-#
-# @see user_login_name_validate()
-# @see user_login_authenticate_validate()
-# @see user_login_final_validate()
-# @return array
-#   A simple list of validate functions.
-#
-def user_login_default_validators():
-  return array('user_login_name_validate', 'user_login_authenticate_validate', 'user_login_final_validate')
-}
-#
-# A FAPI validate handler. Sets an error if supplied username has been blocked.
-#
-def user_login_name_validate(form, &form_state):
-  if (isset(form_state['values']['name']) and user_is_blocked(form_state['values']['name'])):
+
+
+
+def login_default_validators():
+  """
+   Set up a series for validators which check for blocked users,
+   then authenticate against local database, then return an error if
+   authentication fails. Distributed authentication modules are welcome
+   to use hook_form_alter() to change this series in order to
+   authenticate against their user database instead of the local users
+   table.
+  
+   We use three validators instead of one since external authentication
+   modules usually only need to alter the second validator.
+  
+   @see user_login_name_validate()
+   @see user_login_authenticate_validate()
+   @see user_login_final_validate()
+   @return array
+     A simple list of validate functions.
+  """
+  return ('user_login_name_validate', \
+    'user_login_authenticate_validate', 'user_login_final_validate')
+
+
+
+def login_name_validate(form, form_state):
+  """
+   A FAPI validate handler. Sets an error if supplied username
+   has been blocked.
+  """
+  if (php.isset(form_state['values']['name']) and \
+      is_blocked(form_state['values']['name'])):
     # Blocked in user administration.
-    form_set_error('name', t('The username %name has not been activated or is blocked.', array('%name' : form_state['values']['name'])))
-  }
-}
-#
-# A validate handler on the login form. Check supplied username/password
-# against local users table. If successful, sets the global user object.
-#
-def user_login_authenticate_validate(form, &form_state):
-  user_authenticate(form_state['values'])
-}
-#
-# A validate handler on the login form. Should be the last validator. Sets an
-# error if user has not been authenticated yet.
-#
-def user_login_final_validate(form, &form_state):
-  global user
-  if (not user.uid):
-    form_set_error('name', t('Sorry, unrecognized username or password + <a href="@password">Have you forgotten your password?</a>', array('@password' : url('user/password'))))
-    watchdog('user', 'Login attempt failed for %user.', array('%user' : form_state['values']['name']))
-  }
-}
-#
-# Try to log in the user locally.
-#
-# @param form_values
-#   Form values with at least 'name' and 'pass' keys, as well as anything else
-#   which should be passed along to hook_user op 'login'.
-#
-# @return
-#  A user object, if successful.
-#
-def user_authenticate(form_values = array()):
-  global user
-  password = trim(form_values['pass'])
+    form_set_error('name', lib_common.t(\
+      'The username %name has not been activated or is blocked.', \
+      {'%name' : form_state['values']['name']}))
+
+
+def login_authenticate_validate(form, form_state):
+  """
+   A validate handler on the login form. Check supplied username/password
+   against local users table. If successful, sets the global user object.
+  """
+  authenticate(form_state['values'])
+
+
+
+def login_final_validate(form, form_state):
+  """
+   A validate handler on the login form. Should be the last validator. Sets an
+   error if user has not been authenticated yet.
+  """
+  php.Reference.check(form_state)
+  if (not lib_bootstrap.user.uid):
+    form_set_error('name', \
+      lib_common.t(\
+      'Sorry, unrecognized username or password. ' + \
+      '<a href="@password">Have you forgotten your password?</a>', \
+      {'@password' : url('user/password')}))
+    watchdog('user', 'Login attempt failed for %user.', \
+      {'%user' : form_state['values']['name']})
+
+
+
+def authenticate(form_values=[]):
+  """
+   Try to log in the user locally.
+  
+   @param form_values
+     Form values with at least 'name' and 'pass' keys, as well as anything else
+     which should be passed along to hook_user op 'login'.
+  
+   @return
+    A user object, if successful.
+  """
+  password = php.trim(form_values['pass'])
   # Name and pass keys are required.
-  if (not empty(form_values['name']) and not empty(password)):
-    account = db_fetch_object(db_query("SELECT * FROM {users} WHERE name = '%s' AND status = 1", form_values['name']))
+  if (not php.empty(form_values['name']) and not php.empty(password)):
+    account = lib_database.fetch_object(\
+      lib_database.query(\
+      "SELECT * FROM {users} WHERE name = '%s' AND status = 1", \
+      form_values['name']))
     if (account):
       # Allow alternate password hashing schemes.
-      require_once variable_get('password_inc', './includes/password.inc')
-      if (user_check_password(password, account)):
-        if (user_needs_new_hash(account)):
-           new_hash = user_hash_password(password)
+      if (check_password(password, account)):
+        if (needs_new_hash(account)):
+           new_hash = hash_password(password)
            if (new_hash):
-             db_query("UPDATE {users} SET pass = '%s' WHERE uid = %d", new_hash, account.uid)
-           }
-        }
-        account = user_load(array('uid' : account.uid, 'status' : 1))
-        user = account
-        user_authenticate_finalize(form_values)
-        return user
-      }
-    }
-  }
-}
-#
-# Finalize the login process. Must be called when logging in a user.
-#
-# The function records a watchdog message about the new session, saves the
-# login timestamp, calls hook_user op 'login' and generates a new session.
-#
-# param edit
-#   This array is passed to hook_user op login.
-#
-def user_authenticate_finalize(&edit):
-  global user
-  watchdog('user', 'Session opened for %name.', array('%name' : user.name))
+             lib_database.query(\
+               "UPDATE {users} SET pass = '%s' WHERE uid = %d", \
+               new_hash, account.uid)
+        account = load({'uid' : account.uid, 'status' : 1})
+        lib_bootstrap.user = account
+        authenticate_finalize(form_values)
+        return lib_bootstrap.user
+
+
+
+def authenticate_finalize(edit):
+  """
+   Finalize the login process. Must be called when logging in a user.
+  
+   The function records a watchdog message about the new session, saves the
+   login timestamp, calls hook_user op 'login' and generates a new session.
+  
+   param edit
+     This array is passed to hook_user op login.
+  """
+  php.Reference.check(edit)
+  watchdog('user', 'Session opened for %name.', \
+    {'%name' : lib_bootstrap.user.name})
   # Update the user table timestamp noting user has logged in.
   # This is also used to invalidate one-time login links.
-  user.login = time()
-  db_query("UPDATE {users} SET login = %d WHERE uid = %d", user.login, user.uid)
-  user_module_invoke('login', edit, user)
-  sess_regenerate()
-}
-#
-# Submit handler for the login form. Redirects the user to a page.
-#
-# The user is redirected to the My Account page. Setting the destination in
-# the query string (as done by the user login block) overrides the redirect.
-#
-def user_login_submit(form, &form_state):
-  global user
-  if (user.uid):
-    form_state['redirect'] = 'user/' +  user.uid
+  lib_bootstrap.user.login = php.time_()
+  lib_database.query("UPDATE {users} SET login = %d WHERE uid = %d", \
+    lib_bootstrap.user.login, lib_bootstrap.user.uid)
+  module_invoke('login', edit, lib_bootstrap.user)
+  lib_session.regenerate()
+
+
+
+
+def form_login_submit(form, form_state):
+  """
+   Submit handler for the login form. Redirects the user to a page.
+  
+   The user is redirected to the My Account page. Setting the destination in
+   the query string (as done by the user login block) overrides the redirect.
+  """
+  php.Reference.check(form_state)
+  if (lib_bootstrap.user.uid):
+    form_state['redirect'] = 'user/' +  lib_bootstrap.user.uid
     return
-  }
-}
-#
-# Helper function for authentication modules. Either login in or registers
-# the current user, based on username. Either way, the global user object is
-# populated based on name.
-#
-def user_external_login_register(name, module):
-  global user
-  user = user_load(array('name' : name))
-  if (not isset(user.uid)):
+
+
+
+def external_login_register(name, module):
+  """
+   Helper function for authentication modules. Either login in or registers
+   the current user, based on username. Either way, the global user object is
+   populated based on name.
+  """
+  lib_bootstrap.user = load({'name' : name})
+  if (not php.isset(lib_bootstrap.user.uid)):
     # Register this new user.
-    userinfo = array(
+    userinfo = {
       'name' : name,
-      'pass' : user_password(),
+      'pass' : password(),
       'init' : name,
       'status' : 1,
-      'access' : time()
-    )
-    account = user_save('', userinfo)
+      'access' : php.time_()
+    }
+    account = save('', userinfo)
     # Terminate if an error occured during user_save().
     if (not account):
-      drupal_set_message(t("Error saving user account."), 'error')
+      drupal_set_message(lib_common.t("Error saving user account."), 'error')
       return
-    }
-    user_set_authmaps(account, array("authname_module" : name))
+    user_set_authmaps(account, {"authname_module" : name})
     user = account
-    watchdog('user', 'New external user: %name using module %module.', array('%name' : name, '%module' : module), WATCHDOG_NOTICE, l(t('edit'), 'user/' +  user.uid  + '/edit'))
-  }
-}
+    watchdog('user', 'New external user: %name using module %module.', \
+      {'%name' : name, '%module' : module}, \
+      WATCHDOG_NOTICE, lib_common.l(lib_common.t('edit'), \
+      'user/' +  lib_bootstrap.user.uid  + '/edit'))
+
+
+
 
 def user_pass_reset_url(account):
   timestamp = time()
