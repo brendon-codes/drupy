@@ -38,7 +38,9 @@
 __version__ = "$Revision: 1 $"
 
 from lib.drupy import DrupyPHP as php
-#import password as lib_password
+#from includes import password as lib_password
+from includes import common as lib_common
+from includes import path as lib_path
 
 #
 # Maximum length of username text field.
@@ -51,16 +53,16 @@ USERNAME_MAX_LENGTH = 60
 EMAIL_MAX_LENGTH = 64
 
 
-def module_invoke(type_, array_, user_, category = None):
+def plugin_invoke(type_, array_, user_, category = None):
   """
    Invokes hook_user() in every module.
   
-   We cannot use module_invoke() for this, because the arguments need to
+   We cannot use plugin_invoke() for this, because the arguments need to
    be passed by reference.
   """
   php.Reference.check(array_)
   php.Reference.check(user_)
-  for plugin_ in lib_plugin.list():
+  for plugin_ in lib_plugin.list_():
     function = 'hook_user'
     if (php.function_exists(function, lib_plugin.plugins[plugin_])):
       func = DrupyImport.getFunction(lib_plugin.plugins[plugin_], function)
@@ -218,7 +220,7 @@ def load(array_={}):
       if not role:
         break
       this_user.roles[role.rid] = role.name
-    module_invoke('load', array_, this_user)
+    plugin_invoke('load', array_, this_user)
   else:
     this_user = False
   return this_user
@@ -258,7 +260,7 @@ def save(account, array_={}, category = 'account'):
     # Avoid overwriting an existing password with a blank password.
     del(array_['pass'])
   if (php.is_object(account) and account.uid > 0):
-    module_invoke('update', array_, account, category)
+    plugin_invoke('update', array_, account, category)
     data = php.unserialize(lib_database.result(lib_database.query(\
       'SELECT data FROM {users} WHERE uid = %d', account.uid)))
     # Consider users edited by an administrator as logged in, if they haven't
@@ -308,7 +310,7 @@ def save(account, array_={}, category = 'account'):
       op = ('status_activated' if (array_['status'] == 1) else \
         'status_blocked')
       _mail_notify(op, this_user)
-    module_invoke('after_update', array_, this_user, category)
+    plugin_invoke('after_update', array_, this_user, category)
   else:
     # Allow 'created' to be set by the caller.
     if (not php.isset(array_['created'])):
@@ -324,7 +326,7 @@ def save(account, array_={}, category = 'account'):
       return False
     # Build the initial user object.
     this_user = load({'uid' : array_['uid']})
-    module_invoke('insert', array_, this_user, category)
+    plugin_invoke('insert', array_, this_user, category)
     # Note, we wait with saving the data column to prevent module-handled
     # fields from being saved there.
     data = []
@@ -363,29 +365,32 @@ def validate_name(name):
   if (php.strpos(name, '  ') != False):
     return lib_common.t(\
       'The username cannot contain multiple spaces in a row.')
-  if (php.preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/i', name)):
-    return lib_common.t('The username contains an illegal character.')
-  if (php.preg_match(\
+  #
+  # @TODO Drupy Fix these control X characters in regex
+  #
+  #if (php.preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/i', name)):
+  #  return lib_common.t('The username contains an illegal character.')
+  #if (php.preg_match(\
     # Non-printable ISO-8859-1 + NBSP
-    '/[\x{80}-\x{A0}' + \
+    #'/[\x{80}-\x{A0}' + \
     # Soft-hyphen 
-    '\x{AD}' + \
+    #'\x{AD}' + \
     # Various space characters
-    '\x{2000}-\x{200F}' + \
+    #'\x{2000}-\x{200F}' + \
     # Bidirectional text overrides
-    '\x{2028}-\x{202F}' + \
+    #'\x{2028}-\x{202F}' + \
     # Various text hinting characters
-    '\x{205F}-\x{206F}' + \
+    #'\x{205F}-\x{206F}' + \
     # Byte order mark
-    '\x{FEFF}' + \
+    #'\x{FEFF}' + \
     # Full-width latin
-    '\x{FF01}-\x{FF60}' + \
+    #'\x{FF01}-\x{FF60}' + \
     # Replacement characters
-    '\x{FFF9}-\x{FFFD}' + \
+    #'\x{FFF9}-\x{FFFD}' + \
     # None byte and control characters
-    '\x{0}-\x{1F}]/u',        
-    name)):
-    return lib_common.t('The username contains an illegal character.')
+    #'\x{0}-\x{1F}]/u',        
+    #name)):
+    #return lib_common.t('The username contains an illegal character.')
   if (drupal_strlen(name) > USERNAME_MAX_LENGTH):
     return lib_common.t(\
       'The username %name is too long: it must be %max characters or less.', \
@@ -1404,7 +1409,7 @@ def authenticate_finalize(edit):
   lib_bootstrap.user.login = php.time_()
   lib_database.query("UPDATE {users} SET login = %d WHERE uid = %d", \
     lib_bootstrap.user.login, lib_bootstrap.user.uid)
-  module_invoke('login', edit, lib_bootstrap.user)
+  plugin_invoke('login', edit, lib_bootstrap.user)
   lib_session.regenerate()
 
 
@@ -1622,830 +1627,949 @@ def _edit_validate(uid, edit):
 
 
 
-def _user_edit_submit(uid, &edit):
-  user = user_load(array('uid' : uid))
+def _edit_submit(uid, edit):
+  php.Reference.check(edit)
+  user_ = load({'uid' : uid})
   # Delete picture if requested, and if no replacement picture was given.
-  if (not empty(edit['picture_delete'])):
-    if (user.picture and file_exists(user.picture)):
-      file_delete(user.picture)
-    }
+  if (not php.empty(edit['picture_delete'])):
+    if (user_.picture and lib_file.exists(user_.picture)):
+      lib_file.delete(user_.picture)
     edit['picture'] = ''
-  }
-  if (isset(edit['roles'])):
-    edit['roles'] = array_filter(edit['roles'])
-  }
-}
-#
-# Delete a user.
-#
-# @param edit An array of submitted form values.
-# @param uid The user ID of the user to delete.
-#
-def user_delete(edit, uid):
-  account = user_load(array('uid' : uid))
-  sess_destroy_uid(uid)
-  _user_mail_notify('status_deleted', account)
-  db_query('DELETE FROM {users} WHERE uid = %d', uid)
-  db_query('DELETE FROM {users_roles} WHERE uid = %d', uid)
-  db_query('DELETE FROM {authmap} WHERE uid = %d', uid)
-  variables = array('%name' : account.name, '%email' : '<' +  account.mail  + '>')
+  if (php.isset(edit['roles'])):
+    edit['roles'] = php.array_filter(edit['roles'])
+
+
+
+def delete(edit, uid):
+  """
+   Delete a user.
+  
+   @param edit An array of submitted form values.
+   @param uid The user ID of the user to delete.
+  """
+  account = load({'uid' : uid})
+  lib_session.destroy_uid(uid)
+  _mail_notify('status_deleted', account)
+  lib_database.query('DELETE FROM {users} WHERE uid = %d', uid)
+  lib_database.query('DELETE FROM {users_roles} WHERE uid = %d', uid)
+  lib_database.query('DELETE FROM {authmap} WHERE uid = %d', uid)
+  variables = {'%name' : account.name, '%email' : '<' +  account.mail  + '>'}
   watchdog('user', 'Deleted user: %name %email.', variables, WATCHDOG_NOTICE)
-  module_invoke_all('user', 'delete', edit, account)
-}
-#
-# Builds a structured array representing the profile content.
-#
-# @param account
-#   A user object.
-#
-# @return
-#   A structured array containing the individual elements of the profile.
-#
-def user_build_content(&account):
+  lib_plugin.invoke_all('user', 'delete', edit, account)
+
+
+
+def build_content(account):
+  """
+   Builds a structured array representing the profile content.
+  
+   @param account
+     A user object.
+  
+   @return
+     A structured array containing the individual elements of the profile.
+  """
+  php.Reference.check(account)
   edit = None
-  user_module_invoke('view', edit, account)
+  plugin_invoke('view', edit, account)
   # Allow modules to modify the fully-built profile.
   drupal_alter('profile', account)
   return account.content
-}
-#
-# Implementation of hook_mail().
-#
-def user_mail(key, &message, params):
+
+
+
+def hook_mail(key, message, params):
+  """
+   Implementation of hook_mail().
+  """
+  php.Reference.check(message)
   language = message['language']
-  variables = user_mail_tokens(params['account'], language)
-  message['subject'] += _user_mail_text(key +  '_subject', language, variables)
-  message['body'][] = _user_mail_text(key +  '_body', language, variables)
-}
-#
-# Returns a mail string for a variable name.
-#
-# Used by user_mail() and the settings forms to retrieve strings.
-#
-def _user_mail_text(key, language = None, variables = array()):
-  langcode = isset(language) ? language.language : None
-  if (admin_setting = variable_get('user_mail_' +  key, False)):
+  variables = mail_tokens(params['account'], language)
+  message['subject'] += _mail_text(key +  '_subject', language, variables)
+  message['body'].append( _mail_text(key +  '_body', language, variables) )
+
+
+def _mail_text(key, language=None, variables=[]):
+  """
+   Returns a mail string for a variable name.
+  
+   Used by user_mail() and the settings forms to retrieve strings.
+  """
+  langcode = (language.language if php.isset(language) else None)
+  admin_setting = lib_bootstrap.variable_get('user_mail_' +  key, False)
+  if admin_setting:
     # An admin setting overrides the default string.
-    return strtr(admin_setting, variables)
-  }
+    return php.strtr(admin_setting, variables)
   else:
     # No override, return default string.
-    switch (key):
-      case 'register_no_approval_required_subject':
-        return t('Account details for not username at not site', variables, langcode)
-      case 'register_no_approval_required_body':
-        return t("not username,\n\nThank you for registering at not site + You may now log in to not login_uri using the following username and password:\n\nusername: not username\npassword: not password\n\nYou may also log in by clicking on this link or copying and pasting it in your browser:\n\nnot login_url\n\nThis is a one-time login, so it can be used only once.\n\nAfter logging in, you will be redirected to not edit_uri so you can change your password.\n\n\n--  not site team", variables, langcode)
-      case 'register_admin_created_subject':
-        return t('An administrator created an account for you at not site', variables, langcode)
-      case 'register_admin_created_body':
-        return t("not username,\n\nA site administrator at not site has created an account for you + You may now log in to not login_uri using the following username and password:\n\nusername: not username\npassword: not password\n\nYou may also log in by clicking on this link or copying and pasting it in your browser:\n\nnot login_url\n\nThis is a one-time login, so it can be used only once.\n\nAfter logging in, you will be redirected to not edit_uri so you can change your password.\n\n\n--  not site team", variables, langcode)
-      case 'register_pending_approval_subject':
-      case 'register_pending_approval_admin_subject':
-        return t('Account details for not username at not site (pending admin approval)', variables, langcode)
-      case 'register_pending_approval_body':
-        return t("not username,\n\nThank you for registering at not site + Your application for an account is currently pending approval. Once it has been approved, you will receive another e-mail containing information about how to log in, set your password, and other details.\n\n\n--  not site team", variables, langcode)
-      case 'register_pending_approval_admin_body':
-        return t("not username has applied for an account.\n\nnot edit_uri", variables, langcode)
-      case 'password_reset_subject':
-        return t('Replacement login information for not username at not site', variables, langcode)
-      case 'password_reset_body':
-        return t("not username,\n\nA request to reset the password for your account has been made at not site.\n\nYou may now log in to not uri_brief by clicking on this link or copying and pasting it in your browser:\n\nnot login_url\n\nThis is a one-time login, so it can be used only once + It expires after one day and nothing will happen if it's not used.\n\nAfter logging in, you will be redirected to not edit_uri so you can change your password.", variables, langcode)
-      case 'status_activated_subject':
-        return t('Account details for not username at not site (approved)', variables, langcode)
-      case 'status_activated_body':
-        return t("not username,\n\nYour account at not site has been activated.\n\nYou may now log in by clicking on this link or copying and pasting it in your browser:\n\nnot login_url\n\nThis is a one-time login, so it can be used only once.\n\nAfter logging in, you will be redirected to not edit_uri so you can change your password.\n\nOnce you have set your own password, you will be able to log in to not login_uri in the future using:\n\nusername: not username\n", variables, langcode)
-      case 'status_blocked_subject':
-        return t('Account details for not username at not site (blocked)', variables, langcode)
-      case 'status_blocked_body':
-        return t("not username,\n\nYour account on not site has been blocked.", variables, langcode)
-      case 'status_deleted_subject':
-        return t('Account details for not username at not site (deleted)', variables, langcode)
-      case 'status_deleted_body':
-        return t("not username,\n\nYour account on not site has been deleted.", variables, langcode)
-    }
-  }
-}
-# Administrative features ***********************************************/
-#
-# Retrieve an array of roles matching specified conditions.
-#
-# @param membersonly
-#   Set this to True to exclude the 'anonymous' role.
-# @param permission
-#   A string containing a permission. If set, only roles containing that
-#   permission are returned.
-#
-# @return
-#   An associative array with the role id as the key and the role name as
-#   value.
-#
-def user_roles(membersonly = False, permission = None):
+    if key == 'register_no_approval_required_subject':
+      return t('Account details for not username at not site', \
+        variables, langcode)
+    elif key == 'register_no_approval_required_body':
+      return lib_common.t("not username,\n\nThank you for " + \
+        "registering at not site. " + \
+        "You may now log in to not login_uri using the following " + \
+        "username and password:\n\nusername: not username\npassword: " + \
+        "not password\n\nYou may also log in by clicking on " + \
+        "this link or copying and pasting it in your browser:\n\nnot " + \
+        "login_url\n\nThis is a one-time login, so it can be used " + \
+        "only once.\n\nAfter logging in, you will be redirected to " + \
+        "not edit_uri so you can change your password.\n\n\n-- " + \
+        "not site team", variables, langcode)
+    elif key == 'register_admin_created_subject':
+      return lib_common.t('An administrator created an account ' + \
+        'for you at not site', variables, langcode)
+    elif key == 'register_admin_created_body':
+      return lib_common.t("not username,\n\nA site administrator at " + \
+        "not site has created an account for you. You may now log " + \
+        "in to not login_uri using the following username " + \
+        "and password:\n\nusername: not username\npassword: " + \
+        "not password\n\nYou may also log in by clicking on this " + \
+        "link or copying and pasting it in your browser:\n\nnot " + \
+        "login_url\n\nThis is a one-time login, so it can be " + \
+        "used only once.\n\nAfter logging in, you will be redirected to " + \
+        "not edit_uri so you can change your password.\n\n\n-- " + \
+        "not site team", variables, langcode)
+    elif \
+        key == 'register_pending_approval_subject' or \
+        key == 'register_pending_approval_admin_subject':
+      return lib_common.t('Account details for not username at not ' + \
+        'site (pending admin approval)', variables, langcode)
+    elif key == 'register_pending_approval_body':
+      return lib_common.t("not username,\n\nThank you for registering at " + \
+        "!site + Your application for an account is currently pending " + \
+        "approval. Once it has been approved, you will receive " + \
+        "another e-mail containing information about how to log in, " + \
+        "set your password, and other " + \
+        "details.\n\n\n--  not site team", variables, langcode)
+    elif key == 'register_pending_approval_admin_body':
+      return lib_common.t("not username has applied for an " + \
+        "account.\n\nnot edit_uri", variables, langcode)
+    elif key == 'password_reset_subject':
+      return lib_common.t('Replacement login information for ' + \
+        'not username at not site', variables, langcode)
+    elif key == 'password_reset_body':
+      return lib_common.t("not username,\n\nA request to reset the " + \
+        "password for your account has been made at not site.\n\nYou may " + \
+        "now log in to not uri_brief by clicking on this link or copying " + \
+        "and pasting it in your browser:\n\nnot login_url\n\nThis " + \
+        "is a one-time login, so it can be used only once. " + \
+        "It expires after one day and nothing will happen if it's not " + \
+        "used.\n\nAfter logging in, you will be redirected to !edit_uri " + \
+        "so you can change your password.", variables, langcode)
+    elif key == 'status_activated_subject':
+      return lib_common.t('Account details for not username at !site ' + \
+        '(approved)', variables, langcode)
+    elif key == 'status_activated_body':
+      return lib_common.t("not username,\n\nYour account at !site " + \
+        "has been activated.\n\nYou may now log in by clicking on this " + \
+        "link or copying and pasting it in your browser:\n\n" + \
+        "!login_url\n\nThis is a one-time login, so it can be used only " + \
+        "once.\n\nAfter logging in, you will be redirected to " + \
+        "!edit_uri so you can change your password.\n\nOnce you " + \
+        "have set your own password, you will be able to log in to " + \
+        "!login_uri in the future using:\n\nusername: not username\n", \
+        variables, langcode)
+    elif key == 'status_blocked_subject':
+      return lib_common.t('Account details for not username at ' + \
+        '!site (blocked)', variables, langcode)
+    elif key == 'status_blocked_body':
+      return lib_common.t("not username,\n\nYour account on !site has " + \
+        "been blocked.", variables, langcode)
+    elif key == 'status_deleted_subject':
+      return lib_common.t('Account details for not username at ' + \
+        '!site (deleted)', variables, langcode)
+    elif key == 'status_deleted_body':
+      return lib_common.t("not username,\n\nYour account on not " + \
+        "site has been deleted.", variables, langcode)
+
+
+
+def roles(membersonly=False, permission=None):
+  """
+   Retrieve an array of roles matching specified conditions.
+  
+   @param membersonly
+     Set this to True to exclude the 'anonymous' role.
+   @param permission
+     A string containing a permission. If set, only roles containing that
+     permission are returned.
+  
+   @return
+     An associative array with the role id as the key and the role name as
+     value.
+  """
   # System roles take the first two positions.
-  roles = array(
+  roles_ = {
     DRUPAL_ANONYMOUS_RID : None,
-    DRUPAL_AUTHENTICATED_RID : None,
-  )
-  if (not empty(permission)):
-    result = db_query("SELECT r.* FROM {role} r INNER JOIN {role_permission} p ON r.rid = p.rid WHERE p.permission = '%s' ORDER BY r.name", permission)
+    DRUPAL_AUTHENTICATED_RID : None
   }
+  if (not php.empty(permission)):
+    result = lib_database.query(\
+      "SELECT r.* FROM {role} r " + \
+      "INNER JOIN {role_permission} p ON r.rid = p.rid " + \
+      "WHERE p.permission = '%s' ORDER BY r.name", permission)
   else:
-    result = db_query('SELECT * FROM {role} ORDER BY name')
-  }
-
-  while (role = db_fetch_object(result)):
-    switch (role.rid):
+    result = lib_database.query('SELECT * FROM {role} ORDER BY name')
+  while True:
+    role = lib_database.fetch_object(result)
       # We only translate the built in role names
-      case DRUPAL_ANONYMOUS_RID:
-        if (not membersonly):
-          roles[role.rid] = t(role.name)
-        }
-        break
-      case DRUPAL_AUTHENTICATED_RID:
-        roles[role.rid] = t(role.name)
-        break
-      default:
-        roles[role.rid] = role.name
-    }
-  }
-
+    if role.rid == DRUPAL_ANONYMOUS_RID:
+      if (not membersonly):
+        roles_[role.rid] = lib_common.t(role.name)
+    elif role.rid == DRUPAL_AUTHENTICATED_RID:
+      roles_[role.rid] = lib_common.t(role.name)
+    else:
+      roles_[role.rid] = role.name
   # Filter to remove unmatched system roles.
-  return array_filter(roles)
-}
-#
-# Implementation of hook_user_operations().
-#
-def user_user_operations(form_state = array()):
-  operations = array(
-    'unblock' : array(
-      'label' : t('Unblock the selected users'),
-      'callback' : 'user_user_operations_unblock',
-    ),
-    'block' : array(
-      'label' : t('Block the selected users'),
-      'callback' : 'user_user_operations_block',
-    ),
-    'delete' : array(
-      'label' : t('Delete the selected users'),
-    ),
-  )
-  if (user_access('administer permissions')):
-    roles = user_roles(True)
-    unset(roles[DRUPAL_AUTHENTICATED_RID]);  // Can't edit authenticated role.
+  return php.array_filter(roles_)
 
-    add_roles = array()
-    for key,value in roles.items():
-      add_roles['add_role-' +  key] = value
-    }
 
-    remove_roles = array()
-    for key,value in roles.items():
-      remove_roles['remove_role-' +  key] = value
-    }
 
-    if (count(roles)):
-      role_operations = array(
-        t('Add a role to the selected users') : array(
-          'label' : add_roles,
-        ),
-        t('Remove a role from the selected users') : array(
-          'label' : remove_roles,
-        ),
-      )
-      operations += role_operations
-    }
+def hook_user_operations(form_state=[]):
+  """
+   Implementation of hook_user_operations().
+  """
+  operations = {
+    'unblock' : {
+      'label' : lib_common.t('Unblock the selected users'),
+      'callback' : 'user_user_operations_unblock'
+    },
+    'block' : {
+      'label' : lib_common.t('Block the selected users'),
+      'callback' : 'user_user_operations_block'
+    },
+    'delete' : {
+      'label' : lib_common.t('Delete the selected users')
+    },
   }
-
+  if (access('administer permissions')):
+    roles_ = roles(True)
+    del(roles_[DRUPAL_AUTHENTICATED_RID]);  # Can't edit authenticated role.
+    add_roles = []
+    for key,value in roles_.items():
+      add_roles['add_role-' +  key] = value
+    remove_roles = []
+    for key,value in roles_.items():
+      remove_roles['remove_role-' +  key] = value
+    if (php.count(roles_) > 0):
+      role_operations = {
+        lib_common.t('Add a role to the selected users') : {
+          'label' : add_roles
+        },
+        lib_common.t('Remove a role from the selected users') : {
+          'label' : remove_roles
+        },
+      }
+      operations += role_operations
   # If the form has been posted, we need to insert the proper data for
   # role editing if necessary.
-  if (not empty(form_state['submitted'])):
-    operation_rid = explode('-', form_state['values']['operation'])
+  if (not php.empty(form_state['submitted'])):
+    operation_rid = php.explode('-', form_state['values']['operation'])
     operation = operation_rid[0]
     if (operation == 'add_role' or operation == 'remove_role'):
       rid = operation_rid[1]
-      if (user_access('administer permissions')):
-        operations[form_state['values']['operation']] = array(
+      if (access('administer permissions')):
+        operations[form_state['values']['operation']] = {
           'callback' : 'user_multiple_role_edit',
-          'callback arguments' : array(operation, rid),
-        )
-      }
+          'callback arguments' : (operation, rid),
+        }
       else:
-        watchdog('security', 'Detected malicious attempt to alter protected user fields.', array(), WATCHDOG_WARNING)
+        watchdog('security', 'Detected malicious attempt to ' + \
+          'alter protected user fields.', tuple(), WATCHDOG_WARNING)
         return
-      }
-    }
-  }
-
   return operations
-}
-#
-# Callback function for admin mass unblocking users.
-#
-def user_user_operations_unblock(accounts):
+
+
+
+def user_operations_unblock(accounts):
+  """
+   Callback function for admin mass unblocking users.
+  """
   for uid in accounts:
-    account = user_load(array('uid' : (int)uid))
+    account = load({'uid' : int(uid)})
     # Skip unblocking user if they are already unblocked.
-    if (account !== False and account.status == 0):
-      user_save(account, array('status' : 1))
-    }
-  }
-}
-#
-# Callback function for admin mass blocking users.
-#
-def user_user_operations_block(accounts):
+    if (account != False and account.status == 0):
+      save(account, {'status' : 1})
+
+
+
+def user_operations_block(accounts):
+  """
+   Callback function for admin mass blocking users.
+  """
   for uid in accounts:
-    account = user_load(array('uid' : (int)uid))
+    account = load({'uid' : int(uid)})
     # Skip blocking user if they are already blocked.
-    if (account !== False and account.status == 1):
-      user_save(account, array('status' : 0))
-    }
-  }
-}
-#
-# Callback function for admin mass adding/deleting a user role.
-#
-def user_multiple_role_edit(accounts, operation, rid):
+    if (account != False and account.status == 1):
+      save(account, {'status' : 0})
+
+
+
+def multiple_role_edit(accounts, operation, rid):
+  """
+   Callback function for admin mass adding/deleting a user role.
+  """
   # The role name is not necessary as user_save() will reload the user
   # object, but some modules' hook_user() may look at this first.
-  role_name = db_result(db_query('SELECT name FROM {role} WHERE rid = %d', rid))
-  switch (operation):
-    case 'add_role':
-      for uid in accounts:
-        account = user_load(array('uid' : (int)uid))
-        # Skip adding the role to the user if they already have it.
-        if (account !== False and not isset(account.roles[rid])):
-          roles = account.roles + array(rid : role_name)
-          user_save(account, array('roles' : roles))
-        }
-      }
-      break
-    case 'remove_role':
-      for uid in accounts:
-        account = user_load(array('uid' : (int)uid))
-        # Skip removing the role from the user if they already don't have it.
-        if (account !== False and isset(account.roles[rid])):
-          roles = array_diff(account.roles, array(rid : role_name))
-          user_save(account, array('roles' : roles))
-        }
-      }
-      break
-  }
-}
+  role_name = lib_database.result(
+    lib_database.query('SELECT name FROM {role} WHERE rid = %d', rid))
+  if operation == 'add_role':
+    for uid in accounts:
+      account = load({'uid' : int(uid)})
+      # Skip adding the role to the user if they already have it.
+      if (account != False and not php.isset(account.roles[rid])):
+        roles_ = account.roles + {rid : role_name}
+        save(account, {'roles' : roles_})
+  elif operation == 'remove_role':
+    for uid in accounts:
+      account = load({'uid' : int(uid)})
+      # Skip removing the role from the user if they already don't have it.
+      if (account != False and php.isset(account.roles[rid])):
+        roles_ = php.array_diff(account.roles, {rid : role_name})
+        save(account, {'roles' : roles})
 
-def user_multiple_delete_confirm(&form_state):
+
+
+def multiple_delete_confirm(form_state):
+  php.Reference.check(form_state)
   edit = form_state['post']
-  form['accounts'] = array('#prefix' : '<ul>', '#suffix' : '</ul>', '#tree' : True)
+  form['accounts'] = {'#prefix' : '<ul>', '#suffix' : '</ul>', '#tree' : True}
   # array_filter() returns only elements with True values.
-  foreach (array_filter(edit['accounts']) as uid : value):
-    user = db_result(db_query('SELECT name FROM {users} WHERE uid = %d', uid))
-    form['accounts'][uid] = array('#type' : 'hidden', '#value' : uid, '#prefix' : '<li>', '#suffix' : check_plain(user) . "</li>\n")
-  }
-  form['operation'] = array('#type' : 'hidden', '#value' : 'delete')
-  return confirm_form(form,
-                      t('Are you sure you want to delete these users?'),
-                      'admin/user/user', t('This action cannot be undone.'),
-                      t('Delete all'), t('Cancel'))
-}
+  for uid,value in array_filter(edit['accounts']).items():
+    user_ = lib_database.result(\
+      lib_database.query('SELECT name FROM {users} WHERE uid = %d', uid))
+    form['accounts'][uid] = {'#type' : 'hidden', '#value' : uid, \
+      '#prefix' : '<li>', '#suffix' : check_plain(user_) + "</li>\n"}
+  form['operation'] = {'#type' : 'hidden', '#value' : 'delete'}
+  return confirm_form(form, \
+    lib_common.t('Are you sure you want to delete these users?'), \
+    'admin/user/user', lib_common.t('This action cannot be undone.'), \
+    lib_common.t('Delete all'), lib_common.t('Cancel'))
 
-def user_multiple_delete_confirm_submit(form, &form_state):
+
+
+
+def multiple_delete_confirm_submit(form, form_state):
+  php.Reference.check(form_state)  
   if (form_state['values']['confirm']):
-    foreach (form_state['values']['accounts'] as uid : value):
-      user_delete(form_state['values'], uid)
-    }
-    drupal_set_message(t('The users have been deleted.'))
-  }
+    for uid, value in form_state['values']['accounts'].items():
+      delete(form_state['values'], uid)
+    drupal_set_message(lib_common.t('The users have been deleted.'))
   form_state['redirect'] = 'admin/user/user'
   return
-}
-#
-# Implementation of hook_help().
-#
-def user_help(path, arg):
-  global user
-  switch (path):
-    case 'admin/help#user':
-      output = '<p>' +  t('The user module allows users to register, login, and log out + Users benefit from being able to sign on because it associates content they create with their account and allows various permissions to be set for their roles. The user module supports user roles which establish fine grained permissions allowing each role to do only what the administrator wants them to. Each user is assigned to one or more roles. By default there are two roles <em>anonymous</em> - a user who has not logged in, and <em>authenticated</em> a user who has signed up and who has been authorized.') . '</p>'
-      output += '<p>' +  t("Users can use their own name or handle and can specify personal configuration settings through their individual <em>My account</em> page + Users must authenticate by supplying a local username and password or through their OpenID, an optional and secure method for logging into many websites with a single username and password. In some configurations, users may authenticate using a username and password from another Drupal site, or through some other site-specific mechanism.") . '</p>'
-      output += '<p>' +  t('A visitor accessing your website is assigned a unique ID, or session ID, which is stored in a cookie + The cookie does not contain personal information, but acts as a key to retrieve information from your site. Users should have cookies enabled in their web browser when using your site.') . '</p>'
-      output += '<p>' +  t('For more information, see the online handbook entry for <a href="@user">User module</a>.', array('@user' : 'http://drupal.org/handbook/modules/user/'))  + '</p>'
-      return output
-    case 'admin/user/user':
-      return '<p>' +  t('Drupal allows users to register, login, log out, maintain user profiles, etc + Users of the site may not use their own names to post content until they have signed up for a user account.') . '</p>'
-    case 'admin/user/user/create':
-    case 'admin/user/user/account/create':
-      return '<p>' +  t("This web page allows administrators to register new users + Users' e-mail addresses and usernames must be unique.") . '</p>'
-    case 'admin/user/permissions':
-      return '<p>' +  t('Permissions let you control what users can do on your site + Each user role (defined on the <a href="@role">user roles page</a>) has its own set of permissions. For example, you could give users classified as "Administrators" permission to "administer nodes" but deny this power to ordinary, "authenticated" users. You can use permissions to reveal new features to privileged users (those with subscriptions, for example). Permissions also allow trusted users to share the administrative burden of running a busy site.', array('@role' : url('admin/user/roles'))) . '</p>'
-    case 'admin/user/roles':
-      return t('<p>Roles allow you to fine tune the security and administration of Drupal + A role defines a group of users that have certain privileges as defined in <a href="@permissions">user permissions</a>. Examples of roles include: anonymous user, authenticated user, moderator, administrator and so on. In this area you will define the <em>role names</em> of the various roles. To delete a role choose "edit".</p><p>By default, Drupal comes with two user roles:</p>
-      <ul>
-      <li>Anonymous user: this role is used for users that don\'t have a user account or that are not authenticated.</li>
-      <li>Authenticated user: this role is automatically granted to all logged in users.</li>
-      </ul>', array('@permissions' : url('admin/user/permissions')))
-    case 'admin/user/search':
-      return '<p>' +  t('Enter a simple pattern ("*" may be used as a wildcard match) to search for a username or e-mail address + For example, one may search for "br" and Drupal might return "brian", "brad", and "brenda@example.com".') . '</p>'
-  }
-}
-#
-# Retrieve a list of all user setting/information categories and sort them by weight.
-#
-def _user_categories(account):
-  categories = array()
-  for module in module_list():
-    if (data = module_invoke(module, 'user', 'categories', None, account, '')):
-      categories = array_merge(data, categories)
-    }
-  }
 
-  usort(categories, '_user_sort')
+
+def hook_help(path, arg):
+  """
+   Implementation of hook_help().
+  """
+  if path == 'admin/help#user':
+    output = '<p>' +  lib_common.t('The user module allows users to ' + \
+      'register, login, and log out + Users benefit from being able ' + \
+      'to sign on because it associates content they create with their ' + \
+      'account and allows various permissions to be set for their roles. ' + \
+      'The user module supports user roles which establish fine ' + \
+      'grained permissions allowing each role to do only what ' + \
+      'the administrator wants them to. Each user is assigned to ' + \
+      'one or more roles. By default there are two roles ' + \
+      '<em>anonymous</em> - a user who has not logged in, and ' + \
+      '<em>authenticated</em> a user who has signed up and who ' + \
+      'has been authorized.') + '</p>'
+    output += '<p>' +  lib_common.t("Users can use their own name or " + \
+      "handle and can specify personal configuration settings through " + \
+      "their individual <em>My account</em> page + Users must " + \
+      "authenticate by supplying a local username and password or " + \
+      "through their OpenID, an optional and secure method for " + \
+      "logging into many websites with a single username and password. " + \
+      "In some configurations, users may authenticate using a username " + \
+      "and password from another Drupal site, or through some " + \
+      "other site-specific mechanism.") + '</p>'
+    output += '<p>' +  lib_common.t('A visitor accessing your website ' + \
+      'is assigned a unique ID, or session ID, which is stored in a ' + \
+      'cookie + The cookie does not contain personal information, but ' + \
+      'acts as a key to retrieve information from your site. ' + \
+      'Users should have cookies enabled in their web browser ' + \
+      'when using your site.') + '</p>'
+    output += '<p>' +  lib_common.t('For more information, see the online ' + \
+      'handbook entry for <a href="@user">User module</a>.', \
+      {'@user' : 'http://drupal.org/handbook/modules/user/'})  + '</p>'
+    return output
+  elif path == 'admin/user/user':
+    return '<p>' + lib_common.t('Drupal allows users to register, login, ' + \
+      'log out, maintain user profiles, etc + Users of the site ' + \
+      'may not use their own names to post content until they have ' + \
+      'signed up for a user account.') + '</p>'
+  elif \
+      path == 'admin/user/user/create' or \
+      path == 'admin/user/user/account/create':
+    return '<p>' +  lib_common.t("This web page allows administrators " + \
+      "to register new users. Users' e-mail addresses and " + \
+      "usernames must be unique.") + '</p>'
+  elif path == 'admin/user/permissions':
+    return '<p>' + lib_common.t('Permissions let you control what users ' + \
+      'can do on your site + Each user role (defined on the ' + \
+      '<a href="@role">user roles page</a>) has its own set of ' + \
+      'permissions. For example, you could give users classified ' + \
+      'as "Administrators" permission to "administer nodes" but deny ' + \
+      'this power to ordinary, "authenticated" users. You can use ' + \
+      'permissions to reveal new features to privileged users ' + \
+      '(those with subscriptions, for example). Permissions also allow '+ \
+      'trusted users to share the administrative burden of ' + \
+      'running a busy site.', {'@role' : url('admin/user/roles')}) + '</p>'
+  elif path == 'admin/user/roles':
+    return lib_common.t('<p>Roles allow you to fine tune the security and ' + \
+      'administration of Drupal. A role defines a group of users ' + \
+      'that have certain privileges as defined in ' + \
+      '<a href="@permissions">user permissions</a>. Examples of ' + \
+      'roles include: anonymous user, authenticated user, moderator, ' + \
+      'administrator and so on. In this area you will define the ' + \
+      '<em>role names</em> of the various roles. To delete a role ' + \
+      'choose "edit".</p><p>By default, Drupal comes with two user ' + \
+      'roles:</p><ul>' + \
+      '<li>Anonymous user: this role is used for users that don\'t have ' + \
+      'a user account or that are not authenticated.</li>' + \
+      '<li>Authenticated user: this role is automatically granted ' + \
+      'to all logged in users.</li></ul>', \
+      {'@permissions' : url('admin/user/permissions')})
+  elif path == 'admin/user/search':
+    return '<p>' + lib_common.t('Enter a simple pattern ("*" may be ' + \
+      'used as a wildcard match) to search for a username or ' + \
+      'e-mail address + For example, one may search for "br" ' + \
+      'and Drupal might return "brian", "brad", and ' + \
+      '"brenda@example.com".') + '</p>'
+
+
+
+def _categories(account):
+  """
+   Retrieve a list of all user setting/information categories
+   and sort them by weight.
+  """
+  categories = []
+  for plugin in lib_plugin.list_():
+    data = lib_plugin.invoke(plugin, 'user', 'categories', None, account, '')
+    if data:
+      categories = php.array_merge(data, categories)
+  php.usort(categories, _sort)
   return categories
-}
 
-def _user_sort(a, b):
-  a = (array)a + array('weight' : 0, 'title' : '')
-  b = (array)b + array('weight' : 0, 'title' : '')
-  return a['weight'] < b['weight'] ? -1 : (a['weight'] > b['weight'] ? 1 : (a['title'] < b['title'] ? -1 : 1))
-}
-#
-# List user administration filters that can be applied.
-#
-def user_filters():
+
+
+def _sort(a, b):
+  a = php.array_(a) + {'weight' : 0, 'title' : ''}
+  b = php.array(b) + {'weight' : 0, 'title' : ''}
+  return (-1 if (a['weight'] < b['weight']) else \
+    (1 if (a['weight'] > b['weight']) else \
+    (-1 if (a['title'] < b['title']) else 1)))
+
+
+def filters():
+  """
+   List user administration filters that can be applied.
+  """
   # Regular filters
-  filters = array()
-  roles = user_roles(True)
-  unset(roles[DRUPAL_AUTHENTICATED_RID]); // Don't list authorized role.
-  if (count(roles)):
-    filters['role'] = array(
-      'title' : t('role'),
+  filters_ = []
+  roles_ = roles(True)
+  del(roles_[DRUPAL_AUTHENTICATED_RID]); # Don't list authorized role.
+  if (php.count(roles_)):
+    filters_['role'] = {
+      'title' : lib_common.t('role'),
       'where' : "ur.rid = %d",
-      'options' : roles,
-      'join' : '',
-    )
-  }
-
-  options = array()
-  for module in module_list():
-    if (permissions = module_invoke(module, 'perm')):
-      asort(permissions)
-      for permission,description in permissions.items():
-        options[t('@module module', array('@module' : module))][permission] = t(permission)
-      }
+      'options' : roles_,
+      'join' : ''
     }
-  }
-  ksort(options)
-  filters['permission'] = array(
-    'title' : t('permission'),
+  options = []
+  for plugin in lib_plugin.list_():
+    permissions = lib_plugin.invoke(plugin, 'perm')
+    if permissions:
+      php.asort(permissions)
+      for permission,description in permissions.items():
+        options[t('@module module', {'@module' : module})][permission] = \
+          lib_common.t(permission)
+  php.ksort(options)
+  filters_['permission'] = {
+    'title' : lib_common.t('permission'),
     'join' : 'LEFT JOIN {role_permission} p ON ur.rid = p.rid',
     'where' : " (p.permission = '%s' OR u.uid = 1) ",
-    'options' : options,
-  )
-  filters['status'] = array(
-    'title' : t('status'),
+    'options' : options
+  }
+  filters_['status'] = {
+    'title' : lib_common.t('status'),
     'where' : 'u.status = %d',
     'join' : '',
-    'options' : array(1 : t('active'), 0 : t('blocked')),
-  )
-  return filters
-}
-#
-# Build query for user administration filters based on session.
-#
-def user_build_filter_query():
-  filters = user_filters()
+    'options' : {1 : lib_common.t('active'), 0 : lib_common.t('blocked')}
+  }
+  return filters_
+
+
+
+def build_filter_query():
+  """
+   Build query for user administration filters based on session.
+  """
+  filters_ = filters()
   # Build query
-  where = args = join = array()
-  foreach (_SESSION['user_overview_filter'] as filter):
-    list(key, value) = filter
+  where = args = join_ = []
+  for filter_ in php.SESSION['user_overview_filter']:
+    key,value = filter_
     # This checks to see if this permission filter is an enabled permission for
     # the authenticated role. If so, then all users would be listed, and we can
     # skip adding it to the filter query.
     if (key == 'permission'):
-      account = new stdClass()
+      account = php.stdClass()
       account.uid = 'user_filter'
-      account.roles = array(DRUPAL_AUTHENTICATED_RID : 1)
-      if (user_access(value, account)):
+      account.roles = {DRUPAL_AUTHENTICATED_RID : 1}
+      if (access(value, account)):
         continue
-      }
-    }
-    where[] = filters[key]['where']
-    args[] = value
-    join[] = filters[key]['join']
+    where.append( filters[key]['where'] )
+    args.append( value )
+    join_.append( filters[key]['join'] )
+  where = ('AND ' + php.implode(' AND ', where) if \
+    (not php.empty(where)) else '' )
+  join_ = (' ' +  php.implode(' ', php.array_unique(join_)) if \
+    (not php.empty(join_)) else '')
+  return {
+    'where' : where,
+    'join' : join_,
+    'args' : args
   }
-  where = not empty(where) ? 'AND ' +  implode(' AND ', where) : ''
-  join = not empty(join) ? ' ' +  implode(' ', array_unique(join)) : ''
-  return array('where' : where,
-           'join' : join,
-           'args' : args,
-         )
-}
-#
-# Implementation of hook_forms().
-#
-def user_forms():
+
+
+def hook_forms():
+  """
+   Implementation of hook_forms().
+  """
   forms['user_admin_access_add_form']['callback'] = 'user_admin_access_form'
   forms['user_admin_access_edit_form']['callback'] = 'user_admin_access_form'
   forms['user_admin_new_role']['callback'] = 'user_admin_role'
   return forms
-}
-#
-# Implementation of hook_comment().
-#
-def user_comment(&comment, op):
+
+
+
+def comment(comment_, op):
+  """
+   Implementation of hook_comment().
+  """
+  php.Reference.check(comment_)
   # Validate signature.
   if (op == 'view'):
-    if (variable_get('user_signatures', 0) and not empty(comment.signature)):
-      comment.signature = check_markup(comment.signature, comment.format)
-    }
+    if (lib_bootstrap.variable_get('user_signatures', 0) and \
+        not php.empty(comment_.signature)):
+      comment_.signature = check_markup(comment_.signature, comment_.format)
     else:
-      comment.signature = ''
-    }
-  }
-}
-#
-# Theme output of user signature.
-#
-# @ingroup themeable
-#
-def theme_user_signature(signature):
+      comment_.signature = ''
+
+
+
+def theme_signature(signature):
+  """
+   Theme output of user signature.
+  
+   @ingroup themeable
+  """
   output = ''
   if (signature):
     output += '<div class="clear">'
-    output += '<div>—</div>'
+    output +='<div>--</div>'
     output += signature
     output += '</div>'
-  }
-
   return output
-}
-#
-# Return an array of token to value mappings for user e-mail messages.
-#
-# @param account
-#  The user object of the account being notified.  Must contain at
-#  least the fields 'uid', 'name', and 'mail'.
-# @param language
-#  Language object to generate the tokens with.
-# @return
-#  Array of mappings from token names to values (for use with strtr()).
-#
-def user_mail_tokens(account, language):
-  global base_url
-  tokens = array(
+
+
+
+def mail_tokens(account, language):
+  """
+   Return an array of token to value mappings for user e-mail messages.
+  
+   @param account
+    The user object of the account being notified.  Must contain at
+    least the fields 'uid', 'name', and 'mail'.
+   @param language
+    Language object to generate the tokens with.
+   @return
+    Array of mappings from token names to values (for use with strtr()).
+  """
+  tokens = {
     'not username' : account.name,
-    'not site' : variable_get('site_name', 'Drupal'),
-    'not login_url' : user_pass_reset_url(account),
-    'not uri' : base_url,
-    'not uri_brief' : substr(base_url, strlen('http://')),
+    'not site' : lib_bootstrap.variable_get('site_name', 'Drupal'),
+    'not login_url' : pass_reset_url(account),
+    'not uri' : settings.base_url,
+    'not uri_brief' : php.substr(settings.base_url, php.strlen('http://')),
     'not mailto' : account.mail,
-    'not date' : format_date(time(), 'medium', '', None, language.language),
-    'not login_uri' : url('user', array('absolute' : True, 'language' : language)),
-    'not edit_uri' : url('user/' +  account.uid  + '/edit', array('absolute' : True, 'language' : language)),
-  )
-  if (not empty(account.password)):
+    'not date' : format_date(php.time_(), 'medium', '', None, \
+      language.language),
+    'not login_uri' : url('user', {'absolute' : True, 'language' : language}),
+    'not edit_uri' : url('user/' +  account.uid  + '/edit', \
+      {'absolute' : True, 'language' : language})
+  }
+  if (not php.empty(account.password)):
     tokens['not password'] = account.password
-  }
   return tokens
-}
-#
-# Get the language object preferred by the user. This user preference can
-# be set on the user account editing page, and is only available if there
-# are more than one languages enabled on the site. If the user did not
-# choose a preferred language, or is the anonymous user, the default
-# value, or if it is not set, the site default language will be returned.
-#
-# @param account
-#   User account to look up language for.
-# @param default
-#   Optional default language object to return if the account
-#   has no valid language.
-#
-def user_preferred_language(account, default = None):
-  language_list = language_list()
-  if (account.language and isset(language_list[account.language])):
+
+
+
+def preferred_language(account, default=None):
+  """
+   Get the language object preferred by the user. This user preference can
+   be set on the user account editing page, and is only available if there
+   are more than one languages enabled on the site. If the user did not
+   choose a preferred language, or is the anonymous user, the default
+   value, or if it is not set, the site default language will be returned.
+  
+   @param account
+     User account to look up language for.
+   @param default
+     Optional default language object to return if the account
+     has no valid language.
+  """
+  language_list = lib_language.list_()
+  if (account.language and php.isset(language_list[account.language])):
     return language_list[account.language]
-  }
   else:
-    return default ? default : language_default()
-  }
-}
-#
-# Conditionally create and send a notification email when a certain
-# operation happens on the given user account.
-#
-# @see user_mail_tokens()
-# @see drupal_mail()
-#
-# @param op
-#  The operation being performed on the account.  Possible values:
-#  'register_admin_created': Welcome message for user created by the admin
-#  'register_no_approval_required': Welcome message when user self-registers
-#  'register_pending_approval': Welcome message, user pending admin approval
-#  'password_reset': Password recovery request
-#  'status_activated': Account activated
-#  'status_blocked': Account blocked
-#  'status_deleted': Account deleted
-#
-# @param account
-#  The user object of the account being notified.  Must contain at
-#  least the fields 'uid', 'name', and 'mail'.
-# @param language
-#  Optional language to use for the notification, overriding account language.
-# @return
-#  The return value from drupal_mail_send(), if ends up being called.
-#
-def _user_mail_notify(op, account, language = None):
+    return (default if default else language_default())
+
+
+def _mail_notify(op, account, language=None):
+  """
+   Conditionally create and send a notification email when a certain
+   operation happens on the given user account.
+  
+   @see user_mail_tokens()
+   @see drupal_mail()
+  
+   @param op
+    The operation being performed on the account.  Possible values:
+    'register_admin_created': Welcome message for user created by the admin
+    'register_no_approval_required': Welcome message when user self-registers
+    'register_pending_approval': Welcome message, user pending admin approval
+    'password_reset': Password recovery request
+    'status_activated': Account activated
+    'status_blocked': Account blocked
+    'status_deleted': Account deleted
+  
+   @param account
+    The user object of the account being notified.  Must contain at
+    least the fields 'uid', 'name', and 'mail'.
+   @param language
+    Optional language to use for the notification, overriding account language.
+   @return
+    The return value from drupal_mail_send(), if ends up being called.
+  """
   # By default, we always notify except for deleted and blocked.
   default_notify = (op != 'status_deleted' and op != 'status_blocked')
   notify = variable_get('user_mail_' +  op  + '_notify', default_notify)
   if (notify):
     params['account'] = account
-    language = language ? language : user_preferred_language(account)
+    language = (language if language else user_preferred_language(account))
     mail = drupal_mail('user', op, account.mail, language, params)
     if (op == 'register_pending_approval'):
       # If a user registered requiring admin approval, notify the admin, too.
       # We use the site default language for this.
-      drupal_mail('user', 'register_pending_approval_admin', variable_get('site_mail', ini_get('sendmail_from')), language_default(), params)
-    }
-  }
-  return empty(mail) ? None : mail['result']
-}
-#
-# Add javascript and string translations for dynamic password validation
-# (strength and confirmation checking).
-#
-# This is an internal function that makes it easier to manage the translation
-# strings that need to be passed to the javascript code.
-#
-def _user_password_dynamic_validation():
-  static complete = False
-  global user
+      drupal_mail('user', 'register_pending_approval_admin', \
+        lib_bootstrap.variable_get('site_mail', ini_get('sendmail_from')), \
+        lib_language.default(), params)
+  return (None if php.empty(mail) else mail['result'])
+
+
+
+def _password_dynamic_validation():
+  """
+   Add javascript and string translations for dynamic password validation
+   (strength and confirmation checking).
+  
+   This is an internal function that makes it easier to manage the translation
+   strings that need to be passed to the javascript code.
+  """
+  php.static(_password_dynamic_validation, 'complete', False)
   # Only need to do once per page.
   if (not complete):
     drupal_add_js(drupal_get_path('module', 'user') +  '/user.js', 'module')
-    drupal_add_js(array(
-      'password' : array(
-        'strengthTitle' : t('Password strength:'),
-        'lowStrength' : t('Low'),
-        'mediumStrength' : t('Medium'),
-        'highStrength' : t('High'),
-        'tooShort' : t('It is recommended to choose a password that contains at least six characters + It should include numbers, punctuation, and both upper and lowercase letters.'),
-        'needsMoreVariation' : t('The password does not include enough variation to be secure + Try:'),
-        'addLetters' : t('Adding both upper and lowercase letters.'),
-        'addNumbers' : t('Adding numbers.'),
-        'addPunctuation' : t('Adding punctuation.'),
-        'sameAsUsername' : t('It is recommended to choose a password different from the username.'),
-        'confirmSuccess' : t('Yes'),
-        'confirmFailure' : t('No'),
-        'confirmTitle' : t('Passwords match:'),
-        'username' : (isset(user.name) ? user.name : ''))),
+    drupal_add_js({
+      'password' : {
+        'strengthTitle' : lib_common.t('Password strength:'), \
+        'lowStrength' : lib_common.t('Low'), \
+        'mediumStrength' : lib_common.t('Medium'), \
+        'highStrength' : lib_common.t('High'), \
+        'tooShort' : lib_common.t('It is recommended to choose a ' + \
+          'password that contains at least six characters. ' + \
+          'It should include numbers, punctuation, and both ' + \
+          'upper and lowercase letters.'), \
+        'needsMoreVariation' : lib_common.t('The password does not ' + \
+          'include enough variation to be secure + Try:'), \
+        'addLetters' : lib_common.t('Adding both upper and ' + \
+          'lowercase letters.'), \
+        'addNumbers' : lib_common.t('Adding numbers.'), \
+        'addPunctuation' : lib_common.t('Adding punctuation.'), \
+        'sameAsUsername' : lib_common.t('It is recommended to choose ' + \
+          'a password different from the username.'), \
+        'confirmSuccess' : lib_common.t('Yes'), \
+        'confirmFailure' : lib_common.t('No'), \
+        'confirmTitle' : lib_common.t('Passwords match:'), \
+        'username' : (user.name if php.isset(user.name) else '')}}, \
       'setting')
     complete = True
-  }
-}
-#
-# Implementation of hook_hook_info().
-#
-def user_hook_info():
-  return array(
-    'user' : array(
-      'user' : array(
-        'insert' : array(
-          'runs when' : t('After a user account has been created'),
-        ),
-        'update' : array(
-          'runs when' : t("After a user's profile has been updated"),
-        ),
-        'delete' : array(
-          'runs when' : t('After a user has been deleted')
-        ),
-        'login' : array(
-          'runs when' : t('After a user has logged in')
-        ),
-        'logout' : array(
-          'runs when' : t('After a user has logged out')
-        ),
-        'view' : array(
-          'runs when' : t("When a user's profile is being viewed")
-        ),
-      ),
-    ),
-  )
-}
-#
-# Implementation of hook_action_info().
-#
-def user_action_info():
-  return array(
-    'user_block_user_action' : array(
-      'description' : t('Block current user'),
-      'type' : 'user',
-      'configurable' : False,
-      'hooks' : array(),
-    ),
-  )
-}
-#
-# Implementation of a Drupal action.
-# Blocks the current user.
-#
-def user_block_user_action(&object, context = array()):
-  if (isset(object.uid)):
-    uid = object.uid
-  }
-  elif (isset(context['uid'])):
-    uid = context['uid']
-  }
-  else:
-    global user
-    uid = user.uid
-  }
-  db_query("UPDATE {users} SET status = 0 WHERE uid = %d", uid)
-  sess_destroy_uid(uid)
-  watchdog('action', 'Blocked user %name.', array('%name' : check_plain(user.name)))
-}
-#
-# Submit handler for the user registration form.
-#
-# This function is shared by the installation form and the normal registration form,
-# which is why it can't be in the user.pages.inc file.
-#
-def user_register_submit(form, &form_state):
-  global base_url
-  admin = user_access('administer users')
-  mail = form_state['values']['mail']
-  name = form_state['values']['name']
-  if (not variable_get('user_email_verification', True) or admin):
-    pass = form_state['values']['pass']
-  }
-  else:
-    pass = user_password()
-  }
-  notify = isset(form_state['values']['notify']) ? form_state['values']['notify'] : None
-  from = variable_get('site_mail', ini_get('sendmail_from'))
-  if (isset(form_state['values']['roles'])):
-    # Remove unset roles.
-    roles = array_filter(form_state['values']['roles'])
-  }
-  else:
-    roles = array()
+
+
+def hook_hook_info():
+  """
+   Implementation of hook_hook_info().
+  """
+  return {
+    'user' : {
+      'user' : {
+        'insert' : {
+          'runs when' : lib_common.t('After a user account has been created'),
+        },
+        'update' : {
+          'runs when' : \
+            lib_common.t("After a user's profile has been updated"),
+        },
+        'delete' : {
+          'runs when' : lib_common.t('After a user has been deleted')
+        },
+        'login' : {
+          'runs when' : lib_common.t('After a user has logged in')
+        },
+        'logout' : {
+          'runs when' : lib_common.t('After a user has logged out')
+        },
+        'view' : {
+          'runs when' : lib_common.t("When a user's profile is being viewed")
+        }
+      }
+    }
   }
 
-  if (not admin and array_intersect(array_keys(form_state['values']), array('uid', 'roles', 'init', 'session', 'status'))):
-    watchdog('security', 'Detected malicious attempt to alter protected user fields.', array(), WATCHDOG_WARNING)
+
+
+def hook_action_info():
+  """
+   Implementation of hook_action_info().
+  """
+  return {
+    'user_block_user_action' : {
+      'description' : lib_common.t('Block current user'),
+      'type' : 'user',
+      'configurable' : False,
+      'hooks' : tuple()
+    },
+  }
+
+
+
+def block_user_action(object_, context=[]):
+  """
+   Implementation of a Drupal action.
+   Blocks the current user.
+  """
+  php.Reference.check(object_)
+  if (php.isset(object_.uid)):
+    uid = object_.uid
+  elif (isset(context['uid'])):
+    uid = context['uid']
+  else:
+    uid = user.uid
+  lib_database.query("UPDATE {users} SET status = 0 WHERE uid = %d", uid)
+  lib_session.destroy_uid(uid)
+  watchdog('action', 'Blocked user %name.', \
+    {'%name' : check_plain(user.name)})
+
+
+
+def form_register_submit(form, form_state):
+  """
+   Submit handler for the user registration form.
+  
+   This function is shared by the installation form and
+   the normal registration form,
+   which is why it can't be in the user.pages.inc file.
+  """
+  php.Reference.check(form_state)
+  admin = access('administer users')
+  mail = form_state['values']['mail']
+  name = form_state['values']['name']
+  if (not lib_bootstrap.variable_get('user_email_verification', True) or \
+      admin):
+    pass_ = form_state['values']['pass']
+  else:
+    pass_ = password()
+  notify = (form_state['values']['notify'] if \
+    php.isset(form_state['values']['notify']) else None)
+  from_ = lib_bootstrap.variable_get('site_mail', ini_get('sendmail_from'))
+  if (php.isset(form_state['values']['roles'])):
+    # Remove unset roles.
+    roles_ = php.array_filter(form_state['values']['roles'])
+  else:
+    roles_ = []
+  if (not admin and php.array_intersect(\
+      php.array_keys(form_state['values']), \
+      ('uid', 'roles', 'init', 'session', 'status'))):
+    watchdog('security', 'Detected malicious attempt to alter ' + \
+      'protected user fields.', tuple(), WATCHDOG_WARNING)
     form_state['redirect'] = 'user/register'
     return
-  }
   # The unset below is needed to prevent these form values from being saved as
   # user data.
-  unset(form_state['values']['form_token'], form_state['values']['submit'], form_state['values']['op'], form_state['values']['notify'], form_state['values']['form_id'], form_state['values']['affiliates'], form_state['values']['destination'], form_state['values']['form_build_id'])
-  merge_data = array('pass' : pass, 'init' : mail, 'roles' : roles)
+  del(form_state['values']['form_token'], \
+    form_state['values']['submit'], form_state['values']['op'], \
+    form_state['values']['notify'], form_state['values']['form_id'], \
+    form_state['values']['affiliates'], form_state['values']['destination'], \
+    form_state['values']['form_build_id'])
+  merge_data = {'pass' : pass_, 'init' : mail, 'roles' : roles}
   if (not admin):
     # Set the user's status because it was not displayed in the form.
-    merge_data['status'] = variable_get('user_register', 1) == 1
-  }
-  account = user_save('', array_merge(form_state['values'], merge_data))
+    merge_data['status'] = \
+      (lib_bootstrap.variable_get('user_register', 1) == 1)
+  account = save('', php.array_merge(form_state['values'], merge_data))
   # Terminate if an error occured during user_save().
   if (not account):
     drupal_set_message(t("Error saving user account."), 'error')
     form_state['redirect'] = ''
     return
-  }
   form_state['user'] = account
-  watchdog('user', 'New user: %name (%email).', array('%name' : name, '%email' : mail), WATCHDOG_NOTICE, l(t('edit'), 'user/' +  account.uid  + '/edit'))
-  # The first user may login immediately, and receives a customized welcome e-mail.
+  watchdog('user', 'New user: %name (%email).', \
+    {'%name' : name, '%email' : mail}, WATCHDOG_NOTICE, \
+    lib_common.l(lib_common.t('edit'), 'user/' +  account.uid  + '/edit'))
+  # The first user may login immediately, and receives
+  # a customized welcome e-mail.
   if (account.uid == 1):
-    drupal_set_message(t('Welcome to Drupal + You are now logged in as user #1, which gives you full control over your website.'))
-    if (variable_get('user_email_verification', True)):
-      drupal_set_message(t('</p><p> Your password is <strong>%pass</strong> + You may change your password below.</p>', array('%pass' : pass)))
-    }
-
-    user_authenticate(array_merge(form_state['values'], merge_data))
+    drupal_set_message(lib_common.t('Welcome to Drupal. ' + \
+      'You are now logged in as user #1, ' + \
+      'which gives you full control over your website.'))
+    if (lib_bootstrap.variable_get('user_email_verification', True)):
+      drupal_set_message(lib_common.t('</p><p> Your password is ' + \
+        '<strong>%pass</strong> + You may change your password ' + \
+        'below.</p>', {'%pass' : pass_}))
+    user_authenticate(php.array_merge(form_state['values'], merge_data))
     form_state['redirect'] = 'user/1/edit'
     return
-  }
   else:
     # Add plain text password into user account to generate mail tokens.
-    account.password = pass
+    account.password = pass_
     if (admin and not notify):
-      drupal_set_message(t('Created a new user account for <a href="@url">%name</a> + No e-mail has been sent.', array('@url' : url("user/account.uid"), '%name' : account.name)))
-    }
-    elif (not variable_get('user_email_verification', True) and account.status and not admin):
+      drupal_set_message(lib_common.t('Created a new user account ' + \
+        'for <a href="@url">%name</a> + No e-mail has been sent.', \
+        {'@url' : url("user/account.uid"), '%name' : account.name}))
+    elif (not variable_get('user_email_verification', True) and \
+        account.status and not admin):
       # No e-mail verification is required, create new user account, and login
       # user immediately.
-      _user_mail_notify('register_no_approval_required', account)
-      if (user_authenticate(array_merge(form_state['values'], merge_data))):
-        drupal_set_message(t('Registration successful + You are now logged in.'))
-      }
+      _mail_notify('register_no_approval_required', account)
+      if (authenticate(php.array_merge(form_state['values'], merge_data))):
+        drupal_set_message(lib_common.t(\
+          'Registration successful + You are now logged in.'))
       form_state['redirect'] = ''
       return
-    }
     elif (account.status or notify):
       # Create new user account, no administrator approval required.
-      op = notify ? 'register_admin_created' : 'register_no_approval_required'
-      _user_mail_notify(op, account)
+      op = ('register_admin_created' if \
+        notify else 'register_no_approval_required')
+      _mail_notify(op, account)
       if (notify):
-        drupal_set_message(t('Password and further instructions have been e-mailed to the new user <a href="@url">%name</a>.', array('@url' : url("user/account.uid"), '%name' : account.name)))
-      }
+        drupal_set_message(lib_common.t('Password and further ' + \
+          'instructions have been e-mailed to the ' + \
+          'new user <a href="@url">%name</a>.', \
+          {'@url' : url("user/account.uid"), '%name' : account.name}))
       else:
-        drupal_set_message(t('Your password and further instructions have been sent to your e-mail address.'))
+        drupal_set_message(lib_common.t('Your password and further ' + \
+          'instructions have been sent to your e-mail address.'))
         form_state['redirect'] = ''
         return
-      }
-    }
     else:
       # Create new user account, administrator approval required.
-      _user_mail_notify('register_pending_approval', account)
-      drupal_set_message(t('Thank you for applying for an account + Your account is currently pending approval by the site administrator.<br />In the meantime, a welcome message with further instructions has been sent to your e-mail address.'))
+      _mail_notify('register_pending_approval', account)
+      drupal_set_message(lib_common.t('Thank you for applying ' + \
+        'for an account + Your account is currently pending ' + \
+        'approval by the site administrator.<br />In the ' + \
+        'meantime, a welcome message with further instructions ' + \
+        'has been sent to your e-mail address.'))
       form_state['redirect'] = ''
       return
-    }
-  }
-}
-#
-# Form builder; The user registration form.
-#
-# @ingroup forms
-# @see user_register_validate()
-# @see user_register_submit()
-#
-def user_register():
-  global user
-  admin = user_access('administer users')
+
+
+def register():
+  """
+   Form builder; The user registration form.
+  
+   @ingroup forms
+   @see user_register_validate()
+   @see user_register_submit()
+  """
+  admin = access('administer users')
   # If we aren't admin but already logged on, go to the user page instead.
   if (not admin and user.uid):
     drupal_goto('user/' +  user.uid)
-  }
-
-  form = array()
+  form = []
   # Display the registration form.
   if (not admin):
-    form['user_registration_help'] = array('#value' : filter_xss_admin(variable_get('user_registration_help', '')))
-  }
-
+    form['user_registration_help'] = \
+      {'#value' : filter_xss_admin(\
+      lib_bootstrap.variable_get('user_registration_help', ''))}
   # Merge in the default user edit fields.
-  form = array_merge(form, user_edit_form(form_state, None, None, True))
+  form = php.array_merge(form, user_edit_form(form_state, None, None, True))
   if (admin):
-    form['account']['notify'] = array(
+    form['account']['notify'] = {
      '#type' : 'checkbox',
-     '#title' : t('Notify user of new account')
-    )
+     '#title' : lib_common.t('Notify user of new account')
+    }
     # Redirect back to page which initiated the create request
     # usually admin/user/user/create.
-    form['destination'] = array('#type' : 'hidden', '#value' : _GET['q'])
-  }
-
+    form['destination'] = {'#type' : 'hidden', '#value' : php.GET['q']}
   # Create a dummy variable for pass-by-reference parameters.
-  None = None
-  extra = _user_forms(None, None, None, 'register')
+  null_ = php.Reference()
+  extra = _forms(null_, None, None, 'register')
   # Remove form_group around default fields if there are no other groups.
   if (not extra):
-    foreach (array('name', 'mail', 'pass', 'status', 'roles', 'notify') as key):
-      if (isset(form['account'][key])):
+    for key in ('name', 'mail', 'pass', 'status', 'roles', 'notify'):
+      if (php.isset(form['account'][key])):
         form[key] = form['account'][key]
-      }
-    }
-    unset(form['account'])
-  }
+    del(form['account'])
   else:
-    form = array_merge(form, extra)
-  }
-
-  if (variable_get('configurable_timezones', 1)):
+    form = php.array_merge(form, extra)
+  if (lib_bootstrap.variable_get('configurable_timezones', 1)):
     # Override field ID, so we only change timezone on user registration,
     # and never touch it on user edit pages.
-    form['timezone'] = array(
+    form['timezone'] = {
       '#type' : 'hidden',
-      '#default_value' : variable_get('date_default_timezone', None),
-      '#id' : 'edit-user-register-timezone',
-    )
-    # Add the JavaScript callback to automatically set the timezone.
-    drupal_add_js('
-# Global Killswitch
-if (Drupal.jsEnabled):
-  $(document).ready(function():
-    Drupal.setDefaultTimezone()
-  })
-}', 'inline')
-  }
-
-  form['submit'] = array('#type' : 'submit', '#value' : t('Create new account'), '#weight' : 30)
-  form['#validate'][] = 'user_register_validate'
-  return form
-}
-
-def user_register_validate(form, &form_state):
-  user_module_invoke('validate', form_state['values'], form_state['values'], 'account')
-}
-#
-# Retrieve a list of all form elements for the specified category.
-#
-def _user_forms(&edit, account, category, hook = 'form'):
-  groups = array()
-  for module in module_list():
-    if (data = module_invoke(module, 'user', hook, edit, account, category)):
-      groups = array_merge_recursive(data, groups)
+      '#default_value' : \
+        lib_bootstrap.variable_get('date_default_timezone', None),
+      '#id' : 'edit-user-register-timezone'
     }
-  }
-  uasort(groups, '_user_sort')
-  return empty(groups) ? False : groups
-}
+    # Add the JavaScript callback to automatically set the timezone.
+    drupal_add_js(\
+      'if (Drupal.jsEnabled) { ' + \
+      '  $(document).ready(function() { ' + \
+      '    Drupal.setDefaultTimezone(); ' + \
+      '  }) ' + \
+      '}', \
+      'inline')
+  form['submit'] = {'#type' : 'submit', '#value' : \
+    lib_common.t('Create new account'), '#weight' : 30}
+  form['#validate'].append( 'user_register_validate' )
+  return form
+
+
+
+def register_validate(form, form_state):
+  php.Reference.check(form_state)
+  plugin_invoke('validate', form_state['values'], form_state['values'], \
+    'account')
+
+
+def _forms(edit, account, category, hook = 'form'):
+  """
+   Retrieve a list of all form elements for the specified category.
+  """
+  php.Reference.check(edit)
+  groups = []
+  for plugin in lib_plugin.list_():
+    data = plugin_invoke(plugin, 'user', hook, edit, account, category)
+    if data:
+      groups = php.array_merge_recursive(data, groups)
+  php.uasort(groups, '_user_sort')
+  return (False if php.empty(groups) else groups)
+
+
+
+
