@@ -1131,8 +1131,12 @@ def drupal_bootstrap(phase):
        DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix
          input data.
   """
+  # DRUPY: Before doing anything else, set the q request var if it doesnt
+  # exist
+  if 'q' not in php.GET:
+    php.GET['q'] = 'node'
   # DRUPY(BC): Why were these set as static vars?
-  # No longer needed. 
+  # No longer needed
   phase_index = 0;
   phases = range(DRUPAL_BOOTSTRAP_CONFIGURATION, DRUPAL_BOOTSTRAP_FULL+1);
   while (phase >= phase_index and php.isset(phases, phase_index)):
