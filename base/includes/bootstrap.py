@@ -834,11 +834,14 @@ def drupal_unpack(obj, field = 'data'):
    @param field
      The attribute of obj whose value should be unserialized.
   """
-  data = php.unserialize(obj.field);
-  if (obj.field and not php.empty(data)):
+  if hasattr(obj, field) and not php.empty(getattr(obj, field)):
+    data = php.unserialize(getattr(obj, field))
+  else:
+    data = None
+  if (hasattr(obj, field) and not php.empty(data)):
     for key,value in data.items():
       if (not php.isset(obj, key)):
-        setattr(obj, key, value);
+        setattr(obj, key, value)
   return obj;
 
 

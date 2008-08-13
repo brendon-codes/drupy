@@ -871,7 +871,7 @@ def hook_init():
   lib_theme.theme('meta_generator_header', version)
 
 
-def hook_user(type, edit, user, category = None):
+def hook_user(type_, edit, user, category = None):
   """
    Implementation of hook_user().
   
@@ -1866,7 +1866,8 @@ def actions_configure_validate(form, form_state):
   """
    Validate system_actions_configure form submissions.
   """
-  function = actions_function_lookup(form_state['values']['actions_action']) + \
+  function = actions_function_lookup(\
+    form_state['values']['actions_action']) + \
     '_validate'
   # Hand off validation to the action.
   if (php.function_exists(function)):

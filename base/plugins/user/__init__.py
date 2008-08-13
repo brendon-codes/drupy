@@ -38,9 +38,13 @@
 __version__ = "$Revision: 1 $"
 
 from lib.drupy import DrupyPHP as php
+from lib.drupy import DrupyImport
 #from includes import password as lib_password
 from includes import common as lib_common
 from includes import path as lib_path
+from includes import database as lib_database
+from includes import bootstrap as lib_bootstrap
+from includes import plugin as lib_plugin
 
 #
 # Maximum length of username text field.
@@ -63,9 +67,9 @@ def plugin_invoke(type_, array_, user_, category = None):
   php.Reference.check(array_)
   php.Reference.check(user_)
   for plugin_ in lib_plugin.list_():
-    function = 'hook_user'
-    if (php.function_exists(function, lib_plugin.plugins[plugin_])):
-      func = DrupyImport.getFunction(lib_plugin.plugins[plugin_], function)
+    function_name = 'hook_user'
+    if (php.function_exists(function_name, lib_plugin.plugins[plugin_])):
+      function = DrupyImport.getFunction(lib_plugin.plugins[plugin_], function_name)
       php.call_user_func(function, type_, array_, user_, category)
 
 
@@ -193,7 +197,7 @@ def load(array_={}):
     return False
   for key,value in array_.items():
     if (key == 'uid' or key == 'status'):
-      query.append( "key = %d" )
+      query.append( key + " = %d" )
       params.append( value )
     elif (key == 'pass'):
       query.append( "pass = '%s'" )
@@ -203,15 +207,16 @@ def load(array_={}):
       params.append( value )
   result = lib_database.query('SELECT * FROM {users} u WHERE ' + \
     php.implode(' AND ', query), params)
-  this_user = db_fetch_object(result)
+  this_user = lib_database.fetch_object(result)
   if (this_user):
-    this_user = drupal_unpack(this_user)
+    this_user = lib_bootstrap.drupal_unpack(this_user)
     this_user.roles = {}
     if (this_user.uid):
-      this_user.roles[DRUPAL_AUTHENTICATED_RID] = 'authenticated user'
+      this_user.roles[lib_bootstrap.DRUPAL_AUTHENTICATED_RID] = \
+        'authenticated user'
     else:
       this_user.roles[DRUPAL_ANONYMOUS_RID] = 'anonymous user'
-    result = lib_database.db_query(\
+    result = lib_database.query(\
       'SELECT r.rid, r.name FROM {role} r ' + \
       'INNER JOIN {users_roles} ur ON ur.rid = r.rid ' + \
       'WHERE ur.uid = %d', this_user.uid)
@@ -223,6 +228,9 @@ def load(array_={}):
     plugin_invoke('load', array_, this_user)
   else:
     this_user = False
+  # In python, 'pass' is a reserved word, so we should add an extra field
+  if hasattr(this_user, 'pass'):
+    setattr(this_user, 'pass_', getattr(this_user, 'pass'))
   return this_user
 
 

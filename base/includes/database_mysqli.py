@@ -421,7 +421,7 @@ def distinct_field(table, field, query):
 #
 
 
-def query(query, *args):
+def query(query_, *args):
   """
    Runs a basic query in the active database.
   
@@ -446,14 +446,18 @@ def query(query, *args):
      A database query result resource, or False if the query was not
      executed correctly.
   """
-  query = lib_database.prefix_tables(query)
+  this_query = lib_database.prefix_tables(query_)
   # 'All arguments in one array' syntax
   if (php.isset(args, 0) and php.is_array(args[0])): 
     args = args[0]
   lib_database._query_callback(args, True)
-  query = php.preg_replace_callback(lib_database.DB_QUERY_REGEXP, \
-    lib_database._query_callback, query)
-  return _query(query)
+  this_query = php.preg_replace_callback(lib_database.DB_QUERY_REGEXP, \
+    lib_database._query_callback, this_query)
+  #print
+  #print "QUERY DEBUG:"
+  #print this_query
+  #print
+  return _query(this_query)
 
 
 #
