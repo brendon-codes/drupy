@@ -41,6 +41,7 @@ import sys
 from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyImport
 from includes import bootstrap as lib_bootstrap
+from includes import database as lib_database
 from includes import plugin as lib_plugin
 from includes import theme as lib_theme
 
@@ -66,9 +67,6 @@ phases = (
    'DRUPAL_BOOTSTRAP_FULL')
 );
 
-if 'q' not in php.GET:
-  php.GET['q'] = 'node'
-
 which_phase = phases[8];
 lib_bootstrap.drupal_bootstrap(which_phase[0]);
 stamp, revised = time.strftime("%c GMT||%m/%d/%Y", time.gmtime()).split('||')
@@ -78,6 +76,10 @@ out_plugins_html = php.htmlspecialchars(out_plugins)
 
 out_themes = php.print_r(lib_theme.processors, True)
 out_themes_html = php.htmlspecialchars(out_themes)
+
+out_users = php.print_r(lib_database.query(\
+  'SELECT * FROM users WHERE users.uid > 0'), True)
+out_users_html = php.htmlspecialchars(out_users)
 
 out_vars = php.print_r(vars(), True)
 out_vars = re.sub('[a-zA-Z0-9_\.-]+@.+?\.[a-zA-Z]+', '********', out_vars)
@@ -116,6 +118,10 @@ if php.SERVER['WEB']:
   print "drupytemplate is the equivalent of Drupal's phptemplate"
   print "</h4>"
   print "<pre style='background-color:yellow;'>%s</pre>" % out_themes_html
+  print "<h4 style='color:blue;'>"  
+  print "The following Drupy users are registered. "
+  print "</h4>"
+  print "<pre style='background-color:yellow;'>%s</pre>" % out_users_html
   print "<h4 style='color:blue;'>Global Scope Objects</h4>"
   print "<pre style='background-color:yellow;'>%s</pre>" % out_vars
   print "<h4 style='color:blue;'>Loaded Python Modules</h4>"

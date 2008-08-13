@@ -989,21 +989,30 @@ def print_r(data, ret = False):
    @param ret Bool
    @return Bool,Str
   """
-  try:
-    d = dict(data)
-  except:
+  if \
+      type(data).__name__ == 'instance' or \
+      isinstance(data, dict) or \
+      isinstance(data, list) or \
+      isinstance(data, tuple):
+    d = data
+  else:
     try:
-      d = list(data)
+      d = dict(data)
     except:
       try:
-        d = tuple(data)
+        d = list(data)
       except:
-        d = data
+        try:
+          d = tuple(data)
+        except:
+          d = data
   if ret:
     return pprint.PrettyPrinter().pformat(d)
   else:
     pprint.PrettyPrinter().pprint(d)
     return True
+
+
 
 def object_(dic):
   """
