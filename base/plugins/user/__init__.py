@@ -365,32 +365,29 @@ def validate_name(name):
   if (php.strpos(name, '  ') != False):
     return lib_common.t(\
       'The username cannot contain multiple spaces in a row.')
-  #
-  # @TODO Drupy Fix these control X characters in regex
-  #
-  #if (php.preg_match('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/i', name)):
-  #  return lib_common.t('The username contains an illegal character.')
-  #if (php.preg_match(\
+  if (php.preg_match('/[^\x80-\xF7 a-z0-9@_.\'-]/i', name)):
+    return lib_common.t('The username contains an illegal character.')
+  if (php.preg_match(\
     # Non-printable ISO-8859-1 + NBSP
-    #'/[\x{80}-\x{A0}' + \
+    '/[\x80-\xA0' + \
     # Soft-hyphen 
-    #'\x{AD}' + \
+    '\xAD' + \
     # Various space characters
-    #'\x{2000}-\x{200F}' + \
+    '\u2000-\u200F' + \
     # Bidirectional text overrides
-    #'\x{2028}-\x{202F}' + \
+    '\u2028-\u202F' + \
     # Various text hinting characters
-    #'\x{205F}-\x{206F}' + \
+    '\u205F-\u206F' + \
     # Byte order mark
-    #'\x{FEFF}' + \
+    '\uFEFF' + \
     # Full-width latin
-    #'\x{FF01}-\x{FF60}' + \
+    '\uFF01-\uFF60' + \
     # Replacement characters
-    #'\x{FFF9}-\x{FFFD}' + \
+    '\xFFF9-\xFFFD' + \
     # None byte and control characters
-    #'\x{0}-\x{1F}]/u',        
-    #name)):
-    #return lib_common.t('The username contains an illegal character.')
+    '\x00-\x1F]/u', \
+    name)):
+    return lib_common.t('The username contains an illegal character.')
   if (drupal_strlen(name) > USERNAME_MAX_LENGTH):
     return lib_common.t(\
       'The username %name is too long: it must be %max characters or less.', \
@@ -1137,8 +1134,8 @@ def hook_menu():
 
 
 def hook_init():
-  lib_common.drupal_add_css(lib_path.drupal_get_path('module', 'user') + \
-    '/user.css', 'module')
+  lib_common.drupal_add_css(lib_common.drupal_get_path('plugin', 'user') + \
+    '/user.css', 'plugin')
 
 
 
