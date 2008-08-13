@@ -156,11 +156,13 @@ class Reference:
      @raise Exception 
      @return Bool
     """
-    if (not isinstance(data, Reference) and \
+    if  not isinstance(data, Reference) and \
         not isinstance(data, dict) and \
-        not isintance(data, list)) or \
-        not hasattr(data, '_'):
-      raise Exception, "Argument must be an object and must contain a 'val' property."
+        not isinstance(data, list) and \
+        not isinstance(data, tuple) and \
+        type(data).__name__ != 'instance':
+      raise Exception, \
+        "Argument must be a Reference, dict, list, tuple, or object"
     else:
       return True
 
@@ -523,7 +525,7 @@ def call_user_func_array(func, args):
   return func(*tuple(args))
 
 
-def call_user_func(func, arg):
+def call_user_func(func, *arg):
   """
    Call user func
    @param func Function
@@ -531,9 +533,9 @@ def call_user_func(func, arg):
    @return Unknown
   """
   if callable(func):
-    return func(arg)
+    return func(*arg)
   else:
-    return eval(func)(arg)
+    return eval(func)(*arg)
   
 
 

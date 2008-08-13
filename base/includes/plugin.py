@@ -403,7 +403,7 @@ def disable(plugin_list_):
 #
 
 
-def hook(plugin_, hook):
+def hook(plugin_, hook_):
   """
    Determine whether a plugin implements a hook.
   
@@ -416,7 +416,7 @@ def hook(plugin_, hook):
      implemented in that plugin.
   """
   global plugins
-  function = hook;
+  function = hook_;
   if (lib_bootstrap.MAINTENANCE_MODE is True):
     return php.function_exists(function, plugins[plugin_])
   else:
@@ -468,7 +468,7 @@ def implements(hook_, sort = False, refresh = False):
 
 
 
-def invoke(*args):
+def invoke(plugin_, hook_, *args):
   """
    Invoke a hook in a particular plugin.
   
@@ -481,12 +481,9 @@ def invoke(*args):
    @return
      The return value of the hook implementation.
   """
-  args = list(args)
-  plugin_ = args[0]
-  hook = args[1]
-  del(args[0], args[1])
-  if (plugin_hook(plugin_, hook)):
-    function = plugin_ + '_' + hook
+  if (hook(plugin_, hook_)):
+    function_name = 'hook_' + hook_
+    function = DrupyImport.getFunction(plugins[plugin_], function_name)
     return php.call_user_func_array(function, args)
 
 
