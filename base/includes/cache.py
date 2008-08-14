@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# $Id: cache.inc,v 1.19 2008/06/18 03:36:23 dries Exp $
+# $Id: cache.inc,v 1.20 2008/07/02 20:42:25 dries Exp $
 
 """
   Cache functions
@@ -143,7 +143,7 @@ def set(cid, data, table = 'cache', expire = None, headers = None):
   if expire is None:
     expire = lib_bootstrap.CACHE_PERMANENT
   serialized = 0;
-  if (php.is_object(data) or php.is_array(data)):
+  if (not php.is_string(data)):
     data = php.serialize(data);
     serialized = 1;
   created = php.time_();

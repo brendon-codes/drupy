@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# $Id: common.inc,v 1.773 2008/06/24 22:09:52 dries Exp $
+# $Id: common.inc,v 1.783 2008/08/13 07:10:20 dries Exp $
 
 """
   Common functions that many Drupy plugins will need to reference.
@@ -857,7 +857,7 @@ def format_xml_elements(array_):
         if (php.isset(value, 'attributes') and \
             php.is_array(value['attributes'])):
           output += drupal_attributes(value['attributes']);
-        if (value['value'] != ''):
+        if (php.isset(value, 'value') and value['value'] != ''):
           output += '>' + (format_xml_elements(value['value']) if \
             php.is_array(value['value']) else \
             check_plain(value['value'])) + '</' + value['key'] + ">\n";
@@ -1572,7 +1572,8 @@ def drupal_get_css(css = None):
       for file_,preprocess in types[type_].items():
         # If the theme supplies its own style using the name
         # of the plugin style, skip its inclusion.
-        # This includes any RTL styles associated with its main LTR counterpart.
+        # This includes any RTL styles associated with its
+        # main LTR counterpart.
         if (type_ == 'plugin' and php.in_array(\
             php.str_replace('-rtl.css', '.css', \
             basename(file)), theme_styles)):
@@ -1580,24 +1581,27 @@ def drupal_get_css(css = None):
           # CSS aggregation is enabled.
           del(types[type_][file]);
           continue;
-        if (not preprocess or not(is_writable and preprocess_css)):
-          # If a CSS file is not to be preprocessed and it's a plugin
-          # CSS file, it needs to *always* appear at the *top*,
-          # regardless of whether preprocessing is on or off.
-          if (not preprocess and type_ == 'plugin'):
-            no_plugin_preprocess += \
-              '<link type="text/css" rel="stylesheet" media="' + media + \
-              '" href="' + base_path() + file_ + query_string + '" />' + "\n";
-          # If a CSS file is not to be preprocessed and it's a theme
-          # CSS file, it needs to *always* appear at the *bottom*,
-          # regardless of whether preprocessing is on or off.
-          elif (not preprocess and type_ == 'theme'):
-            no_theme_preprocess += \
-              '<link type="text/css" rel="stylesheet" media="' + media + \
-              '" href="' + base_path() + file_ + query_string + '" />' + "\n";
-          else:
-            output += '<link type="text/css" rel="stylesheet" media="' + \
-              media + '" href="' + base_path() + file_ + query_string + \
+        # Only include the stylesheet if it exists.
+        if (lib_file.exists(file)):
+          if (not preprocess and not (is_writable and preprocess_css)):
+            # If a CSS file is not to be preprocessed and it's a
+            # module CSS file, it needs to *always* appear at the *top*,
+            # regardless of whether preprocessing is on or off.
+            if (not preprocess and type_ == 'module'):
+              no_module_preprocess += \
+                '<link type="text/css" rel="stylesheet" media="' + media + \
+                '" href="' + base_path() + file + query_string + '" />' + "\n"
+            # If a CSS file is not to be preprocessed and it's a
+            # theme CSS file, it needs to *always* appear at the *bottom*,
+            # regardless of whether preprocessing is on or off.
+            elif (not preprocess and type_ == 'theme'):
+              no_theme_preprocess += \
+                '<link type="text/css" rel="stylesheet" media="' + \
+                media + '" href="' + base_path() + file + \
+                query_string + '" />' + "\n";
+            else:
+              output += '<link type="text/css" rel="stylesheet" media="' + \
+              media + '" href="' + base_path() + file + query_string + \
               '" />' + "\n";
     if (is_writable and preprocess_css):
       filename = php.md5(php.serialize(types) + query_string) + '.css';
@@ -1910,18 +1914,25 @@ def drupal_get_js(scope = 'php.header', javascript = None):
   # page request.
   query_string = '?' + \
     php.substr(variable_get('css_js_query_string', '0'), 0, 1);
+  # For inline Javascript to validate as XHTML, all Javascript containing
+  # XHTML needs to be wrapped in CDATA. To make that backwards compatible
+  # with HTML 4, we need to comment out the CDATA-tag.
+  embed_prefix = "\n<!--//--><![CDATA[//><!--\n"
+  embed_suffix = "\n//--><!]]>\n"
   for type_,data in javascript.items():
     if (php.empty(data)):
       continue;
     if type_ == 'setting':
-      output += \
-        '<script type="text/javascript">jQuery.extend(Drupal.settings, ' + \
-        drupal_to_js(php.call_user_func_array('array_merge_recursive', \
-        data)) + ");</script>\n"
+      output += '<script type="text/javascript">' + embed_prefix + \
+        'jQuery.extend(Drupal.settings, ' + \
+        drupal_to_js(\
+        php.call_user_func_array('array_merge_recursive', data)) + \
+        ");" + embed_suffix + "</script>\n";
     elif type_ == 'inline':
       for infoKey_,info in data.items():
-        output += '<script type="text/javascript"' + (' defer="defer"' if \
-          info['defer'] else '') + '>' + info['code'] + "</script>\n";
+        output += '<script type="text/javascript"' + \
+          (' defer="defer"' if info['defer'] else '') + '>' + \
+          embed_prefix + info['code'] + embed_suffix + "</script>\n";
     else:
       # If JS preprocessing is off, we still need to output the scripts.
       # Additionally, go through any remaining scripts if JS
@@ -2339,7 +2350,8 @@ def page_set_cache():
    @see drupal_page_header
   """
   global user, base_root;
-  if ((user.uid < 1) and php.SERVER['php.REQUEST_METHOD'] == 'php.GET' and \
+  if (not user.uid and (php.SERVER['REQUEST_METHOD'] == 'GET' or \
+      php.SERVER['REQUEST_METHOD'] == 'HEAD') and \
       php.count(drupal_get_messages(None, False)) == 0):
     # This will fail in some cases, see page_get_cache() for the explanation.
     data = ob_get_contents();
@@ -2569,22 +2581,12 @@ def drupal_render(elements):
     if (php.isset(elements, '#theme') and \
         php.empty(elements['#theme_used'])):
       elements['#theme_used'] = True;
-      previous = {};
-      for key in ['#value', '#type', '#prefix', '#suffix']:
-        previous[key] = (elements[key] if \
-          php.isset(elements, key) else None);
       # If we rendered a single element, then we will skip the renderer.
       if (php.empty(children)):
         elements['#printed'] = True;
       else:
-        elements['#value'] = '';
-      elements['#type'] = 'markup';
-      del(elements['#prefix'])
-      del(elements['#suffix']);
+        elements['#markup'] = '';
       content = theme(elements['#theme'], elements);
-      for key in ['#value', '#type', '#prefix', '#suffix']:
-        elements[key] = (previous[key] if \
-          php.isset(previous, key) else None);
     # render each of the children using drupal_render and concatenate them */
     if (php.empty(content)):
       for key in children:
@@ -3347,11 +3349,11 @@ def drupal_flush_all_caches():
   """
   # Change query-strings on css/js files to enforce reload for all users.
   _drupal_flush_css_js();
-  drupal_rebuild_code_registry();
+  registry_rebuild();
   drupal_clear_css_cache();
   drupal_clear_js_cache();
   system_theme_data();
-  drupal_rebuild_theme_registry();
+  drupal_theme_rebuild();
   menu_rebuild();
   node_types_rebuild();
   # Don't clear cache_form - in-progress form submissions may break.

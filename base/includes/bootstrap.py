@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# $Id: bootstrap.inc,v 1.212 2008/06/26 11:29:20 dries Exp $
+# $Id: bootstrap.inc,v 1.218 2008/08/02 19:01:02 dries Exp $
 
 """
   Functions that need to be loaded on every Drupal requst
@@ -51,6 +51,7 @@ import plugin as lib_plugin
 import path as lib_path
 import common as lib_common
 import language as lib_language
+#import registry as lib_registry
 
 #
 # Global variables
@@ -671,7 +672,8 @@ def page_get_cache():
      (whether it was started in this request or not).
   """
   cache = None;
-  if (user == None and php.SERVER['php.REQUEST_METHOD'] == 'php.GET' and \
+  if (not user.uid and (php.SERVER['REQUEST_METHOD'] == 'GET' or \
+      php.SERVER['REQUEST_METHOD'] == 'HEAD') and \
       php.count(drupal_set_message()) == 0):
     cache = cache_get(base_root + request_uri(), 'cache_page');
     if (php.empty(cache)):
@@ -1226,7 +1228,7 @@ def drupal_maintenance_theme():
    Enables use of the theme system without requiring database access.
   
    Loads and initializes the theme system for site installs, updates and when
-   the site is in off-line mode. This also applies when the database fails.
+   the site is in offline mode. This also applies when the database fails.
   
    @see _drupal_maintenance_theme()
   """
@@ -1353,21 +1355,25 @@ def ip_address(reset=False):
   php.static(ip_address, 'ip_address')
   if (ip_address.ip_address is None or reset):
     ip_address.ip_address = php.SERVER['REMOTE_ADDR'];
-    if (variable_get('reverse_proxy', 0) and \
-        php.array_key_exists('HTTP_X_FORWARDED_FOR', php.SERVER)):
-      # If an array of known reverse proxy IPs is provided, then trust
-      # the XFF php.header if request really comes from one of them.
-      reverse_proxy_addresses = variable_get('reverse_proxy_addresses', []);
-      if (not php.empty(reverse_proxy_addresses) and \
-          php.in_array(ip_address.ip_address, reverse_proxy_addresses)):
-        # If there are several arguments, we need to check the most
-        # recently added one, i.e. the last one.
-        ip_address.ip_address = php.array_pop(\
-          php.explode(',', php.SERVER['HTTP_X_FORWARDED_FOR']));
-      # When Drupal is run in a cluster environment, REMOTE_ADDR contains the IP
-      # address of a server in the cluster, while the IP address of the client is
+    if (variable_get('reverse_proxy', 0)):
+      if (php.array_key_exists('HTTP_X_FORWARDED_FOR', php.SERVER)):
+        # If an array of known reverse proxy IPs is provided, then trust
+        # the XFF header if request really comes from one of them.
+        reverse_proxy_addresses = variable_get('reverse_proxy_addresses', \
+          tuple());
+        if (not php.empty(reverse_proxy_addresses) and \
+            php.in_array(ip_address.ip_address, reverse_proxy_addresses, \
+            True)):
+          # If there are several arguments, we need to check the most
+          # recently added one, i.e. the last one.
+          ip_address.ip_address = php.array_pop(\
+            php.explode(',', php.SERVER['HTTP_X_FORWARDED_FOR']));
+      # When Drupal is run in a cluster environment,
+      # REMOTE_ADDR contains the IP
+      # address of a server in the cluster, while the IP address
+      # of the client is
       # stored in HTTP_X_CLUSTER_CLIENT_IP.
-      if (array_key_exists('HTTP_X_CLUSTER_CLIENT_IP', php.SERVER)):
+      if (php.array_key_exists('HTTP_X_CLUSTER_CLIENT_IP', php.SERVER)):
         ip_address.ip_address = php.SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
   return ip_address.ip_address;
 
@@ -1505,8 +1511,7 @@ def drupal_rebuild_code_registry():
    Rescans all code in plugins or includes directory, storing a mapping of
    each function, file, and hook implementation in the database.
   """
-  php.require_once( './includes/registry.inc' )
-  _drupal_rebuild_code_registry()
+  _registry_rebuild()
 
 
 

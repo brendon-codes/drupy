@@ -1,5 +1,5 @@
 <?php
-// $Id: common.inc,v 1.773 2008/06/24 22:09:52 dries Exp $
+// $Id: common.inc,v 1.783 2008/08/13 07:10:20 dries Exp $
 
 /**
  * @file
@@ -260,7 +260,7 @@ function drupal_get_destination() {
  *
  * Usually the redirected URL is constructed from this function's input
  * parameters. However you may override that behavior by setting a
- * <em>destination</em> in either the $_REQUEST-array (i.e. by using
+ * destination in either the $_REQUEST-array (i.e. by using
  * the query string of an URI) or the $_REQUEST['edit']-array (i.e. by
  * using a hidden form field). This is used to direct the user back to
  * the proper page after completing a form. For example, after editing
@@ -325,12 +325,12 @@ function drupal_goto($path = '', $query = NULL, $fragment = NULL, $http_response
 }
 
 /**
- * Generates a site off-line message.
+ * Generates a site offline message.
  */
 function drupal_site_offline() {
   drupal_maintenance_theme();
   drupal_set_header('HTTP/1.1 503 Service unavailable');
-  drupal_set_title(t('Site off-line'));
+  drupal_set_title(t('Site offline'));
   print theme('maintenance_page', filter_xss_admin(variable_get('site_offline_message',
     t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => variable_get('site_name', 'Drupal'))))));
 }
@@ -435,6 +435,16 @@ function drupal_http_request($url, $headers = array(), $method = 'GET', $data = 
 
   // Parse the URL and make sure we can handle the schema.
   $uri = parse_url($url);
+
+  if ($uri == FALSE) {
+    $result->error = 'unable to parse URL';
+    return $result;
+  }
+
+  if (!isset($uri['scheme'])) {
+    $result->error = 'missing schema';
+    return $result;
+  }
 
   switch ($uri['scheme']) {
     case 'http':
@@ -582,8 +592,8 @@ function drupal_http_request($url, $headers = array(), $method = 'GET', $data = 
  * - 1 = Log errors to database and to screen.
  */
 function drupal_error_handler($errno, $message, $filename, $line, $context) {
-  // If the @ error suppression operator was used, error_reporting is
-  // temporarily set to 0.
+  // If the @ error suppression operator was used, error_reporting will have
+  // been temporarily set to 0.
   if (error_reporting() == 0) {
     return;
   }
@@ -970,7 +980,7 @@ function format_xml_elements($array) {
           $output .= drupal_attributes($value['attributes']);
         }
 
-        if ($value['value'] != '') {
+        if (isset($value['value']) && $value['value'] != '') {
           $output .= '>' . (is_array($value['value']) ? format_xml_elements($value['value']) : check_plain($value['value'])) . '</' . $value['key'] . ">\n";
         }
         else {
@@ -1240,27 +1250,27 @@ function format_date($timestamp, $type = 'medium', $format = '', $timezone = NUL
  *   '<front>' may also be given and will generate the site's base URL.
  * @param $options
  *   An associative array of additional options, with the following keys:
- *     'query'
+ *   - 'query'
  *       A query string to append to the link, or an array of query key/value
  *       properties.
- *     'fragment'
+ *   - 'fragment'
  *       A fragment identifier (or named anchor) to append to the link.
  *       Do not include the '#' character.
- *     'absolute' (default FALSE)
+ *   - 'absolute' (default FALSE)
  *       Whether to force the output to be an absolute link (beginning with
  *       http:). Useful for links that will be displayed outside the site, such
  *       as in an RSS feed.
- *     'alias' (default FALSE)
+ *   - 'alias' (default FALSE)
  *       Whether the given path is an alias already.
- *     'external'
+ *   - 'external'
  *       Whether the given path is an external URL.
- *     'language'
+ *   - 'language'
  *       An optional language object. Used to build the URL to link to and
  *       look up the proper alias for the link.
- *     'base_url'
+ *   - 'base_url'
  *       Only used internally, to modify the base URL when a language dependent
  *       URL requires so.
- *     'prefix'
+ *   - 'prefix'
  *       Only used internally, to modify the path when a language dependent URL
  *       requires so.
  * @return
@@ -1728,19 +1738,22 @@ function drupal_get_css($css = NULL) {
           unset($types[$type][$file]);
           continue;
         }
-        if (!$preprocess || !($is_writable && $preprocess_css)) {
-          // If a CSS file is not to be preprocessed and it's a module CSS file, it needs to *always* appear at the *top*,
-          // regardless of whether preprocessing is on or off.
-          if (!$preprocess && $type == 'module') {
-            $no_module_preprocess .= '<link type="text/css" rel="stylesheet" media="' . $media . '" href="' . base_path() . $file . $query_string . '" />' . "\n";
-          }
-          // If a CSS file is not to be preprocessed and it's a theme CSS file, it needs to *always* appear at the *bottom*,
-          // regardless of whether preprocessing is on or off.
-          else if (!$preprocess && $type == 'theme') {
-            $no_theme_preprocess .= '<link type="text/css" rel="stylesheet" media="' . $media . '" href="' . base_path() . $file . $query_string . '" />' . "\n";
-          }
-          else {
-            $output .= '<link type="text/css" rel="stylesheet" media="' . $media . '" href="' . base_path() . $file . $query_string . '" />' . "\n";
+        // Only include the stylesheet if it exists.
+        if (file_exists($file)) {
+          if (!$preprocess || !($is_writable && $preprocess_css)) {
+            // If a CSS file is not to be preprocessed and it's a module CSS file, it needs to *always* appear at the *top*,
+            // regardless of whether preprocessing is on or off.
+            if (!$preprocess && $type == 'module') {
+              $no_module_preprocess .= '<link type="text/css" rel="stylesheet" media="' . $media . '" href="' . base_path() . $file . $query_string . '" />' . "\n";
+            }
+            // If a CSS file is not to be preprocessed and it's a theme CSS file, it needs to *always* appear at the *bottom*,
+            // regardless of whether preprocessing is on or off.
+            else if (!$preprocess && $type == 'theme') {
+              $no_theme_preprocess .= '<link type="text/css" rel="stylesheet" media="' . $media . '" href="' . base_path() . $file . $query_string . '" />' . "\n";
+            }
+            else {
+              $output .= '<link type="text/css" rel="stylesheet" media="' . $media . '" href="' . base_path() . $file . $query_string . '" />' . "\n";
+            }
           }
         }
       }
@@ -2060,17 +2073,22 @@ function drupal_get_js($scope = 'header', $javascript = NULL) {
   // page request.
   $query_string = '?' . substr(variable_get('css_js_query_string', '0'), 0, 1);
 
+  // For inline Javascript to validate as XHTML, all Javascript containing
+  // XHTML needs to be wrapped in CDATA. To make that backwards compatible
+  // with HTML 4, we need to comment out the CDATA-tag.
+  $embed_prefix = "\n<!--//--><![CDATA[//><!--\n";
+  $embed_suffix = "\n//--><!]]>\n";
+ 
   foreach ($javascript as $type => $data) {
-
     if (!$data) continue;
 
     switch ($type) {
       case 'setting':
-        $output .= '<script type="text/javascript">jQuery.extend(Drupal.settings, ' . drupal_to_js(call_user_func_array('array_merge_recursive', $data)) . ");</script>\n";
+        $output .= '<script type="text/javascript">' . $embed_prefix . 'jQuery.extend(Drupal.settings, ' . drupal_to_js(call_user_func_array('array_merge_recursive', $data)) . ");" . $embed_suffix . "</script>\n";
         break;
       case 'inline':
         foreach ($data as $info) {
-          $output .= '<script type="text/javascript"' . ($info['defer'] ? ' defer="defer"' : '') . '>' . $info['code'] . "</script>\n";
+          $output .= '<script type="text/javascript"' . ($info['defer'] ? ' defer="defer"' : '') . '>' . $embed_prefix . $info['code'] . $embed_suffix . "</script>\n";
         }
         break;
       default:
@@ -2487,7 +2505,7 @@ function _drupal_bootstrap_full() {
 function page_set_cache() {
   global $user, $base_root;
 
-  if (!$user->uid && $_SERVER['REQUEST_METHOD'] == 'GET' && count(drupal_get_messages(NULL, FALSE)) == 0) {
+  if (!$user->uid && ($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'HEAD') && count(drupal_get_messages(NULL, FALSE)) == 0) {
     // This will fail in some cases, see page_get_cache() for the explanation.
     if ($data = ob_get_contents()) {
       $cache = TRUE;
@@ -2735,31 +2753,20 @@ function drupal_render(&$elements) {
   $elements += array('#title' => NULL, '#description' => NULL);
   if (!isset($elements['#children'])) {
     $children = element_children($elements);
-    /* Render all the children that use a theme function */
+    // Render all the children that use a theme function.
     if (isset($elements['#theme']) && empty($elements['#theme_used'])) {
       $elements['#theme_used'] = TRUE;
-
-      $previous = array();
-      foreach (array('#value', '#type', '#prefix', '#suffix') as $key) {
-        $previous[$key] = isset($elements[$key]) ? $elements[$key] : NULL;
-      }
       // If we rendered a single element, then we will skip the renderer.
       if (empty($children)) {
         $elements['#printed'] = TRUE;
       }
       else {
-        $elements['#value'] = '';
+        $elements['#markup'] = '';
       }
-      $elements['#type'] = 'markup';
 
-      unset($elements['#prefix'], $elements['#suffix']);
       $content = theme($elements['#theme'], $elements);
-
-      foreach (array('#value', '#type', '#prefix', '#suffix') as $key) {
-        $elements[$key] = isset($previous[$key]) ? $previous[$key] : NULL;
-      }
     }
-    /* render each of the children using drupal_render and concatenate them */
+    // Render each of the children using drupal_render and concatenate them.
     if (!isset($content) || $content === '') {
       foreach ($children as $key) {
         $content .= drupal_render($elements[$key]);
@@ -3097,8 +3104,8 @@ function drupal_get_schema($table = NULL, $rebuild = FALSE) {
  *   The module for which the tables will be created.
  * @return
  *   An array of arrays with the following key/value pairs:
- *      success: a boolean indicating whether the query succeeded
- *      query: the SQL query(s) executed, passed through check_plain()
+ *    - success: a boolean indicating whether the query succeeded.
+ *    - query: the SQL query(s) executed, passed through check_plain().
  */
 function drupal_install_schema($module) {
   $schema = drupal_get_schema_unprocessed($module);
@@ -3122,8 +3129,8 @@ function drupal_install_schema($module) {
  *   The module for which the tables will be removed.
  * @return
  *   An array of arrays with the following key/value pairs:
- *      success: a boolean indicating whether the query succeeded
- *      query: the SQL query(s) executed, passed through check_plain()
+ *    - success: a boolean indicating whether the query succeeded.
+ *    - query: the SQL query(s) executed, passed through check_plain().
  */
 function drupal_uninstall_schema($module) {
   $schema = drupal_get_schema_unprocessed($module);
@@ -3545,17 +3552,17 @@ function drupal_implode_tags($tags) {
  * Flush all cached data on the site.
  *
  * Empties cache tables, rebuilds the menu cache and theme registries, and
- * exposes a hook for other modules to clear their own cache data as well.
+ * invokes a hook so that other modules' cache data can be cleared as well.
  */
 function drupal_flush_all_caches() {
   // Change query-strings on css/js files to enforce reload for all users.
   _drupal_flush_css_js();
 
-  drupal_rebuild_code_registry();
+  registry_rebuild();
   drupal_clear_css_cache();
   drupal_clear_js_cache();
   system_theme_data();
-  drupal_rebuild_theme_registry();
+  drupal_theme_rebuild();
   menu_rebuild();
   node_types_rebuild();
   // Don't clear cache_form - in-progress form submissions may break.
