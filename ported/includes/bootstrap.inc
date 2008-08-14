@@ -1,5 +1,5 @@
 <?php
-// $Id: bootstrap.inc,v 1.212 2008/06/26 11:29:20 dries Exp $
+// $Id: bootstrap.inc,v 1.218 2008/08/02 19:01:02 dries Exp $
 
 /**
  * @file
@@ -549,7 +549,7 @@ function page_get_cache() {
 
   $cache = NULL;
 
-  if (!$user->uid && $_SERVER['REQUEST_METHOD'] == 'GET' && count(drupal_set_message()) == 0) {
+  if (!$user->uid && ($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'HEAD') && count(drupal_set_message()) == 0) {
     $cache = cache_get($base_root . request_uri(), 'cache_page');
 
     if (empty($cache)) {
@@ -1064,7 +1064,7 @@ function _drupal_bootstrap($phase) {
  * Enables use of the theme system without requiring database access.
  *
  * Loads and initializes the theme system for site installs, updates and when
- * the site is in off-line mode. This also applies when the database fails.
+ * the site is in offline mode. This also applies when the database fails.
  *
  * @see _drupal_maintenance_theme()
  */
@@ -1160,7 +1160,7 @@ function language_default($property = NULL) {
 
 /**
  * If Drupal is behind a reverse proxy, we use the X-Forwarded-For header
- * instead of $_SERVER['REMOTE_ADDR'], which would be the IP address of 
+ * instead of $_SERVER['REMOTE_ADDR'], which would be the IP address of
  * the proxy server, and not the client's.  If Drupal is run in a cluster
  * we use the X-Cluster-Client-Ip header instead.
  *
@@ -1175,22 +1175,25 @@ function ip_address($reset = false) {
 
   if (!isset($ip_address) || $reset) {
     $ip_address = $_SERVER['REMOTE_ADDR'];
-    if (variable_get('reverse_proxy', 0) && array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
-      // If an array of known reverse proxy IPs is provided, then trust
-      // the XFF header if request really comes from one of them.
-      $reverse_proxy_addresses = variable_get('reverse_proxy_addresses', array());
-      if (!empty($reverse_proxy_addresses) && in_array($ip_address, $reverse_proxy_addresses, TRUE)) {
-        // If there are several arguments, we need to check the most
-        // recently added one, i.e. the last one.
-        $ip_address = array_pop(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
-      }
-    }
 
-    // When Drupal is run in a cluster environment, REMOTE_ADDR contains the IP
-    // address of a server in the cluster, while the IP address of the client is
-    // stored in HTTP_X_CLUSTER_CLIENT_IP.
-    if (array_key_exists('HTTP_X_CLUSTER_CLIENT_IP', $_SERVER)) {
-      $ip_address = $_SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
+    if (variable_get('reverse_proxy', 0)) {
+      if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
+        // If an array of known reverse proxy IPs is provided, then trust
+        // the XFF header if request really comes from one of them.
+        $reverse_proxy_addresses = variable_get('reverse_proxy_addresses', array());
+        if (!empty($reverse_proxy_addresses) && in_array($ip_address, $reverse_proxy_addresses, TRUE)) {
+          // If there are several arguments, we need to check the most
+          // recently added one, i.e. the last one.
+          $ip_address = array_pop(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
+        }
+      }
+
+      // When Drupal is run in a cluster environment, REMOTE_ADDR contains the IP
+      // address of a server in the cluster, while the IP address of the client is
+      // stored in HTTP_X_CLUSTER_CLIENT_IP.
+      if (array_key_exists('HTTP_X_CLUSTER_CLIENT_IP', $_SERVER)) {
+        $ip_address = $_SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
+      }
     }
   }
 
@@ -1322,9 +1325,9 @@ function registry_mark_code($type, $name, $return = FALSE) {
  * Rescans all code in modules or includes directory, storing a mapping of
  * each function, file, and hook implementation in the database.
  */
-function drupal_rebuild_code_registry() {
+function registry_rebuild() {
   require_once './includes/registry.inc';
-  _drupal_rebuild_code_registry();
+  _registry_rebuild();
 }
 
 /**

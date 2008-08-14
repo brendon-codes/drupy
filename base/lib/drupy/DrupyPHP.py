@@ -1258,6 +1258,20 @@ def is_numeric(val):
     return False
 
 
+
+def is_string(val):
+  """
+   Determines if string
+   @param Any
+   @return Bool
+  """
+  return (
+    isinstance(val, unicode) or \
+    isinstance(val, str)      
+  )
+
+
+
 def is_array(val):
   """
    Determines if "array"
