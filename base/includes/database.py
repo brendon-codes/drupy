@@ -45,11 +45,6 @@ from sites.default import settings
 import bootstrap as lib_bootstrap
 import database_mysqli as db
 
-#
-# Globals
-#
-active_db = None
-
 
 #
 # A hash value to check when outputting database errors, php.md5('DB_ERROR').
