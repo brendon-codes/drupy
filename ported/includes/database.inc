@@ -1,5 +1,5 @@
 <?php
-// $Id: database.inc,v 1.94 2008/04/20 18:23:21 dries Exp $
+// $Id: database.inc,v 1.96 2008/07/19 12:31:14 dries Exp $
 
 /**
  * @file
@@ -169,7 +169,7 @@ function db_set_active($name = 'default') {
 /**
  * Helper function to show fatal database errors.
  *
- * Prints a themed maintenance page with the 'Site off-line' text,
+ * Prints a themed maintenance page with the 'Site offline' text,
  * adding the provided error message in the case of 'display_errors'
  * set to on. Ends the page request; no return.
  *
@@ -180,7 +180,7 @@ function _db_error_page($error = '') {
   global $db_type;
   drupal_maintenance_theme();
   drupal_set_header('HTTP/1.1 503 Service Unavailable');
-  drupal_set_title('Site off-line');
+  drupal_set_title('Site offline');
 
   $message = '<p>The site is currently not available due to technical problems. Please try again later. Thank you for your understanding.</p>';
   $message .= '<hr /><p><small>If you are the maintainer of this site, please check your database settings in the <code>settings.php</code> file and ensure that your hosting provider\'s database server is running. For more help, see the <a href="http://drupal.org/node/258">handbook</a>, or contact your hosting provider.</small></p>';
@@ -216,6 +216,11 @@ function _db_query_callback($match, $init = FALSE) {
       return (int) array_shift($args); // We don't need db_escape_string as numbers are db-safe
     case '%s':
       return db_escape_string(array_shift($args));
+    case '%n':
+      // Numeric values have arbitrary precision, so can't be treated as float.
+      // is_numeric() allows hex values (0xFF), but they are not valid.
+      $value = trim(array_shift($args));
+      return (is_numeric($value) && !stripos($value, 'x')) ? $value : '0';
     case '%%':
       return '%';
     case '%f':
@@ -244,7 +249,7 @@ function db_placeholders($arguments, $type = 'int') {
 /**
  * Indicates the place holders that should be replaced in _db_query_callback().
  */
-define('DB_QUERY_REGEXP', '/(%d|%s|%%|%f|%b)/');
+define('DB_QUERY_REGEXP', '/(%d|%s|%%|%f|%b|%n)/');
 
 /**
  * Helper function for db_rewrite_sql.
@@ -546,16 +551,14 @@ function db_type_placeholder($type) {
     case 'char':
     case 'text':
     case 'datetime':
-      return '\'%s\'';
+      return "'%s'";
 
     case 'numeric':
-      // For 'numeric' values, we use '%s', not '\'%s\'' as with
-      // string types, because numeric values should not be enclosed
-      // in quotes in queries (though they can be, at least on mysql
-      // and pgsql).  Numerics should only have [0-9.+-] and
-      // presumably no db's "escape string" function will mess with
-      // those characters.
-      return '%s';
+      // Numeric values are arbitrary precision numbers.  Syntacically, numerics
+      // should be specified directly in SQL. However, without single quotes
+      // the %s placeholder does not protect against non-numeric characters such
+      // as spaces which would expose us to SQL injection.
+      return '%n';
 
     case 'serial':
     case 'int':

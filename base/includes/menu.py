@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# $Id: menu.inc,v 1.278 2008/06/25 09:12:24 dries Exp $
+# $Id: menu.inc,v 1.282 2008/07/10 10:58:01 dries Exp $
 
 """
   API for the Drupal menu system.
@@ -1321,7 +1321,10 @@ def navigation_links(menu_name, level = 0):
       l['href'] = item['link']['href']
       l['title'] = item['link']['title']
       if (item['link']['in_active_trail']):
-        l['attributes'] = {'class' : 'active-trail'}
+        if (php.empty(lib_common.l['attributes']['class'])):
+          lib_common.l['attributes']['class'] = 'active-trail';
+        else:
+          lib_common.l['attributes']['class'] += ' active-trail';
       # Keyed with unique menu id to generate classes from theme_links().
       links['menu-' +  item['link']['mlid']] = l
   return links
@@ -1710,7 +1713,6 @@ def router_build(reset = False):
     if (not reset and cache and php.isset(cache, 'data')):
       menu_router_build.menu = cache.data
     else:
-      db_query('DELETE FROM {menu_router}')
       # We need to manually call each plugin so that we can know which plugin
       # a given item came from.
       callbacks = []
@@ -1723,7 +1725,6 @@ def router_build(reset = False):
       # Alter the menu as defined in plugins, keys are like user/%user.
       drupal_alter('menu', callbacks)
       menu_router_build.menu = _menu_router_build(callbacks)
-      cache_set('router:', menu_router_build.menu, 'cache_menu')
   return menu_router_build.menu
 
 
@@ -2117,7 +2118,15 @@ def link_maintain(plugin, op, link_path, link_title):
       "UPDATE {menu_links} SET " + \
       "link_title = '%s' WHERE link_path = '%s' AND " + \
       "customized = 0 AND plugin = '%s'", link_title, link_path, plugin)
-    menu_cache_clear()
+    result = lib_database.query(\
+      "SELECT menu_name " + \
+      "FROM {menu_links} " + \
+      "WHERE link_path = '%s' AND customized = 0 AND module = '%s'", \
+      link_path, plugin);
+    while True:
+      item = lib_database.fetch_array(result)
+      if not item:
+        break
   elif op == 'delete':
     menu_link_delete(None, link_path)
 
@@ -2322,7 +2331,10 @@ def _router_build(callbacks):
     else:
       menu[path] = item
       sort[path] = number_parts
-  array_multisort(sort, SORT_NUMERIC, menu)
+  php.array_multisort(sort, SORT_NUMERIC, menu)
+  if (menu):
+    # Delete the existing router since we have some data to replace it.
+    lib_database.query('DELETE FROM {menu_router}');
   # Apply inheritance rules.
   for path,v in menu.items():
     item = menu[path]
@@ -2406,6 +2418,7 @@ def _router_build(callbacks):
   masks = php.array_keys(masks)
   rsort(masks)
   variable_set('menu_masks', masks)
+  lib_cache.set('router:', menu, 'cache_menu');
   return menu
 
 

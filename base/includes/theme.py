@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# $Id: theme.inc,v 1.428 2008/06/25 09:12:24 dries Exp $
+# $Id: theme.inc,v 1.431 2008/08/02 19:01:02 dries Exp $
 
 """
   The theme system, which controls the output of Drupal.
@@ -223,7 +223,7 @@ def get_registry(registry = None):
 
 
 
-def _theme_set_registry(registry):
+def _set_registry(registry):
   """
    Store the theme registry in memory.
   """
@@ -232,7 +232,7 @@ def _theme_set_registry(registry):
 
 
 
-def _theme_load_registry(theme_, base_theme = None, theme_engine = None):
+def _load_registry(theme_, base_theme = None, theme_engine = None):
   """
    Get the theme_registry cache from the database; if it doesn't exist, build
    it.
@@ -265,7 +265,7 @@ def _theme_save_registry(theme_, registry):
 
 
 
-def drupal_rebuild_theme_registry():
+def drupal_theme_rebuild():
   """
    Force the system to rebuild the theme registry; this should be called
    when plugins are added to the system, or when a dynamic system needs
@@ -275,7 +275,7 @@ def drupal_rebuild_theme_registry():
 
 
 
-def _theme_process_registry(cache, name, type_, theme_, path):
+def _process_registry(cache, name, type_, theme_, path):
   """
    Process a single invocation of the theme hook. type will be one
    of 'plugin', 'theme_engine' or 'theme' and it tells us some
@@ -379,7 +379,7 @@ def _theme_process_registry(cache, name, type_, theme_, path):
 
 
 
-def _theme_build_registry(theme_, base_theme, theme_engine):
+def _build_registry(theme_, base_theme, theme_engine):
   """
    Rebuild the hook theme_registry cache.
   
@@ -460,8 +460,7 @@ def list_themes(refresh = False):
       for media,stylesheets in i_theme.info['stylesheets'].items():
         i_theme.stylesheets[media] = {}
         for stylesheet,path in stylesheets.items():
-          if (php.file_exists(path)):
-            i_theme.stylesheets[media][stylesheet] = path;
+          i_theme.stylesheets[media][stylesheet] = path;
       for script,path in i_theme.info['scripts'].items():
         if (php.file_exists(path)):
           i_theme.scripts[script] = path;
@@ -1032,7 +1031,7 @@ def links(links, attributes = {'class' : 'links'}):
       if (php.isset(link['href']) and (link['href'] == php.GET['q'] or \
           (link['href'] == '<front>' and drupal_is_front_page()))):
         class_ += ' active';
-      output += '<li class="'+ class_ +'">';
+      output += '<li' + drupal_attributes({'class' : class_}) + '>'
       if (php.isset(link['href'])):
         # Pass in link as options, they share the same keys
         output += l(link['title'], link['href'], link);

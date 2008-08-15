@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Id: session.inc,v 1.48 2008/04/16 11:35:51 dries Exp $
+# $Id: session.inc,v 1.50 2008/08/12 10:28:33 dries Exp $
 
 """
   User session handling functions.
@@ -88,33 +88,40 @@ def write(key, value):
   global user
   # If saving of session data is disabled or if the client
   # doesn't have a session,
-  # and one isn't being created (value), do nothing.
+  # and one isn't being created ($value), do nothing.
+  # This keeps crawlers out of
+  # the session table. This reduces memory and server load,
+  # and gives more useful
+  # statistics. We can't eliminate anonymous session table rows
+  # without breaking
+  # the "Who's Online" block.
   if (not session_save_session() or \
-      (php.empty(_COOKIE[php.session_name()]) and php.empty(value))):
+      (php.empty(php.COOKIE[php.session_name()]) and php.empty(value))):
     return True
   result = db_result(db_query("SELECT COUNT(*) FROM {sessions} " + \
     "WHERE sid = '%s'", key))
-  if (not result):
-    # Only save session data when when the browser sends a cookie. This keeps
-    # crawlers out of session table. This reduces memory and server load,
-    # and gives more useful statistics. We can't eliminate anonymous session
-    # table rows without breaking "Who's Online" block.
-    if (user.uid or value or php.count(_COOKIE)):
-      db_query("INSERT INTO {sessions} (sid, uid, cache, hostname, session, " \
-        "timestamp) VALUES ('%s', %d, %d, '%s', '%s', %d)", \
-        key, user.uid, (user.cache if php.isset(user, 'cache') else \
-        ''), ip_address(), value, drupy_time())
-  else:
-    db_query("UPDATE {sessions} SET uid = %d, cache = %d, " + \
-      "hostname = '%s', session = '%s', timestamp = %d WHERE sid = '%s'", \
-      user.uid, (user.cache if php.isset(user, 'cache') else \
-      ''), ip_address(), value, drupy_time(), key)
+  lib_database.query(\
+    "UPDATE {sessions} SET " + \
+    "uid = %d, cache = %d, hostname = '%s', " + \
+    "session = '%s', timestamp = %d WHERE sid = '%s'", \
+    user.uid, (user.cache if php.isset(user.cache) else ''), \
+    ip_address(), value, php.time_(), key)
+  if (lib_database.affected_rows()):
     # Last access time is updated no more frequently than once every 180 seconds.
     # This reduces contention in the users table.
     if (user.uid and drupy_time() - user.access > \
         variable_get('session_write_interval', 180)):
       db_query("UPDATE {users} SET access = %d WHERE uid = %d", \
         php.time_(), user.uid)
+  else:
+    # If this query fails, another parallel request probably got here first.
+    # In that case, any session data generated in this request is discarded.
+    lib_databae.query(\
+      "INSERT INTO {sessions} " + \
+      "(sid, uid, cache, hostname, session, timestamp) " + \
+      "VALUES ('%s', %d, %d, '%s', '%s', %d)", \
+      key, user.uid, (user.cache if php.isset(user.cache) else ''), \
+      ip_address(), value, php.time_())
   return True
 
 
@@ -137,11 +144,9 @@ def count(timestamp = 0, anonymous = True):
    @param int timestamp
      A Unix timestamp representing a point of time in the past.
      The default is 0, which counts all existing sessions.
-   @param int anonymous
+   @param boolean anonymous
      True counts only anonymous users.
      False counts only authenticated users.
-     Any other value will return the count of both
-     authenticated and anonymous users.
    @return  int
      The number of users with sessions.
   """

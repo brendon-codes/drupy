@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# $Id: plugin.inc,v 1.120 2008/05/13 17:38:42 dries Exp $
+# $Id: module.inc,v 1.122 2008/08/02 19:01:02 dries Exp $
 
 """
   API for loading and interacting with Drupal plugins.
@@ -53,13 +53,6 @@ def load_all():
   for plugin_ in list_(True, False):
     lib_bootstrap.drupal_load('plugin', plugin_)
 
-
-def iterate(function, argument = ''):
-  """
-   Call a function repeatedly with each plugin in turn as an argument.
-  """
-  for name in plugin_list():
-    p.call_user_func(function, name, argument)
 
 
 def list_(refresh = False, bootstrap = True, sort = False, \
@@ -330,7 +323,7 @@ def enable(plugin_list_):
     # Refresh the plugin list to include the new enabled plugin.
     plugin_list(True, False)
     # Force to regenerate the stored list of hook implementations.
-    drupal_rebuild_code_registry()
+    registry_rebuild()
   for plugin_ in invoke_plugins:
     plugin_invoke(plugin_, 'enable')
     # Check if node_access table needs rebuilding.
@@ -368,7 +361,7 @@ def disable(plugin_list_):
     # Refresh the plugin list to exclude the disabled plugins.
     plugin_list(True, False)
     # Force to regenerate the stored list of hook implementations.
-    drupal_rebuild_code_registry();
+    registry_rebuild()
   # If there remains no more node_access plugin, rebuilding will be
   # straightforward, we can do it right now.
   if (node_access_needs_rebuild() and \

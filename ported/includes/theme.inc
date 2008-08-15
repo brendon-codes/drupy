@@ -1,5 +1,5 @@
 <?php
-// $Id: theme.inc,v 1.428 2008/06/25 09:12:24 dries Exp $
+// $Id: theme.inc,v 1.431 2008/08/02 19:01:02 dries Exp $
 
 /**
  * @file
@@ -256,7 +256,7 @@ function _theme_save_registry($theme, $registry) {
  * when modules are added to the system, or when a dynamic system needs
  * to add more theme hooks.
  */
-function drupal_rebuild_theme_registry() {
+function drupal_theme_rebuild() {
   cache_clear_all('theme_registry', 'cache', TRUE);
 }
 
@@ -449,9 +449,7 @@ function list_themes($refresh = FALSE) {
     foreach ($themes as $theme) {
       foreach ($theme->info['stylesheets'] as $media => $stylesheets) {
         foreach ($stylesheets as $stylesheet => $path) {
-          if (file_exists($path)) {
-            $theme->stylesheets[$media][$stylesheet] = $path;
-          }
+          $theme->stylesheets[$media][$stylesheet] = $path;
         }
       }
       foreach ($theme->info['scripts'] as $script => $path) {
@@ -1121,7 +1119,7 @@ function theme_links($links, $attributes = array('class' => 'links')) {
       if (isset($link['href']) && ($link['href'] == $_GET['q'] || ($link['href'] == '<front>' && drupal_is_front_page()))) {
         $class .= ' active';
       }
-      $output .= '<li class="' . $class . '">';
+      $output .= '<li' . drupal_attributes(array('class' => $class)) . '>';
 
       if (isset($link['href'])) {
         // Pass in $link as $options, they share the same keys.
