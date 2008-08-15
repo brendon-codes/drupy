@@ -42,6 +42,7 @@ __version__ = "$Revision: 1 $"
 
 from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyImport
+import appglobals as lib_appglobals
 import bootstrap as lib_bootstrap
 import common as lib_common
 import database as lib_database
@@ -67,13 +68,9 @@ MARK_NEW = 1
 #
 MARK_UPDATED = 2
 
-
 #
-# GLOBALS
+# Internal Use
 #
-theme_ = None
-profile = None
-custom_theme = None
 processors = {}
 
 
@@ -82,32 +79,31 @@ def init_theme():
   """
    Initialize the theme system by loading the theme.
   """
-  global custom_theme
-  global theme_key
-  global theme_
   # If theme is already set, assume the others are set, too, and do nothing
-  if (theme_ is not None):
+  if (lib_appglobals.theme is not None):
     return True;
   lib_bootstrap.drupal_bootstrap(lib_bootstrap.DRUPAL_BOOTSTRAP_DATABASE);
   themes = list_themes();
   # Only select the user selected theme if it is available in the
   # list of enabled themes.
-  if (lib_bootstrap.user is not None and \
-      isset(lib_bootstrap.user, 'theme') and \
-      not php.empty(lib_bootstrap.user.theme) and \
+  if (lib_appglobals.user is not None and \
+      isset(lib_appglobals.user, 'theme') and \
+      not php.empty(lib_appglobals.user.theme) and \
       not php.empty(themes[lib_bootstrap.user.theme].status)):
-    theme_ = lib_bootstrap.user.theme
+    lib_appglobals.theme = lib_appglobals.user.theme
   else:
-    theme_ = lib_bootstrap.variable_get('theme_default', 'garland')
+    lib_appglobals.theme = \
+      lib_bootstrap.variable_get('theme_default', 'garland')
   # Allow plugins to override the present theme... only select custom theme
   # if it is available in the list of installed themes.
-  theme_ = (custom_theme if (custom_theme and themes[custom_theme]) else \
-    theme_);
+  theme_ = (lib_appglobals.custom_theme if \
+    (lib_appglobals.custom_theme and themes[custom_theme]) else \
+    lib_appglobals.theme);
   # Store the identifier for retrieving theme settings with.
-  theme_key = theme_;
+  lib_appglobals.theme_key = lib_appglobals.theme
   # Find all our ancestor themes and put them in an array.
   base_theme = [];
-  ancestor = theme_;
+  ancestor = lib_appglobals.theme;
   while (ancestor and php.isset(themes[ancestor], 'base_theme')):
     new_base_theme = themes[themes[ancestor].base_theme];
     base_theme.append(new_base_theme);

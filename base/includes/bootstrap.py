@@ -43,6 +43,7 @@ __version__ = "$Revision: 1 $"
 from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyImport
 from sites.default import settings
+import appglobals as lib_appglobals
 import cache as lib_cache
 import database as lib_database
 import session as lib_session
@@ -52,16 +53,6 @@ import path as lib_path
 import common as lib_common
 import language as lib_language
 #import registry as lib_registry
-
-#
-# Global variables
-#
-user = None
-base_path_ = None
-base_root = None
-base_url = None
-language_ = None
-timers = None
 
 #
 # Maintenance Mode
@@ -249,15 +240,15 @@ def timer_start(name):
    @param name
      The name of the timer.
   """
-  global timers;
-  if timers == None:
-    timers = {};
-  if not php.isset(timers, name):
-    timers[name] = {}
+  if lib_appglobals.timers == None:
+    lib_appglobals.timers = {};
+  if not php.isset(lib_appglobals.timers, name):
+    lib_appglobals.timers[name] = {}
   (usec, sec) = php.explode(' ', php.microtime());
-  timers[name]['start'] = float(usec) + float(sec);
-  timers[name]['count'] = ((timers[name]['count'] + 1) if \
-    php.isset(timers[name],'count') else 1);
+  lib_appglobals.timers[name]['start'] = float(usec) + float(sec);
+  lib_appglobals.timers[name]['count'] = \
+    ((lib_appglobals.timers[name]['count'] + 1) if \
+    php.isset(lib_appglobals.timers[name],'count') else 1);
 
 
 
@@ -423,43 +414,46 @@ def conf_init():
    Loads the configuration and sets the base URL, cookie domain, and
    session name correctly.
   """
-  global base_path_, base_root, base_url;
   # These will come from settings
   # db_url, db_prefix, cookie_domain, conf, installed_profile, update_free_access
-  if (base_url != None):
+  if (lib_appglobals.base_url != None):
     # Parse fixed base URL from settings.php.
-    parts = php.parse_url(base_url);
+    parts = php.parse_url(lib_appglobals.base_url);
     if (not php.isset(parts, 'path')):
       parts['path'] = '';
-    base_path_ = parts['path'] + '/';
+    lib_appglobals.base_path = parts['path'] + '/';
     # Build base_root (everything until first slash after "scheme://").
-    base_root = php.substr(base_url, 0, php.strlen(base_url) - \
+    lib_appglobals.base_root = \
+      php.substr(lib_appglobals.base_url, 0, \
+      php.strlen(lib_appglobals.base_url) - \
       php.strlen(parts['path']));
   else:
     # Create base URL
-    base_root = ('https' if (php.isset(php.SERVER, 'HTTPS') and \
+    lib_appglobals.base_root = \
+      ('https' if (php.isset(php.SERVER, 'HTTPS') and \
       php.SERVER['HTTPS'] == 'on') else 'http');
     # As php.SERVER['HTTP_HOST'] is user input, ensure it only contains
     # characters allowed in hostnames.
-    base_root += '://' + php.preg_replace('/[^a-z0-9-:._]/i', '', \
+    lib_appglobals.base_root += '://' + \
+      php.preg_replace('/[^a-z0-9-:._]/i', '', \
       php.SERVER['HTTP_HOST']);
-    base_url = base_root;
+    lib_appglobals.base_url = lib_appglobals.base_root;
     # php.SERVER['SCRIPT_NAME'] can, in contrast to php.SERVER['PHP_SELF'], not
     # be modified by a visitor.
     dir = php.trim(php.dirname(php.SERVER['SCRIPT_NAME']), '\,/');
     if (len(dir) > 0):
-      base_path_ = "/dir";
-      base_url += base_path_;
-      base_path_ += '/';
+      lib_appglobals.base_path = "/dir";
+      lib_appglobals.base_url += lib_appglobals.base_path
+      lib_appglobals.base_path += '/';
     else:
-      base_path_ = '/';
+      lib_appglobals.base_path = '/';
   if (settings.cookie_domain != None):
     # If the user specifies the cookie domain, also use it for session name.
     session_name_ = settings.cookie_domain;
   else:
     # Otherwise use base_url as session name, without the protocol
     # to use the same session identifiers across http and https.
-    (dummy_, session_name_) = php.explode('://', base_url, 2);
+    session_name_ = php.explode('://', lib_appglobals.base_url, 2)[1]
     # We escape the hostname because it can be modified by a visitor.
     if (not php.empty(php.SERVER['HTTP_HOST'])):
       settings.cookie_domain = check_plain(php.SERVER['HTTP_HOST']);

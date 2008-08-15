@@ -59,12 +59,6 @@ import plugin as lib_plugin
 import database as lib_database
 
 
-#
-# Set globals
-#
-theme_path = None
-theme_ = None
-
 def _drupal_maintenance_theme():
   global theme_, theme_key
   # If theme is already set, assume the others are set too, and do nothing.

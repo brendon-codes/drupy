@@ -44,6 +44,9 @@ import database as lib_database
 import cache as lib_cache
 #import install as inc_install
 
+#
+# Internal use
+#
 plugins = {}
 
 def load_all():

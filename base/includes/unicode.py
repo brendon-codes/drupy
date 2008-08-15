@@ -44,11 +44,6 @@ import re
 
 
 #
-# Globals
-#
-multibyte = None
-
-#
 # Indicates an error during check for PHP unicode support.
 #
 UNICODE_ERROR = -1
