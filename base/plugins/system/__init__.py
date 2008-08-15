@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Id: system.module,v 1.604 2008/06/28 12:37:52 dries Exp $
+# $Id: system.module,v 1.612 2008/08/02 19:01:02 dries Exp $
 
 """
   Configuration system that lets administrators
@@ -87,7 +87,7 @@ DRUPAL_MINIMUM_MYSQL = '5.0'
 #
 # Minimum supported version of PostgreSQL, if it is used.
 #
-DRUPAL_MINIMUM_PGSQL = '7.4'
+DRUPAL_MINIMUM_PGSQL = '8.1'
 
 #
 # Maximum age of temporary files in seconds.
@@ -284,11 +284,15 @@ def hook_theme():
       'arguments' : {'form' : None},
       'file' : 'system.admin.inc'
     },
-    'system_modules' : {
+    'system_plugins_fieldset' : {
       'arguments' : {'form' : None},
       'file' : 'system.admin.inc'
     },
-    'system_modules_uninstall' : {
+   'system_plugins_incompatible' : {
+     'arguments' : {'message' : None},
+     'file' : 'system.admin.inc'
+    },
+    'system_plugins_uninstall' : {
       'arguments' : {'form' : None},
       'file' : 'system.admin.inc'
     },
@@ -308,7 +312,7 @@ def hook_theme():
       'arguments' : {'content' : None},
       'file' : 'system.admin.inc'
     },
-    'system_admin_by_module' : {
+    'system_admin_by_plugin' : {
       'arguments' : {'menu_items' : None},
       'file' : 'system.admin.inc'
     },
@@ -368,20 +372,20 @@ def hook_elements():
     '#name' : 'op',
     '#button_type' : 'submit',
     '#executes_submit_callback' : True,
-    '#process' : ('form_expand_ahah',)
+    '#process' : ('form_process_ahah',)
   }
   type_['button'] = {
     '#input' : True,
     '#name' : 'op',
     '#button_type' : 'submit',
     '#executes_submit_callback' : False,
-    '#process' : ('form_expand_ahah',)
+    '#process' : ('form_process_ahah',)
   }
   type_['image_button'] = {
     '#input' : True,
     '#button_type' : 'submit',
     '#executes_submit_callback' : True,
-    '#process' : ('form_expand_ahah',),
+    '#process' : ('form_process_ahah',),
     '#return_value' : True,
     '#has_garbage_value' : True,
     '#src' : None
@@ -391,60 +395,60 @@ def hook_elements():
     '#size' : 60,
     '#maxlength' : 128,
     '#autocomplete_path' : False,
-    '#process' : ('form_expand_ahah',)
+    '#process' : ('form_process_ahah',)
   }
   type_['password'] = {
     '#input' : True,
     '#size' : 60,
     '#maxlength' : 128,
-    '#process' : ('form_expand_ahah',)
+    '#process' : ('form_process_ahah',)
   }
   type_['password_confirm'] = {
     '#input' : True,
-    '#process' : ('expand_password_confirm',)
+    '#process' : ('form_process_password_confirm',)
   }
   type_['textarea'] = {
     '#input' : True,
     '#cols' : 60,
     '#rows' : 5,
     '#resizable' : True,
-    '#process' : ('form_expand_ahah',),
+    '#process' : ('form_process_ahah',),
   }
   type_['radios'] = {
     '#input' : True,
-    '#process' : ('expand_radios',)
+    '#process' : ('form_process_radios',)
   }
   type_['radio'] = {
     '#input' : True,
     '#default_value' : None,
-    '#process' : ('form_expand_ahah',)
+    '#process' : ('form_process_ahah',)
   }
   type_['checkboxes'] = {
     '#input' : True,
     '#tree' : True,
-    '#process' : ('expand_checkboxes',)
+    '#process' : ('form_process_checkboxes',)
   }
   type_['checkbox'] = {
     '#input' : True,
     '#return_value' : 1,
-    '#process' : ('form_expand_ahah',)
+    '#process' : ('form_process_ahah',)
   }
   type_['select'] = {
     '#input' : True,
     '#size' : 0,
     '#multiple' : False,
-    '#process' : ('form_expand_ahah',)
+    '#process' : ('form_process_ahah',)
   }
   type_['weight'] = {
     '#input' : True,
     '#delta' : 10,
     '#default_value' : 0,
-    '#process' : ('process_weight', 'form_expand_ahah')
+    '#process' : ('form_process_weight', 'form_process_ahah')
   }
   type_['date'] = {
     '#input' : True,
     '#element_validate' : ('date_validate',),
-    '#process' : ('expand_date',)
+    '#process' : ('form_process_date',)
   }
   type_['file'] = {
     '#input' : True,
@@ -454,11 +458,11 @@ def hook_elements():
   # Form structure.
   #
   type_['item'] = {
-    '#value' : ''
+    '#markup' : ''
   }
   type_['hidden'] = {
     '#input' : True,
-    '#process' : ('form_expand_ahah',)
+    '#process' : ('form_process_ahah',)
   }
   type_['value'] = {
     '#input' : True
@@ -471,7 +475,7 @@ def hook_elements():
     '#collapsible' : False,
     '#collapsed' : False,
     '#value' : None,
-    '#process' : ('form_expand_ahah',)
+    '#process' : ('form_process_ahah',)
   }
   type_['token'] = {
     '#input' : True
@@ -1057,12 +1061,12 @@ def theme_select_form(description = '', default_value = '', weight = 0):
           lib_common.t('Screenshot for %theme theme', \
           {'%theme' : info.name}), '', {'class' : 'screenshot'}, False) else \
           lib_common.t('no screenshot'))
-        form['themes'][info.key]['screenshot'] = {'#value' : screenshot}
+        form['themes'][info.key]['screenshot'] = {'#markup' : screenshot}
         form['themes'][info.key]['description'] =  \
         {
           '#type' : 'item',
           '#title' : info.name,
-          '#value' :
+          '#markup' :
             php.dirname(info.filename) + (
               '<br /> <em>' + lib_common.t(\
               '(site default theme)') + '</em>' if \
@@ -1191,8 +1195,8 @@ def _theme_data():
    @return
      An associative array of themes information.
   """
-  php.static(_theme_data, 'theme_info', {})
-  if (php.empty(_theme_data.theme_info)):
+  php.static(_theme_data, 'themes_info', {})
+  if (php.empty(_theme_data.themes_info)):
     # Find themes
     themes = lib_common.drupal_system_listing('\.info$', 'themes')
     # Find theme engines
@@ -1410,7 +1414,7 @@ def settings_form_submit(form, form_state):
     lib_common.drupal_set_message(lib_common.t(\
       'The configuration options have been saved.'))
   lib_cache.clear_all()
-  lib_theme.drupal_rebuild_theme_registry()
+  lib_theme.drupal_theme_rebuild()
 
 
 
@@ -1495,13 +1499,13 @@ def confirm_form(form, question, path_, description = None, yes = None, \
   # as the form values rarely change -- so skip it.
   form['#skip_duplicate_check'] = True
   form['#attributes'] = {'class' : 'confirmation'}
-  form['description'] = {'#value' : description}
+  form['description'] = {'#markup' : description}
   form[name] = {'#type' : 'hidden', '#value' : 1}
   form['actions'] = {'#prefix' : \
     '<div class="container-inline">', '#suffix' : '</div>'}
   form['actions']['submit'] = {'#type' : 'submit', '#value' : \
     (yes if yes else lib_common.t('Confirm'))}
-  form['actions']['cancel'] = {'#value' : cancel}
+  form['actions']['cancel'] = {'#markup' : cancel}
   form['#theme'] = 'confirm_form'
   return form
 
@@ -2345,5 +2349,11 @@ def theme_meta_generator_header(version = VERSION):
   lib_common.drupal_set_header(\
     'X-Generator: Drupal ' +  version  + ' (http://drupal.org)')
 
+
+def hook_image_toolkits():
+  """
+   Implementation of hook_image_toolkits().
+  """
+  return ('gd',)
 
 

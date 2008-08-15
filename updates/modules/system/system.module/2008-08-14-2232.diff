@@ -1,0 +1,239 @@
+--- drupy/ported/modules/system/system.module	2008-07-19 03:01:21.000000000 -0700
++++ drupal/modules/system/system.module	2008-08-13 22:50:15.000000000 -0700
+@@ -1,5 +1,5 @@
+ <?php
+-// $Id: system.module,v 1.604 2008/06/28 12:37:52 dries Exp $
++// $Id: system.module,v 1.612 2008/08/02 19:01:02 dries Exp $
+ 
+ /**
+  * @file
+@@ -34,7 +34,7 @@ define('DRUPAL_MINIMUM_MYSQL',  '5.0');
+ /**
+  * Minimum supported version of PostgreSQL, if it is used.
+  */
+-define('DRUPAL_MINIMUM_PGSQL',  '7.4');
++define('DRUPAL_MINIMUM_PGSQL',  '8.1');
+ 
+ /**
+  * Maximum age of temporary files in seconds.
+@@ -55,7 +55,7 @@ function system_help($path, $arg) {
+       $output .= '<li>' . t('support for enabling and disabling <a href="@themes">themes</a>, which determine the design and presentation of your site. Drupal comes packaged with several core themes and additional contributed themes are available at the <a href="@drupal-themes">Drupal.org theme page</a>.', array('@themes' => url('admin/build/themes'), '@drupal-themes' => 'http://drupal.org/project/themes')) . '</li>';
+       $output .= '<li>' . t('a robust <a href="@cache-settings">caching system</a> that allows the efficient re-use of previously-constructed web pages and web page components. Drupal stores the pages requested by anonymous users in a compressed format; depending on your site configuration and the amount of your web traffic tied to anonymous visitors, Drupal\'s caching system may significantly increase the speed of your site.', array('@cache-settings' => url('admin/settings/performance'))) . '</li>';
+       $output .= '<li>' . t('a set of routine administrative operations that rely on a correctly-configured <a href="@cron">cron maintenance task</a> to run automatically. A number of other modules, including the feed aggregator, and search also rely on <a href="@cron">cron maintenance tasks</a>. For more information, see the online handbook entry for <a href="@handbook">configuring cron jobs</a>.', array('@cron' => url('admin/reports/status'), '@handbook' => 'http://drupal.org/cron')) . '</li>';
+-      $output .= '<li>' . t('basic configuration options for your site, including <a href="@date-settings">date and time settings</a>, <a href="@file-system">file system settings</a>, <a href="@clean-url">clean URL support</a>, <a href="@site-info">site name and other information</a>, and a <a href="@site-maintenance">site maintenance</a> function for taking your site temporarily off-line.', array('@date-settings' => url('admin/settings/date-time'), '@file-system' => url('admin/settings/file-system'), '@clean-url' => url('admin/settings/clean-urls'), '@site-info' => url('admin/settings/site-information'), '@site-maintenance' => url('admin/settings/site-maintenance'))) . '</li></ul>';
++      $output .= '<li>' . t('basic configuration options for your site, including <a href="@date-settings">date and time settings</a>, <a href="@file-system">file system settings</a>, <a href="@clean-url">clean URL support</a>, <a href="@site-info">site name and other information</a>, and a <a href="@site-maintenance">site maintenance</a> function for taking your site temporarily offline.', array('@date-settings' => url('admin/settings/date-time'), '@file-system' => url('admin/settings/file-system'), '@clean-url' => url('admin/settings/clean-urls'), '@site-info' => url('admin/settings/site-information'), '@site-maintenance' => url('admin/settings/site-maintenance'))) . '</li></ul>';
+       $output .= '<p>' . t('For more information, see the online handbook entry for <a href="@system">System module</a>.', array('@system' => 'http://drupal.org/handbook/modules/system/')) . '</p>';
+       return $output;
+     case 'admin':
+@@ -115,10 +115,14 @@ function system_theme() {
+       'arguments' => array('form' => NULL),
+       'file' => 'system.admin.inc',
+     ),
+-    'system_modules' => array(
++    'system_modules_fieldset' => array(
+       'arguments' => array('form' => NULL),
+       'file' => 'system.admin.inc',
+     ),
++    'system_modules_incompatible' => array(
++      'arguments' => array('message' => NULL),
++      'file' => 'system.admin.inc',
++    ),
+     'system_modules_uninstall' => array(
+       'arguments' => array('form' => NULL),
+       'file' => 'system.admin.inc',
+@@ -189,7 +193,7 @@ function system_elements() {
+     '#name' => 'op',
+     '#button_type' => 'submit',
+     '#executes_submit_callback' => TRUE,
+-    '#process' => array('form_expand_ahah'),
++    '#process' => array('form_process_ahah'),
+   );
+ 
+   $type['button'] = array(
+@@ -197,14 +201,14 @@ function system_elements() {
+     '#name' => 'op',
+     '#button_type' => 'submit',
+     '#executes_submit_callback' => FALSE,
+-    '#process' => array('form_expand_ahah'),
++    '#process' => array('form_process_ahah'),
+   );
+ 
+   $type['image_button'] = array(
+     '#input' => TRUE,
+     '#button_type' => 'submit',
+     '#executes_submit_callback' => TRUE,
+-    '#process' => array('form_expand_ahah'),
++    '#process' => array('form_process_ahah'),
+     '#return_value' => TRUE,
+     '#has_garbage_value' => TRUE,
+     '#src' => NULL,
+@@ -215,19 +219,19 @@ function system_elements() {
+     '#size' => 60,
+     '#maxlength' => 128,
+     '#autocomplete_path' => FALSE,
+-    '#process' => array('form_expand_ahah'),
++    '#process' => array('form_process_ahah'),
+   );
+ 
+   $type['password'] = array(
+     '#input' => TRUE,
+     '#size' => 60,
+     '#maxlength' => 128,
+-    '#process' => array('form_expand_ahah'),
++    '#process' => array('form_process_ahah'),
+   );
+ 
+   $type['password_confirm'] = array(
+     '#input' => TRUE,
+-    '#process' => array('expand_password_confirm'),
++    '#process' => array('form_process_password_confirm'),
+   );
+ 
+   $type['textarea'] = array(
+@@ -235,50 +239,50 @@ function system_elements() {
+     '#cols' => 60,
+     '#rows' => 5,
+     '#resizable' => TRUE,
+-    '#process' => array('form_expand_ahah'),
++    '#process' => array('form_process_ahah'),
+   );
+ 
+   $type['radios'] = array(
+     '#input' => TRUE,
+-    '#process' => array('expand_radios'),
++    '#process' => array('form_process_radios'),
+   );
+ 
+   $type['radio'] = array(
+     '#input' => TRUE,
+     '#default_value' => NULL,
+-    '#process' => array('form_expand_ahah'),
++    '#process' => array('form_process_ahah'),
+   );
+ 
+   $type['checkboxes'] = array(
+     '#input' => TRUE,
+     '#tree' => TRUE,
+-    '#process' => array('expand_checkboxes'),
++    '#process' => array('form_process_checkboxes'),
+   );
+ 
+   $type['checkbox'] = array(
+     '#input' => TRUE,
+     '#return_value' => 1,
+-    '#process' => array('form_expand_ahah'),
++    '#process' => array('form_process_ahah'),
+   );
+ 
+   $type['select'] = array(
+     '#input' => TRUE,
+     '#size' => 0,
+     '#multiple' => FALSE,
+-    '#process' => array('form_expand_ahah'),
++    '#process' => array('form_process_ahah'),
+   );
+ 
+   $type['weight'] = array(
+     '#input' => TRUE,
+     '#delta' => 10,
+     '#default_value' => 0,
+-    '#process' => array('process_weight', 'form_expand_ahah'),
++    '#process' => array('form_process_weight', 'form_process_ahah'),
+   );
+ 
+   $type['date'] = array(
+     '#input' => TRUE,
+     '#element_validate' => array('date_validate'),
+-    '#process' => array('expand_date'),
++    '#process' => array('form_process_date'),
+   );
+ 
+   $type['file'] = array(
+@@ -291,12 +295,12 @@ function system_elements() {
+    * Form structure.
+    */
+   $type['item'] = array(
+-    '#value' => '',
++    '#markup' => '',
+   );
+ 
+   $type['hidden'] = array(
+     '#input' => TRUE,
+-    '#process' => array('form_expand_ahah'),
++    '#process' => array('form_process_ahah'),
+   );
+ 
+   $type['value'] = array(
+@@ -312,7 +316,7 @@ function system_elements() {
+     '#collapsible' => FALSE,
+     '#collapsed' => FALSE,
+     '#value' => NULL,
+-    '#process' => array('form_expand_ahah'),
++    '#process' => array('form_process_ahah'),
+   );
+ 
+   $type['token'] = array(
+@@ -580,7 +584,7 @@ function system_menu() {
+   );
+   $items['admin/settings/site-maintenance'] = array(
+     'title' => 'Site maintenance',
+-    'description' => 'Take the site off-line for maintenance or bring it back online.',
++    'description' => 'Take the site offline for maintenance or bring it back online.',
+     'page callback' => 'drupal_get_form',
+     'page arguments' => array('system_site_maintenance_settings'),
+     'access arguments' => array('administer site configuration'),
+@@ -868,8 +872,8 @@ function system_theme_select_form($descr
+ 
+         $screenshot = $screenshot ? theme('image', $screenshot, t('Screenshot for %theme theme', array('%theme' => $info->name)), '', array('class' => 'screenshot'), FALSE) : t('no screenshot');
+ 
+-        $form['themes'][$info->key]['screenshot'] = array('#value' => $screenshot);
+-        $form['themes'][$info->key]['description'] = array('#type' => 'item', '#title' => $info->name, '#value' => dirname($info->filename) . ($info->name == variable_get('theme_default', 'garland') ? '<br /> <em>' . t('(site default theme)') . '</em>' : ''));
++        $form['themes'][$info->key]['screenshot'] = array('#markup' => $screenshot);
++        $form['themes'][$info->key]['description'] = array('#type' => 'item', '#title' => $info->name, '#markup' => dirname($info->filename) . ($info->name == variable_get('theme_default', 'garland') ? '<br /> <em>' . t('(site default theme)') . '</em>' : ''));
+         $options[$info->key] = '';
+       }
+ 
+@@ -990,7 +994,7 @@ function system_theme_data() {
+ function _system_theme_data() {
+   static $themes_info = array();
+ 
+-  if (empty($theme_info)) {
++  if (empty($themes_info)) {
+     // Find themes
+     $themes = drupal_system_listing('\.info$', 'themes');
+     // Find theme engines
+@@ -1220,7 +1224,7 @@ function system_settings_form_submit($fo
+   }
+ 
+   cache_clear_all();
+-  drupal_rebuild_theme_registry();
++  drupal_theme_rebuild();
+ }
+ 
+ /**
+@@ -1305,12 +1309,12 @@ function confirm_form($form, $question, 
+   $form['#skip_duplicate_check'] = TRUE;
+ 
+   $form['#attributes'] = array('class' => 'confirmation');
+-  $form['description'] = array('#value' => $description);
++  $form['description'] = array('#markup' => $description);
+   $form[$name] = array('#type' => 'hidden', '#value' => 1);
+ 
+   $form['actions'] = array('#prefix' => '<div class="container-inline">', '#suffix' => '</div>');
+   $form['actions']['submit'] = array('#type' => 'submit', '#value' => $yes ? $yes : t('Confirm'));
+-  $form['actions']['cancel'] = array('#value' => $cancel);
++  $form['actions']['cancel'] = array('#markup' => $cancel);
+   $form['#theme'] = 'confirm_form';
+   return $form;
+ }
+@@ -2105,3 +2109,10 @@ function theme_meta_generator_html($vers
+ function theme_meta_generator_header($version = VERSION) {
+   drupal_set_header('X-Generator: Drupal ' . $version . ' (http://drupal.org)');
+ }
++
++/**
++ * Implementation of hook_image_toolkits().
++ */
++function system_image_toolkits() {
++  return array('gd');
++}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Id: user.module,v 1.911 2008/06/27 07:25:11 dries Exp $
+# $Id: user.module,v 1.914 2008/08/08 19:48:43 dries Exp $
 
 """
   Enables the user registration and login system.
@@ -675,7 +675,7 @@ def hook_user(type, edit, account, category=None):
     account.content['summary']['member_for'] = {
       '#type' : 'user_profile_item',
       '#title' : lib_theme.t('Member for'),
-      '#value' : format_interval(php.time_() - account.created)
+      '#markup' : format_interval(php.time_() - account.created)
     }
   if (type == 'form' and category == 'account'):
     form_state = {}
@@ -730,7 +730,7 @@ def login_block():
     t('Request new password'), \
     'user/password', {'attributes' : \
     {'title' : lib_common.t('Request new password via e-mail.')}}) )
-  form['links'] = {'#value' : lib_theme.theme('item_list', items)}
+  form['links'] = {'#markup' : lib_theme.theme('item_list', items)}
   return form
 
 
@@ -1440,8 +1440,10 @@ def external_login_register(name, module):
    the current user, based on username. Either way, the global user object is
    populated based on name.
   """
-  lib_bootstrap.user = load({'name' : name})
-  if (not php.isset(lib_bootstrap.user.uid)):
+  existing_user = load({'name' : name});
+  if (php.isset(existing_user.uid)):
+    lib_bootstrap.user = existing_user;
+  else:
     # Register this new user.
     userinfo = {
       'name' : name,
@@ -1578,7 +1580,7 @@ def edit_form(form_state, uid, edit, register=False):
       lib_common.t('Picture'), '#weight' : 1}
     picture = lib_theme.theme('user_picture', php.object_(edit))
     if (edit['picture']):
-      form['picture']['current_picture'] = {'#value' : picture}
+      form['picture']['current_picture'] = {'#markup' : picture}
       form['picture']['picture_delete'] = {'#type' : 'checkbox', '#title' : \
         lib_common.t('Delete picture'), '#description' : \
         lib_common.t('Check this box to delete your current picture.')}
@@ -1655,6 +1657,7 @@ def delete(edit, uid):
   account = load({'uid' : uid})
   lib_session.destroy_uid(uid)
   _mail_notify('status_deleted', account)
+  lib_plugin.invoke_all('user', 'delete', edit, account)
   lib_database.query('DELETE FROM {users} WHERE uid = %d', uid)
   lib_database.query('DELETE FROM {users_roles} WHERE uid = %d', uid)
   lib_database.query('DELETE FROM {authmap} WHERE uid = %d', uid)
@@ -2509,7 +2512,7 @@ def register():
   # Display the registration form.
   if (not admin):
     form['user_registration_help'] = \
-      {'#value' : filter_xss_admin(\
+      {'#markup' : filter_xss_admin(\
       lib_bootstrap.variable_get('user_registration_help', ''))}
   # Merge in the default user edit fields.
   form = php.array_merge(form, user_edit_form(form_state, None, None, True))
