@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# $Id: file.inc,v 1.126 2008/06/18 03:36:23 dries Exp $
+# $Id: file.inc,v 1.127 2008/07/05 18:34:29 dries Exp $
 
 """
   API for handling file uploads and server file management.
@@ -168,22 +168,18 @@ def check_directory(directory, mode = 0, form_item = None):
   # Check if directory exists.
   if (not php.is_dir(directory._)):
     if ((mode & FILE_CREATE_DIRECTORY) and mkdir(directory._) != False):
-      drupal_set_message(t('The directory %directory has been created.', \
-        {'%directory' : directory._}))
       chmod(directory._, 0775); # Necessary for non-webserver users.
     else:
       if (form_item):
         form_set_error(form_item, \
           t('The directory %directory does not exist.', \
           {'%directory' : directory._}))
+        watchdog('file system', 'The directory %directory does not exist.', \
+          {'%directory' : directory}, WATCHDOG_ERROR);
       return False
   # Check to see if the directory is writable.
   if (not php.is_writable(directory._)):
-    if ((mode & FILE_MODIFY_PERMISSIONS) and chmod(directory._, 0775)):
-      drupal_set_message(t('The permissions of directory %directory ' + \
-        'have been changed to make it writable.', \
-        {'%directory' : directory._}))
-    else:
+    if ((mode & FILE_MODIFY_PERMISSIONS) and not php.chmod(directory, 0775)):
       form_set_error(form_item, t('The directory %directory is not writable', \
         {'%directory' : directory._}))
       watchdog('file system', 'The directory %directory is not writable, ' + \

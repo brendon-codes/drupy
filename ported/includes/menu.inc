@@ -1,5 +1,5 @@
 <?php
-// $Id: menu.inc,v 1.278 2008/06/25 09:12:24 dries Exp $
+// $Id: menu.inc,v 1.282 2008/07/10 10:58:01 dries Exp $
 
 /**
  * @file
@@ -1315,7 +1315,12 @@ function menu_navigation_links($menu_name, $level = 0) {
       $l['href'] = $item['link']['href'];
       $l['title'] = $item['link']['title'];
       if ($item['link']['in_active_trail']) {
-        $l['attributes'] = array('class' => 'active-trail');
+        if (empty($l['attributes']['class'])) {
+          $l['attributes']['class'] = 'active-trail';
+        }
+        else {
+          $l['attributes']['class'] .= ' active-trail';
+        }
       }
       // Keyed with unique menu id to generate classes from theme_links().
       $links['menu-' . $item['link']['mlid']] = $l;
@@ -1718,7 +1723,6 @@ function menu_router_build($reset = FALSE) {
       $menu = $cache->data;
     }
     else {
-      db_query('DELETE FROM {menu_router}');
       // We need to manually call each module so that we can know which module
       // a given item came from.
       $callbacks = array();
@@ -1734,7 +1738,6 @@ function menu_router_build($reset = FALSE) {
       // Alter the menu as defined in modules, keys are like user/%user.
       drupal_alter('menu', $callbacks);
       $menu = _menu_router_build($callbacks);
-      cache_set('router:', $menu, 'cache_menu');
     }
   }
   return $menu;
@@ -2109,7 +2112,10 @@ function menu_link_maintain($module, $op, $link_path, $link_title) {
       break;
     case 'update':
       db_query("UPDATE {menu_links} SET link_title = '%s' WHERE link_path = '%s' AND customized = 0 AND module = '%s'", $link_title, $link_path, $module);
-      menu_cache_clear();
+      $result = db_query("SELECT menu_name FROM {menu_links} WHERE link_path = '%s' AND customized = 0 AND module = '%s'", $link_path, $module);
+      while ($item = db_fetch_array($result)) {
+        menu_cache_clear($item['menu_name']);
+      }
       break;
     case 'delete':
       menu_link_delete(NULL, $link_path);
@@ -2314,6 +2320,10 @@ function _menu_router_build($callbacks) {
   }
   array_multisort($sort, SORT_NUMERIC, $menu);
 
+  if ($menu) {
+    // Delete the existing router since we have some data to replace it.
+    db_query('DELETE FROM {menu_router}');
+  }
   // Apply inheritance rules.
   foreach ($menu as $path => $v) {
     $item = &$menu[$path];
@@ -2401,6 +2411,7 @@ function _menu_router_build($callbacks) {
   $masks = array_keys($masks);
   rsort($masks);
   variable_set('menu_masks', $masks);
+  cache_set('router:', $menu, 'cache_menu');
   return $menu;
 }
 
@@ -2413,26 +2424,26 @@ function menu_path_is_external($path) {
 }
 
 /**
- * Checks whether the site is off-line for maintenance.
+ * Checks whether the site is offline for maintenance.
  *
  * This function will log the current user out and redirect to front page
  * if the current user has no 'administer site configuration' permission.
  *
  * @return
- *   FALSE if the site is not off-line or its the login page or the user has
+ *   FALSE if the site is not offline or its the login page or the user has
  *     'administer site configuration' permission.
- *   TRUE for anonymous users not on the login page if the site is off-line.
+ *   TRUE for anonymous users not on the login page if the site is offline.
  */
 function _menu_site_is_offline() {
-  // Check if site is set to off-line mode.
+  // Check if site is set to offline mode.
   if (variable_get('site_offline', 0)) {
     // Check if the user has administration privileges.
     if (user_access('administer site configuration')) {
-      // Ensure that the off-line message is displayed only once [allowing for
+      // Ensure that the offline message is displayed only once [allowing for
       // page redirects], and specifically suppress its display on the site
       // maintenance page.
       if (drupal_get_normal_path($_GET['q']) != 'admin/settings/site-maintenance') {
-        drupal_set_message(t('Operating in off-line mode.'), 'status', FALSE);
+        drupal_set_message(t('Operating in offline mode.'), 'status', FALSE);
       }
     }
     else {

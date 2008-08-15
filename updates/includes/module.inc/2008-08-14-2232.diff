@@ -1,0 +1,43 @@
+--- drupy/ported/includes/module.inc	2008-07-19 03:01:21.000000000 -0700
++++ drupal/includes/module.inc	2008-08-13 22:50:14.000000000 -0700
+@@ -1,5 +1,5 @@
+ <?php
+-// $Id: module.inc,v 1.120 2008/05/13 17:38:42 dries Exp $
++// $Id: module.inc,v 1.122 2008/08/02 19:01:02 dries Exp $
+ 
+ /**
+  * @file
+@@ -16,15 +16,6 @@ function module_load_all() {
+ }
+ 
+ /**
+- * Call a function repeatedly with each module in turn as an argument.
+- */
+-function module_iterate($function, $argument = '') {
+-  foreach (module_list() as $name) {
+-    $function($name, $argument);
+-  }
+-}
+-
+-/**
+  * Collect a list of all loaded modules. During the bootstrap, return only
+  * vital modules. See bootstrap.inc
+  *
+@@ -293,7 +284,7 @@ function module_enable($module_list) {
+     // Refresh the module list to include the new enabled module.
+     module_list(TRUE, FALSE);
+     // Force to regenerate the stored list of hook implementations.
+-    drupal_rebuild_code_registry();
++    registry_rebuild();
+   }
+ 
+   foreach ($invoke_modules as $module) {
+@@ -334,7 +325,7 @@ function module_disable($module_list) {
+     // Refresh the module list to exclude the disabled modules.
+     module_list(TRUE, FALSE);
+     // Force to regenerate the stored list of hook implementations.
+-    drupal_rebuild_code_registry();
++    registry_rebuild();
+   }
+ 
+   // If there remains no more node_access module, rebuilding will be

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# $Id: database.inc,v 1.94 2008/04/20 18:23:21 dries Exp $
+# $Id: database.inc,v 1.96 2008/07/19 12:31:14 dries Exp $
 
 """
   Wrapper for database interface code.
@@ -57,7 +57,7 @@ active_db = None
 # @see drupal_error_handler()
 #
 DB_ERROR = 'a515ac9c2796ca0e23adbe92c68fc9fc'
-DB_QUERY_REGEXP = '/(%d|%s|%%|%f|%b)/'
+DB_QUERY_REGEXP = '/(%d|%s|%%|%f|%b|%n)/';
 
 
 #
@@ -257,6 +257,12 @@ def _query_callback(match, init = False):
     return str(int(php.array_shift(_query_callback.args))); 
   elif match[1] == '%s':
     return db.escape_string(php.array_shift(_query_callback.args));
+  elif match[1] == '%n':
+    # Numeric values have arbitrary precision, so can't be treated as float.
+    # is_numeric() allows hex values (0xFF), but they are not valid.
+    value = php.trim(php.array_shift(args));
+    return  (value if (php.is_numeric(value) and not \
+      php.stripos(value, 'x')) else '0')
   elif match[1] == '%%':
     return '%';
   elif match[1] == '%f':
@@ -282,11 +288,323 @@ def placeholders(arguments, type = 'int'):
     placeholder));
 
 
+
 #
-# Indicates the place holders that should be replaced in _db_query_callback().
+# Helper function for db_rewrite_sql.
+#
+# Collects JOIN and WHERE statements via hook_db_rewrite_sql()
+# Decides whether to select primary_key or DISTINCT(primary_key)
+#
+# @param query
+#   Query to be rewritten.
+# @param primary_table
+#   Name or alias of the table which has the primary key field for this query.
+#   Typical table names would be: {blocks}, {comments}, {forum}, {node},
+#   {menu}, {term_data} or {vocabulary}. However, in most cases the usual
+#   table alias (b, c, f, n, m, t or v) is used instead of the table name.
+# @param primary_field
+#   Name of the primary field.
+# @param args
+#   Array of additional arguments.
+# @return
+#   An array: join statements, where statements, field or DISTINCT(field).
+#
+def _rewrite_sql(query = '', primary_table = 'n', primary_field = 'nid', \
+    args = []):
+  where = []
+  join_ = []
+  distinct = False
+  for plugin in lib_plugin.implements('db_rewrite_sql'):
+    result = lib_plugin.invoke(plugin, 'db_rewrite_sql', query, \
+      primary_table, primary_field, args)
+    if (php.isset(result) and php.is_array(result)):
+      if (php.isset(result['where'])):
+        where.append( result['where'] )
+      if (php.isset(result['join'])):
+        join_.append( result['join'] )
+      if (php.isset(result['distinct']) and result['distinct']):
+        distinct = True
+    elif (php.isset(result)):
+      where.append( result )
+  where = ('' if php.empty(where) else \
+    ('(' +  php.implode(') AND (', where)  + ')') )
+  join_ = ('' if php.empty(join) else php.implode(' ', join))
+  return (join, where, distinct)
+
+
+
+#
+# Rewrites node, taxonomy and comment queries. Use it for
+# listing queries. Do not
+# use FROM table1, table2 syntax, use JOIN instead.
+#
+# @param query
+#   Query to be rewritten.
+# @param primary_table
+#   Name or alias of the table which has the primary key field for this query.
+#   Typical table names would be: {blocks}, {comments}, {forum}, {node},
+#   {menu}, {term_data} or {vocabulary}. However, it is more common to use the
+#   the usual table aliases: b, c, f, n, m, t or v.
+# @param primary_field
+#   Name of the primary field.
+# @param args
+#   An array of arguments, passed to the implementations
+#   of hook_db_rewrite_sql.
+# @return
+#   The original query with JOIN and WHERE statements inserted from
+#   hook_db_rewrite_sql implementations. nid is rewritten if needed.
+#
+def rewrite_sql(query, primary_table = 'n', primary_field = 'nid',  args = []):
+  join_, where, distinct = _rewrite_sql(query, primary_table, \
+    primary_field, args)
+  if (distinct):
+    query = distinct_field(primary_table, primary_field, query)
+  if (not php.empty(where) or not php.empty(join_)):
+    pattern = \
+      '{ ' + \
+      '  # Beginning of the string ' + \
+      '  ^ ' + \
+      '  ((?P<anonymous_view> ' + \
+      '    # Everything within this set of parentheses ' + \
+      '    # is named "anonymous view ' + \
+      '    (?: ' + \
+      '      # anything not parentheses ' + \
+      '      [^()]++ ' + \
+      '      | ' + \
+      '      # an open parenthesis, more anonymous view and ' + \
+      '      # finally a close parenthesis. ' + \
+      '      \( (?P>anonymous_view) \) ' + \
+      '    )* ' + \
+      '  )[^()]+WHERE) ' + \
+      '}X'
+    matches = []
+    php.preg_match(pattern, query, matches)
+    if (where):
+      n = php.strlen(matches[1])
+      second_part = php.substr(query, n)
+      first_part = php.substr(matches[1], 0, n - 5) + \
+        " join WHERE where AND ( "
+      # PHP 4 does not support strrpos for strings. We emulate it.
+      haystack_reverse = php.strrev(second_part)
+      # No need to use strrev on the needle, we supply GROUP, ORDER, LIMIT
+      # reversed.
+      for needle_reverse in ('PUORG', 'REDRO', 'TIMIL'):
+        pos = php.strpos(haystack_reverse, needle_reverse)
+        if (pos != False):
+          # All needles are five characters long.
+          pos += 5
+          break
+      if (pos == False):
+        query = first_part +  second_part  + ')'
+      else:
+        query = first_part +  substr(second_part, 0, -pos)  + ')' + \
+          php.substr(second_part, -pos)
+    else:
+      query = matches[1] +  " join "  + \
+        php.substr(query, php.strlen(matches[1]))
+  return query
+
+
+
+#
+# Restrict a dynamic table, column or constraint name to safe characters.
+#
+# Only keeps alphanumeric and underscores.
+#
+def escape_table(string_):
+  return php.preg_replace('/[^A-Za-z0-9_]+/', '', string_)
+
+
+#
+# A Drupal schema definition is an array structure representing one or
+# more tables and their related keys and indexes. A schema is defined by
+# hook_schema(), which usually lives in a modulename.install file.
+#
+# By implementing hook_schema() and specifying the tables your module
+# declares, you can easily create and drop these tables on all
+# supported database engines. You don't have to deal with the
+# different SQL dialects for table creation and alteration of the
+# supported database engines.
+#
+# hook_schema() should return an array with a key for each table that
+# the module defines.
+#
+# The following keys are defined:
+#
+#   - 'description': A string describing this table and its purpose.
+#     References to other tables should be enclosed in
+#     curly-brackets.  For example, the node_revisions table
+#     description field might contain "Stores per-revision title and
+#     body data for each {node}."
+#   - 'fields': An associative array ('fieldname' : specification)
+#     that describes the table's database columns.  The specification
+#     is also an array.  The following specification parameters are defined:
+#
+#     - 'description': A string describing this field and its purpose.
+#       References to other tables should be enclosed in
+#       curly-brackets.  For example, the node table vid field
+#       description might contain "Always holds the largest (most
+#       recent):node_revisions}.vid value for this nid."
+#     - 'type': The generic datatype: 'varchar', 'int', 'serial'
+#       'float', 'numeric', 'text', 'blob' or 'datetime'.  Most types
+#       just map to the according database engine specific
+#       datatypes.  Use 'serial' for auto incrementing fields. This
+#       will expand to 'int auto_increment' on mysql.
+#     - 'size': The data size: 'tiny', 'small', 'medium', 'normal',
+#       'big'.  This is a hint about the largest value the field will
+#       store and determines which of the database engine specific
+#       datatypes will be used (e.g. on MySQL, TINYINT vs. INT vs. BIGINT).
+#       'normal', the default, selects the base type (e.g. on MySQL,
+#       INT, VARCHAR, BLOB, etc.).
+#
+#       Not all sizes are available for all data types. See
+#       db_type_map() for possible combinations.
+#     - 'not None': If True, no None values will be allowed in this
+#       database column.  Defaults to False.
+#     - 'default': The field's default value.  The PHP type of the
+#       value matters: '', '0', and 0 are all different.  If you
+#       specify '0' as the default value for a type 'int' field it
+#       will not work because '0' is a string containing the
+#       character "zero", not an integer.
+#     - 'length': The maximal length of a type 'varchar' or 'text'
+#       field.  Ignored for other field types.
+#     - 'unsigned': A boolean indicating whether a type 'int', 'float'
+#       and 'numeric' only is signed or unsigned.  Defaults to
+#       False.  Ignored for other field types.
+#     - 'precision', 'scale': For type 'numeric' fields, indicates
+#       the precision (total number of significant digits) and scale
+#       (decimal digits right of the decimal point).  Both values are
+#       mandatory.  Ignored for other field types.
+#
+#     All parameters apart from 'type' are optional except that type
+#     'numeric' columns must specify 'precision' and 'scale'.
+#
+#  - 'primary key': An array of one or more key column specifiers (see below)
+#    that form the primary key.
+#  - 'unique key': An associative array of unique keys ('keyname' :
+#    specification).  Each specification is an array of one or more
+#    key column specifiers (see below) that form a unique key on the table.
+#  - 'indexes':  An associative array of indexes ('indexame' :
+#    specification).  Each specification is an array of one or more
+#    key column specifiers (see below) that form an index on the
+#    table.
+#
+# A key column specifier is either a string naming a column or an
+# array of two elements, column name and length, specifying a prefix
+# of the named column.
+#
+# As an example, here is a SUBSET of the schema definition for
+# Drupal's 'node' table.  It show four fields (nid, vid, type, and
+# title), the primary key on field 'nid', a unique key named 'vid' on
+# field 'vid', and two indexes, one named 'nid' on field 'nid' and
+# one named 'node_title_type' on the field 'title' and the first four
+# bytes of the field 'type':
+#
+# @code
+# schema['node'] = array(
+#   'fields' : array(
+#     'nid'      : array('type' : 'serial', 'unsigned' : True, \
+#       'not None' : True),
+#     'vid'      : array('type' : 'int', 'unsigned' : True, \
+#       'not None' : True, 'default' : 0),
+#     'type'     : array('type' : 'varchar', 'length' : 32, \
+#       'not None' : True, 'default' : ''),
+#     'title'    : array('type' : 'varchar', 'length' : 128, \
+#       'not None' : True, 'default' : ''),
+#   ),
+#   'primary key' : array('nid'),
+#   'unique keys' : array(
+#     'vid'     : array('vid')
+#   ),
+#   'indexes' : array(
+#     'nid'                 : array('nid'),
+#     'node_title_type'     : array('title', array('type', 4)),
+#   ),
+# )
+# @endcode
+#
+# @see drupal_install_schema()
 #
 #
-# Helper function
+# Create a new table from a Drupal table definition.
+#
+# @param ret
+#   Array to which query results will be added.
+# @param name
+#   The name of the table to create.
+# @param table
+#   A Schema API table definition array.
+#
+def db_create_table(ret, name, table):
+  php.Reference.check(ret)
+  statements = create_table_sql(name, table)
+  for statement in statements:
+    ret.append( update_sql(statement) )
+
+
+#
+# Return an array of field names from an array of key/index column specifiers.
+#
+# This is usually an identity function but if a key/index uses a column prefix
+# specification, this function extracts just the name.
+#
+# @param fields
+#   An array of key/index column specifiers.
+# @return
+#   An array of field names.
+#
+def field_names(fields):
+  ret = []
+  for field in fields:
+    if (php.is_array(field)):
+      ret.append( field[0] )
+    else:
+      ret.append( field )
+  return ret
+
+
+#
+# Given a Schema API field type, return the correct %-placeholder.
+#
+# Embed the placeholder in a query to be passed to db_query and and pass as an
+# argument to db_query a value of the specified type.
+#
+# @param type
+#   The Schema API type of a field.
+# @return
+#   The placeholder string to embed in a query for that type.
+#
+def type_placeholder(type_):
+  if \
+      type_ == 'varchar' or \
+      type_ == 'char' or \
+      type_ == 'text' or \
+      type_ == 'datetime':
+    return "'%s'"
+  elif type_ == 'numeric':
+    # Numeric values are arbitrary precision numbers.  Syntacically, numerics
+    # should be specified directly in SQL. However, without single quotes
+    # the %s placeholder does not protect against non-numeric characters such
+    # as spaces which would expose us to SQL injection.
+    return '%n'
+  elif \
+      type_ == 'serial' or \
+      type_ == 'int':
+    return '%d'
+  elif type_ == 'float':
+    return '%f'
+  elif type_ == 'blob':
+    return '%b'
+  # There is no safe value to return here, so return something that
+  # will cause the query to fail.
+  return 'unsupported type ' +  type_  + 'for db_type_placeholder'
+
+
+
+
+
+
+
 
 #
 # Aliases
