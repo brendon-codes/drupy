@@ -154,6 +154,7 @@ update_free_access = False;
 # for you.
 #
 # $base_url = 'http://www.example.com';  // NO trailing slash!
+base_url = None
 
 #
 # PHP settings:

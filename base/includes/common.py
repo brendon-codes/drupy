@@ -464,7 +464,7 @@ def drupal_http_request(url, headers = {}, method = 'GET', \
   headers['User-Agent'] = 'Drupy (+http://drupy.sourceforge.net/)';
   req = urllib2.Request(url, data, headers);
   res = urllib2.urlopen(req);
-  result = drupy_object({
+  result = php.object_({
     'error' : res.msg,
     'code' : res.code,
     'request' : 'NOT-AVAILABLE',
@@ -535,7 +535,7 @@ def fix_gpc_magic():
   pass;
 
 
-def t(string, args = {}, langcode = None):
+def t(string, args={}, langcode=None):
   """
    Translate strings to the page language or a given language.
   
@@ -650,9 +650,9 @@ def t(string, args = {}, langcode = None):
    @return
      The translated string.
   """
-  global language;
   php.static(t, 'custom_strings', {})
-  langcode = (langcode if (langcode != None) else language.language);
+  langcode = (langcode if (langcode != None) else \
+    lib_appglobals.language.language);
   # First, check for an array of customized strings. If present, use the array
   # *instead of* database lookups. This is a high performance way to provide a
   # handful of string replacements. See settings.php for examples.
@@ -678,7 +678,7 @@ def t(string, args = {}, langcode = None):
         pass;
       elif key[0] == '%' or True:
         # Escaped and placeholder.
-        args[key] = theme('placeholder', value);
+        args[key] = lib_theme.theme('placeholder', value);
     return php.strtr(string, args);
 
 
@@ -802,8 +802,8 @@ def format_rss_channel(title, link, description, items, langcode = None, \
   
    Arbitrary elements may be added using the args associative array.
   """
-  global language;
-  langcode = (langcode if (langcode != None) else language.language);
+  langcode = (langcode if (langcode != None) else \
+    lib_appglobals.language.language);
   output = "<channel>\n";
   output += ' <title>' + check_plain(title) + "</title>\n";
   output += ' <link>' + check_url(link) + "</link>\n";
@@ -1054,11 +1054,11 @@ def format_date(timestamp, type = 'medium', format = '', \
    @return
      A translated date string in the requested format.
   """
-  global user;
   if (timezone == None):
-    if (variable_get('configurable_timezones', 1) and user.uid and \
-        php.strlen(user.timezone)):
-      timezone = user.timezone;
+    if (variable_get('configurable_timezones', 1) and \
+        lib_appglobals.user.uid and \
+        php.strlen(lib_appglobals.user.timezone)):
+      timezone = lib_appglobals.user.timezone;
     else:
       timezone = variable_get('date_default_timezone', 0);
   timestamp += timezone;
@@ -1201,7 +1201,7 @@ def url(path = None, options = {}):
     url.clean_url = drupy_bool(variable_get('clean_url', '0'));
   if (not php.isset(options, 'base_url')):
     # The base_url might be rewritten from the language rewrite in domain mode.
-    options['base_url'] = base_url;
+    options['base_url'] = settings.base_url;
   # Preserve the original path before aliasing.
   original_path = path;
   # The special path '<front>' links to the default front page.
@@ -1393,21 +1393,21 @@ def drupal_eval(code):
      followed by the returned
      output of the code.
   """
-  global theme_path, theme_info
   # Store current theme path.
-  old_theme_path = theme_path;
+  old_theme_path = lib_appglobals.theme_path;
   # Restore theme_path to the theme, as long as drupal_eval() executes,
   # so code evaluted will not see the caller plugin as the current theme.
   # If theme info is not initialized get the path from theme_default.
-  if (not php.isset(locals(), theme_info, True)):
-    theme_path = drupal_get_path('theme', settings.conf['theme_default']);
+  if (not php.isset(locals(), lib_appglobals.theme_info, True)):
+    lib_appglobals.theme_path = \
+      drupal_get_path('theme', settings.conf['theme_default']);
   else:
-    theme_path = php.dirname(theme_info.filename);
+    lib_appglobals.theme_path = php.dirname(lib_appglobals.theme_info.filename);
   ob_start();
   exec(code);
   output = ob_get_clean();
   # Recover original theme path.
-  theme_path = old_theme_path;
+  lib_appglobals.theme_path = old_theme_path;
   return output;
 
 
@@ -1433,8 +1433,7 @@ def base_path():
    Returns the base URL path of the Drupal installation.
    At the very least, this will always default to /.
   """
-  global base_path_;
-  return base_path_;
+  return lib_appglobals.base_path
 
 
 def drupal_add_link(attributes):
@@ -1510,7 +1509,7 @@ def drupal_add_css(path = None, type = 'plugin', media = 'all', \
     drupal_add_css.css[media][type][path] = preprocess;
     # If the current language is RTL, add the CSS file with RTL overrides.
     if (php.defined('LANGUAGE_RTL') and \
-        lib_bootstrap.language.direction == LANGUAGE_RTL):
+        lib_appglobals.language.direction == LANGUAGE_RTL):
       rtl_path = php.str_replace('.css', '-rtl.css', path);
       if (php.file_exists(rtl_path)):
         drupal_add_css.css[media][type][rtl_path] = preprocess;
@@ -2277,8 +2276,7 @@ def drupal_valid_token(token, value = '', skip_anonymous = False):
      True for a valid token, false for an invalid token. When skip_anonymous
      is true, the return value will always be true for anonymous users.
   """
-  global user;
-  return ((skip_anonymous and user.uid == 0) or \
+  return ((skip_anonymous and lib_appglobals.user.uid == 0) or \
     (token == php.md5(session_id() + value + \
     variable_get('drupal_private_key', ''))));
 
@@ -2349,8 +2347,7 @@ def page_set_cache():
   
    @see drupal_page_header
   """
-  global user, base_root;
-  if (not user.uid and (php.SERVER['REQUEST_METHOD'] == 'GET' or \
+  if (not lib_appglobals.user.uid and (php.SERVER['REQUEST_METHOD'] == 'GET' or \
       php.SERVER['REQUEST_METHOD'] == 'HEAD') and \
       php.count(drupal_get_messages(None, False)) == 0):
     # This will fail in some cases, see page_get_cache() for the explanation.
@@ -2369,7 +2366,8 @@ def page_set_cache():
         # already compressed and nothing left to do but to store it.
       ob_end_flush();
       if (cache and data):
-        cache_set(base_root . request_uri(), data, 'cache_page', \
+        cache_set(lib_appglobals.base_root + request_uri(), \
+          data, 'cache_page', \
           CACHE_TEMPORARY, drupal_get_headers());
 
 
@@ -2463,8 +2461,9 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
   # table contains the name of the current profile, and we can call
   # variable_get()
   # to determine what one is active.
-  if (lib_theme.profile is None):
-    lib_theme.profile = lib_bootstrap.variable_get('install_profile', 'default');
+  if (lib_appglobals.profile is None):
+    lib_appglobals.profile = \
+      lib_bootstrap.variable_get('install_profile', 'default');
   searchdir = [directory];
   files = {};
   # Always search sites/all/* as well as the global directories
@@ -2473,8 +2472,9 @@ def drupal_system_listing(mask, directory, key = 'name', min_depth = 1):
   # themes as organized by a distribution.  It is pristine in the same way
   # that /plugins is pristine for core; users should avoid changing anything
   # there in favor of sites/all or sites/<domain> directories.
-  if (php.file_exists("profiles/%s/%s" % (lib_theme.profile, directory) )):
-    searchdir.append( "profiles/%s/%s" % (lib_theme.profile, directory) )
+  if (php.file_exists("profiles/%s/%s" % \
+      (lib_appglobals.profile, directory) )):
+    searchdir.append( "profiles/%s/%s" % (lib_appglobals.profile, directory) )
   if (php.file_exists("%s/%s" % (config, directory))):
     searchdir.append( "%s/%s" % (config, directory) );
   # Get current list of items

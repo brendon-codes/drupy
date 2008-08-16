@@ -46,6 +46,7 @@ __version__ = "$Revision: 1 $"
 
 from lib.drupy import DrupyPHP as php
 from lib.drupy import DrupyMySQL
+import appglobals as lib_appglobals
 import bootstrap as lib_bootstrap
 import database as lib_database
 
@@ -75,8 +76,8 @@ def version():
   
    @return Database server version
   """
-  global active_db
-  version = php.explode('-', DrupyMySQL.mysqli_get_server_info(active_db))
+  version = php.explode('-', \
+    DrupyMySQL.mysqli_get_server_info(lib_appglobals.active_db))
   return version
 
 
@@ -110,11 +111,10 @@ def connect(url):
 
 
 
-def _query(query, debug = 0):
+def _query(query_, debug = 0):
   """
    Helper function for db_query().
   """
-  global active_db, queries, user
   if (lib_bootstrap.variable_get('dev_query', 0)):
     usec,sec = php.explode(' ', php.microtime())
     timer = float(usec) + float(sec)
@@ -125,30 +125,30 @@ def _query(query, debug = 0):
     # code is issueing the slow query.
     bt = debug_backtrace()
     # t() may not be available yet so we don't wrap 'Anonymous'
-    name = (user.name if (user.uid > 0) else \
+    name = (lib_appglobals.user.name if (lib_appglobals.user.uid > 0) else \
       variable_get('anonymous', 'Anonymous'))
     # php.str_replace() to prevent SQL injection via username
     # or anonymous name.
     name = php.str_replace(['*', '/'], '', name)
-    query = '/* ' +  name  + ' : ' . bt[2]['function'] + ' */ ' + query
-  result = DrupyMySQL.mysqli_query(lib_database.active_db, query)
+    query_ = '/* ' +  name  + ' : ' . bt[2]['function'] + ' */ ' + query_
+  result = DrupyMySQL.mysqli_query(lib_appglobals.active_db, query_)
   if (lib_bootstrap.variable_get('dev_query', 0)):
-    query = bt[2]['function'] +  "\n"  + query
+    query_ = bt[2]['function'] +  "\n"  + query_
     usec,sec = php.explode(' ', php.microtime())
     stop = float(usec) + float(sec)
     diff = stop - timer
-    queries.append( [query, diff] )
+    lib_appglobals.queries.append( [query_, diff] )
   if (debug):
-    print '<p>query: ' +  query  + '<br />error:' + \
-      DrupyMySQL.mysqli_error(active_db) + '</p>'
-  if (not DrupyMySQL.mysqli_errno(lib_database.active_db)):
+    print '<p>query: ' +  query_  + '<br />error:' + \
+      DrupyMySQL.mysqli_error(lib_appglobals.active_db) + '</p>'
+  if (not DrupyMySQL.mysqli_errno(lib_appglobals.active_db)):
     return result
   else:
     # Indicate to drupal_error_handler that this is a database error.
     DB_ERROR = True
     php.trigger_error(lib_bootstrap.check_plain(\
-      DrupyMySQL.mysqli_error(lib_database.active_db) +  \
-      "\nquery: "  + query), php.E_USER_WARNING)
+      DrupyMySQL.mysqli_error(lib_appglobals.active_db) +  \
+      "\nquery: "  + query_), php.E_USER_WARNING)
     return False
 
 
@@ -214,7 +214,7 @@ def error():
   """
    Determine whether the previous query caused an error.
   """
-  return DrupyMySQL.mysqli_errno(lib_database.active_db)
+  return DrupyMySQL.mysqli_errno(lib_appglobals.active_db)
 
 
 
@@ -223,7 +223,7 @@ def affected_rows():
   """
    Determine the number of rows changed by the preceding query.
   """
-  return DrupyMySQL.mysqli_affected_rows(lib_database.active_db)
+  return DrupyMySQL.mysqli_affected_rows(lib_appglobals.active_db)
 
 
 
@@ -329,8 +329,8 @@ def encode_blob(data):
    @return
     Encoded data.
   """
-  return "'" +  DrupyMySQL.mysqli_real_escape_string(lib_database.active_db, \
-    data)  + "'"
+  return "'" +  DrupyMySQL.mysqli_real_escape_string(\
+    lib_appglobals.active_db, data)  + "'"
 
 
 
@@ -351,7 +351,7 @@ def escape_string(text):
    Prepare user input for use in a database query, preventing
    SQL injection attacks.
   """
-  return DrupyMySQL.mysqli_real_escape_string(lib_database.active_db, text)
+  return DrupyMySQL.mysqli_real_escape_string(lib_appglobals.active_db, text)
 
 
 
@@ -944,7 +944,7 @@ def escape_string(data):
   """
    Wrapper to escape a string
   """
-  return DrupyMySQL.mysqli_real_escape_string(lib_database.active_db, data)
+  return DrupyMySQL.mysqli_real_escape_string(lib_appglobals.active_db, data)
 
 
 

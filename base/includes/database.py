@@ -42,6 +42,7 @@ __version__ = "$Revision: 1 $"
 #
 from lib.drupy import DrupyPHP as php
 from sites.default import settings
+import appglobals as lib_appglobals
 import bootstrap as lib_bootstrap
 import database_mysqli as db
 
@@ -165,11 +166,9 @@ def set_active(name = 'default'):
    right now we are statically loading mysql at the top, but eventually we need
    to get this figured out 
   """
-  global active_db
   php.static(set_active, 'db_conns', {})
   php.static(set_active, 'active_name', False)
   if (settings.db_url == None):
-    php.include_once('includes/install.py');
     install_goto('install.py');
   if (not php.isset(set_active.db_conns, name)):
     # Initiate a new connection, using the named DB URL specified.
@@ -179,7 +178,8 @@ def set_active(name = 'default'):
         settings.db_url['default']);
     else:
       connect_url = settings.db_url;
-    db_type = php.substr(connect_url, 0, php.strpos(connect_url, '://'));
+    lib_appglobals.db_type = \
+      php.substr(connect_url, 0, php.strpos(connect_url, '://'));
     #handler = "includes/database_%(db_type)s.py" % {'db_type' : db_type};
     #try:
     #  import db file here
@@ -191,11 +191,11 @@ def set_active(name = 'default'):
     # We need to pass around the simpletest database prefix in the request
     # and we put that in the user_agent php.header.
     if (php.preg_match("/^simpletest\d+$/", php.SERVER['HTTP_USER_AGENT'])):
-      db_prefix = php.SERVER['HTTP_USER_AGENT'];
+      settings.db_prefix = php.SERVER['HTTP_USER_AGENT'];
   previous_name = set_active.active_name;
   # Set the active connection.
   set_active.active_name = name;
-  active_db = set_active.db_conns[name];
+  lib_appglobals.active_db = set_active.db_conns[name];
   return previous_name;
 
 
@@ -211,7 +211,6 @@ def _error_page(error = ''):
    @param error
      The error message to be appended if 'display_errors' is on.
   """
-  global db_type;
   lib_bootstrap.drupal_maintenance_theme();
   drupal_set_header('HTTP/1.1 503 Service Unavailable');
   drupal_set_title('Site off-line');
@@ -224,7 +223,8 @@ def _error_page(error = ''):
     'see the <a href="http://drupal.org/node/258">handbook</a>, or ' + \
     'contact your hosting provider.</small></p>';
   if (error and ini_get('display_errors')):
-    message += '<p><small>The ' + theme('placeholder', db_type) + \
+    message += '<p><small>The ' + theme('placeholder', \
+      lib_appglobals.db_type) + \
       ' error was: ' + theme('placeholder', error) + '.</small></p>';
   print theme('maintenance_page', message);
   exit();
@@ -234,8 +234,7 @@ def is_active():
   """
    Returns a boolean depending on the availability of the database.
   """
-  global active_db;
-  return (active_db is not None);
+  return (lib_appglobals.active_db is not None);
 
 
 def _query_callback(match, init = False):

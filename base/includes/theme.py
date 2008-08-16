@@ -139,11 +139,9 @@ def _init_theme(this_theme, base_theme = [], registry_callback = \
    @param registry_callback
      The callback to invoke to set the theme registry.
   """
-  global theme_info, base_theme_info, theme_engine, theme_path;
-  global engine
-  theme_info = this_theme;
-  base_theme_info = base_theme;
-  theme_path = php.dirname(this_theme.filename);
+  lib_appglobals.theme_info = this_theme;
+  lib_appglobals.base_theme_info = base_theme;
+  lib_appglobals.theme_path = php.dirname(this_theme.filename);
   # Prepare stylesheets from this theme as well as all ancestor themes.
   # We work it this way so that we can have child themes override parent
   # theme stylesheets easily.
@@ -179,12 +177,12 @@ def _init_theme(this_theme, base_theme = [], registry_callback = \
   # Add scripts used by this theme.
   for script in final_scripts:
     drupal_add_js(script, 'theme');
-  theme_engine = None;
+  lib_appglobals.theme_engine = None;
   # Initialize the theme.
   if (php.isset(this_theme, 'engine')):
     # Include the engine.
     processors[this_theme.engine] = DrupyImport.import_file(this_theme.owner)
-    theme_engine = this_theme.engine;
+    lib_appglobals.theme_engine = this_theme.engine;
     if (php.function_exists('hook_init', processors[this_theme.engine])):
       for base in base_theme:
         php.call_user_func('hook_init', base);
@@ -201,7 +199,8 @@ def _init_theme(this_theme, base_theme = [], registry_callback = \
     if (not php.empty(this_theme.owner)):
       php.include_once( './' + this_theme.owner );
     if (drupal_function_exists(registry_callback)):
-      registry_callback(this_theme, base_theme, theme_engine)
+      registry_callback(this_theme, \
+        base_theme, lib_appglobals.theme_engine)
 
 
 
@@ -561,8 +560,6 @@ def theme(*args):
    @return
      An HTML string that generates the themed output.
   """
-  global theme_path;
-  global theme_engine;
   php.static(theme, 'hooks')
   hook = php.array_shift(args);
   if (theme.hooks == None):
@@ -576,9 +573,9 @@ def theme(*args):
   if (not php.isset(theme.hooks, hook)):
     return;
   info = theme.hooks[hook];
-  temp = theme_path;
+  temp = lib_appglobals.theme_path;
   # point path_to_theme() to the currently used theme path:
-  theme_path = info['theme path'];
+  lib_appglobals.theme_path = info['theme path'];
   # Include a file if the theme function or preprocess function is 
   # held elsewhere.
   if (not php.empty(info['file'])):
@@ -603,13 +600,14 @@ def theme(*args):
     render_function = 'theme_render_template';
     extension = '.tpl.py';
     # Run through the theme engine variables, if necessary
-    if (theme_engine != None):
+    if (lib_appglobals.theme_engine is not None):
       # If theme or theme engine is implementing this, it may have
       # a different extension and a different renderer.
       if (info['type'] != 'plugin'):
-        if (php.function_exists(theme_engine + '_render_template')):
-          render_function = theme_engine + '_render_template';
-        extension_function = theme_engine + '_extension';
+        if (php.function_exists(\
+            lib_appglobals.theme_engine + '_render_template')):
+          render_function = lib_appglobals.theme_engine + '_render_template';
+        extension_function = lib_appglobals.theme_engine + '_extension';
         if (php.function_exists(extension_function)):
           extension = extension_function();
     if (php.isset(info, 'preprocess functions') and \
@@ -639,7 +637,7 @@ def theme(*args):
         template_file = info['path'] + '/' + template_file;
     output = render_function(template_file, variables);
   # restore path_to_theme()
-  theme_path = temp;
+  lib_appglobals.theme_path = temp;
   return output;
 
 
@@ -650,7 +648,6 @@ def drupal_discover_template(paths, suggestions, extension = '.tpl.php'):
    templates from themes and plugins. Theming implementations can occur on
    multiple levels. All paths are checked to account for this.
   """
-  global theme_engine;
   # Loop through all paths and suggestions in FIFO order.
   suggestions = php.array_reverse(suggestions);
   paths = php.array_reverse(paths);
@@ -667,10 +664,9 @@ def path_to_theme():
   """
    Return the path to the currently selected theme.
   """
-  global theme_path;
-  if (theme_path == None):
+  if (lib_appglobals.theme_path is None):
     init_theme();
-  return theme_path;
+  return lib_appglobals.theme_path;
 
 
 
@@ -720,7 +716,6 @@ def drupal_find_theme_templates(cache, extension, path):
    @param path
      The path to search.
   """
-  global theme_;
   templates = [];
   # Collect paths to all sub-themes grouped by base themes+ These will be
   # used for filtering+ This allows base themes to have sub-themes in its
@@ -736,7 +731,7 @@ def drupal_find_theme_templates(cache, extension, path):
         theme_paths[basetheme] = php.array_merge(theme_paths[basetheme], \
           theme_paths[subtheme]);
   subtheme_paths = (theme_paths[theme] if \
-    php.isset(theme_paths, theme) else []);
+    php.isset(theme_paths, lib_appglobals.theme) else []);
   # Escape the periods in the extension+ regex = 
   # php.str_replace('.', '\.', extension) +'$';
   # Because drupal_system_listing works the way it does, we check for real
@@ -842,12 +837,11 @@ def get_setting(setting_name, refresh = False):
    @return
      The value of the requested setting, None if the setting does not exist
   """
-  global theme_key;
   php.static(theme_get_setting, 'settings')
   if (theme_get_setting.settings == None or refresh):
-    theme_get_setting.settings = theme_get_settings(theme_key);
+    theme_get_setting.settings = theme_get_settings(lib_appglobals.theme_key);
     themes = list_themes();
-    theme_object = themes[theme_key];
+    theme_object = themes[lib_appglobals.theme_key];
     if (theme_get_setting.settings['mission'] == ''):
       theme_get_setting.settings['mission'] = variable_get('site_mission', '');
     if (not theme_get_setting.settings['toggle_mission']):
@@ -1328,7 +1322,7 @@ def mark(type = MARK_NEW):
    @return
      A string containing the marker+
   """
-  if (lib_bootstrap.user.uid > 0):
+  if (lib_appglobals.user.uid > 0):
     if (type == MARK_NEW):
       return ' <span class="marker">'+ t('new') +'</span>';
     elif (type == MARK_UPDATED):
@@ -1600,9 +1594,9 @@ def template_preprocess(variables_, hook):
     # Flag front page status+
     variables['is_front'] = drupal_is_front_page();
     # Tell all templates by which kind of user they're viewed+
-    variables['logged_in'] = (lib_bootstrap.user.uid > 0);
+    variables['logged_in'] = (lib_appglobals.user.uid > 0);
     # Provide user object to all templates
-    variables_['user'] = lib_bootstrap.user;
+    variables_['user'] = lib_appglobals.user;
 
 
 
@@ -1623,15 +1617,13 @@ def template_preprocess_page(variables_):
   
    @see page.tpl.php
   """
-  global theme_;
-  global language;
   php.Reference.check(variables_);
   # Add favicon
   if (theme_get_setting('toggle_favicon')):
     drupal_set_html_head('<link rel="shortcut icon" href="'+ \
       check_url(theme_get_setting('favicon')) +'" type="image/x-icon" />');
   # Populate all block regions+
-  regions = system_region_list(theme);
+  regions = system_region_list(lib_appglobals.theme);
   # Load all region content assigned via blocks+
   for region in php.array_keys(regions):
     # Prevent left and right regions from rendering blocks when
@@ -1642,17 +1634,17 @@ def template_preprocess_page(variables_):
     else:
       blocks = '';
     # Assign region to a region variable+
-    if (php.isset(variables, region)):
+    if (php.isset(variables_, region)):
       variables_[region] += blocks
     else:
       variables_[region] = blocks;
   # Set up layout variable+
-  variables['layout'] = 'none';
+  variables_['layout'] = 'none';
   if (not php.empty(variables_['left'])):
     variables_['layout'] = 'left';
   if (not php.empty(variables_['right'])):
-    variables['layout'] = ('both' if \
-      (variables['layout'] == 'left') else 'right');
+    variables_['layout'] = ('both' if \
+      (variables_['layout'] == 'left') else 'right');
   # Set mission when viewing the frontpage+
   if (drupal_is_front_page()):
     mission = filter_xss_admin(theme_get_setting('mission'));
@@ -1676,10 +1668,10 @@ def template_preprocess_page(variables_):
     filter_xss_admin(variable_get('site_footer', False));
   variables_['head']              = drupal_get_html_head();
   variables_['help']              = theme('help');
-  variables_['language']          = language;
+  variables_['language']          = lib_appglobals.language;
   variables_['language'].dir      = ('rtl' if \
-    (php.isset(language, 'direction') and \
-     not php.empty(language.direction)) else 'ltr');
+    (php.isset(lib_appglobals.language, 'direction') and \
+     not php.empty(lib_appglobals.language.direction)) else 'ltr');
   variables_['logo']              = theme_get_setting('logo');
   variables_['messages']          = (theme('status_messages') if \
     variables['show_messages'] else '');
@@ -1729,9 +1721,9 @@ def template_preprocess_page(variables_):
     php.preg_replace('not [^abcdefghijklmnopqrstuvwxyz0-9-_]+not s', '', \
     'page-'+ form_clean_id(drupal_strtolower(arg(0)))) );
   # If on an individual node page, add the node type+
-  if (php.isset(variables_, 'node') and variables_['node'].type):
+  if (php.isset(variables_, 'node') and variables_['node'].type_):
     body_classes.append( 'node-type-'+ \
-      form_clean_id(variables_['node'].type) );
+      form_clean_id(variables_['node'].type_) );
   # Add information about the number of sidebars+
   if (variables_['layout'] == 'both'):
     body_classes.append( 'two-sidebars' );

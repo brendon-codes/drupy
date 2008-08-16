@@ -60,16 +60,15 @@ import database as lib_database
 
 
 def _drupal_maintenance_theme():
-  global theme_, theme_key
   # If theme is already set, assume the others are set too, and do nothing.
-  if (theme_ != None):
+  if (lib_appglobals.theme is not None):
     return
   lib_unicode.check()
   # Install and update pages are 
   # treated differently to prevent theming overrides.
   if (php.defined('MAINTENANCE_MODE') and \
       (MAINTENANCE_MODE == 'install' or MAINTENANCE_MODE == 'update')):
-    theme_ = 'minnelli'
+    lib_appglobals.theme = 'minnelli'
   else:
     # Load plugin basics (needed for hook invokes).
     plugin_list_ = { 'system' : {}, 'filter' : {} }
@@ -78,18 +77,18 @@ def _drupal_maintenance_theme():
     lib_plugin.list(True, False, False, plugin_list_)
     drupal_load('plugin', 'system')
     drupal_load('plugin', 'filter')
-    theme_ = variable_get('maintenance_theme', 'minnelli')
+    lib_appglobals.theme = variable_get('maintenance_theme', 'minnelli')
   themes = list_themes()
   # Store the identifier for retrieving theme settings with.
-  theme_key = theme_
+  lib_appglobals.theme_key = lib_appglobals.theme
   # Find all our ancestor themes and put them in an array.
-  base_theme = array()
-  ancestor = theme_
+  base_theme = []
+  ancestor = lib_appglobals.theme
   while (ancestor and php.isset(themes[ancestor], base_theme)):
     new_base_theme = themes[themes[ancestor].base_theme]
     base_theme.append(new_base_theme)
     ancestor = themes[ancestor].base_theme
-  _init_theme(themes[theme], php.array_reverse(base_theme), \
+  _init_theme(themes[lib_appglobals.theme], php.array_reverse(base_theme), \
     '_theme_load_offline_registry')
   # These are usually added from system_init() -except maintenance.css.
   # When the database is inactive it's not called so we add it here.
@@ -140,7 +139,6 @@ def install_page(content):
    @param content
      The page content to show.
   """
-  global theme_path
   drupal_set_header('Content-Type: text/html; charset=utf-8')
   # Assign content.
   variables['content'] = content
@@ -181,7 +179,7 @@ def install_page(content):
   # This was called as a theme hook (not template), so we need to
   # fix path_to_theme() for the template, to point at the actual
   # theme rather than system plugin as owner of the hook.
-  theme_path = 'themes/garland'
+  lib_appglobals.theme_path = 'themes/garland'
   return theme_render_template('themes/garland/maintenance-page.tpl.py', \
     variables)
 
@@ -199,7 +197,6 @@ def update_page(content, show_messages = True):
      Whether to output status and error messages.
      False can be useful to postpone the messages to a subsequent page.
   """
-  global theme_path
   # Set required headers.
   drupal_set_header('Content-Type: text/html; charset=utf-8')
   # Assign content and show message flag.
@@ -220,7 +217,7 @@ def update_page(content, show_messages = True):
   # This was called as a theme hook (not template), so we need to
   # fix path_to_theme() for the template, to point at the actual
   # theme rather than system plugin as owner of the hook.
-  theme_path = 'themes/garland'
+  lib_appglobals.theme_path = 'themes/garland'
   return theme_render_template('themes/garland/maintenance-page.tpl.php', \
     variables)
 
@@ -244,14 +241,13 @@ def template_preprocess_maintenance_page(variables):
    @see maintenance-page.tpl.php
   """
   php.Reference.check(variables)
-  global theme_
   # Add favicon
   if (theme_get_setting('toggle_favicon')):
     drupal_set_html_head('<link rel="shortcut icon" href="' + \
       check_url(theme_get_setting('favicon')) + '" type="image/x-icon" />');
   # Retrieve the theme data to list all available regions.
   theme_data = _system_theme_data()
-  regions = theme_data[theme_].info['regions']
+  regions = theme_data[lib_appglobals.theme].info['regions']
   # Get all region content set with drupal_set_content().
   for region in php.array_keys(regions):
     # Assign region to a region variable.
@@ -284,8 +280,9 @@ def template_preprocess_maintenance_page(variables):
     filter_xss_admin(variable_get('site_footer', FALSE))
   variables['head']              = drupal_get_html_head()
   variables['help']              = ''
-  variables['language']          = language
-  variables['language'].dir     = ('rtl' if language.direction else 'ltr')
+  variables['language']          = lib_appglobals.language
+  variables['language'].dir      = \
+    ('rtl' if lib_appglobals.language.direction else 'ltr')
   variables['logo']              = theme_get_setting('logo');
   variables['messages']          = (theme('status_messages') if \
     variables['show_messages'] else '')

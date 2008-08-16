@@ -41,6 +41,7 @@ from lib.drupy import DrupyPHP as php
 from xml.dom import minidom
 import htmlentitydefs
 import re
+import appglobals as lib_appglobals
 
 
 #
@@ -63,8 +64,7 @@ UNICODE_MULTIBYTE = 1
  Wrapper around _unicode_check().
 """
 def check():
-  global multibyte;
-  multibyte = _unicode_check()[0];
+  lib_appglobals.multibyte = _unicode_check()[0];
 
 
 
@@ -336,8 +336,7 @@ def drupal_strlen(text):
    Count the amount of characters in a UTF-8 string+ This is less than or
    equal to the byte count.
   """
-  global multibyte;
-  if (multibyte == UNICODE_MULTIBYTE):
+  if (lib_appglobals.multibyte == UNICODE_MULTIBYTE):
     return mb_strlen(text);
   else:
     # Do not count UTF-8 continuation bytes.
@@ -348,8 +347,7 @@ def drupal_strtoupper(text):
   """
    Uppercase a UTF-8 string.
   """
-  global multibyte;
-  if (multibyte == UNICODE_MULTIBYTE):
+  if (lib_appglobals.multibyte == UNICODE_MULTIBYTE):
     return php.mb_strtoupper(text);
   else:
     # Use C-locale for ASCII-only uppercase
@@ -366,8 +364,7 @@ def drupal_strtolower(text):
   """
    Lowercase a UTF-8 string.
   """
-  global multibyte;
-  if (multibyte == UNICODE_MULTIBYTE):
+  if (lib_appglobals.multibyte == UNICODE_MULTIBYTE):
     return mb_strtolower(text);
   else:
     # Use C-locale for ASCII-only lowercase
@@ -406,8 +403,7 @@ def drupal_substr(text, start, length = None):
    location, the usage of PHP's normal strpos/substr is safe and
    much faster.
   """
-  global multibyte;
-  if (multibyte == UNICODE_MULTIBYTE):
+  if (lib_appglobals.multibyte == UNICODE_MULTIBYTE):
     return (php.mb_substr(text, start) if \
       (length == None) else mb_substr(text, start, length));
   else:

@@ -57,7 +57,7 @@ def initialize():
     for language in languages:
       parts = php.parse_url(language.domain)
       if (not php.empty(parts['host']) and \
-          (_SERVER['php.SERVER_NAME'] == parts['host'])):
+          (php.SERVER['php.SERVER_NAME'] == parts['host'])):
         return language
     return language_default()
   elif mode == lib_bootstrap.LANGUAGE_NEGOTIATION_PATH_DEFAULT or \
@@ -76,9 +76,9 @@ def initialize():
       # If we did not found the language by prefix, choose the default.
       return language_default()
   # User language.
-  if (lib_bootstrap.user.uid and \
-      php.isset(languages[lib_bootstrap.user.language])):
-    return languages[lib_bootstrap.user.language]
+  if (lib_appglobals.user.uid and \
+      php.isset(languages[lib_appglobals.user.language])):
+    return languages[lib_appglobals.user.language]
   # Browser accept-language parsing.
   language = language_from_browser()
   if (language):
@@ -124,7 +124,7 @@ def url_rewrite(path, options):
   if (not options['external']):
     # Language can be passed as an option, or we go for current language.
     if (not php.isset(options, 'language')):
-      options['language'] = lib_bootstrap.language_
+      options['language'] = lib_appglobals.language
     lang_type = variable_get('language_negotiation', \
       lib_bootstrap.LANGUAGE_NEGOTIATION_NONE)
     if lang_type == lib_bootstrap.LANGUAGE_NEGOTIATION_NONE:

@@ -113,7 +113,7 @@ def create_url(path):
     path = php.trim(php.substr(path, php.strlen(file_directory_path())), '\\/')
   dls = variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC);
   if dls == FILE_DOWNLOADS_PUBLIC:
-    return GLOBALS['base_url'] + '/' + file_directory_path() + '/' + \
+    return settings.base_url + '/' + file_directory_path() + '/' + \
       php.str_replace('\\', '/', path)
   elif dls == FILE_DOWNLOADS_PRIVATE:
     return url('system/files/' + path, {'absolute' : True})
@@ -583,7 +583,7 @@ def save_upload(source, validators = {}, dest = False, \
     # Build the list of non-munged extensions.
     # @todo: this should not be here + we need to figure out the right place.
     extensions = ''
-    for rid,name in user.roles.items():
+    for rid,name in lib_appglobals.user.roles.items():
       extensions += ' ' + variable_get("upload_extensions_rid",
       variable_get('upload_extensions_default', \
         'jpg jpeg gif png txt html doc xls pdf ppt pps odt ods odp'))
@@ -635,7 +635,7 @@ def save_upload(source, validators = {}, dest = False, \
         {'%file' : file.filename, '%destination' : file.filepath})
       return False
     # If we made it this far it's safe to record this file in the database.
-    file.uid = user.uid
+    file.uid = lib_appglobals.user.uid
     file.status = FILE_STATUS_TEMPORARY
     file.timestamp = time()
     drupal_write_record('files', file)
@@ -678,7 +678,7 @@ def validate_extensions(file, extensions):
   """
   errors = []
   # Bypass validation for uid  = 1.
-  if (lib_bootstrap.user.uid != 1):
+  if (lib_appglobals.user.uid != 1):
     regex = '/\.(' + ereg_replace(' +', '|', \
       php.preg_quote(extensions)) + ')$/i'
     if (not php.preg_match(regex, file.filename)):
@@ -708,13 +708,13 @@ def validate_size(file, file_limit = 0, user_limit = 0):
   """
   errors = []
   # Bypass validation for uid  = 1.
-  if (lib_bootstrap.user.uid != 1):
+  if (lib_appglobals.user.uid != 1):
     if (file_limit and file.filesize > file_limit):
       errors.append( t('The file is %filesize exceeding the ' + \
         'maximum file size of %maxsize.', \
         {'%filesize' : format_size(file.filesize), \
         '%maxsize' : format_size(file_limit)}) )
-    total_size = file_space_used(user.uid) + file.filesize
+    total_size = file_space_used(lib_appglobals.uid) + file.filesize
     if (user_limit and total_size > user_limit):
       errors.append( t('The file is %filesize which would exceed ' + \
         'your disk quota of %quota.', \
