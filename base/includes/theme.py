@@ -87,7 +87,7 @@ def init_theme():
   # Only select the user selected theme if it is available in the
   # list of enabled themes.
   if (lib_appglobals.user is not None and \
-      isset(lib_appglobals.user, 'theme') and \
+      php.isset(lib_appglobals.user, 'theme') and \
       not php.empty(lib_appglobals.user.theme) and \
       not php.empty(themes[lib_bootstrap.user.theme].status)):
     lib_appglobals.theme = lib_appglobals.user.theme
@@ -96,7 +96,7 @@ def init_theme():
       lib_bootstrap.variable_get('theme_default', 'garland')
   # Allow plugins to override the present theme... only select custom theme
   # if it is available in the list of installed themes.
-  theme_ = (lib_appglobals.custom_theme if \
+  lib_appglobals.theme = (lib_appglobals.custom_theme if \
     (lib_appglobals.custom_theme and themes[custom_theme]) else \
     lib_appglobals.theme);
   # Store the identifier for retrieving theme settings with.
@@ -108,11 +108,12 @@ def init_theme():
     new_base_theme = themes[themes[ancestor].base_theme];
     base_theme.append(new_base_theme);
     ancestor = themes[ancestor].base_theme;
-  _init_theme(themes[theme_], php.array_reverse(base_theme));
+  print "HELLO"
+  _init_theme(themes[lib_appglobals.theme], php.array_reverse(base_theme));
 
 
 
-def _init_theme(this_theme, base_theme = [], registry_callback = \
+def _init_theme(theme_, base_theme = [], registry_callback = \
     '_theme_load_registry'):
   """
    Initialize the theme system given already loaded information. This
@@ -139,9 +140,9 @@ def _init_theme(this_theme, base_theme = [], registry_callback = \
    @param registry_callback
      The callback to invoke to set the theme registry.
   """
-  lib_appglobals.theme_info = this_theme;
+  lib_appglobals.theme_info = theme_;
   lib_appglobals.base_theme_info = base_theme;
-  lib_appglobals.theme_path = php.dirname(this_theme.filename);
+  lib_appglobals.theme_path = php.dirname(theme_.filename);
   # Prepare stylesheets from this theme as well as all ancestor themes.
   # We work it this way so that we can have child themes override parent
   # theme stylesheets easily.
@@ -154,8 +155,8 @@ def _init_theme(this_theme, base_theme = [], registry_callback = \
         for name,stylesheet in stylesheets.items():
           final_stylesheets[media][name] = stylesheet;
   # Add stylesheets used by this theme.
-  if (not php.empty(this_theme.stylesheets)):
-    for media,stylesheets in this_theme.stylesheets.items():
+  if (not php.empty(theme_.stylesheets)):
+    for media,stylesheets in theme_.stylesheets.items():
       final_stylesheets[media] = {}
       for name,stylesheet in stylesheets.items():
         final_stylesheets[media][name] = stylesheet;
@@ -171,35 +172,35 @@ def _init_theme(this_theme, base_theme = [], registry_callback = \
       for name,script in base.scripts.items():
         final_scripts[name] = script;
   # Add scripts used by this theme.
-  if (not php.empty(this_theme.scripts)):
-    for name,script in this_theme.scripts.items():
+  if (not php.empty(theme_.scripts)):
+    for name,script in theme_.scripts.items():
       final_scripts[name] = script;
   # Add scripts used by this theme.
   for script in final_scripts:
-    drupal_add_js(script, 'theme');
+    lib_common.drupal_add_js(script, 'theme');
   lib_appglobals.theme_engine = None;
   # Initialize the theme.
-  if (php.isset(this_theme, 'engine')):
+  if (php.isset(theme_, 'engine')):
     # Include the engine.
-    processors[this_theme.engine] = DrupyImport.import_file(this_theme.owner)
-    lib_appglobals.theme_engine = this_theme.engine;
-    if (php.function_exists('hook_init', processors[this_theme.engine])):
-      for base in base_theme:
-        php.call_user_func('hook_init', base);
-      this_hook = DrupyImport.getFunction(processors[this_theme.engine],
+    processors[theme_.engine] = DrupyImport.import_file(theme_.owner)
+    lib_appglobals.theme_engine = theme_.engine;
+    if (php.function_exists('hook_init', processors[theme_.engine])):
+      this_hook = DrupyImport.getFunction(processors[theme_.engine],
         'hook_init')
-      php.call_user_func(this_hook, this_theme);
+      for base in base_theme:
+        php.call_user_func(this_hook, base);
+      php.call_user_func(this_hook, theme_);
   else:
     # include non-engine theme files
     for base in base_theme:
       # Include the theme file or the engine.
       if (not php.empty(base.owner)):
-        php.include_once( './'  + base.owner );
+        processors[base.engine] = DrupyImport.import_file(base.owner)
     # and our theme gets one too.
-    if (not php.empty(this_theme.owner)):
-      php.include_once( './' + this_theme.owner );
+    if (not php.empty(theme_.owner)):
+      processors[theme.engine] = DrupyImport.import_file(theme_.owner)
     if (drupal_function_exists(registry_callback)):
-      registry_callback(this_theme, \
+      registry_callback(theme_, \
         base_theme, lib_appglobals.theme_engine)
 
 
