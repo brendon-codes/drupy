@@ -2476,11 +2476,10 @@ def valid_path(form_item):
     True if it is a valid path AND the current user has access permission,
     False otherwise.
   """
-  global menu_admin
   item = {}
   path = form_item['link_path']
   # We indicate that a menu administrator is running the menu access check.
-  menu_admin = True
+  lib_appglobals.menu_admin = True
   if (path == '<front>' or menu_path_is_external(path)):
     item = {'access': True}
   elif (php.preg_match('/\/\%/', path)):
@@ -2496,7 +2495,7 @@ def valid_path(form_item):
       _menu_link_translate(item)
   else:
     item = menu_get_item(path)
-  menu_admin = False
+  lib_appglobals.menu_admin = False
   return item and item['access']
 
 

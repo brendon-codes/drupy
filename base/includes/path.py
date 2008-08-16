@@ -89,7 +89,7 @@ def drupal_lookup_path(action, path_ = '', path_language = ''):
   # map is an array with language keys, holding arrays of Drupal
   # paths to alias relations
   path_language =  (path_language if (path_language != '') else \
-    lib_bootstrap.language_.language)
+    lib_appglobals.language.language)
   # Use $count to avoid looking up paths in subsequent
   # calls if there simply are no aliases
   if (drupal_lookup_path.count is None):
@@ -107,7 +107,7 @@ def drupal_lookup_path(action, path_ = '', path_language = ''):
         "SELECT dst FROM {url_alias} " + \
         "WHERE src = '%s' AND language IN('%s', '') " + \
         "ORDER BY language DESC", path_, path_language));
-      drupal_lookup_path._map[path_language][path_] = alias
+      drupal_lookup_path.map_[path_language][path_] = alias
       return alias
     # Check no_src for this path in case we've already determined that there
     # isn't a path that has this alias

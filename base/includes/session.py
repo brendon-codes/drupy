@@ -46,7 +46,6 @@ def close():
   return True
 
 def read(key):
-  global user
   # Write and Close handlers are called after destructing objects
   # since PHP 5.0.5
   # Thus destructors can use sessions but session handler can't use objects.
@@ -55,37 +54,39 @@ def read(key):
   # Handle the case of first time visitors and clients that don't
   # store cookies (eg. web crawlers).
   if (not php.isset(_COOKIE, php.session_name())):
-    user = drupal_anonymous_user()
+    lib_appglobals.user = drupal_anonymous_user()
     return ''
   # Otherwise, if the session is still active, we have a record of 
   # the client's session in the database.
-  user = db_fetch_object(db_query("SELECT u.*, s.* FROM {users} u " + \
+  lib_appglobals.user = \
+    db_fetch_object(db_query("SELECT u.*, s.* FROM {users} u " + \
     "INNER JOIN {sessions} s ON u.uid = s.uid WHERE s.sid = '%s'", key))
   # We found the client's session record and they are an authenticated user
-  if (user and user.uid > 0):
+  if (lib_appglobals.user and lib_appglobals.user.uid > 0):
     # This is done to unserialize the data member of user
-    user = drupal_unpack(user)
+    lib_appglobals.user = drupal_unpack(lib_appglobals.user)
     # Add roles element to user
-    user.roles = array()
-    user.roles[DRUPAL_AUTHENTICATED_RID] = 'authenticated user'
+    lib_appglobals.user.roles = array()
+    lib_appglobals.user.roles[DRUPAL_AUTHENTICATED_RID] = 'authenticated user'
     result = db_query("SELECT r.rid, r.name FROM {role} r " + 
       "INNER JOIN {users_roles} ur ON ur.rid = r.rid WHERE ur.uid = %d", \
-      user.uid)
+      lib_appglobals.user.uid)
     while True:
       role = db_fetch_object(result)
       if role == None:
         break
-      user.roles[role.rid] = role.name
-  # We didn't find the client's record (session has expired), or they are an anonymous user.
+      lib_appglobals.user.roles[role.rid] = role.name
+  # We didn't find the client's record (session has expired),
+  # or they are an anonymous user.
   else:
-    session = (user.session if php.isset(user.session) else '')
-    user = drupal_anonymous_user(session)
-  return user.session
+    session = (lib_appglobals.user.session if \
+      php.isset(lib_appglobals.user.session) else '')
+    lib_appglobals.user = drupal_anonymous_user(session)
+  return lib_appglobals.user.session
 
 
 
 def write(key, value):
-  global user
   # If saving of session data is disabled or if the client
   # doesn't have a session,
   # and one isn't being created ($value), do nothing.
@@ -104,15 +105,18 @@ def write(key, value):
     "UPDATE {sessions} SET " + \
     "uid = %d, cache = %d, hostname = '%s', " + \
     "session = '%s', timestamp = %d WHERE sid = '%s'", \
-    user.uid, (user.cache if php.isset(user.cache) else ''), \
+    lib_appglobals.user.uid, (lib_appglobals.user.cache if \
+    php.isset(lib_appglobals.user.cache) else ''), \
     ip_address(), value, php.time_(), key)
   if (lib_database.affected_rows()):
-    # Last access time is updated no more frequently than once every 180 seconds.
+    # Last access time is updated no more frequently than once
+    # every 180 seconds.
     # This reduces contention in the users table.
-    if (user.uid and drupy_time() - user.access > \
+    if (lib_appglobals.user.uid and \
+        drupy_time() - lib_appglobals.user.access > \
         variable_get('session_write_interval', 180)):
       db_query("UPDATE {users} SET access = %d WHERE uid = %d", \
-        php.time_(), user.uid)
+        php.time_(), lib_appglobals.user.uid)
   else:
     # If this query fails, another parallel request probably got here first.
     # In that case, any session data generated in this request is discarded.
@@ -120,8 +124,9 @@ def write(key, value):
       "INSERT INTO {sessions} " + \
       "(sid, uid, cache, hostname, session, timestamp) " + \
       "VALUES ('%s', %d, %d, '%s', '%s', %d)", \
-      key, user.uid, (user.cache if php.isset(user.cache) else ''), \
-      ip_address(), value, php.time_())
+      key, lib_appglobals.user.uid, (lib_appglobals.user.cache if \
+        php.isset(lib_appglobals.user.cache) else ''), \
+        ip_address(), value, php.time_())
   return True
 
 
@@ -215,7 +220,7 @@ def save_session(status = None):
 #
 # Aliases
 #
-sess_name = php.session_name
+name = php.session_name
 
 
 

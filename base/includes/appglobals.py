@@ -37,7 +37,6 @@ __version__ = "$Revision: 1 $"
 
 #
 # The following are within the settings namespace
-# and should not be set here
 #
 
 #conf = None
@@ -45,6 +44,7 @@ __version__ = "$Revision: 1 $"
 #db_prefix = None
 #db_url = None
 #update_free_access = None
+#base_url = None
 
 #
 # The following are within the appglobals namespace

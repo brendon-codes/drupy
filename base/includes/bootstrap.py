@@ -269,13 +269,12 @@ def timer_read(name):
    @return
      The current timer value in ms.
   """
-  global timers;
-  if (php.isset(timers[name], 'start')):
+  if (php.isset(lib_appglobals.timers[name], 'start')):
     (usec, sec) = php.explode(' ', php.microtime());
     stop = float(usec) + float(sec);
-    diff = round((stop - timers[name]['start']) * 1000, 2);
-    if (php.isset(timers[name], 'time')):
-      diff += timers[name]['time'];
+    diff = round((stop - lib_appglobals.timers[name]['start']) * 1000, 2);
+    if (php.isset(lib_appglobals.timers[name], 'time')):
+      diff += lib_appglobals.timers[name]['time'];
     return diff;
 
 
@@ -301,10 +300,9 @@ def timer_stop(name):
      timer has been started and stopped (count) and the accumulated
      timer value in ms (time).
   """
-  global timers;
-  timers[name]['time'] = timer_read(name);
-  del(timers[name]['start']);
-  return timers[name];
+  lib_appglobals.timers[name]['time'] = lib_appglobals.timer_read(name);
+  del(lib_appglobals.timers[name]['start']);
+  return lib_appglobals.timers[name];
 
 
 
@@ -470,7 +468,7 @@ def conf_init():
       php.is_numeric(php.str_replace('.', '', settings.cookie_domain))):
     php.ini_set('session.cookie_domain', settings.cookie_domain);
   #print session_name;
-  lib_session.sess_name('SESS' + php.md5(session_name_));
+  lib_session.name('SESS' + php.md5(session_name_));
 
 
 
@@ -666,10 +664,12 @@ def page_get_cache():
      (whether it was started in this request or not).
   """
   cache = None;
-  if (not user.uid and (php.SERVER['REQUEST_METHOD'] == 'GET' or \
+  if (not lib_appglobals.user.uid and \
+      (php.SERVER['REQUEST_METHOD'] == 'GET' or \
       php.SERVER['REQUEST_METHOD'] == 'HEAD') and \
       php.count(drupal_set_message()) == 0):
-    cache = cache_get(base_root + request_uri(), 'cache_page');
+    cache = lib_cache.get(lib_appglobals.base_root + request_uri(), \
+      'cache_page');
     if (php.empty(cache)):
       ob_start()
   return cache;
@@ -972,8 +972,8 @@ def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, \
     'variables'   : variables,
     'severity'    : severity,
     'link'        : link,
-    'user'        : user,
-    'request_uri' : base_root + request_uri(),
+    'user'        : lib_appglobals.user,
+    'request_uri' : lib_appglobals.base_root + request_uri(),
     'referer'     : referer_uri(),
     'ip'          : ip_address(),
     'timestamp'   : php.time_(),
@@ -1145,7 +1145,6 @@ def drupal_bootstrap(phase):
 
 
 def _drupal_bootstrap(phase):
-  global conf
   if phase == DRUPAL_BOOTSTRAP_CONFIGURATION:
     # Start a page timer:
     timer_start('page');
@@ -1245,14 +1244,13 @@ def drupal_init_language():
   """
     Choose a language for the current page, based on site and user preferences.
   """
-  global language_
   # Ensure the language is correctly returned, even without
   # multilanguage support.
   # Useful for eg. XML/HTML 'lang' attributes.
   if (variable_get('language_count', 1) == 1):
-    language_ = language_default();
+    lib_appglobals.language = language_default();
   else:
-    language_ = lib_language.initialize();
+    lib_appglobals.language = lib_language.initialize();
 
 
 

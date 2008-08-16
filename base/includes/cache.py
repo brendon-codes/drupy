@@ -50,14 +50,15 @@ def get(cid, table = 'cache'):
    @param cid
      The cache ID of the data to retrieve.
    @param table
-     The table table to store the data in. Valid core values are 'cache_filter',
+     The table table to store the data in.
+     Valid core values are 'cache_filter',
      'cache_menu', 'cache_page', or 'cache' for the default cache.
    @return The cache or FALSE on failure.
   """
   # Garbage collection necessary when enforcing a minimum cache lifetime
   cache_flush = lib_bootstrap.variable_get('cache_flush', 0);
   if (cache_flush and (cache_flush + \
-      variable_get('cache_lifetime', 0) <= time())):
+      variable_get('cache_lifetime', 0) <= php.time_())):
     # Reset the variable immediately to prevent a meltdown in heavy
     # load situations.
     variable_set('cache_flush', 0);
@@ -82,7 +83,7 @@ def get(cid, table = 'cache'):
     # cache timer. The cache variable is loaded into the user object by
     # sess_read() in session.inc.
     else:
-      if (user.cache > cache.created):
+      if (lib_appglobals.user.cache > cache.created):
         # This cache data is too old and thus not valid for us, ignore it.
         return False;
       else:
@@ -177,13 +178,12 @@ def clear_all(cid = None, table = None, wildcard = False):
      to match rather than a complete ID. The match is a right hand
      match. If '*' is given as cid, the table table will be emptied.
   """
-  global user;
-  thisTime = drupy_time();
+  thisTime = php.time_();
   if (cid == None and table == None):
     # Clear the block cache first, so stale data will
     # not end up in the page cache.
-    cache_clear_all(None, 'cache_block');
-    cache_clear_all(None, 'cache_page');
+    clear_all(None, 'cache_block');
+    clear_all(None, 'cache_page');
     return;
   if (cid == None):
     if (variable_get('cache_lifetime', 0)):
@@ -191,7 +191,7 @@ def clear_all(cid = None, table = None, wildcard = False):
       # will be saved into the sessions table by sess_write(). We then
       # simulate that the cache was flushed for this user by not returning
       # cached data that was cached before the timestamp.
-      user.cache = thisTime;
+      lib_appglobals.user.cache = thisTime;
       cache_flush = variable_get('cache_flush', 0);
       if (cache_flush == 0):
         # This is the first request to clear the cache, start a timer.
