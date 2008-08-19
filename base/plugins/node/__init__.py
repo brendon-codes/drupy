@@ -86,50 +86,96 @@ NODE_BUILD_RSS = 4
 #
 NODE_BUILD_PRINT = 5
 
-#
-# Implementation of hook_help().
-#
-def node_help(path, arg):
+def hook_help(path, arg):
+  """
+   Implementation of hook_help().
+  """
   # Remind site administrators about the {node_access} table being flagged
   # for rebuild. We don't need to issue the message on the confirm form, or
   # while the rebuild is being processed.
-  if (path != 'admin/content/node-settings/rebuild' and path != 'batch' and strpos(path, '#') == False
-      and user_access('access administration pages') and node_access_needs_rebuild()):
+  if (path != 'admin/content/node-settings/rebuild' and \
+      path != 'batch' and php.strpos(path, '#') == False
+      and lib_plugin.plugins['user'].access(\
+      'access administration pages') and access_needs_rebuild()):
     if (path == 'admin/content/node-settings'):
-      message = t('The content access permissions need to be rebuilt.')
-    }
+      message = lib_common.t(\
+        'The content access permissions need to be rebuilt.')
     else:
-      message = t('The content access permissions need to be rebuilt + Please visit <a href="@node_access_rebuild">this page</a>.', array('@node_access_rebuild' : url('admin/content/node-settings/rebuild')))
-    }
-    drupal_set_message(message, 'error')
-  }
-
-  switch (path):
-    case 'admin/help#node':
-      output = '<p>' +  t('The node module manages content on your site, and stores all posts (regardless of type) as a "node"  + In addition to basic publishing settings, including whether the post has been published, promoted to the site front page, or should remain present (or sticky) at the top of lists, the node module also records basic information about the author of a post. Optional revision control over edits is available. For additional functionality, the node module is often extended by other modules.') . '</p>'
-      output += '<p>' +  t('Though each post on your site is a node, each post is also of a particular <a href="@content-type">content type</a> + <a href="@content-type">Content types</a> are used to define the characteristics of a post, including the title and description of the fields displayed on its add and edit pages. Each content type may have different default settings for <em>Publishing options</em> and other workflow controls. By default, the two content types in a standard Drupal installation are <em>Page</em> and <em>Story</em>. Use the <a href="@content-type">content types page</a> to add new or edit existing content types. Additional content types also become available as you enable additional core, contributed and custom modules.', array('@content-type' : url('admin/build/types'))) . '</p>'
-      output += '<p>' +  t('The administrative <a href="@content">content page</a> allows you to review and manage your site content + The <a href="@post-settings">post settings page</a> sets certain options for the display of posts. The node module makes a number of permissions available for each content type, which may be set by role on the <a href="@permissions">permissions page</a>.', array('@content' : url('admin/content/node'), '@post-settings' : url('admin/content/node-settings'), '@permissions' : url('admin/user/permissions'))) . '</p>'
-      output += '<p>' +  t('For more information, see the online handbook entry for <a href="@node">Node module</a>.', array('@node' : 'http://drupal.org/handbook/modules/node/'))  + '</p>'
-      return output
-    case 'admin/content/node':
-      return ' '; // Return a non-None value so that the 'more help' link is shown.
-    case 'admin/build/types':
-      return '<p>' +  t('Below is a list of all the content types on your site + All posts that exist on your site are instances of one of these content types.') . '</p>'
-    case 'admin/build/types/add':
-      return '<p>' +  t('To create a new content type, enter the human-readable name, the machine-readable name, and all other relevant fields that are on this page + Once created, users of your site will be able to create posts that are instances of this content type.') . '</p>'
-    case 'node/%/revisions':
-      return '<p>' +  t('The revisions let you track differences between multiple versions of a post.')  + '</p>'
-    case 'node/%/edit':
-      node = node_load(arg[1])
-      type = node_get_types('type', node.type)
-      return (not empty(type.help) ? '<p>' +  filter_xss_admin(type.help)  + '</p>' : '')
-  }
-
+      message = lib_common.t('The content access permissions need to ' + \
+        'be rebuilt. Please visit ' + \
+        '<a href="@node_access_rebuild">this page</a>.', \
+        {'@node_access_rebuild' : \
+        lib_common.url('admin/content/node-settings/rebuild')})
+    lib_bootstrap.drupal_set_message(message, 'error')
+  if path == 'admin/help#node':
+    output = '<p>' +  t('The node module manages content on your ' + \
+      'site, and stores all posts (regardless of type) as a ' + \
+      '"node". In addition to basic publishing settings, including ' + \
+      'whether the post has been published, promoted to the site ' + \
+      'front page, or should remain present (or sticky) at the top ' + \
+      'of lists, the node module also records basic information about ' + \
+      'the author of a post. Optional revision control over edits is ' + \
+      'available. For additional functionality, the node module is ' + \
+      'often extended by other modules.') + '</p>'
+    output += '<p>' +  t('Though each post on your site is a node, each ' + \
+      'post is also of a particular ' + \
+      '<a href="@content-type">content type</a>. ' + \
+      '<a href="@content-type">Content types</a> are used to define the ' + \
+      'characteristics of a post, including the title and description ' + \
+      'of the fields displayed on its add and edit pages. Each ' + \
+      'content type may have different default settings for ' + \
+      '<em>Publishing options</em> and other workflow controls. ' + \
+      'By default, the two content types in a standard Drupal ' + \
+      'installation are <em>Page</em> and <em>Story</em>. Use the ' + \
+      '<a href="@content-type">content types page</a> to add new or ' + \
+      'edit existing content types. Additional content types also ' + \
+      'become available as you enable additional core, contributed and ' + \
+      'custom modules.', {'@content-type' : \
+      lib_common.url('admin/build/types')}) + '</p>'
+    output += '<p>' +  lib_common.t('The administrative ' + \
+      '<a href="@content">content page</a> allows you to review and ' + \
+      'manage your site content. The ' + \
+      '<a href="@post-settings">post settings page</a> sets certain ' + \
+      'options for the display of posts. The node module makes a ' + \
+      'number of permissions available for each content type, which ' + \
+      'may be set by role on the ' + \
+      '<a href="@permissions">permissions page</a>.', \
+      {'@content' : lib_common.url('admin/content/node'), \
+      '@post-settings' : lib_common.url('admin/content/node-settings'), \
+      '@permissions' : lib_common.url('admin/user/permissions')}) + '</p>'
+    output += '<p>' +  t('For more information, see the online ' + \
+      'handbook entry for <a href="@node">Node module</a>.', \
+      {'@node' : 'http://drupal.org/handbook/modules/node/'})  + '</p>'
+    return output
+  elif path == 'admin/content/node':
+    # Return a non-None value so that the 'more help' link is shown.
+    return ' '
+  elif path == 'admin/build/types':
+    return '<p>' +  t('Below is a list of all the content types on your ' + \
+      'site. All posts that exist on your site are instances of one ' + \
+      'of these content types.') + '</p>'
+  elif path == 'admin/build/types/add':
+    return '<p>' +  t('To create a new content type, enter the ' + \
+      'human-readable name, the machine-readable name, and all other ' + \
+      'relevant fields that are on this page. Once created, users ' + \
+      'of your site will be able to create posts that are ' + \
+      'instances of this content type.') + '</p>'
+  elif path == 'node/%/revisions':
+    return '<p>' +  lib_common.t('The revisions let you track differences ' + \
+      'between multiple versions of a post.')  + '</p>'
+  elif path == 'node/%/edit':
+    node = load(arg[1])
+    type_ = get_types('type', node.type_)
+    return (('<p>' +  filter_xss_admin(type.help)  + '</p>') if \
+      (not php.empty(type_.help)) else '')
   if (arg[0] == 'node' and arg[1] == 'add' and arg[2]):
-    type = node_get_types('type', str_replace('-', '_', arg[2]))
-    return (not empty(type.help) ? '<p>' +  filter_xss_admin(type.help)  + '</p>' : '')
-  }
-}
+    type_ = get_types('type', php.str_replace('-', '_', arg[2]))
+    return (('<p>' +  filter_xss_admin(type_.help)  + '</p>') if \
+      (not empty(type_.help)) else '')
+
+
+
+
 #
 # Implementation of hook_theme().
 #
