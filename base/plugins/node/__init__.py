@@ -176,393 +176,397 @@ def hook_help(path, arg):
 
 
 
-#
-# Implementation of hook_theme().
-#
-def node_theme():
-  return array(
-    'node' : array(
-      'arguments' : array('node' : None, 'teaser' : False, 'page' : False),
-      'template' : 'node',
-    ),
-    'node_list' : array(
-      'arguments' : array('items' : None, 'title' : None),
-    ),
-    'node_search_admin' : array(
-      'arguments' : array('form' : None),
-    ),
-    'node_filter_form' : array(
-      'arguments' : array('form' : None),
-      'file' : 'node.admin.inc',
-    ),
-    'node_filters' : array(
-      'arguments' : array('form' : None),
-      'file' : 'node.admin.inc',
-    ),
-    'node_admin_nodes' : array(
-      'arguments' : array('form' : None),
-      'file' : 'node.admin.inc',
-    ),
-    'node_add_list' : array(
-      'arguments' : array('content' : None),
-      'file' : 'node.pages.inc',
-    ),
-    'node_form' : array(
-      'arguments' : array('form' : None),
-      'file' : 'node.pages.inc',
-    ),
-    'node_preview' : array(
-      'arguments' : array('node' : None),
-      'file' : 'node.pages.inc',
-    ),
-    'node_log_message' : array(
-      'arguments' : array('log' : None),
-    ),
-    'node_submitted' : array(
-      'arguments' : array('node' : None),
-    ),
-  )
-}
-#
-# Implementation of hook_cron().
-#
-def node_cron():
-  db_query('DELETE FROM {history} WHERE timestamp < %d', NODE_NEW_LIMIT)
-}
-#
-# Gather a listing of links to nodes.
-#
-# @param result
-#   A DB result object from a query to fetch node objects. If your query
-#   joins the <code>node_comment_statistics</code> table so that the
-#   <code>comment_count</code> field is available, a title attribute will
-#   be added to show the number of comments.
-# @param title
-#   A heading for the resulting list.
-#
-# @return
-#   An HTML list suitable as content for a block, or False if no result can
-#   fetch from DB result object.
-#
-def node_title_list(result, title = None):
-  items = array()
+def hook_theme():
+  """
+   Implementation of hook_theme().
+  """
+  return {
+    'node' : {
+      'arguments' : {'node' : None, 'teaser' : False, 'page' : False},
+      'template' : 'node'
+    },
+    'node_list' : {
+      'arguments' : {'items' : None, 'title' : None}
+    },
+    'node_search_admin' : {
+      'arguments' : {'form' : None}
+    },
+    'node_filter_form' : {
+      'arguments' : {'form' : None},
+      'file' : 'node.admin.inc'
+    },
+    'node_filters' : {
+      'arguments' : {'form' : None},
+      'file' : 'node.admin.inc'
+    },
+    'node_admin_nodes' : {
+      'arguments' : {'form' : None},
+      'file' : 'node.admin.inc'
+    },
+    'node_add_list' : {
+      'arguments' : {'content' : None},
+      'file' : 'node.pages.inc'
+    },
+    'node_form' : {
+      'arguments' : {'form' : None},
+      'file' : 'node.pages.inc'
+    },
+    'node_preview' : {
+      'arguments' : {'node' : None},
+      'file' : 'node.pages.inc'
+    },
+    'node_log_message' : {
+      'arguments' : {'log' : None}
+    },
+    'node_submitted' : {
+      'arguments' : {'node' : None}
+    },
+  }
+
+
+
+
+def hook_cron():
+  """
+   Implementation of hook_cron().
+  """
+  lib_database.query('DELETE FROM {history} WHERE timestamp < %d', \
+    NODE_NEW_LIMIT)
+
+
+def title_list(result, title = None):
+  """
+   Gather a listing of links to nodes.
+  
+   @param result
+     A DB result object from a query to fetch node objects. If your query
+     joins the <code>node_comment_statistics</code> table so that the
+     <code>comment_count</code> field is available, a title attribute will
+     be added to show the number of comments.
+   @param title
+     A heading for the resulting list.
+  
+   @return
+     An HTML list suitable as content for a block, or False if no result can
+     fetch from DB result object.
+  """
+  items = []
   num_rows = False
-  while (node = db_fetch_object(result)):
-    items[] = l(node.title, 'node/' +  node.nid, not empty(node.comment_count) ? array('attributes' : array('title' : format_plural(node.comment_count, '1 comment', '@count comments'))) : array())
+  while True:
+    node = db_fetch_object(result)
+    if not node:
+      break
+    items.append(l((({'attributes' : {'title' : format_plural(\
+      node.comment_count, '1 comment', '@count comments')}}) if \
+      (node.title, 'node/' + node.nid, \
+      not php.empty(node.comment_count)) else {})))
     num_rows = True
-  }
+  return (lib_theme.theme('node_list', items, title) if num_rows else False)
 
-  return num_rows ? theme('node_list', items, title) : False
-}
-#
-# Format a listing of links to nodes.
-#
-# @ingroup themeable
-#
-def theme_node_list(items, title = None):
-  return theme('item_list', items, title)
-}
-#
-# Update the 'last viewed' timestamp of the specified node for current user.
-#
-def node_tag_new(nid):
-  global user
-  if (user.uid):
-    if (node_last_viewed(nid)):
-      db_query('UPDATE {history} SET timestamp = %d WHERE uid = %d AND nid = %d', time(), user.uid, nid)
-    }
+
+
+def theme_list(items, title = None):
+  """
+   Format a listing of links to nodes.
+  
+   @ingroup themeable
+  """
+  return lib_theme.theme('item_list', items, title)
+
+
+def tag_new(nid):
+  """
+   Update the 'last viewed' timestamp of the specified node for current user.
+  """
+  if (lib_appglobals.user.uid):
+    if (last_viewed(nid)):
+      lib_database.query('UPDATE {history} SET timestamp = %d ' + \
+        'WHERE uid = %d AND nid = %d', php.time_(), \
+        lib_appglobals.user.uid, nid)
     else:
-      @db_query('INSERT INTO {history} (uid, nid, timestamp) VALUES (%d, %d, %d)', user.uid, nid, time())
-    }
-  }
-}
-#
-# Retrieves the timestamp at which the current user last viewed the
-# specified node.
-#
-def node_last_viewed(nid):
-  global user
-  static history
-  if (not isset(history[nid])):
-    history[nid] = db_fetch_object(db_query("SELECT timestamp FROM {history} WHERE uid = %d AND nid = %d", user.uid, nid))
-  }
+      lib_database.query('INSERT INTO {history} (uid, nid, timestamp) ' + \
+        'VALUES (%d, %d, %d)', lib_appglobals.user.uid, nid, php.time_())
 
-  return (isset(history[nid].timestamp) ? history[nid].timestamp : 0)
-}
-#
-# Decide on the type of marker to be displayed for a given node.
-#
-# @param nid
-#   Node ID whose history supplies the "last viewed" timestamp.
-# @param timestamp
-#   Time which is compared against node's "last viewed" timestamp.
-# @return
-#   One of the MARK constants.
-#
-def node_mark(nid, timestamp):
-  global user
-  static cache
-  if (not user.uid):
+
+
+def last_viewed(nid):
+  """
+   Retrieves the timestamp at which the current user last viewed the
+   specified node.
+  """
+  php.static(last_view, 'history', {})
+  if (not php.isset(last_view.history, 'nid')):
+    last_view.history[nid] = lib_database.fetch_object(lib_database.query(\
+      "SELECT timestamp FROM {history} " + \
+      "WHERE uid = %d AND nid = %d", lib_appglobals.user.uid, nid))
+  return (last_view.history[nid].timestamp if \
+    php.isset(last_view.history[nid], 'timestamp') else 0)
+
+
+
+def mark(nid, timestamp):
+  """
+   Decide on the type of marker to be displayed for a given node.
+  
+   @param nid
+     Node ID whose history supplies the "last viewed" timestamp.
+   @param timestamp
+     Time which is compared against node's "last viewed" timestamp.
+   @return
+     One of the MARK constants.
+  """
+  php.static(mark, 'cache', {})
+  if (not lib_appglobals.user.uid):
     return MARK_READ
-  }
-  if (not isset(cache[nid])):
-    cache[nid] = node_last_viewed(nid)
-  }
-  if (cache[nid] == 0 and timestamp > NODE_NEW_LIMIT):
+  if (not php.isset(mark.cache, 'nid')):
+    mark.cache[nid] = last_viewed(nid)
+  if (mark.cache[nid] == 0 and timestamp > NODE_NEW_LIMIT):
     return MARK_NEW
-  }
-  elif (timestamp > cache[nid] and timestamp > NODE_NEW_LIMIT):
+  elif (timestamp > mark.cache[nid] and timestamp > NODE_NEW_LIMIT):
     return MARK_UPDATED
-  }
   return MARK_READ
-}
-#
-# See if the user used JS to submit a teaser.
-#
-def node_teaser_js(&form, &form_state):
-  if (isset(form['#post']['teaser_js'])):
+
+
+def teaser_js(form, form_state):  
+  """
+   See if the user used JS to submit a teaser.
+  """
+  php.Reference.check(form)
+  php.Reference.check(form_state)
+  if (php.isset(form['#post'], 'teaser_js')):
     # Glue the teaser to the body.
-    if (trim(form_state['values']['teaser_js'])):
+    if (php.trim(form_state['values']['teaser_js'])):
       # Space the teaser from the body
-      body = trim(form_state['values']['teaser_js']) +  "\r\n<not --break-.\r\n"  + trim(form_state['values']['body'])
-    }
+      body = php.trim(form_state['values']['teaser_js']) + \
+        "\r\n<not --break-.\r\n"  + php.trim(form_state['values']['body'])
     else:
       # Empty teaser, no spaces.
       body = '<not --break-.' +  form_state['values']['body']
-    }
     # Pass updated body value on to preview/submit form processing.
     form_set_value(form['body'], body, form_state)
     # Pass updated body value back onto form for those cases
     # in which the form is redisplayed.
     form['body']['#value'] = body
-  }
   return form
-}
-#
-# Ensure value of "teaser_include" checkbox is consistent with other form data.
-#
-# This handles two situations in which an unchecked checkbox is rejected:
-#
-#   1. The user defines a teaser (summary) but it is empty
-#   2. The user does not define a teaser (summary) (in this case an
-#      unchecked checkbox would cause the body to be empty, or missing
-#      the auto-generated teaser).
-#
-# If JavaScript is active then it is used to force the checkbox to be
-# checked when hidden, and so the second case will not arise.
-#
-# In either case a warning message is output.
-#
-def node_teaser_include_verify(&form, &form_state):
+
+
+
+def teaser_include_verify(form, form_state):
+  """
+   Ensure value of "teaser_include" checkbox is consistent with other form data.
+  
+   This handles two situations in which an unchecked checkbox is rejected:
+  
+     1. The user defines a teaser (summary) but it is empty
+     2. The user does not define a teaser (summary) (in this case an
+        unchecked checkbox would cause the body to be empty, or missing
+        the auto-generated teaser).
+  
+   If JavaScript is active then it is used to force the checkbox to be
+   checked when hidden, and so the second case will not arise.
+  
+   In either case a warning message is output.
+  """
+  php.Reference.check(form)
+  php.Reference.check(form_state)
   message = ''
   # form['#post'] is set only when the form is built for preview/submit.
-  if (isset(form['#post']['body']) and isset(form_state['values']['teaser_include']) and not form_state['values']['teaser_include']):
+  if (php.isset(form['#post']['body']) and \
+      php.isset(form_state['values'], 'teaser_include') and \
+      not form_state['values']['teaser_include']):
     # "teaser_include" checkbox is present and unchecked.
-    if (strpos(form_state['values']['body'], '<not --break-.') == 0):
+    if (php.strpos(form_state['values']['body'], '<!--break-.') == 0):
       # Teaser is empty string.
-      message = t('You specified that the summary should not be shown when this post is displayed in full view + This setting is ignored when the summary is empty.')
-    }
-    elif (strpos(form_state['values']['body'], '<not --break-.') == False):
+      message = lib_common.t(\
+        'You specified that the summary should not be shown when this ' + \
+        'post is displayed in full view. This setting is ignored ' + \
+        'when the summary is empty.')
+    elif (php.strpos(form_state['values']['body'], '<!--break-.') == False):
       # Teaser delimiter is not present in the body.
-      message = t('You specified that the summary should not be shown when this post is displayed in full view + This setting has been ignored since you have not defined a summary for the post. (To define a summary, insert the delimiter "&lt;not --break--&gt;" (without the quotes) in the Body of the post to indicate the end of the summary and the start of the main content.)')
-    }
-
-    if (not empty(message)):
+      message = lib_common.t('You specified that the summary should ' + \
+        'not be shown when this post is displayed in full view. ' + \
+        'This setting has been ignored since you have not defined a ' + \
+        'summary for the post. (To define a summary, insert the ' + \
+        'delimiter "&lt;not --break--&gt;" (without the quotes) in ' + \
+        'the Body of the post to indicate the end of the summary and ' + \
+        'the start of the main content.)')
+    if (not php.empty(message)):
       drupal_set_message(message, 'warning')
       # Pass new checkbox value on to preview/submit form processing.
       form_set_value(form['teaser_include'], 1, form_state)
       # Pass new checkbox value back onto form for those cases
       # in which form is redisplayed.
       form['teaser_include']['#value'] = 1
-    }
-  }
-
   return form
-}
-#
-# Generate a teaser for a node body.
-#
-# If the end of the teaser is not indicated using the <not --break-. delimiter
-# then we generate the teaser automatically, trying to end it at a sensible
-# place such as the end of a paragraph, a line break, or the end of a
-# sentence (in that order of preference).
-#
-# @param body
-#   The content for which a teaser will be generated.
-# @param format
-#   The format of the content. If the content contains PHP code, we do not
-#   split it up to prevent parse errors. If the line break filter is present
-#   then we treat newlines embedded in body as line breaks.
-# @param size
-#   The desired character length of the teaser. If omitted, the default
-#   value will be used. Ignored if the special delimiter is present
-#   in body.
-# @return
-#   The generated teaser.
-#
-def node_teaser(body, format = None, size = None):
 
-  if (not isset(size)):
-    size = variable_get('teaser_length', 600)
-  }
 
+
+def teaser(body, format = None, size = None):
+  """
+   Generate a teaser for a node body.
+  
+   If the end of the teaser is not indicated using the <!--break-. delimiter
+   then we generate the teaser automatically, trying to end it at a sensible
+   place such as the end of a paragraph, a line break, or the end of a
+   sentence (in that order of preference).
+  
+   @param body
+     The content for which a teaser will be generated.
+   @param format
+     The format of the content. If the content contains PHP code, we do not
+     split it up to prevent parse errors. If the line break filter is present
+     then we treat newlines embedded in body as line breaks.
+   @param size
+     The desired character length of the teaser. If omitted, the default
+     value will be used. Ignored if the special delimiter is present
+     in body.
+   @return
+     The generated teaser.
+  """
+  if (size is None):
+    size = lib_bootstrap.variable_get('teaser_length', 600)
   # Find where the delimiter is in the body
-  delimiter = strpos(body, '<not --break-.')
-  # If the size is zero, and there is no delimiter, the entire body is the teaser.
+  delimiter = php.strpos(body, '<!--break-.')
+  # If the size is zero, and there is no delimiter,
+  # the entire body is the teaser.
   if (size == 0 and delimiter == False):
     return body
-  }
-
   # If a valid delimiter has been specified, use it to chop off the teaser.
-  if (delimiter !== False):
-    return substr(body, 0, delimiter)
-  }
-
+  if (delimiter is not False):
+    return php.substr(body, 0, delimiter)
   # We check for the presence of the PHP evaluator filter in the current
   # format. If the body contains PHP code, we do not split it up to prevent
   # parse errors.
-  if (isset(format)):
+  if (format is not None):
     filters = filter_list_format(format)
-    if (isset(filters['php/0']) and strpos(body, '<?') !== False):
+    if (php.isset(filters['php/0']) and php.strpos(body, '<?') is not False):
       return body
-    }
-  }
-
   # If we have a short body, the entire body is the teaser.
   if (drupal_strlen(body) <= size):
     return body
-  }
-
   # If the delimiter has not been specified, try to split at paragraph or
   # sentence boundaries.
-
   # The teaser may not be longer than maximum length specified. Initial slice.
   teaser = truncate_utf8(body, size)
   # Store the actual length of the UTF8 string -- which might not be the same
   # as size.
-  max_rpos = strlen(teaser)
+  max_rpos = php.strlen(teaser)
   # How much to cut off the end of the teaser so that it doesn't end in the
   # middle of a paragraph, sentence, or word.
   # Initialize it to maximum in order to find the minimum.
   min_rpos = max_rpos
   # Store the reverse of the teaser.  We use strpos on the reversed needle and
   # haystack for speed and convenience.
-  reversed = strrev(teaser)
+  reversed = php.strrev(teaser)
   # Build an array of arrays of break points grouped by preference.
   break_points = array()
   # A paragraph near the end of sliced teaser is most preferable.
-  break_points[] = array('</p>' : 0)
+  break_points.append( {'</p>' : 0} )
   # If no complete paragraph then treat line breaks as paragraphs.
-  line_breaks = array('<br />' : 6, '<br>' : 4)
+  line_breaks = {'<br />' : 6, '<br>' : 4}
   # Newline only indicates a line break if line break converter
   # filter is present.
-  if (isset(filters['filter/1'])):
+  if (php.isset(filters['filter/1'])):
     line_breaks["\n"] = 1
-  }
-  break_points[] = line_breaks
+  break_points.append( line_breaks )
   # If the first paragraph is too long, split at the end of a sentence.
-  break_points[] = array(' + ' : 1, 'not  ' : 1, '? ' : 1, '。' : 0, '؟ ' : 1)
+  # @TODO DRUPY: Fix this somehow
+  # There are additional characters at the end of this line
+  break_points.append( {'. ' : 1, '!  ' : 1, '? ' : 1} )
   # Iterate over the groups of break points until a break point is found.
   for points in break_points:
     # Look for each break point, starting at the end of the teaser.
     for point,offset in points.items():
       # The teaser is already reversed, but the break point isn't.
-      rpos = strpos(reversed, strrev(point))
-      if (rpos !== False):
-        min_rpos = min(rpos + offset, min_rpos)
-      }
-    }
-
+      rpos = php.strpos(reversed, php.strrev(point))
+      if (rpos is not False):
+        min_rpos = php.min(rpos + offset, min_rpos)
     # If a break point was found in this group, slice and return the teaser.
-    if (min_rpos !== max_rpos):
+    if (min_rpos != max_rpos):
       # Don't slice with length 0.  Length must be <0 to slice from RHS.
-      return (min_rpos == 0) ? teaser : substr(teaser, 0, 0 - min_rpos)
-    }
-  }
-
+      return (teaser if (min_rpos == 0) else \
+        php.substr(teaser, 0, 0 - min_rpos))
   # If a break point was not found, still return a teaser.
   return teaser
-}
-#
-# Builds a list of available node types, and returns all of part of this list
-# in the specified format.
-#
-# @param op
-#   The format in which to return the list. When this is set to 'type',
-#   'module', or 'name', only the specified node type is returned. When set to
-#   'types' or 'names', all node types are returned.
-# @param node
-#   A node object, array, or string that indicates the node type to return.
-#   Leave at default value (None) to return a list of all node types.
-# @param reset
-#   Whether or not to reset this function's internal cache (defaults to
-#   False).
-#
-# @return
-#   Either an array of all available node types, or a single node type, in a
-#   variable format. Returns False if the node type is not found.
-#
-def node_get_types(op = 'types', node = None, reset = False):
-  static _node_types, _node_names
-  if (reset or not isset(_node_types)):
-    list(_node_types, _node_names) = _node_types_build()
-  }
 
+
+
+
+def get_types(op = 'types', node = None, reset = False):
+  """
+   Builds a list of available node types, and returns all of part of this list
+   in the specified format.
+  
+   @param op
+     The format in which to return the list. When this is set to 'type',
+     'module', or 'name', only the specified node type is returned. When set to
+     'types' or 'names', all node types are returned.
+   @param node
+     A node object, array, or string that indicates the node type to return.
+     Leave at default value (None) to return a list of all node types.
+   @param reset
+     Whether or not to reset this function's internal cache (defaults to
+     False).
+  
+   @return
+     Either an array of all available node types, or a single node type, in a
+     variable format. Returns False if the node type is not found.
+  """
+  php.static(get_types, '_node_types', {})
+  php.static(get_types, '_get_types', {})
+  if (reset or php.empty(get_types._node_types)):
+    get_types._node_types, get_types._node_names = _types_build()
   if (node):
-    if (is_array(node)):
-      type = node['type']
-    }
-    elif (is_object(node)):
-      type = node.type
-    }
-    elif (is_string(node)):
-      type = node
-    }
-    if (not isset(_node_types[type])):
+    if (php.is_array(node)):
+      type_ = node['type']
+    elif (php.is_object(node)):
+      type_ = node.type_
+    elif (php.is_string(node)):
+      type_ = node
+    if (not php.isset(get_types._node_types, 'type_')):
       return False
-    }
-  }
-  switch (op):
-    case 'types':
-      return _node_types
-    case 'type':
-      return isset(_node_types[type]) ? _node_types[type] : False
-    case 'module':
-      return isset(_node_types[type].module) ? _node_types[type].module : False
-    case 'names':
-      return _node_names
-    case 'name':
-      return isset(_node_names[type]) ? _node_names[type] : False
-  }
-}
-#
-# Resets the database cache of node types, and saves all new or non-modified
-# module-defined node types to the database.
-#
-def node_types_rebuild():
-  _node_types_build()
-  node_types = node_get_types('types', None, True)
-  for type,info in node_types.items():
-    if (not empty(info.is_new)):
-      node_type_save(info)
-    }
-    if (not empty(info.disabled)):
-      node_type_delete(info.type)
-    }
-  }
+  if op == 'types':
+    return _node_types
+  elif op =='type':
+    return (_node_types[type] if \
+      php.isset(get_types._node_types, type_) else False)
+  elif op == 'module':
+    return (get_types._node_types[type_].plugin if \
+      php.isset(get_types._node_types[type_], 'plugin') else False)
+  elif op == 'names':
+    return get_types._node_names
+  elif op =='name':
+    return (get_types._node_names[type_] if \
+      php.isset(_node_names, type_) else False)
 
-  _node_types_build()
-}
-#
-# Saves a node type to the database.
-#
-# @param info
-#   The node type to save, as an object.
-#
-# @return
-#   Status flag indicating outcome of the operation.
-#
-def node_type_save(info):
+
+
+def types_rebuild():
+  """
+   Resets the database cache of node types, and saves all new or non-modified
+   module-defined node types to the database.
+  """
+  _types_build()
+  node_types = get_types('types', None, True)
+  for type_,info in node_types.items():
+    if (not empty(info.is_new)):
+      type_save(info)
+    if (not empty(info.disabled)):
+      type_delete(info.type_)
+  _types_build()
+
+
+
+def type_save(info):
+  """
+   Saves a node type to the database.
+  
+   @param info
+     The node type to save, as an object.
+  
+   @return
+     Status flag indicating outcome of the operation.
+  """
   is_existing = False
   existing_type = not empty(info.old_type) ? info.old_type : info.type
   is_existing = db_result(db_query("SELECT COUNT(*) FROM {node_type} WHERE type = '%s'", existing_type))
