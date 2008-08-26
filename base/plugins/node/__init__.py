@@ -499,7 +499,8 @@ def get_types(op = 'types', node = None, reset = False):
   
    @param op
      The format in which to return the list. When this is set to 'type',
-     'module', or 'name', only the specified node type is returned. When set to
+     'module', or 'name', only the specified node type is
+     returned. When set to
      'types' or 'names', all node types are returned.
    @param node
      A node object, array, or string that indicates the node type to return.
@@ -568,162 +569,174 @@ def type_save(info):
      Status flag indicating outcome of the operation.
   """
   is_existing = False
-  existing_type = not empty(info.old_type) ? info.old_type : info.type
-  is_existing = db_result(db_query("SELECT COUNT(*) FROM {node_type} WHERE type = '%s'", existing_type))
-  if (not isset(info.help)):
+  existing_type = (info.old_type if \
+    not php.empty(info.old_type) else info.type)
+  is_existing = lib_database.result(lib_database.query(\
+    "SELECT COUNT(*) FROM {node_type} WHERE type = '%s'", existing_type))
+  if (not php.isset(info, 'help')):
     info.help = ''
-  }
-  if (not isset(info.min_word_count)):
+  if (not isset(info, 'min_word_count')):
     info.min_word_count = 0
-  }
-  if (not isset(info.body_label)):
+  if (not isset(info, 'body_label')):
     info.body_label = ''
-  }
-
   if (is_existing):
-    db_query("UPDATE {node_type} SET type = '%s', name = '%s', module = '%s', has_title = %d, title_label = '%s', has_body = %d, body_label = '%s', description = '%s', help = '%s', min_word_count = %d, custom = %d, modified = %d, locked = %d WHERE type = '%s'", info.type, info.name, info.module, info.has_title, info.title_label, info.has_body, info.body_label, info.description, info.help, info.min_word_count, info.custom, info.modified, info.locked, existing_type)
-    module_invoke_all('node_type', 'update', info)
+    lib_database.query(\
+      "UPDATE {node_type} SET type = '%s', name = '%s', " + \
+      "module = '%s', has_title = %d, title_label = '%s', " + \
+      "has_body = %d, body_label = '%s', description = '%s', " + \
+      "help = '%s', min_word_count = %d, custom = %d, modified = %d, " + \
+      "locked = %d WHERE type = '%s'", \
+      info.type, info.name, info.module, info.has_title, \
+      info.title_label, info.has_body, info.body_label, \
+      info.description, info.help, info.min_word_count, \
+      info.custom, info.modified, info.locked, existing_type)
+    lib_plugin.invoke_all('node_type', 'update', info)
     return SAVED_UPDATED
-  }
   else:
-    db_query("INSERT INTO {node_type} (type, name, module, has_title, title_label, has_body, body_label, description, help, min_word_count, custom, modified, locked, orig_type) VALUES ('%s', '%s', '%s', %d, '%s', %d, '%s', '%s', '%s', %d, %d, %d, %d, '%s')", info.type, info.name, info.module, info.has_title, info.title_label, info.has_body, info.body_label, info.description, info.help, info.min_word_count, info.custom, info.modified, info.locked, info.orig_type)
-    module_invoke_all('node_type', 'insert', info)
+    lib_database.query("INSERT INTO {node_type} (type, name, module, " + \
+      "has_title, title_label, has_body, body_label, description, " + \
+      "help, min_word_count, custom, modified, locked, orig_type) " + \
+      "VALUES ('%s', '%s', '%s', %d, '%s', %d, '%s', '%s', '%s', " + \
+      "%d, %d, %d, %d, '%s')", + \
+      info.type, info.name, info.module, info.has_title, \
+      info.title_label, info.has_body, info.body_label, \
+      info.description, info.help, info.min_word_count, \
+      info.custom, info.modified, info.locked, info.orig_type)
+    lib_plugin.invoke_all('node_type', 'insert', info)
     return SAVED_NEW
-  }
-}
-#
-# Deletes a node type from the database.
-#
-# @param type
-#   The machine-readable name of the node type to be deleted.
-#
-def node_type_delete(type):
-  info = node_get_types('type', type)
-  db_query("DELETE FROM {node_type} WHERE type = '%s'", type)
-  module_invoke_all('node_type', 'delete', info)
-}
-#
-# Updates all nodes of one type to be of another type.
-#
-# @param old_type
-#   The current node type of the nodes.
-# @param type
-#   The new node type of the nodes.
-#
-# @return
-#   The number of nodes whose node type field was modified.
-#
-def node_type_update_nodes(old_type, type):
-  db_query("UPDATE {node} SET type = '%s' WHERE type = '%s'", type, old_type)
-  return db_affected_rows()
-}
-#
-# Builds and returns the list of available node types.
-#
-# The list of types is built by querying hook_node_info() in all modules, and
-# by comparing this information with the node types in the {node_type} table.
-#
-#
-def _node_types_build():
-  _node_types = array()
-  _node_names = array()
-  info_array = module_invoke_all('node_info')
-  for type,info in info_array.items():
-    info['type'] = type
-    _node_types[type] = (object) _node_type_set_defaults(info)
-    _node_names[type] = info['name']
-  }
 
-  type_result = db_query(db_rewrite_sql('SELECT nt.type, nt.* FROM {node_type} nt ORDER BY nt.type ASC', 'nt', 'type'))
-  while (type_object = db_fetch_object(type_result)):
-    # Check for node types from disabled modules and mark their types for removal.
-    # Types defined by the node module in the database (rather than by a separate
+
+def type_delete(type_):
+  """
+   Deletes a node type from the database.
+  
+   @param type
+     The machine-readable name of the node type to be deleted.
+  """
+  info = get_types('type', type_)
+  lib_database.query("DELETE FROM {node_type} WHERE type = '%s'", type_)
+  lib_plugin.invoke_all('node_type', 'delete', info)
+
+
+
+def type_update_nodes(old_type, type_):
+  """
+   Updates all nodes of one type to be of another type.
+  
+   @param old_type
+     The current node type of the nodes.
+   @param type
+     The new node type of the nodes.
+  
+   @return
+     The number of nodes whose node type field was modified.
+  """
+  lib_database.query("UPDATE {node} SET type = '%s' WHERE type = '%s'", \
+    type_, old_type)
+  return lib_database.affected_rows()
+
+
+
+def _types_build():
+  """
+   Builds and returns the list of available node types.
+  
+   The list of types is built by querying hook_node_info() in all modules, and
+   by comparing this information with the node types in the {node_type} table.
+  """
+  _node_types = []
+  _node_names = []
+  info_array = lib_plugin.invoke_all('node_info')
+  for type_,info in info_array.items():
+    info['type'] = type_
+    _node_types[type_] = php.object_(_type_set_defaults(info))
+    _node_names[type_] = info['name']
+  type_result = lib_database.query(lib_database.rewrite_sql('\
+    SELECT nt.type, nt.* FROM {node_type} nt ORDER BY nt.type ASC', \
+    'nt', 'type'))
+  while True:
+    type_object = lib_database.fetch_object(type_result)
+    if type_object:
+      break
+    # Check for node types from disabled modules and mark
+    # their types for removal.
+    # Types defined by the node module in the database
+    # (rather than by a separate
     # module using hook_node_info) have a module value of 'node'.
-    if (type_object.module != 'node' and empty(info_array[type_object.type])):
+    if (type_object.plugin != 'node' and \
+        php.empty(info_array[type_object.type_])):
       type_object.disabled = True
-    }
-    if (not isset(_node_types[type_object.type]) or type_object.modified):
-      _node_types[type_object.type] = type_object
-      _node_names[type_object.type] = type_object.name
-      if (type_object.type != type_object.orig_type):
-        unset(_node_types[type_object.orig_type])
-        unset(_node_names[type_object.orig_type])
-      }
-    }
-  }
+    if (not php.isset(_node_types, type_object.type_) or type_object.modified):
+      _node_types[type_object.type_] = type_object
+      _node_names[type_object.type_] = type_object.name
+      if (type_object.type_ != type_object.orig_type):
+        del(_node_types[type_object.orig_type])
+        del(_node_names[type_object.orig_type])
+  php.asort(_node_names)
+  return (_node_types, _node_names)
 
-  asort(_node_names)
-  return array(_node_types, _node_names)
-}
-#
-# Set default values for a node type defined through hook_node_info().
-#
-def _node_type_set_defaults(info):
-  if (not isset(info['has_title'])):
+
+
+def _type_set_defaults(info):
+  """
+   Set default values for a node type defined through hook_node_info().
+  """
+  if (not php.isset(info['has_title'])):
     info['has_title'] = True
-  }
-  if (info['has_title'] and not isset(info['title_label'])):
+  if (info['has_title'] and not php.isset(info, 'title_label')):
     info['title_label'] = t('Title')
-  }
-
-  if (not isset(info['has_body'])):
+  if (not isset(info, 'has_body')):
     info['has_body'] = True
-  }
-  if (info['has_body'] and not isset(info['body_label'])):
-    info['body_label'] = t('Body')
-  }
-
-  if (not isset(info['help'])):
+  if (info['has_body'] and not php.isset(info, 'body_label')):
+    info['body_label'] = lib_common.t('Body')
+  if (not php.isset(info, 'help')):
     info['help'] = ''
-  }
-  if (not isset(info['min_word_count'])):
+  if (not php.isset(info, 'min_word_count')):
     info['min_word_count'] = 0
-  }
-  if (not isset(info['custom'])):
+  if (not php.isset(info, 'custom')):
     info['custom'] = False
-  }
-  if (not isset(info['modified'])):
+  if (not php.isset(info, 'modified')):
     info['modified'] = False
-  }
-  if (not isset(info['locked'])):
+  if (not php.isset(info, 'locked')):
     info['locked'] = True
-  }
-
   info['orig_type'] = info['type']
   info['is_new'] = True
   return info
-}
-#
-# Determine whether a node hook exists.
-#
-# @param &node
-#   Either a node object, node array, or a string containing the node type.
-# @param hook
-#   A string containing the name of the hook.
-# @return
-#   True iff the hook exists in the node type of node.
-#
-def node_hook(&node, hook):
-  module = node_get_types('module', node)
+
+
+
+def hook(node, hook_):
+  """
+   Determine whether a node hook exists.
+  
+   @param &node
+     Either a node object, node array, or a string containing the node type.
+   @param hook
+     A string containing the name of the hook.
+   @return
+     True iff the hook exists in the node type of node.
+  """
+  plugin = get_types('module', node)
   if (module == 'node'):
     # Avoid function name collisions.
-    module = 'node_content'
-  }
-  return module_hook(module, hook)
-}
-#
-# Invoke a node hook.
-#
-# @param &node
-#   Either a node object, node array, or a string containing the node type.
-# @param hook
-#   A string containing the name of the hook.
-# @param a2, a3, a4
-#   Arguments to pass on to the hook, after the node argument.
-# @return
-#   The returned value of the invoked hook.
-#
+    lib_plugin = 'node_content'
+  return lib_plugin.hook(plugin, hook_)
+
+
+
 def node_invoke(&node, hook, a2 = None, a3 = None, a4 = None):
+  """
+   Invoke a node hook.
+  
+   @param &node
+     Either a node object, node array, or a string containing the node type.
+   @param hook
+     A string containing the name of the hook.
+   @param a2, a3, a4
+     Arguments to pass on to the hook, after the node argument.
+   @return
+     The returned value of the invoked hook.
+  """
   if (node_hook(node, hook)):
     module = node_get_types('module', node)
     if (module == 'node'):
