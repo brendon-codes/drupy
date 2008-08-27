@@ -724,7 +724,7 @@ def hook(node, hook_):
 
 
 
-def node_invoke(&node, hook, a2 = None, a3 = None, a4 = None):
+def invoke(node, hook_, a2 = None, a3 = None, a4 = None):
   """
    Invoke a node hook.
   
@@ -737,128 +737,123 @@ def node_invoke(&node, hook, a2 = None, a3 = None, a4 = None):
    @return
      The returned value of the invoked hook.
   """
-  if (node_hook(node, hook)):
-    module = node_get_types('module', node)
-    if (module == 'node'):
-      module = 'node_content'; // Avoid function name collisions.
-    }
-    function = module +  '_'  + hook
-    return (function(node, a2, a3, a4))
-  }
-}
-#
-# Invoke a hook_nodeapi() operation in all modules.
-#
-# @param &node
-#   A node object.
-# @param op
-#   A string containing the name of the nodeapi operation.
-# @param a3, a4
-#   Arguments to pass on to the hook, after the node and op arguments.
-# @return
-#   The returned value of the invoked hooks.
-#
-def node_invoke_nodeapi(&node, op, a3 = None, a4 = None):
-  return = array()
-  foreach (module_implements('nodeapi') as name):
-    function = name +  '_nodeapi'
-    result = function(node, op, a3, a4)
-    if (isset(result) and is_array(result)):
-      return = array_merge(return, result)
-    }
-    elif (isset(result)):
-      return[] = result
-    }
-  }
-  return return
-}
-#
-# Load a node object from the database.
-#
-# @param param
-#   Either the nid of the node or an array of conditions to match against in the database query
-# @param revision
-#   Which numbered revision to load. Defaults to the current version.
-# @param reset
-#   Whether to reset the internal node_load cache.
-#
-# @return
-#   A fully-populated node object.
-#
-def node_load(param = array(), revision = None, reset = None):
-  static nodes = array()
-  if (reset):
-    nodes = array()
-  }
+  if (hook(node, hook_)):
+    plugin = get_types('plugin', node)
+    if (plugin == 'node'):
+      # Avoid function name collisions.
+      plugin = 'content'; 
+    function = plugin +  '_'  + hook
+    return php.call_user_func(function, node, a2, a3, a4)
 
+
+
+def invoke_nodeapi(node, op, a3 = None, a4 = None):
+  """
+   Invoke a hook_nodeapi() operation in all modules.
+  
+   @param &node
+     A node object.
+   @param op
+     A string containing the name of the nodeapi operation.
+   @param a3, a4
+     Arguments to pass on to the hook, after the node and op arguments.
+   @return
+     The returned value of the invoked hooks.
+  """
+  return_ = []
+  for name in lib_plugin.implements('nodeapi'):
+    function = DrupyImport.getFunction(lib_plugin.plugins[name], 'nodeapi')
+    result = function(node, op, a3, a4)
+    if (result and php.is_array(result)):
+      return_ = php.array_merge(return_, result)
+    elif (result):
+      return_.append( result )
+  return return_
+
+
+"""
+ Load a node object from the database.
+
+ @param param
+   Either the nid of the node or an array of conditions to match against in
+   the database query
+ @param revision
+   Which numbered revision to load. Defaults to the current version.
+ @param reset
+   Whether to reset the internal node_load cache.
+
+ @return
+   A fully-populated node object.
+"""
+def load(param = [], revision = None, reset = None):
+  php.static(load, 'nodes', [])
+  if (reset):
+    load.nodes = []
   cachable = (revision == None)
-  arguments = array()
-  if (is_numeric(param)):
+  arguments = []
+  if (php.is_numeric(param)):
     if (cachable):
       # Is the node statically cached?
-      if (isset(nodes[param])):
-        return is_object(nodes[param]) ? clone nodes[param] : nodes[param]
-      }
-    }
+      if (php.isset(load.nodes[param])):
+        return (php.clone(nodes[param]) if \
+          php.is_object(load.nodes[param]) else nodes[param])
     cond = 'n.nid = %d'
-    arguments[] = param
-  }
-  elif (is_array(param)):
+    arguments.append( param )
+  elif (php.is_array(param)):
     # Turn the conditions into a query.
     for key,value in param.items():
-      cond[] = 'n.' +  db_escape_table(key)  + " = '%s'"
-      arguments[] = value
-    }
+      cond.append( 'n.' +  lib_database.escape_table(key)  + " = '%s'" )
+      arguments.append( value )
     cond = implode(' AND ', cond)
-  }
   else:
     return False
-  }
-
   # Retrieve a field list based on the site's schema.
   fields = drupal_schema_fields_sql('node', 'n')
-  fields = array_merge(fields, drupal_schema_fields_sql('node_revisions', 'r'))
-  fields = array_merge(fields, array('u.name', 'u.picture', 'u.data'))
+  fields = php.array_merge(fields, \
+    drupal_schema_fields_sql('node_revisions', 'r'))
+  fields = php.array_merge(fields, ('u.name', 'u.picture', 'u.data'))
   # Remove fields not needed in the query: n.vid and r.nid are redundant,
   # n.title is unnecessary because the node title comes from the
   # node_revisions table.  We'll keep r.vid, r.title, and n.nid.
-  fields = array_diff(fields, array('n.vid', 'n.title', 'r.nid'))
-  fields = implode(', ', fields)
+  fields = php.array_diff(fields, ('n.vid', 'n.title', 'r.nid'))
+  fields = php.implode(', ', fields)
   # Rename timestamp field for clarity.
-  fields = str_replace('r.timestamp', 'r.timestamp AS revision_timestamp', fields)
+  fields = php.str_replace('r.timestamp', \
+    'r.timestamp AS revision_timestamp', fields)
   # Change name of revision uid so it doesn't conflict with n.uid.
-  fields = str_replace('r.uid', 'r.uid AS revision_uid', fields)
+  fields = php.str_replace('r.uid', 'r.uid AS revision_uid', fields)
   # Retrieve the node.
   # No db_rewrite_sql is applied so as to get complete indexing for search.
   if (revision):
-    array_unshift(arguments, revision)
-    node = db_fetch_object(db_query('SELECT ' +  fields  + ' FROM {node} n INNER JOIN {users} u ON u.uid = n.uid INNER JOIN {node_revisions} r ON r.nid = n.nid AND r.vid = %d WHERE ' . cond, arguments))
-  }
+    php.array_unshift(arguments, revision)
+    node = lib_database.fetch_object(lib_database.query(\
+      'SELECT ' + fields  + ' FROM {node} n ' + \
+      'INNER JOIN {users} u ON u.uid = n.uid ' + \
+      'INNER JOIN {node_revisions} r ON r.nid = n.nid AND r.vid = %d ' + \
+      'WHERE ' + cond, arguments))
   else:
-    node = db_fetch_object(db_query('SELECT ' +  fields  + ' FROM {node} n INNER JOIN {users} u ON u.uid = n.uid INNER JOIN {node_revisions} r ON r.vid = n.vid WHERE ' . cond, arguments))
-  }
-
+    node = lib_database.fetch_object(lib_database.query(\
+      'SELECT ' +  fields  + ' FROM {node} n ' + \
+      'INNER JOIN {users} u ON u.uid = n.uid ' + \
+      'INNER JOIN {node_revisions} r ON r.vid = n.vid WHERE ' + \
+      cond, arguments))
   if (node and node.nid):
     # Call the node specific callback (if any) and piggy-back the
     # results to the node or overwrite some values.
-    if (extra = node_invoke(node, 'load')):
+    extra = invoke(node, 'load')
+    if extra:
       for key,value in extra.items():
-        node.$key = value
-      }
-    }
-
-    if (extra = node_invoke_nodeapi(node, 'load')):
+        setattr(node, key, value)
+    extra = invoke_nodeapi(node, 'load')
+    if extra:
       for key,value in extra.items():
-        node.$key = value
-      }
-    }
+        setattr(node.$key = value
     if (cachable):
       nodes[node.nid] = is_object(node) ? clone node : node
-    }
-  }
-
   return node
-}
+
+
+
 #
 # Perform validation checks on the given node.
 #
