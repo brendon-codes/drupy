@@ -847,49 +847,56 @@ def load(param = [], revision = None, reset = None):
     extra = invoke_nodeapi(node, 'load')
     if extra:
       for key,value in extra.items():
-        setattr(node.$key = value
+        setattr(node, key, value)
     if (cachable):
-      nodes[node.nid] = is_object(node) ? clone node : node
+      nodes[node.nid] = (php.clone(node) if php.is_object(node) else node)
   return node
 
 
 
-#
-# Perform validation checks on the given node.
-#
-def node_validate(node, form = array()):
+def validate(node, form = array()):
+  """
+   Perform validation checks on the given node.
+  """
   # Convert the node to an object, if necessary.
-  node = (object)node
-  type = node_get_types('type', node)
+  node = php.object_(node)
+  type_ = get_types('type', node)
   # Make sure the body has the minimum number of words.
-  # TODO : use a better word counting algorithm that will work in other languages
-  if (not empty(type.min_word_count) and isset(node.body) and count(explode(' ', node.body)) < type.min_word_count):
-    form_set_error('body', t('The body of your @type is too short + You need at least %words words.', array('%words' : type.min_word_count, '@type' : type.name)))
-  }
-
-  if (isset(node.nid) and (node_last_changed(node.nid) > node.changed)):
-    form_set_error('changed', t('This content has been modified by another user, changes cannot be saved.'))
-  }
-
-  if (user_access('administer nodes')):
+  # TODO : use a better word counting algorithm that will work in other
+  # languages
+  if (not php.empty(type_.min_word_count) and php.isset(node, 'body') and \
+      php.count(php.explode(' ', node.body)) < type_.min_word_count):
+    lib_form.set_error('body', lib_common.t(\
+      'The body of your @type is too short. You need at least ' + 
+      '%words words.', \
+      {'%words' : type.min_word_count, '@type' : type.name}))
+  if (php.isset(node, 'nid') and (last_changed(node.nid) > node.changed)):
+    lib_form.set_error('changed', t(\
+      'This content has been modified by another user, ' + \
+      'changes cannot be saved.'))
+  if (lib_plugin.plugins['user'].access('administer nodes')):
     # Validate the "authored by" field.
-    if (not empty(node.name) and not (account = user_load(array('name' : node.name)))):
-      # The use of empty() is mandatory in the context of usernames
-      # as the empty string denotes the anonymous user. In case we
-      # are dealing with an anonymous user we set the user ID to 0.
-      form_set_error('name', t('The username %name does not exist.', array('%name' : node.name)))
-    }
-
-    # Validate the "authored on" field. As of PHP 5.1.0, strtotime returns False instead of -1 upon failure.
-    if (not empty(node.date) and strtotime(node.date) <= 0):
-      form_set_error('date', t('You have to specify a valid date.'))
-    }
-  }
-
+    if (not php.empty(node.name)):
+      account = user_load({'name' : node.name})
+      if not account:
+        # The use of empty() is mandatory in the context of usernames
+        # as the empty string denotes the anonymous user. In case we
+        # are dealing with an anonymous user we set the user ID to 0.
+        lib_form.set_error('name',\
+          lib_common.t('The username %name does not exist.', \
+          {'%name' : node.name}))
+    # Validate the "authored on" field. As of PHP 5.1.0, strtotime returns
+    # False instead of -1 upon failure.
+    if (not php.empty(node.date) and php.strtotime(node.date) <= 0):
+      lib_form.set_error('date', lib_common.t(\
+        'You have to specify a valid date.'))
   # Do node-type-specific validation checks.
-  node_invoke(node, 'validate', form)
-  node_invoke_nodeapi(node, 'validate', form)
-}
+  invoke(node, 'validate', form)
+  invoke_nodeapi(node, 'validate', form)
+
+
+
+
 #
 # Prepare node for save and allow modules to make changes.
 #
