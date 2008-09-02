@@ -897,53 +897,51 @@ def validate(node, form = array()):
 
 
 
-#
-# Prepare node for save and allow modules to make changes.
-#
-def node_submit(node):
-  global user
+def submit(node):
+  """
+   Prepare node for save and allow modules to make changes.
+  """
   # Convert the node to an object, if necessary.
-  node = (object)node
+  node = php.object_(node)
   # Generate the teaser, but only if it hasn't been set (e.g. by a
   # module-provided 'teaser' form item).
-  if (not isset(node.teaser)):
+  if (not php.isset(node.teaser)):
     if (isset(node.body)):
-      node.teaser = node_teaser(node.body, isset(node.format) ? node.format : None)
+      node.teaser = teaser(node.body, (node.format if \
+        php.isset(node, 'format') else None))
       # Chop off the teaser from the body if needed. The teaser_include
       # property might not be set (eg. in Blog API postings), so only act on
       # it, if it was set with a given value.
-      if (isset(node.teaser_include) and not node.teaser_include and node.teaser == substr(node.body, 0, strlen(node.teaser))):
-        node.body = substr(node.body, strlen(node.teaser))
-      }
-    }
+      if (php.isset(node.teaser_include) and \
+          not node.teaser_include and \
+          node.teaser == php.substr(node.body, 0, php.strlen(node.teaser))):
+        node.body = php.substr(node.body, php.strlen(node.teaser))
     else:
       node.teaser = ''
-    }
-  }
-
-  if (user_access('administer nodes')):
+  if (lib_plugin.plugins['user'].access('administer nodes')):
     # Populate the "authored by" field.
-    if (account = user_load(array('name' : node.name))):
+    account = lib_plugin.plugins['user'].load({'name' : node.name})
+    if account:
       node.uid = account.uid
-    }
     else:
       node.uid = 0
-    }
-  }
-  node.created = not empty(node.date) ? strtotime(node.date) : time()
+  node.created = (php.strtotime(node.date) if \
+    not empty(node.date) else php.time_())
   node.validated = True
   return node
-}
-#
-# Save a node object into the database.
-#
-def node_save(&node):
+
+
+
+def save(node):
+  """
+   Save a node object into the database.
+  """
+  php.Reference.check(node)
   # Let modules modify the node before it is saved to the database.
-  node_invoke_nodeapi(node, 'presave')
-  global user
+  invoke_nodeapi(node, 'presave')
   node.is_new = False
   # Apply filters to some default node fields:
-  if (empty(node.nid)):
+  if (php.empty(node.nid)):
     # Insert a new node.
     node.is_new = True
     # When inserting a node, node.log must be set because
@@ -951,87 +949,77 @@ def node_save(&node):
     # value.  If the user does not have permission to create
     # revisions, however, the form will not contain an element for
     # log so node.log will be unset at this point.
-    if (not isset(node.log)):
+    if (not php.isset(node, 'log')):
       node.log = ''
-    }
-
     # For the same reasons, make sure we have node.teaser and
     # node.body.  We should consider making these fields Noneable
     # in a future version since node types are not required to use them.
-    if (not isset(node.teaser)):
+    if (not php.isset(node, 'teaser')):
       node.teaser = ''
-    }
-    if (not isset(node.body)):
+    if (not php.isset(node, 'body')):
       node.body = ''
-    }
-  }
-  elif (not empty(node.revision)):
+  elif (not php.empty(node.revision)):
     node.old_vid = node.vid
-  }
   else:
-    # When updating a node, avoid clobberring an existing log entry with an empty one.
-    if (empty(node.log)):
-      unset(node.log)
-    }
-  }
-
+    # When updating a node, avoid clobberring an
+    # existing log entry with an empty one.
+    if (php.empty(node.log)):
+      del(node.log)
   # Set some required fields:
-  if (empty(node.created)):
-    node.created = time()
-  }
-  # The changed timestamp is always updated for bookkeeping purposes (revisions, searching, ...)
-  node.changed = time()
-  node.timestamp = time()
-  node.format = isset(node.format) ? node.format : FILTER_FORMAT_DEFAULT
+  if (php.empty(node.created)):
+    node.created = php.time_()
+  # The changed timestamp is always updated for bookkeeping
+  # purposes (revisions, searching, ...)
+  node.changed = php.time_()
+  node.timestamp = php.time_()
+  node.format = (node.format if php.isset(node.format) else \
+    FILTER_FORMAT_DEFAULT)
   update_node = True
   # Generate the node table query and the node_revisions table query.
   if (node.is_new):
     drupal_write_record('node', node)
-    _node_save_revision(node, user.uid)
+    _save_revision(node, lib_appglobals.user.uid)
     op = 'insert'
-  }
   else:
     drupal_write_record('node', node, 'nid')
     if (not empty(node.revision)):
-      _node_save_revision(node, user.uid)
-    }
+      _save_revision(node, lib_appglobals.user.uid)
     else:
-      _node_save_revision(node, user.uid, 'vid')
+      _save_revision(node, lib_appglobals.user.uid, 'vid')
       update_node = False
-    }
     op = 'update'
-  }
   if (update_node):
-    db_query('UPDATE {node} SET vid = %d WHERE nid = %d', node.vid, node.nid)
-  }
-
+    lib_database.query(\
+      'UPDATE {node} SET vid = %d WHERE nid = %d', node.vid, node.nid)
   # Call the node specific callback (if any). This can be
   # node_invoke(node, 'insert') or
   # node_invoke(node, 'update').
-  node_invoke(node, op)
-  node_invoke_nodeapi(node, op)
+  invoke(node, op)
+  invoke_nodeapi(node, op)
   # Update the node access table for this node.
-  node_access_acquire_grants(node)
+  access_acquire_grants(node)
   # Clear the page and block caches.
-  cache_clear_all()
-}
-#
-# Helper function to save a revision with the uid of the current user.
-#
-# Node is taken by reference, becuse drupal_write_record() updates the
-# node with the revision id, and we need to pass that back to the caller.
-#
-def _node_save_revision(&node, uid, update = None):
+  lib_cache.clear_all()
+
+
+
+def _save_revision(node, uid, update = None):
+  """
+   Helper function to save a revision with the uid of the current user.
+  
+   Node is taken by reference, becuse drupal_write_record() updates the
+   node with the revision id, and we need to pass that back to the caller.
+  """
+  php.Reference.check(node)
   temp_uid = node.uid
   node.uid = uid
-  if (isset(update)):
+  if (update is not None):
     drupal_write_record('node_revisions', node, update)
-  }
   else:
     drupal_write_record('node_revisions', node)
-  }
   node.uid = temp_uid
-}
+
+
 #
 # Delete a node.
 #
