@@ -1020,127 +1020,120 @@ def _save_revision(node, uid, update = None):
   node.uid = temp_uid
 
 
-#
-# Delete a node.
-#
-def node_delete(nid):
-
-  node = node_load(nid)
-  if (node_access('delete', node)):
-    db_query('DELETE FROM {node} WHERE nid = %d', node.nid)
-    db_query('DELETE FROM {node_revisions} WHERE nid = %d', node.nid)
+def delete(nid):
+  """
+   Delete a node.
+  """
+  node = load(nid)
+  if (access('delete', node)):
+    lib_database.query('DELETE FROM {node} WHERE nid = %d', node.nid)
+    lib_database.query('DELETE FROM {node_revisions} WHERE nid = %d', node.nid)
     # Call the node-specific callback (if any):
-    node_invoke(node, 'delete')
-    node_invoke_nodeapi(node, 'delete')
+    invoke(node, 'delete')
+    invoke_nodeapi(node, 'delete')
     # Clear the page and block caches.
-    cache_clear_all()
+    lib_cache.clear_all()
     # Remove this node from the search index if needed.
     # This code is implemented in node module rather than in search module,
     # because node module is implementing search module's API, not the other
     # way around.
-    if (module_exists('search')):
-      search_wipe(node.nid, 'node')
-    }
-    watchdog('content', '@type: deleted %title.', array('@type' : node.type, '%title' : node.title))
-    drupal_set_message(t('@type %title has been deleted.', array('@type' : node_get_types('name', node), '%title' : node.title)))
-  }
-}
-#
-# Generate a display of the given node.
-#
-# @param node
-#   A node array or node object.
-# @param teaser
-#   Whether to display the teaser only or the full form.
-# @param page
-#   Whether the node is being displayed by itself as a page.
-# @param links
-#   Whether or not to display node links. Links are omitted for node previews.
-#
-# @return
-#   An HTML representation of the themed node.
-#
-def node_view(node, teaser = False, page = False, links = True):
-  node = (object)node
-  node = node_build_content(node, teaser, page)
-  if (links):
-    node.links = module_invoke_all('link', 'node', node, teaser)
-    drupal_alter('link', node.links, node)
-  }
+    if (lib_plugin.exists('search')):
+      lib_plugin.plugins['search'].wipe(node.nid, 'node')
+    watchdog('content', '@type: deleted %title.', {'@type' : node.type, \
+      '%title' : node.title})
+    drupal_set_message(lib_common.t('@type %title has been deleted.', \
+      {'@type' : node_get_types('name', node), '%title' : node.title}))
 
+
+def view(node, teaser = False, page = False, links = True):
+  """
+   Generate a display of the given node.
+  
+   @param node
+     A node array or node object.
+   @param teaser
+     Whether to display the teaser only or the full form.
+   @param page
+     Whether the node is being displayed by itself as a page.
+   @param links
+     Whether or not to display node links. Links are omitted for node previews.
+  
+   @return
+     An HTML representation of the themed node.
+  """
+  node = php.object_(node)
+  node = build_content(node, teaser, page)
+  if (links is not None):
+    node.links = lib_plugin.invoke_all('link', 'node', node, teaser)
+    drupal_alter('link', node.links, node)
   # Set the proper node part, then unset unused node part so that a bad
   # theme can not open a security hole.
   content = drupal_render(node.content)
   if (teaser):
     node.teaser = content
-    unset(node.body)
-  }
+    del(node.body)
   else:
     node.body = content
-    unset(node.teaser)
-  }
-
+    del(node.teaser)
   # Allow modules to modify the fully-built node.
-  node_invoke_nodeapi(node, 'alter', teaser, page)
-  return theme('node', node, teaser, page)
-}
-#
-# Apply filters and build the node's standard elements.
-#
-def node_prepare(node, teaser = False):
+  invoke_nodeapi(node, 'alter', teaser, page)
+  return lib_theme.theme('node', node, teaser, page)
+
+
+
+def prepare(node, teaser = False):
+  """
+   Apply filters and build the node's standard elements.
+  """
   # First we'll overwrite the existing node teaser and body with
   # the filtered copiesnot  Then, we'll stick those into the content
   # array and set the read more flag if appropriate.
-  node.readmore = (strlen(node.teaser) < strlen(node.body))
+  node.readmore = (php.strlen(node.teaser) < php.strlen(node.body))
   if (teaser == False):
     node.body = check_markup(node.body, node.format, False)
-  }
   else:
     node.teaser = check_markup(node.teaser, node.format, False)
+  node.content['body'] = {
+    '#markup' : (node.teaser if teaser else node.body),
+    '#weight' : 0
   }
-
-  node.content['body'] = array(
-    '#markup' : teaser ? node.teaser : node.body,
-    '#weight' : 0,
-  )
   return node
-}
-#
-# Builds a structured array representing the node's content.
-#
-# @param node
-#   A node object.
-# @param teaser
-#   Whether to display the teaser only, as on the main page.
-# @param page
-#   Whether the node is being displayed by itself as a page.
-#
-# @return
-#   An structured array containing the individual elements
-#   of the node's body.
-#
-def node_build_content(node, teaser = False, page = False):
 
+
+
+def build_content(node, teaser = False, page = False):
+  """
+   Builds a structured array representing the node's content.
+  
+   @param node
+     A node object.
+   @param teaser
+     Whether to display the teaser only, as on the main page.
+   @param page
+     Whether the node is being displayed by itself as a page.
+  
+   @return
+     An structured array containing the individual elements
+     of the node's body.
+  """
   # The build mode identifies the target for which the node is built.
-  if (not isset(node.build_mode)):
+  if (not php.isset(node.build_mode)):
     node.build_mode = NODE_BUILD_NORMAL
-  }
-
   # Remove the delimiter (if any) that separates the teaser from the body.
-  node.body = isset(node.body) ? str_replace('<not --break-.', '', node.body) : ''
+  node.body = (php.str_replace('<!--break-.', '', node.body) if \
+    php.isset(node.body) else '')
   # The 'view' hook can be implemented to overwrite the default function
   # to display nodes.
-  if (node_hook(node, 'view')):
-    node = node_invoke(node, 'view', teaser, page)
-  }
+  if (hook(node, 'view')):
+    node = invoke(node, 'view', teaser, page)
   else:
-    node = node_prepare(node, teaser)
-  }
-
+    node = prepare(node, teaser)
   # Allow modules to make their own additions to the node.
-  node_invoke_nodeapi(node, 'view', teaser, page)
+  invoke_nodeapi(node, 'view', teaser, page)
   return node
-}
+
+
+
 #
 # Generate a page displaying a single node, along with its comments.
 #
