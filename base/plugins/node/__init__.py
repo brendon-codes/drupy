@@ -1222,125 +1222,126 @@ def _rankings():
 
 
 
-#
-# Implementation of hook_search().
-#
-def node_search(op = 'search', keys = None):
-  switch (op):
-    case 'name':
-      return t('Content')
-    case 'reset':
-      db_query("UPDATE {search_dataset} SET reindex = %d WHERE type = 'node'", time())
-      return
-    case 'status':
-      total = db_result(db_query('SELECT COUNT(*) FROM {node} WHERE status = 1'))
-      remaining = db_result(db_query("SELECT COUNT(*) FROM {node} n LEFT JOIN {search_dataset} d ON d.type = 'node' AND d.sid = n.nid WHERE n.status = 1 AND d.sid IS None OR d.reindex <> 0"))
-      return array('remaining' : remaining, 'total' : total)
-    case 'admin':
-      form = array()
-      # Output form for defining rank factor weights.
-      form['content_ranking'] = array(
-        '#type' : 'fieldset',
-        '#title' : t('Content ranking'),
+def hook_search(op = 'search', keys = None):
+  """
+   Implementation of hook_search().
+  """
+  case 'name':
+    return t('Content')
+  case 'reset':
+    db_query("UPDATE {search_dataset} SET reindex = %d WHERE type = 'node'", time())
+    return
+  case 'status':
+    total = db_result(db_query('SELECT COUNT(*) FROM {node} WHERE status = 1'))
+    remaining = db_result(db_query("SELECT COUNT(*) FROM {node} n LEFT JOIN {search_dataset} d ON d.type = 'node' AND d.sid = n.nid WHERE n.status = 1 AND d.sid IS None OR d.reindex <> 0"))
+    return array('remaining' : remaining, 'total' : total)
+  case 'admin':
+    form = array()
+    # Output form for defining rank factor weights.
+    form['content_ranking'] = array(
+      '#type' : 'fieldset',
+      '#title' : t('Content ranking'),
+    )
+    form['content_ranking']['#theme'] = 'node_search_admin'
+    form['content_ranking']['info'] = array(
+      '#value' : '<em>' . t('The following numbers control which properties the content search should favor when ordering the results. Higher numbers mean more influence, zero means the property is ignored. Changing these numbers does not require the search index to be rebuilt. Changes take effect immediately.') . '</em>'
+    )
+    # Note: reversed to reflect that higher number = higher ranking.
+    options = drupal_map_assoc(range(0, 10))
+    foreach (module_invoke_all('ranking') as var : values):
+      form['content_ranking']['factors']['node_rank_' + var] = array(
+        '#title' : values['title'],
+        '#type' : 'select',
+        '#options' : options,
+        '#default_value' : variable_get('node_rank_'. var, 0),
       )
-      form['content_ranking']['#theme'] = 'node_search_admin'
-      form['content_ranking']['info'] = array(
-        '#value' : '<em>' . t('The following numbers control which properties the content search should favor when ordering the results. Higher numbers mean more influence, zero means the property is ignored. Changing these numbers does not require the search index to be rebuilt. Changes take effect immediately.') . '</em>'
+    }
+    return form
+  case 'search':
+    # Build matching conditions
+    list(join1, where1) = _db_rewrite_sql()
+    arguments1 = array()
+    conditions1 = 'n.status = 1'
+    if (type = search_query_extract(keys, 'type')):
+      types = array()
+      foreach (explode(',', type) as t):
+        types[] = "n.type = '%s'"
+        arguments1[] = t
+      }
+      conditions1 += ' AND (' +  implode(' OR ', types)  + ')'
+      keys = search_query_insert(keys, 'type')
+    }
+
+    if (category = search_query_extract(keys, 'category')):
+      categories = array()
+      foreach (explode(',', category) as c):
+        categories[] = "tn.tid = %d"
+        arguments1[] = c
+      }
+      conditions1 += ' AND (' +  implode(' OR ', categories)  + ')'
+      join1 += ' INNER JOIN {term_node} tn ON n.vid = tn.vid'
+      keys = search_query_insert(keys, 'category')
+    }
+
+    if (languages = search_query_extract(keys, 'language')):
+      categories = array()
+      foreach (explode(',', languages) as l):
+        categories[] = "n.language = '%s'"
+        arguments1[] = l
+      }
+      conditions1 += ' AND (' +  implode(' OR ', categories)  + ')'
+      keys = search_query_insert(keys, 'language')
+    }
+
+    # Get the ranking expressions.
+    rankings = _node_rankings()
+    # When all search factors are disabled (ie they have a weight of zero),
+    # The default score is based only on keyword relevance.
+    if (rankings['total'] == 0):
+      total = 1
+      arguments2 = array()
+      join2 = ''
+      select2 = 'i.relevance AS score'
+    }
+    else:
+      total = rankings['total']
+      arguments2 = rankings['arguments']
+      join2 = implode(' ', rankings['join'])
+      select2 = '(' + implode(' + ', rankings['score']) + ') AS score'
+    }
+
+    # Do search.
+    find = do_search(keys, 'node', 'INNER JOIN {node} n ON n.nid = i.sid ' +  join1, conditions1  + (empty(where1) ? '' : ' AND ' . where1), arguments1, select2, join2, arguments2)
+    # Load results.
+    results = array()
+    for item in find:
+      # Build the node body.
+      node = node_load(item.sid)
+      node.build_mode = NODE_BUILD_SEARCH_RESULT
+      node = node_build_content(node, False, False)
+      node.body = drupal_render(node.content)
+      # Fetch comments for snippet.
+      node.body += module_invoke('comment', 'nodeapi', node, 'update index')
+      # Fetch terms for snippet.
+      node.body += module_invoke('taxonomy', 'nodeapi', node, 'update index')
+      extra = node_invoke_nodeapi(node, 'search result')
+      results[] = array(
+        'link' : url('node/' +  item.sid, array('absolute' : True)),
+        'type' : check_plain(node_get_types('name', node)),
+        'title' : node.title,
+        'user' : theme('username', node),
+        'date' : node.changed,
+        'node' : node,
+        'extra' : extra,
+        'score' : total ? (item.score / total) : 0,
+        'snippet' : search_excerpt(keys, node.body),
       )
-      # Note: reversed to reflect that higher number = higher ranking.
-      options = drupal_map_assoc(range(0, 10))
-      foreach (module_invoke_all('ranking') as var : values):
-        form['content_ranking']['factors']['node_rank_' + var] = array(
-          '#title' : values['title'],
-          '#type' : 'select',
-          '#options' : options,
-          '#default_value' : variable_get('node_rank_'. var, 0),
-        )
-      }
-      return form
-    case 'search':
-      # Build matching conditions
-      list(join1, where1) = _db_rewrite_sql()
-      arguments1 = array()
-      conditions1 = 'n.status = 1'
-      if (type = search_query_extract(keys, 'type')):
-        types = array()
-        foreach (explode(',', type) as t):
-          types[] = "n.type = '%s'"
-          arguments1[] = t
-        }
-        conditions1 += ' AND (' +  implode(' OR ', types)  + ')'
-        keys = search_query_insert(keys, 'type')
-      }
-
-      if (category = search_query_extract(keys, 'category')):
-        categories = array()
-        foreach (explode(',', category) as c):
-          categories[] = "tn.tid = %d"
-          arguments1[] = c
-        }
-        conditions1 += ' AND (' +  implode(' OR ', categories)  + ')'
-        join1 += ' INNER JOIN {term_node} tn ON n.vid = tn.vid'
-        keys = search_query_insert(keys, 'category')
-      }
-
-      if (languages = search_query_extract(keys, 'language')):
-        categories = array()
-        foreach (explode(',', languages) as l):
-          categories[] = "n.language = '%s'"
-          arguments1[] = l
-        }
-        conditions1 += ' AND (' +  implode(' OR ', categories)  + ')'
-        keys = search_query_insert(keys, 'language')
-      }
-
-      # Get the ranking expressions.
-      rankings = _node_rankings()
-      # When all search factors are disabled (ie they have a weight of zero),
-      # The default score is based only on keyword relevance.
-      if (rankings['total'] == 0):
-        total = 1
-        arguments2 = array()
-        join2 = ''
-        select2 = 'i.relevance AS score'
-      }
-      else:
-        total = rankings['total']
-        arguments2 = rankings['arguments']
-        join2 = implode(' ', rankings['join'])
-        select2 = '(' + implode(' + ', rankings['score']) + ') AS score'
-      }
-
-      # Do search.
-      find = do_search(keys, 'node', 'INNER JOIN {node} n ON n.nid = i.sid ' +  join1, conditions1  + (empty(where1) ? '' : ' AND ' . where1), arguments1, select2, join2, arguments2)
-      # Load results.
-      results = array()
-      for item in find:
-        # Build the node body.
-        node = node_load(item.sid)
-        node.build_mode = NODE_BUILD_SEARCH_RESULT
-        node = node_build_content(node, False, False)
-        node.body = drupal_render(node.content)
-        # Fetch comments for snippet.
-        node.body += module_invoke('comment', 'nodeapi', node, 'update index')
-        # Fetch terms for snippet.
-        node.body += module_invoke('taxonomy', 'nodeapi', node, 'update index')
-        extra = node_invoke_nodeapi(node, 'search result')
-        results[] = array(
-          'link' : url('node/' +  item.sid, array('absolute' : True)),
-          'type' : check_plain(node_get_types('name', node)),
-          'title' : node.title,
-          'user' : theme('username', node),
-          'date' : node.changed,
-          'node' : node,
-          'extra' : extra,
-          'score' : total ? (item.score / total) : 0,
-          'snippet' : search_excerpt(keys, node.body),
-        )
-      }
-      return results
-  }
+    }
+    return results
 }
+
+
+
 #
 # Implementation of hook_ranking().
 #
