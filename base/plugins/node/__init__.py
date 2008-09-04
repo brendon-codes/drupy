@@ -1134,79 +1134,94 @@ def build_content(node, teaser = False, page = False):
 
 
 
-#
-# Generate a page displaying a single node, along with its comments.
-#
-def node_show(node, cid, message = False):
+def show(node, cid, message = False):
+  """
+   Generate a page displaying a single node, along with its comments.
+  """
   if (message):
-    drupal_set_title(t('Revision of %title from %date', array('%title' : node.title, '%date' : format_date(node.revision_timestamp))))
-  }
-  output = node_view(node, False, True)
-  if (function_exists('comment_render') and node.comment):
-    output += comment_render(node, cid)
-  }
-
+    drupal_set_title(t(\
+      'Revision of %title from %date', \
+      {'%title' : node.title, '%date' : \
+      format_date(node.revision_timestamp)}))
+  output = view(node, False, True)
+  if (php.function_exists('comment_render', lib_comment) and node.comment):
+    output += lib_comment.render(node, cid)
   # Update the history table, stating that this user viewed this node.
-  node_tag_new(node.nid)
+  tag_new(node.nid)
   return output
-}
-#
-# Theme a log message.
-#
-# @ingroup themeable
-#
-def theme_node_log_message(log):
-  return '<div class="log"><div class="title">' +  t('Log')  + ':</div>' . log . '</div>'
-}
-#
-# Implementation of hook_perm().
-#
-def node_perm():
-  perms = array(
-    'administer content types' : t('Manage content types and content type administration settings.'),
-    'administer nodes' : t('Manage all website content, and bypass any content-related access control + %warning', array('%warning' : t('Warning: Give to trusted roles only; this permission has security implications.'))),
-    'access content' : t('View published content.'),
-    'view revisions' : t('View content revisions.'),
-    'revert revisions' : t('Replace content with an older revision.'),
-    'delete revisions' : t('Delete content revisions.'),
-  )
-  for type in node_get_types():
-    if (type.module == 'node'):
-      perms += node_list_permissions(type)
-    }
-  }
 
+
+
+"""
+ Theme a log message.
+
+ @ingroup themeable
+"""
+def theme_log_message(log):
+  return '<div class="log"><div class="title">' + \
+    lib_common.t('Log')  + ':</div>' + log + '</div>'
+
+
+
+def hook_perm():
+  """
+   Implementation of hook_perm().
+  """
+  perms = {
+    'administer content types' : \
+      lib_common.t('Manage content types and ' + \
+      'content type administration settings.'),
+    'administer nodes' : \
+      lib_common.t('Manage all website content, and ' + \
+      'bypass any content-related access control + %warning', \
+      {'%warning' : lib_common.t('Warning: Give to trusted ' + \
+      'roles only; this permission has security implications.')}),
+    'access content' : lib_common.t('View published content.'),
+    'view revisions' : lib_common.t('View content revisions.'),
+    'revert revisions' : \
+      lib_common.t('Replace content with an older revision.'),
+    'delete revisions' : lib_common.t('Delete content revisions.')
+  }
+  for type_ in get_types():
+    if (type_.plugin == 'node'):
+      perms += ist_permissions(type_)
   return perms
-}
-#
-# Gather the rankings from the the hook_ranking implementations.
-#
-def _node_rankings():
-  rankings = array(
-    'total' : 0, 'join' : array(), 'score' : array(), 'args' : array(),
-  )
-  if (ranking = module_invoke_all('ranking')):
-    for rank,values in ranking.items():
-      if (node_rank = variable_get('node_rank_' + rank, 0)):
-        # If the table defined in the ranking isn't already joined, then add it.
-        if (isset(values['join']) and not isset(rankings['join'][values['join']])):
-          rankings['join'][values['join']] = values['join']
-        }
 
-        # Add the rankings weighted score multiplier value, handling None gracefully.
-        rankings['score'][] = '%f * COALESCE((' + values['score'] + '), 0)'
-        # Add the the administrator's weighted score multiplier value for this ranking.
-        rankings['total'] += node_rank
-        rankings['arguments'][] = node_rank
-        # Add any additional arguments used by this ranking.
-        if (isset(values['arguments'])):
-          rankings['arguments'] = array_merge(rankings['arguments'], values['arguments'])
-        }
-      }
-    }
+
+
+def _rankings():
+  """
+   Gather the rankings from the the hook_ranking implementations.
+  """
+  rankings = {
+    'total' : 0, 'join' : [], 'score' : [], 'args' : []
   }
+  ranking = lib_plugin.invoke_all('ranking')
+  if ranking:
+    for rank,values in ranking.items():
+      node_rank = lib_common.variable_get('node_rank_' + rank, 0)
+      if node_rank:
+        # If the table defined in the ranking
+        # isn't already joined, then add it.
+        if (php.isset(values['join']) and \
+            not php.isset(rankings['join'], values['join'])):
+          rankings['join'][values['join']] = values['join']
+        # Add the rankings weighted score multiplier
+        # value, handling None gracefully.
+        rankings['score'].append( \
+          '%f * COALESCE((' + values['score'] + '), 0)' )
+        # Add the the administrator's weighted
+        # score multiplier value for this ranking.
+        rankings['total'] += node_rank
+        rakings['arguments'].append( node_rank )
+        # Add any additional arguments used by this ranking.
+        if (php.isset(values, 'arguments')):
+          rankings['arguments'] = php.array_merge(rankings['arguments'], \
+            values['arguments'])
   return rankings
-}
+
+
+
 #
 # Implementation of hook_search().
 #
