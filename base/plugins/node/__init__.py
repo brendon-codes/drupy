@@ -1226,193 +1226,208 @@ def hook_search(op = 'search', keys = None):
   """
    Implementation of hook_search().
   """
-  case 'name':
-    return t('Content')
-  case 'reset':
-    db_query("UPDATE {search_dataset} SET reindex = %d WHERE type = 'node'", time())
+  if op == 'name':
+    return lib_common.t('Content')
+  elif op == 'reset':
+    lib_database.query(\
+      "UPDATE {search_dataset} SET reindex = %d WHERE type = 'node'", \
+      php.time_())
     return
-  case 'status':
-    total = db_result(db_query('SELECT COUNT(*) FROM {node} WHERE status = 1'))
-    remaining = db_result(db_query("SELECT COUNT(*) FROM {node} n LEFT JOIN {search_dataset} d ON d.type = 'node' AND d.sid = n.nid WHERE n.status = 1 AND d.sid IS None OR d.reindex <> 0"))
-    return array('remaining' : remaining, 'total' : total)
-  case 'admin':
-    form = array()
+  elif op == 'status':
+    total = lib_database.result(lib_database.query(\
+      'SELECT COUNT(*) FROM {node} WHERE status = 1'))
+    remaining = lib_database.result(lib_database.query(\
+      "SELECT COUNT(*) FROM {node} n " + \
+      "LEFT JOIN {search_dataset} d ON d.type = 'node' AND " + \
+      "d.sid = n.nid WHERE n.status = 1 AND " + \
+      "d.sid IS None OR d.reindex <> 0"))
+    return {'remaining' : remaining, 'total' : total}
+  elif op == 'admin':
+    form = []
     # Output form for defining rank factor weights.
-    form['content_ranking'] = array(
+    form['content_ranking'] = {
       '#type' : 'fieldset',
-      '#title' : t('Content ranking'),
-    )
+      '#title' : lib_common.t('Content ranking')
+    }
     form['content_ranking']['#theme'] = 'node_search_admin'
-    form['content_ranking']['info'] = array(
-      '#value' : '<em>' . t('The following numbers control which properties the content search should favor when ordering the results. Higher numbers mean more influence, zero means the property is ignored. Changing these numbers does not require the search index to be rebuilt. Changes take effect immediately.') . '</em>'
-    )
+    form['content_ranking']['info'] = {
+      '#value' : '<em>' + lib_common.t(\
+        'The following numbers control which properties the ' + \
+        'content search should favor when ordering the results. ' + \
+        'Higher numbers mean more influence, zero means the ' + \
+        'property is ignored. Changing these numbers does not ' + \
+        'require the search index to be rebuilt. Changes take ' + \
+        'effect immediately.') + '</em>'
+    }
     # Note: reversed to reflect that higher number = higher ranking.
     options = drupal_map_assoc(range(0, 10))
-    foreach (module_invoke_all('ranking') as var : values):
-      form['content_ranking']['factors']['node_rank_' + var] = array(
+    for var, values in lib_plugin.invoke_all('ranking').items():
+      form['content_ranking']['factors']['node_rank_' + var] = {
         '#title' : values['title'],
         '#type' : 'select',
         '#options' : options,
-        '#default_value' : variable_get('node_rank_'. var, 0),
-      )
-    }
+        '#default_value' : variable_get('node_rank_'. var, 0)
+      }
     return form
-  case 'search':
+  elif op == 'search':
     # Build matching conditions
-    list(join1, where1) = _db_rewrite_sql()
-    arguments1 = array()
+    join1, where1 = lib_database._rewrite_sql()
+    arguments1 = []
     conditions1 = 'n.status = 1'
-    if (type = search_query_extract(keys, 'type')):
-      types = array()
-      foreach (explode(',', type) as t):
-        types[] = "n.type = '%s'"
-        arguments1[] = t
-      }
+    type_ = lib_plugin.plugins['search'].query_extract(keys, 'type')
+    if type_:
+      types = []
+      for t_ in  explode(',', type_):
+        types.append( "n.type = '%s'" )
+        arguments1.append( t_ )
       conditions1 += ' AND (' +  implode(' OR ', types)  + ')'
-      keys = search_query_insert(keys, 'type')
-    }
-
-    if (category = search_query_extract(keys, 'category')):
-      categories = array()
-      foreach (explode(',', category) as c):
-        categories[] = "tn.tid = %d"
-        arguments1[] = c
-      }
-      conditions1 += ' AND (' +  implode(' OR ', categories)  + ')'
+      keys = lib_plugin.plugins['search'].query_insert(keys, 'type')
+    category = lib_plugin.plugins['search'].query_extract(keys, 'category')
+    if category:
+      categories = []
+      for c in explode(',', category):
+        categories.append( "tn.tid = %d" )
+        arguments1.append( c )
+      conditions1 += ' AND (' +  php.implode(' OR ', categories)  + ')'
       join1 += ' INNER JOIN {term_node} tn ON n.vid = tn.vid'
-      keys = search_query_insert(keys, 'category')
-    }
-
-    if (languages = search_query_extract(keys, 'language')):
-      categories = array()
-      foreach (explode(',', languages) as l):
-        categories[] = "n.language = '%s'"
-        arguments1[] = l
-      }
-      conditions1 += ' AND (' +  implode(' OR ', categories)  + ')'
-      keys = search_query_insert(keys, 'language')
-    }
-
+      keys = lib_plugin.plugins['search'].query_insert(keys, 'category')
+    languages = lib_plugin.plugins['search'].query_extract(keys, 'language')
+    if languages:
+      categories = []
+      for l in explode(',', languages):
+        categories.append( "n.language = '%s'" )
+        arguments1.append( l )
+      conditions1 += ' AND (' +  php.implode(' OR ', categories)  + ')'
+      keys = lib_plugin.plugins['search'].query_insert(keys, 'language')
     # Get the ranking expressions.
-    rankings = _node_rankings()
+    rankings = _rankings()
     # When all search factors are disabled (ie they have a weight of zero),
     # The default score is based only on keyword relevance.
     if (rankings['total'] == 0):
       total = 1
-      arguments2 = array()
+      arguments2 = []
       join2 = ''
       select2 = 'i.relevance AS score'
-    }
     else:
       total = rankings['total']
       arguments2 = rankings['arguments']
-      join2 = implode(' ', rankings['join'])
-      select2 = '(' + implode(' + ', rankings['score']) + ') AS score'
-    }
-
+      join2 = php.implode(' ', rankings['join'])
+      select2 = '(' + php.implode(' + ', rankings['score']) + ') AS score'
     # Do search.
-    find = do_search(keys, 'node', 'INNER JOIN {node} n ON n.nid = i.sid ' +  join1, conditions1  + (empty(where1) ? '' : ' AND ' . where1), arguments1, select2, join2, arguments2)
+    find = do_search(keys, 'node', \
+      'INNER JOIN {node} n ON n.nid = i.sid ' +  join1, \
+      conditions1  + ('' if empty(where1) else ' AND ' + where1), \
+      arguments1, select2, join2, arguments2)
     # Load results.
-    results = array()
+    results = []
     for item in find:
       # Build the node body.
-      node = node_load(item.sid)
+      node = load(item.sid)
       node.build_mode = NODE_BUILD_SEARCH_RESULT
-      node = node_build_content(node, False, False)
+      node = build_content(node, False, False)
       node.body = drupal_render(node.content)
       # Fetch comments for snippet.
-      node.body += module_invoke('comment', 'nodeapi', node, 'update index')
+      node.body += lib_plugin.invoke('comment', 'nodeapi', node, \
+        'update index')
       # Fetch terms for snippet.
-      node.body += module_invoke('taxonomy', 'nodeapi', node, 'update index')
-      extra = node_invoke_nodeapi(node, 'search result')
-      results[] = array(
-        'link' : url('node/' +  item.sid, array('absolute' : True)),
-        'type' : check_plain(node_get_types('name', node)),
+      node.body += lib_plugin.invoke('taxonomy', \
+        'nodeapi', node, 'update index')
+      extra = invoke_nodeapi(node, 'search result')
+      results.append({
+        'link' : url('node/' +  item.sid, {'absolute' : True}),
+        'type' : check_plain(get_types('name', node)),
         'title' : node.title,
-        'user' : theme('username', node),
+        'user' : lib_theme.theme('username', node),
         'date' : node.changed,
         'node' : node,
         'extra' : extra,
-        'score' : total ? (item.score / total) : 0,
-        'snippet' : search_excerpt(keys, node.body),
-      )
-    }
+        'score' : ((item.score / total) if total else 0),
+        'snippet' : lib_plugin.plugins['search'].excerpt(keys, node.body)
+      })
     return results
-}
 
 
 
-#
-# Implementation of hook_ranking().
-#
-def node_ranking():
+def hook_ranking():
+  """
+   Implementation of hook_ranking().
+  """
   # Create the ranking array and add the basic ranking options.
-  ranking = array(
-    'relevance' : array(
-      'title' : t('Keyword relevance'),
+  ranking = {
+    'relevance' : {
+      'title' : lib_common.t('Keyword relevance'),
       # Average relevance values hover around 0.15
-      'score' : 'i.relevance',
-    ),
-    'sticky' : array(
-      'title' : t('Content is sticky at top of lists'),
+      'score' : 'i.relevance'
+    },
+    'sticky' : {
+      'title' : lib_common.t('Content is sticky at top of lists'),
       # The sticky flag is either 0 or 1, which is automatically normalized.
-      'score' : 'n.sticky',
-    ),
-    'promote' : array(
-      'title' : t('Content is promoted to the front page'),
+      'score' : 'n.sticky'
+    },
+    'promote' : {
+      'title' : lib_common.t('Content is promoted to the front page'),
       # The promote flag is either 0 or 1, which is automatically normalized.
-      'score' : 'n.promote',
-    ),
-  )
+      'score' : 'n.promote'
+    }
+  }
   # Add relevance based on creation or changed date.
-  if (node_cron_last = variable_get('node_cron_last', 0)):
-    ranking['recent'] = array(
+  node_cron_last = lib_bootstrap.variable_get('node_cron_last', 0)
+  if node_cron_last:
+    ranking['recent'] = {
       'title' : t('Recently posted'),
       # Exponential decay with half-life of 6 months, starting at last indexed node
       'score' : '(POW(2, GREATEST(n.created, n.changed) - %d) * 6.43e-8)',
-      'arguments' : array(node_cron_last),
-    )
-  }
+      'arguments' : [node_cron_last]
+    }
   return ranking
-}
-#
-# Implementation of hook_user().
-#
-def node_user(op, &edit, &user):
+
+
+def hook_user(op, edit, user):
+  """
+   Implementation of hook_user().
+  """
+  php.Reference.check(edit)
+  php.Reference.check(user)
   if (op == 'delete'):
-    db_query('UPDATE {node} SET uid = 0 WHERE uid = %d', user.uid)
-    db_query('UPDATE {node_revisions} SET uid = 0 WHERE uid = %d', user.uid)
-  }
-}
-#
-# Theme the content ranking part of the search settings admin page.
-#
-# @ingroup themeable
-#
-def theme_node_search_admin(form):
+    lib_database.query('UPDATE {node} SET uid = 0 WHERE uid = %d', \
+      user.uid)
+    lib_database.query('UPDATE {node_revisions} SET uid = 0 WHERE uid = %d', \
+      user.uid)
+
+
+
+def theme_search_admin(form):
+  """
+   Theme the content ranking part of the search settings admin page.
+  
+   @ingroup themeable
+  """
   output = drupal_render(form['info'])
-  header = array(t('Factor'), t('Weight'))
-  foreach (element_children(form['factors']) as key):
-    row = array()
-    row[] = form['factors'][key]['#title']
-    unset(form['factors'][key]['#title'])
-    row[] = drupal_render(form['factors'][key])
-    rows[] = row
-  }
-  output += theme('table', header, rows)
+  header = (lib_common.t('Factor'), lib_common.t('Weight'))
+  for key in element_children(form['factors']):
+    row = []
+    row.append( form['factors'][key]['#title'] )
+    del(form['factors'][key]['#title'])
+    row.append( drupal_render(form['factors'][key]) )
+    rows.append( row )
+  output += lib_theme.theme('table', header, rows)
   output += drupal_render(form)
   return output
-}
-#
-# Retrieve the comment mode for the given node ID (none, read, or read/write).
-#
-def node_comment_mode(nid):
-  static comment_mode
-  if (not isset(comment_mode[nid])):
-    comment_mode[nid] = db_result(db_query('SELECT comment FROM {node} WHERE nid = %d', nid))
-  }
+
+
+
+def comment_mode(nid):
+  """
+   Retrieve the comment mode for the given node ID (none, read, or read/write).
+  """
+  php.static(comment_mode, 'comment_mode', {})
+  if (not php.isset(comment_mode.comment_mode, nid)):
+    comment_mode.comment_mode[nid] = lib_database.result(lib_database.query(\
+      'SELECT comment FROM {node} WHERE nid = %d', nid))
   return comment_mode[nid]
-}
+
+
+
 #
 # Implementation of hook_link().
 #
