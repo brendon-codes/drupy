@@ -1428,360 +1428,382 @@ def comment_mode(nid):
 
 
 
-#
-# Implementation of hook_link().
-#
-def node_link(type, node = None, teaser = False):
-  links = array()
+def hook_link(type_, node = None, teaser = False):
+  """
+   Implementation of hook_link().
+  """
+  links = []
   if (type == 'node'):
-    if (teaser == 1 and node.teaser and not empty(node.readmore)):
-      links['node_read_more'] = array(
-        'title' : t('Read more'),
+    if (teaser == 1 and node.teaser and not php.empty(node.readmore)):
+      links['node_read_more'] = {
+        'title' : php.t('Read more'),
         'href' : "node/node.nid",
         # The title attribute gets escaped when the links are processed, so
         # there is no need to escape here.
-        'attributes' : array('title' : t('Read the rest of not title.', array('not title' : node.title)))
-      )
-    }
-  }
-
+        'attributes' : {'title' : php.t('Read the rest of not title.', \
+          {'not title' : node.title})}
+      }
   return links
-}
 
-def _node_revision_access(node, op = 'view'):
-  static access = array()
-  if (not isset(access[node.vid])):
-    node_current_revision = node_load(node.nid)
-    is_current_revision = node_current_revision.vid == node.vid
+
+
+def _revision_access(node, op = 'view'):
+  php.static(_revision_access, 'access', [])
+  if (not php.isset(_revision_access.access, node.vid)):
+    node_current_revision = load(node.nid)
+    is_current_revision = (node_current_revision.vid == node.vid)
     # There should be at least two revisions. If the vid of the given node
     # and the vid of the current revision differs, then we already have two
     # different revisions so there is no need for a separate database check.
     # Also, if you try to revert to or delete the current revision, that's
     # not good.
-    if (is_current_revision and (db_result(db_query('SELECT COUNT(vid) FROM {node_revisions} WHERE nid = %d', node.nid)) == 1 or op == 'update' or op == 'delete')):
-      access[node.vid] = False
-    }
-    elif (user_access('administer nodes')):
-      access[node.vid] = True
-    }
+    if (is_current_revision and (lib_database.result(lib_database.query(\
+        'SELECT COUNT(vid) FROM {node_revisions} ' + \
+        'WHERE nid = %d', \
+        node.nid)) == 1 or op == 'update' or op == 'delete')):
+      _revision_access.access[node.vid] = False
+    elif (lib_plugin.plugins['user'].access('administer nodes')):
+      _revision_access.access[node.vid] = True
     else:
-      map = array('view' : 'view revisions', 'update' : 'revert revisions', 'delete' : 'delete revisions')
+      map_ = {'view' : 'view revisions', 'update' : 'revert revisions',\
+        'delete' : 'delete revisions'}
       # First check the user permission, second check the access to the
       # current revision and finally, if the node passed in is not the current
       # revision then access to that, too.
-      access[node.vid] = isset(map[op]) and user_access(map[op]) and node_access(op, node_current_revision) and (is_current_revision or node_access(op, node))
-    }
-  }
-  return access[node.vid]
-}
+      _revision_access.access[node.vid] = (php.isset(map_, op) and \
+        lib_plugin.plugins['user'].access(map_[op]) and \
+        access(op, node_current_revision) and \
+        (is_current_revision or node_access(op, node)))
+  return _revision_access.access[node.vid]
 
-def _node_add_access():
-  types = node_get_types()
-  for type in types:
-    if (node_hook(type.type, 'form') and node_access('create', type.type)):
+
+
+
+def _add_access():
+  types = get_types()
+  for type_ in types:
+    if (hook(type_.type_, 'form') and access('create', type_.type_)):
       return True
-    }
-  }
   return False
-}
-#
-# Implementation of hook_menu().
-#
-def node_menu():
-  items['admin/content/node'] = array(
+
+
+
+def hook_menu():
+  """
+   Implementation of hook_menu().
+  """
+  items['admin/content/node'] = {
     'title' : 'Content',
     'description' : "View, edit, and delete your site's content.",
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('node_admin_content'),
-    'access arguments' : array('administer nodes'),
-  )
-  items['admin/content/node/overview'] = array(
+    'page arguments' : ('node_admin_content',),
+    'access arguments' : ('administer nodes',)
+  }
+  items['admin/content/node/overview'] = {
     'title' : 'List',
     'type' : MENU_DEFAULT_LOCAL_TASK,
-    'weight' : -10,
-  )
-  items['admin/content/node-settings'] = array(
+    'weight' : -10
+  }
+  items['admin/content/node-settings'] = {
     'title' : 'Post settings',
-    'description' : 'Control posting behavior, such as teaser length, requiring previews before posting, and the number of posts on the front page.',
+    'description' : 'Control posting behavior, such as teaser ' + \
+      'length, requiring previews before posting, and the number ' + \
+      'of posts on the front page.',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('node_configure'),
-    'access arguments' : array('administer nodes'),
-  )
-  items['admin/content/node-settings/rebuild'] = array(
+    'page arguments' : ('node_configure',),
+    'access arguments' : ('administer nodes',)
+  }
+  items['admin/content/node-settings/rebuild'] = {
     'title' : 'Rebuild permissions',
-    'page arguments' : array('node_configure_rebuild_confirm'),
+    'page arguments' : ('node_configure_rebuild_confirm',),
     # Any user than can potentially trigger a node_acess_needs_rebuild(True)
     # has to be allowed access to the 'node access rebuild' confirm form.
-    'access arguments' : array('access administration pages'),
-    'type' : MENU_CALLBACK,
-  )
-  items['admin/build/types'] = array(
+    'access arguments' : ('access administration pages',),
+    'type' : MENU_CALLBACK
+  }
+  items['admin/build/types'] = {
     'title' : 'Content types',
-    'description' : 'Manage posts by content type, including default status, front page promotion, etc.',
+    'description' : 'Manage posts by content type, including default ' + \
+      'status, front page promotion, etc.',
     'page callback' : 'node_overview_types',
-    'access arguments' : array('administer content types'),
-  )
-  items['admin/build/types/list'] = array(
+    'access arguments' : ('administer content types',)
+  }
+  items['admin/build/types/list'] = {
     'title' : 'List',
     'type' : MENU_DEFAULT_LOCAL_TASK,
-    'weight' : -10,
-  )
-  items['admin/build/types/add'] = array(
+    'weight' : -10
+  }
+  items['admin/build/types/add'] = {
     'title' : 'Add content type',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('node_type_form'),
-    'access arguments' : array('administer content types'),
-    'type' : MENU_LOCAL_TASK,
-  )
-  items['node'] = array(
+    'page arguments' : ('node_type_form',),
+    'access arguments' : ('administer content types',),
+    'type' : MENU_LOCAL_TASK
+  }
+  items['node'] = {
     'title' : 'Content',
     'page callback' : 'node_page_default',
-    'access arguments' : array('access content'),
-    'type' : MENU_CALLBACK,
-  )
-  items['node/add'] = array(
+    'access arguments' : ('access content',),
+    'type' : MENU_CALLBACK
+  }
+  items['node/add'] = {
     'title' : 'Create content',
     'page callback' : 'node_add_page',
     'access callback' : '_node_add_access',
-    'weight' : 1,
-  )
-  items['rss.xml'] = array(
+    'weight' : 1
+  }
+  items['rss.xml'] = {
     'title' : 'RSS feed',
     'page callback' : 'node_feed',
-    'access arguments' : array('access content'),
-    'type' : MENU_CALLBACK,
-  )
-  foreach (node_get_types('types', None, True) as type):
-    type_url_str = str_replace('_', '-', type.type)
-    items['node/add/' +  type_url_str] = array(
-      'title' : drupal_ucfirst(type.name),
+    'access arguments' : ('access content',),
+    'type' : MENU_CALLBACK
+  }
+  for type_ in get_types('types', None, True):
+    type_url_str = php.str_replace('_', '-', type_.type_)
+    items['node/add/' +  type_url_str] = {
+      'title' : drupal_ucfirst(type_.name),
       'title callback' : 'check_plain',
       'page callback' : 'node_add',
-      'page arguments' : array(2),
+      'page arguments' : (2,),
       'access callback' : 'node_access',
-      'access arguments' : array('create', type.type),
-      'description' : type.description,
-    )
-    items['admin/build/node-type/' +  type_url_str] = array(
-      'title' : type.name,
+      'access arguments' : ('create', type.type),
+      'description' : type.description
+    }
+    items['admin/build/node-type/' +  type_url_str] = {
+      'title' : type_.name,
       'page callback' : 'drupal_get_form',
-      'page arguments' : array('node_type_form', type),
-      'access arguments' : array('administer content types'),
-      'type' : MENU_CALLBACK,
-    )
-    items['admin/build/node-type/' +  type_url_str  + '/edit'] = array(
+      'page arguments' : ('node_type_form', type),
+      'access arguments' : ('administer content types',),
+      'type' : MENU_CALLBACK
+    }
+    items['admin/build/node-type/' +  type_url_str  + '/edit'] = {
       'title' : 'Edit',
-      'type' : MENU_DEFAULT_LOCAL_TASK,
-    )
-    items['admin/build/node-type/' +  type_url_str  + '/delete'] = array(
+      'type' : MENU_DEFAULT_LOCAL_TASK
+    }
+    items['admin/build/node-type/' +  type_url_str  + '/delete'] = {
       'title' : 'Delete',
-      'page arguments' : array('node_type_delete_confirm', type),
-      'access arguments' : array('administer content types'),
-      'type' : MENU_CALLBACK,
-    )
-  }
-  items['node/%node'] = array(
+      'page arguments' : ('node_type_delete_confirm', type),
+      'access arguments' : ('administer content types',),
+      'type' : MENU_CALLBACK
+    }
+  items['node/%node'] = {
     'title callback' : 'node_page_title',
-    'title arguments' : array(1),
+    'title arguments' : (1,),
     'page callback' : 'node_page_view',
-    'page arguments' : array(1),
+    'page arguments' : (1,),
     'access callback' : 'node_access',
-    'access arguments' : array('view', 1),
-    'type' : MENU_CALLBACK)
-  items['node/%node/view'] = array(
+    'access arguments' : ('view', 1),
+    'type' : MENU_CALLBACK
+  }
+  items['node/%node/view'] = {
     'title' : 'View',
     'type' : MENU_DEFAULT_LOCAL_TASK,
-    'weight' : -10)
-  items['node/%node/edit'] = array(
+    'weight' : -10
+  }
+  items['node/%node/edit'] = {
     'title' : 'Edit',
     'page callback' : 'node_page_edit',
-    'page arguments' : array(1),
+    'page arguments' : (1,),
     'access callback' : 'node_access',
-    'access arguments' : array('update', 1),
+    'access arguments' : ('update', 1),
     'weight' : 1,
-    'type' : MENU_LOCAL_TASK,
-  )
-  items['node/%node/delete'] = array(
+    'type' : MENU_LOCAL_TASK
+  }
+  items['node/%node/delete'] = {
     'title' : 'Delete',
     'page callback' : 'drupal_get_form',
-    'page arguments' : array('node_delete_confirm', 1),
+    'page arguments' : ('node_delete_confirm', 1),
     'access callback' : 'node_access',
-    'access arguments' : array('delete', 1),
+    'access arguments' : ('delete', 1),
     'weight' : 1,
-    'type' : MENU_CALLBACK)
-  items['node/%node/revisions'] = array(
+    'type' : MENU_CALLBACK
+  }
+  items['node/%node/revisions'] = {
     'title' : 'Revisions',
     'page callback' : 'node_revision_overview',
-    'page arguments' : array(1),
+    'page arguments' : (1,),
     'access callback' : '_node_revision_access',
-    'access arguments' : array(1),
+    'access arguments' : (1,),
     'weight' : 2,
-    'type' : MENU_LOCAL_TASK,
-  )
-  items['node/%node/revisions/%/view'] = array(
-    'title' : 'Revisions',
-    'load arguments' : array(3),
-    'page callback' : 'node_show',
-    'page arguments' : array(1, None, True),
-    'access callback' : '_node_revision_access',
-    'access arguments' : array(1),
-    'type' : MENU_CALLBACK,
-  )
-  items['node/%node/revisions/%/revert'] = array(
-    'title' : 'Revert to earlier revision',
-    'load arguments' : array(3),
-    'page callback' : 'drupal_get_form',
-    'page arguments' : array('node_revision_revert_confirm', 1),
-    'access callback' : '_node_revision_access',
-    'access arguments' : array(1, 'update'),
-    'type' : MENU_CALLBACK,
-  )
-  items['node/%node/revisions/%/delete'] = array(
-    'title' : 'Delete earlier revision',
-    'load arguments' : array(3),
-    'page callback' : 'drupal_get_form',
-    'page arguments' : array('node_revision_delete_confirm', 1),
-    'access callback' : '_node_revision_access',
-    'access arguments' : array(1, 'delete'),
-    'type' : MENU_CALLBACK,
-  )
-  return items
-}
-#
-# Title callback.
-#
-def node_page_title(node):
-  return node.title
-}
-#
-# Implementation of hook_init().
-#
-def node_init():
-  drupal_add_css(drupal_get_path('module', 'node') +  '/node.css')
-}
-
-def node_last_changed(nid):
-  node = db_fetch_object(db_query('SELECT changed FROM {node} WHERE nid = %d', nid))
-  return (node.changed)
-}
-#
-# Return a list of all the existing revision numbers.
-#
-def node_revision_list(node):
-  revisions = array()
-  result = db_query('SELECT r.vid, r.title, r.log, r.uid, n.vid AS current_vid, r.timestamp, u.name FROM {node_revisions} r LEFT JOIN {node} n ON n.vid = r.vid INNER JOIN {users} u ON u.uid = r.uid WHERE r.nid = %d ORDER BY r.timestamp DESC', node.nid)
-  while (revision = db_fetch_object(result)):
-    revisions[revision.vid] = revision
+    'type' : MENU_LOCAL_TASK
   }
+  items['node/%node/revisions/%/view'] = {
+    'title' : 'Revisions',
+    'load arguments' : (3,),
+    'page callback' : 'node_show',
+    'page arguments' : (1, None, True),
+    'access callback' : '_node_revision_access',
+    'access arguments' : (1,),
+    'type' : MENU_CALLBACK
+  }
+  items['node/%node/revisions/%/revert'] = {
+    'title' : 'Revert to earlier revision',
+    'load arguments' : (3,),
+    'page callback' : 'drupal_get_form',
+    'page arguments' : ('node_revision_revert_confirm', 1),
+    'access callback' : '_node_revision_access',
+    'access arguments' : (1, 'update'),
+    'type' : MENU_CALLBACK
+  }
+  items['node/%node/revisions/%/delete'] = {
+    'title' : 'Delete earlier revision',
+    'load arguments' : (3,),
+    'page callback' : 'drupal_get_form',
+    'page arguments' : ('node_revision_delete_confirm', 1),
+    'access callback' : '_node_revision_access',
+    'access arguments' : (1, 'delete'),
+    'type' : MENU_CALLBACK
+  }
+  return items
 
+
+
+def page_title(node):
+  """
+   Title callback.
+  """
+  return node.title
+
+
+
+
+def hook_init():
+  """
+   Implementation of hook_init().
+  """
+  drupal_add_css(drupal_get_path('module', 'node') +  '/node.css')
+
+
+
+
+def last_changed(nid):
+  node = lib_database.fetch_object(lib_database.query(\
+    'SELECT changed FROM {node} WHERE nid = %d', nid))
+  return (node.changed)
+
+
+
+def revision_list(node):
+  """
+   Return a list of all the existing revision numbers.
+  """
+  revisions = []
+  result = lib_database.query(\
+    'SELECT r.vid, r.title, r.log, r.uid, n.vid AS current_vid, ' + \
+    'r.timestamp, u.name FROM {node_revisions} r ' + \
+    'LEFT JOIN {node} n ON n.vid = r.vid ' + \
+    'INNER JOIN {users} u ON u.uid = r.uid ' + \
+    'WHERE r.nid = %d ORDER BY r.timestamp DESC', node.nid)
+  while True:
+    revision = lib_database.fetch_object(result)
+    if not revision:
+      break
+    revisions[revision.vid] = revision
   return revisions
-}
-#
-# Implementation of hook_block().
-#
-def node_block(op = 'list', delta = ''):
+
+
+
+
+def hook_block(op = 'list', delta = ''):
+  """
+   Implementation of hook_block().
+  """
   if (op == 'list'):
-    blocks['syndicate']['info'] = t('Syndicate')
+    blocks['syndicate']['info'] = lib_common.t('Syndicate')
     # Not worth caching.
     blocks['syndicate']['cache'] = BLOCK_NO_CACHE
     return blocks
-  }
   elif (op == 'view'):
-    block['subject'] = t('Syndicate')
-    block['content'] = theme('feed_icon', url('rss.xml'), t('Syndicate'))
+    block['subject'] = lib_common.t('Syndicate')
+    block['content'] = lib_theme.theme('feed_icon', \
+      url('rss.xml'), lib_common.t('Syndicate'))
     return block
-  }
-}
-#
-# A generic function for generating RSS feeds from a set of nodes.
-#
-# @param nids
-#   An array of node IDs (nid). Defaults to False so empty feeds can be
-#   generated with passing an empty array, if no items are to be added
-#   to the feed.
-# @param channel
-#   An associative array containing title, link, description and other keys.
-#   The link should be an absolute URL.
-#
-def node_feed(nids = False, channel = array()):
-  global base_url, language
-  if (nids == False):
-    nids = array()
-    result = db_query_range(db_rewrite_sql('SELECT n.nid, n.created FROM {node} n WHERE n.promote = 1 AND n.status = 1 ORDER BY n.created DESC'), 0, variable_get('feed_default_items', 10))
-    while (row = db_fetch_object(result)):
-      nids[] = row.nid
-    }
-  }
 
-  item_length = variable_get('feed_item_length', 'teaser')
-  namespaces = array('xmlns:dc' : 'http://purl.org/dc/elements/1.1/')
+
+
+def feed(nids = False, channel = []):
+  """
+   A generic function for generating RSS feeds from a set of nodes.
+  
+   @param nids
+     An array of node IDs (nid). Defaults to False so empty feeds can be
+     generated with passing an empty array, if no items are to be added
+     to the feed.
+   @param channel
+     An associative array containing title, link, description and other keys.
+     The link should be an absolute URL.
+  """
+  if (nids == False):
+    nids = []
+    result = lib_database.query_range(lib_database.rewrite_sql(\
+      'SELECT n.nid, n.created FROM {node} n ' + \
+      'WHERE n.promote = 1 AND n.status = 1 ORDER BY n.created DESC'), 0, \
+      lib_bootstrap.variable_get('feed_default_items', 10))
+    while True:
+      row = lib_database.fetch_object(result)
+      nids.append( row.nid )
+  item_length = lib_bootstrap.variable_get('feed_item_length', 'teaser')
+  namespaces = {'xmlns:dc' : 'http://purl.org/dc/elements/1.1/'}
   items = ''
   for nid in nids:
     # Load the specified node:
-    item = node_load(nid)
+    item = load(nid)
     item.build_mode = NODE_BUILD_RSS
-    item.link = url("node/nid", array('absolute' : True))
+    item.link = url("node/nid", {'absolute' : True})
     if (item_length != 'title'):
-      teaser = (item_length == 'teaser') ? True : False
+      teaser = (True if (item_length == 'teaser') else False)
       # Filter and prepare node teaser
-      if (node_hook(item, 'view')):
-        item = node_invoke(item, 'view', teaser, False)
-      }
+      if (hook(item, 'view')):
+        item = invoke(item, 'view', teaser, False)
       else:
         item = node_prepare(item, teaser)
-      }
-
       # Allow modules to change node.teaser before viewing.
-      node_invoke_nodeapi(item, 'view', teaser, False)
-    }
-
+      invoke_nodeapi(item, 'view', teaser, False)
     # Allow modules to add additional item fields and/or modify item
-    extra = node_invoke_nodeapi(item, 'rss item')
-    extra = array_merge(extra, array(array('key' : 'pubDate', 'value' : gmdate('r', item.created)), array('key' : 'dc:creator', 'value' : item.name), array('key' : 'guid', 'value' : item.nid +  ' at '  + base_url, 'attributes' : array('isPermaLink' : 'False'))))
+    extra = invoke_nodeapi(item, 'rss item')
+    extra = php.array_merge(extra, \
+      ({'key' : 'pubDate', 'value' : php.gmdate('r', item.created)}, \
+      {'key' : 'dc:creator', 'value' : item.name}, \
+      {'key' : 'guid', 'value' : item.nid +  ' at '  + base_url, \
+      'attributes' : {'isPermaLink' : 'False'}}))
     for element in extra:
-      if (isset(element['namespace'])):
-        namespaces = array_merge(namespaces, element['namespace'])
-      }
-    }
-
+      if (php.isset(element, 'namespace')):
+        namespaces = php.array_merge(namespaces, element['namespace'])
     # Prepare the item description
-    switch (item_length):
-      case 'fulltext':
-        item_text = item.body
-        break
-      case 'teaser':
-        item_text = item.teaser
-        if (not empty(item.readmore)):
-          item_text += '<p>' +  l(t('read more'), 'node/'  + item.nid, array('absolute' : True, 'attributes' : array('target' : '_blank'))) . '</p>'
-        }
-        break
-      case 'title':
-        item_text = ''
-        break
-    }
-
+    if item_length == 'fulltext':
+      item_text = item.body
+    elif item_length == 'teaser':
+      item_text = item.teaser
+      if (not empty(item.readmore)):
+        item_text += '<p>' + l(lib_common.t('read more'), \
+          'node/'  + item.nid, {'absolute' : True, 'attributes' : \
+          {'target' : '_blank'}}) + '</p>'
+    elif item_length == 'title':
+      item_text = ''
     items += format_rss_item(item.title, item.link, item_text, extra)
-  }
-
-  channel_defaults = array(
+  channel_defaults = {
     'version'     : '2.0',
-    'title'       : variable_get('site_name', 'Drupal'),
-    'link'        : base_url,
-    'description' : variable_get('site_mission', ''),
-    'language'    : language.language
-  )
-  channel = array_merge(channel_defaults, channel)
+    'title'       : lib_bootstrap.variable_get('site_name', 'Drupal'),
+    'link'        : lib_appglobals.base_url,
+    'description' : lib_bootstrap.variable_get('site_mission', ''),
+    'language'    : lib_appglobals.language.language
+  }
+  channel = php.array_merge(channel_defaults, channel)
   output = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-  output += "<rss version=\"" +  channel["version"]  + "\" xml:base=\"" . base_url . "\" " . drupal_attributes(namespaces) . ">\n"
-  output += format_rss_channel(channel['title'], channel['link'], channel['description'], items, channel['language'])
+  output += "<rss version=\"" +  channel["version"]  + "\" xml:base=\"" + \
+    lib_appglobals.base_url + "\" " + drupal_attributes(namespaces) + \
+    ">\n"
+  output += format_rss_channel(channel['title'], channel['link'], \
+    channel['description'], items, channel['language'])
   output += "</rss>\n"
   drupal_set_header('Content-Type: application/rss+xml; charset=utf-8')
   print output
-}
-#
-# Menu callback; Generate a listing of promoted nodes.
-#
-def node_page_default():
+
+
+def page_default():
+  """
+   Menu callback; Generate a listing of promoted nodes.
+  """
   result = pager_query(db_rewrite_sql('SELECT n.nid, n.sticky, n.created FROM {node} n WHERE n.promote = 1 AND n.status = 1 ORDER BY n.sticky DESC, n.created DESC'), variable_get('default_nodes_main', 10))
   output = ''
   num_rows = False
