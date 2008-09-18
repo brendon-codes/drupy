@@ -17,8 +17,8 @@
   @see <a href='http://drupal.org'>Drupal Homepage</a>
   @note Drupy is a port of the Drupal project.
   @note This file was ported from Drupal's includes/cache.inc
-  @author Fernando P. García
-  @copyright 2008 Fernando P. García
+  @author Fernando P. Garcia
+  @copyright 2008 Fernando P. Garcia
   @contact fernando at develcuy dot com
   @created 2008-09-18
   @version 0.1
