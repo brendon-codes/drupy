@@ -1807,998 +1807,1100 @@ def page_default():
   result = pager_query(db_rewrite_sql('SELECT n.nid, n.sticky, n.created FROM {node} n WHERE n.promote = 1 AND n.status = 1 ORDER BY n.sticky DESC, n.created DESC'), variable_get('default_nodes_main', 10))
   output = ''
   num_rows = False
-  while (node = db_fetch_object(result)):
-    output += node_view(node_load(node.nid), 1)
+  while True:
+    node = lib_database.fetch_object(result)
+    if not node:
+      break
+    output += view(load(node.nid), 1)
     num_rows = True
-  }
-
   if (num_rows):
-    feed_url = url('rss.xml', array('absolute' : True))
-    drupal_add_feed(feed_url, variable_get('site_name', 'Drupal') +  ' '  + t('RSS'))
-    output += theme('pager', None, variable_get('default_nodes_main', 10))
-  }
+    feed_url = url('rss.xml', {'absolute' : True})
+    drupal_add_feed(feed_url, lib_bootstrap.variable_get('site_name', \
+      'Drupal') +  ' '  + t('RSS'))
+    output += lib_theme.theme('pager', None, \
+      lib_bootstrap.variable_get('default_nodes_main', 10))
   else:
-    default_message = '<h1 class="title">' +  t('Welcome to your new Drupal websitenot ')  + '</h1>'
-    default_message += '<p>' +  t('Please follow these steps to set up and start using your website:')  + '</p>'
+    default_message = '<h1 class="title">' + lib_common.t(\
+      'Welcome to your new Drupal website! ')  + '</h1>'
+    default_message += '<p>' +  lib_common.t(\
+      'Please follow these steps to set up and start using your website:')  + \
+      '</p>'
     default_message += '<ol>'
-    default_message += '<li>' +  t('<strong>Configure your website</strong> Once logged in, visit the <a href="@admin">administration section</a>, where you can <a href="@config">customize and configure</a> all aspects of your website.', array('@admin' : url('admin'), '@config' : url('admin/settings')))  + '</li>'
-    default_message += '<li>' +  t('<strong>Enable additional functionality</strong> Next, visit the <a href="@modules">module list</a> and enable features which suit your specific needs + You can find additional modules in the <a href="@download_modules">Drupal modules download section</a>.', array('@modules' : url('admin/build/modules'), '@download_modules' : 'http://drupal.org/project/modules')) . '</li>'
-    default_message += '<li>' +  t('<strong>Customize your website design</strong> To change the "look and feel" of your website, visit the <a href="@themes">themes section</a> + You may choose from one of the included themes or download additional themes from the <a href="@download_themes">Drupal themes download section</a>.', array('@themes' : url('admin/build/themes'), '@download_themes' : 'http://drupal.org/project/themes')) . '</li>'
-    default_message += '<li>' +  t('<strong>Start posting content</strong> Finally, you can <a href="@content">create content</a> for your website + This message will disappear once you have promoted a post to the front page.', array('@content' : url('node/add'))) . '</li>'
+    default_message += '<li>' +  lib_common.t(\
+      '<strong>Configure your website</strong> Once logged in, visit ' + \
+      'the <a href="@admin">administration section</a>, where you can ' + \
+      '<a href="@config">customize and configure</a> all aspects of ' + \
+      'your website.', {'@admin' : url('admin'), \
+      '@config' : url('admin/settings')})  + '</li>'
+    default_message += '<li>' +  lib_common.t(\
+      '<strong>Enable additional functionality</strong> ' + \
+      'Next, visit the <a href="@modules">module list</a> and ' + \
+      'enable features which suit your specific needs. '+ \
+      'You can find additional modules in the <a href="@download_modules">' + \
+      'Drupal modules download section</a>.', \
+      {'@modules' : url('admin/build/modules'), \
+      '@download_modules' : 'http://drupal.org/project/modules'}) + '</li>'
+    default_message += '<li>' +  lib_common.t(\
+      '<strong>Customize your website design</strong> To change the ' + \
+      '"look and feel" of your website, visit the <a href="@themes">' + \
+      'themes section</a> + You may choose from one of the included ' + \
+      'themes or download additional themes from the ' + \
+      '<a href="@download_themes">Drupal themes download section</a>.', \
+      {'@themes' : url('admin/build/themes'), \
+      '@download_themes' : 'http://drupal.org/project/themes'}) + '</li>'
+    default_message += '<li>' +  lib_common.t(\
+      '<strong>Start posting content</strong> Finally, you can ' + \
+      '<a href="@content">create content</a> for your website. ' + \
+      'This message will disappear once you have promoted a post ' + \
+      'to the front page.', {'@content' : url('node/add')}) + '</li>'
     default_message += '</ol>'
-    default_message += '<p>' +  t('For more information, please refer to the <a href="@help">help section</a>, or the <a href="@handbook">online Drupal handbooks</a> + You may also post at the <a href="@forum">Drupal forum</a>, or view the wide range of <a href="@support">other support options</a> available.', array('@help' : url('admin/help'), '@handbook' : 'http://drupal.org/handbooks', '@forum' : 'http://drupal.org/forum', '@support' : 'http://drupal.org/support')) . '</p>'
+    default_message += '<p>' + lib_common.t(\
+      'For more information, please refer to the <a href="@help">' + \
+      'help section</a>, or the <a href="@handbook">online Drupal ' + \
+      'handbooks</a> + You may also post at the <a href="@forum">' + \
+      'Drupal forum</a>, or view the wide range of ' + \
+      '<a href="@support">other support options</a> available.', \
+      {'@help' : url('admin/help'), '@handbook' : \
+      'http://drupal.org/handbooks', '@forum' : 'http://drupal.org/forum', \
+      '@support' : 'http://drupal.org/support'}) + '</p>'
     output = '<div id="first-time">' +  default_message  + '</div>'
-  }
   drupal_set_title('')
   return output
-}
-#
-# Menu callback; view a single node.
-#
-def node_page_view(node, cid = None):
+
+
+
+def page_view(node, cid = None):
+  """
+   Menu callback; view a single node.
+  """
   drupal_set_title(check_plain(node.title))
-  return node_show(node, cid)
-}
-#
-# Implementation of hook_update_index().
-#
-def node_update_index():
-  limit = (int)variable_get('search_cron_limit', 100)
-  # Store the maximum possible comments per thread (used for ranking by reply count)
-  variable_set('node_cron_comments_scale', 1.0 / max(1, db_result(db_query('SELECT MAX(comment_count) FROM {node_comment_statistics}'))))
-  variable_set('node_cron_views_scale', 1.0 / max(1, db_result(db_query('SELECT MAX(totalcount) FROM {node_counter}'))))
-  result = db_query_range("SELECT n.nid FROM {node} n LEFT JOIN {search_dataset} d ON d.type = 'node' AND d.sid = n.nid WHERE d.sid IS None OR d.reindex <> 0 ORDER BY d.reindex ASC, n.nid ASC", 0, limit)
-  while (node = db_fetch_object(result)):
-    _node_index_node(node)
-  }
-}
-#
-# Index a single node.
-#
-# @param node
-#   The node to index.
-#
-def _node_index_node(node):
-  node = node_load(node.nid)
-  # save the changed time of the most recent indexed node, for the search results half-life calculation
-  variable_set('node_cron_last', node.changed)
+  return show(node, cid)
+
+
+
+def hook_update_index():
+  """
+   Implementation of hook_update_index().
+  """
+  limit = int(lib_bootstrap.variable_get('search_cron_limit', 100))
+  # Store the maximum possible comments per thread (used for ranking by
+  # reply count)
+  lib_bootstrap.variable_set('node_cron_comments_scale', \
+    1.0 / php.max(1, lib_database.result(lib_database.query(\
+   'SELECT MAX(comment_count) FROM {node_comment_statistics}'))))
+  lib_bootstrap.variable_set('node_cron_views_scale', \
+    1.0 / php.max(1, lib_database.result(lib_database.query(\
+    'SELECT MAX(totalcount) FROM {node_counter}'))))
+  result = lib_database.query_range(\
+    "SELECT n.nid FROM {node} n LEFT JOIN {search_dataset} d " + \
+    "ON d.type = 'node' AND d.sid = n.nid WHERE d.sid IS None OR " + \
+    "d.reindex <> 0 ORDER BY d.reindex ASC, n.nid ASC", 0, limit)
+  while True:
+    node = db_fetch_object(result)
+    if not node:
+      break
+    _index_node(node)
+
+
+
+def _index_node(node):
+  """
+   Index a single node.
+   @param node
+     The node to index.
+  """
+  node = load(node.nid)
+  # save the changed time of the most recent indexed node, for the 
+  # search results half-life calculation
+  lib_bootstrap.variable_set('node_cron_last', node.changed)
   # Build the node body.
   node.build_mode = NODE_BUILD_SEARCH_INDEX
-  node = node_build_content(node, False, False)
+  node = build_content(node, False, False)
   node.body = drupal_render(node.content)
-  text = '<h1>' +  check_plain(node.title)  + '</h1>' . node.body
+  text = '<h1>' +  check_plain(node.title)  + '</h1>' + node.body
   # Fetch extra data normally not visible
-  extra = node_invoke_nodeapi(node, 'update index')
+  extra = invoke_nodeapi(node, 'update index')
   for t in extra:
     text += t
-  }
-
   # Update index
   search_index(node.nid, 'node', text)
-}
-#
-# Implementation of hook_form_alter().
-#
-def node_form_alter(&form, form_state, form_id):
+
+
+def hook_form_alter(form, form_state, form_id):
+  """
+   Implementation of hook_form_alter().
+  """
+  php.Reference.check(form)
   # Advanced node search form
-  if (form_id == 'search_form' and form['module']['#value'] == 'node' and user_access('use advanced search')):
+  if (form_id == 'search_form' and \
+      form['module']['#value'] == 'node' and \
+      lib_plugin.plugins['user'].access('use advanced search')):
     # Keyword boxes:
-    form['advanced'] = array(
+    form['advanced'] = {
       '#type' : 'fieldset',
-      '#title' : t('Advanced search'),
+      '#title' : lib_common.t('Advanced search'),
       '#collapsible' : True,
       '#collapsed' : True,
-      '#attributes' : array('class' : 'search-advanced'),
-    )
-    form['advanced']['keywords'] = array(
+      '#attributes' : {'class' : 'search-advanced'}
+    }
+    form['advanced']['keywords'] = {
       '#prefix' : '<div class="criterion">',
-      '#suffix' : '</div>',
-    )
-    form['advanced']['keywords']['or'] = array(
+      '#suffix' : '</div>'
+    }
+    form['advanced']['keywords']['or'] = {
       '#type' : 'textfield',
-      '#title' : t('Containing any of the words'),
+      '#title' : lib_common.t('Containing any of the words'),
       '#size' : 30,
-      '#maxlength' : 255,
-    )
-    form['advanced']['keywords']['phrase'] = array(
+      '#maxlength' : 255
+    }
+    form['advanced']['keywords']['phrase'] = {
       '#type' : 'textfield',
-      '#title' : t('Containing the phrase'),
+      '#title' : lib_common.t('Containing the phrase'),
       '#size' : 30,
-      '#maxlength' : 255,
-    )
-    form['advanced']['keywords']['negative'] = array(
+      '#maxlength' : 255
+    }
+    form['advanced']['keywords']['negative'] = {
       '#type' : 'textfield',
-      '#title' : t('Containing none of the words'),
+      '#title' : lib_common.t('Containing none of the words'),
       '#size' : 30,
-      '#maxlength' : 255,
-    )
+      '#maxlength' : 255
+    }
     # Taxonomy box:
-    if (taxonomy = module_invoke('taxonomy', 'form_all', 1)):
-      form['advanced']['category'] = array(
+    taxonomy = lib_plugin.invoke('taxonomy', 'form_all', 1)
+    if taxonomy:
+      form['advanced']['category'] = {
         '#type' : 'select',
-        '#title' : t('Only in the category(s)'),
+        '#title' : lib_common.t('Only in the category(s)'),
         '#prefix' : '<div class="criterion">',
         '#size' : 10,
         '#suffix' : '</div>',
         '#options' : taxonomy,
-        '#multiple' : True,
-      )
-    }
-
+        '#multiple' : True
+      }
     # Node types:
-    types = array_map('check_plain', node_get_types('names'))
-    form['advanced']['type'] = array(
+    types = php.array_map('check_plain', get_types('names'))
+    form['advanced']['type'] = {
       '#type' : 'checkboxes',
-      '#title' : t('Only of the type(s)'),
+      '#title' : lib_common.t('Only of the type(s)'),
       '#prefix' : '<div class="criterion">',
       '#suffix' : '</div>',
-      '#options' : types,
-    )
-    form['advanced']['submit'] = array(
+      '#options' : types
+    }
+    form['advanced']['submit'] = {
       '#type' : 'submit',
       '#value' : t('Advanced search'),
       '#prefix' : '<div class="action">',
-      '#suffix' : '</div>',
-    )
-    # Languages:
-    language_options = array()
-    foreach (language_list('language') as key : object):
-      language_options[key] = object.name
+      '#suffix' : '</div>'
     }
-    if (count(language_options) > 1):
-      form['advanced']['language'] = array(
+    # Languages:
+    language_options = []
+    for key,object_ in language_list('language').items():
+      language_options[key] = object_.name
+    if (php.count(language_options) > 1):
+      form['advanced']['language'] = {
         '#type' : 'checkboxes',
-        '#title' : t('Languages'),
+        '#title' : lib_common.t('Languages'),
         '#prefix' : '<div class="criterion">',
         '#suffix' : '</div>',
-        '#options' : language_options,
-      )
-    }
+        '#options' : language_options
+      }
+    form['#validate'].append( 'node_search_validate' )
 
 
-    form['#validate'][] = 'node_search_validate'
-  }
-}
-#
-# Form API callback for the search form. Registered in node_form_alter().
-#
-def node_search_validate(form, &form_state):
+def search_validate(form, form_state):
+  """
+   Form API callback for the search form. Registered in node_form_alter().
+  """
+  php.Reference.check(form_state)
   # Initialise using any existing basic search keywords.
   keys = form_state['values']['processed_keys']
   # Insert extra restrictions into the search keywords string.
-  if (isset(form_state['values']['type']) and is_array(form_state['values']['type'])):
-    # Retrieve selected types - Forms API sets the value of unselected checkboxes to 0.
-    form_state['values']['type'] = array_filter(form_state['values']['type'])
-    if (count(form_state['values']['type'])):
-      keys = search_query_insert(keys, 'type', implode(',', array_keys(form_state['values']['type'])))
-    }
-  }
-
-  if (isset(form_state['values']['category']) and is_array(form_state['values']['category'])):
-    keys = search_query_insert(keys, 'category', implode(',', form_state['values']['category']))
-  }
-  if (isset(form_state['values']['language']) and is_array(form_state['values']['language'])):
-    keys = search_query_insert(keys, 'language', implode(',', array_filter(form_state['values']['language'])))
-  }
+  if (php.isset(form_state['values'], 'type') and \
+      php.is_array(form_state['values']['type'])):
+    # Retrieve selected types - Forms API sets the value of unselected
+    # checkboxes to 0.
+    form_state['values']['type'] = php.array_filter(\
+      form_state['values']['type'])
+    if (php.count(form_state['values']['type'])):
+      keys = search_query_insert(keys, 'type', \
+        php.implode(',', php.array_keys(form_state['values']['type'])))
+  if (php.isset(form_state['values'], 'category') and \
+      php.is_array(form_state['values']['category'])):
+    keys = search_query_insert(keys, 'category', \
+      php.implode(',', form_state['values']['category']))
+  if (php.isset(form_state['values']['language']) and \
+      php.is_array(form_state['values']['language'])):
+    keys = search_query_insert(keys, 'language', php.implode(',', \
+      php.array_filter(form_state['values']['language'])))
   if (form_state['values']['or'] != ''):
-    if (preg_match_all('/ ("[^"]+"|[^" ]+)/i', ' ' +  form_state['values']['or'], matches)):
-      keys += ' ' +  implode(' OR ', matches[1])
-    }
-  }
+    if (php.preg_match_all('/ ("[^"]+"|[^" ]+)/i', ' ' + \
+        form_state['values']['or'], matches)):
+      keys += ' ' + php.implode(' OR ', matches[1])
   if (form_state['values']['negative'] != ''):
-    if (preg_match_all('/ ("[^"]+"|[^" ]+)/i', ' ' +  form_state['values']['negative'], matches)):
-      keys += ' -' +  implode(' -', matches[1])
-    }
-  }
+    if (php.preg_match_all('/ ("[^"]+"|[^" ]+)/i', ' ' + \
+        form_state['values']['negative'], matches)):
+      keys += ' -' +  php.implode(' -', matches[1])
   if (form_state['values']['phrase'] != ''):
-    keys += ' "' +  str_replace('"', ' ', form_state['values']['phrase'])  + '"'
-  }
-  if (not empty(keys)):
-    form_set_value(form['basic']['inline']['processed_keys'], trim(keys), form_state)
-  }
-}
-#
-# @defgroup node_access Node access rights
-# @{
-# The node access system determines who can do what to which nodes.
-#
-# In determining access rights for a node, node_access() first checks
-# whether the user has the "administer nodes" permission. Such users have
-# unrestricted access to all nodes. Then the node module's hook_access()
-# is called, and a True or False return value will grant or deny access.
-# This allows, for example, the blog module to always grant access to the
-# blog author, and for the book module to always deny editing access to
-# PHP pages.
-#
-# If node module does not intervene (returns None), then the
-# node_access table is used to determine access. All node access
-# modules are queried using hook_node_grants() to assemble a list of
-# "grant IDs" for the user. This list is compared against the table.
-# If any row contains the node ID in question (or 0, which stands for "all
-# nodes"), one of the grant IDs returned, and a value of True for the
-# operation in question, then access is granted. Note that this table is a
-# list of grants; any matching row is sufficient to grant access to the
-# node.
-#
-# In node listings, the process above is followed except that
-# hook_access() is not called on each node for performance reasons and for
-# proper functioning of the pager system. When adding a node listing to your
-# module, be sure to use db_rewrite_sql() to add
-# the appropriate clauses to your query for access checks.
-#
-# To see how to write a node access module of your own, see
-# node_access_example.module.
-#
-#
-# Determine whether the current user may perform the given operation on the
-# specified node.
-#
-# @param op
-#   The operation to be performed on the node. Possible values are:
-#   - "view"
-#   - "update"
-#   - "delete"
-#   - "create"
-# @param node
-#   The node object (or node array) on which the operation is to be performed,
-#   or node type (e.g. 'forum') for "create" operation.
-# @param account
-#   Optional, a user object representing the user for whom the operation is to
-#   be performed. Determines access for a user other than the current user.
-# @return
-#   True if the operation may be performed.
-#
-def node_access(op, node, account = None):
-  global user
+    keys += ' "' +  php.str_replace('"', ' ', \
+    form_state['values']['phrase'])  + '"'
+  if (not php.empty(keys)):
+    form_set_value(form['basic']['inline']['processed_keys'], trim(keys),\
+      form_state)
+
+
+def access(op, node, account = None):
+  """
+   @defgroup node_access Node access rights
+   @{
+   The node access system determines who can do what to which nodes.
+  
+   In determining access rights for a node, node_access() first checks
+   whether the user has the "administer nodes" permission. Such users have
+   unrestricted access to all nodes. Then the node module's hook_access()
+   is called, and a True or False return value will grant or deny access.
+   This allows, for example, the blog module to always grant access to the
+   blog author, and for the book module to always deny editing access to
+   PHP pages.
+  
+   If node module does not intervene (returns None), then the
+   node_access table is used to determine access. All node access
+   modules are queried using hook_node_grants() to assemble a list of
+   "grant IDs" for the user. This list is compared against the table.
+   If any row contains the node ID in question (or 0, which stands for "all
+   nodes"), one of the grant IDs returned, and a value of True for the
+   operation in question, then access is granted. Note that this table is a
+   list of grants; any matching row is sufficient to grant access to the
+   node.
+  
+   In node listings, the process above is followed except that
+   hook_access() is not called on each node for performance reasons and for
+   proper functioning of the pager system. When adding a node listing to your
+   module, be sure to use db_rewrite_sql() to add
+   the appropriate clauses to your query for access checks.
+  
+   To see how to write a node access module of your own, see
+   node_access_example.module.
+  
+   Determine whether the current user may perform the given operation on the
+   specified node.
+  
+   @param op
+     The operation to be performed on the node. Possible values are:
+     - "view"
+     - "update"
+     - "delete"
+     - "create"
+   @param node
+     The node object (or node array) on which the operation is to be performed,
+     or node type (e.g. 'forum') for "create" operation.
+   @param account
+     Optional, a user object representing the user for whom the operation is to
+     be performed. Determines access for a user other than the current user.
+   @return
+     True if the operation may be performed.
+  """
   if (not node):
     return False
-  }
   # Convert the node to an object if necessary:
   if (op != 'create'):
-    node = (object)node
-  }
+    node = php.object_(node)
   # If no user object is supplied, the access check is for the current user.
   if (empty(account)):
-    account = user
-  }
+    account = lib_appglobals.user
   # If the node is in a restricted format, disallow editing.
   if (op == 'update' and not filter_access(node.format)):
     return False
-  }
-
-  if (user_access('administer nodes', account)):
+  if (lib_plugin.plugins['user'].access('administer nodes', account)):
     return True
-  }
-
-  if (not user_access('access content', account)):
+  if (not lib_plugin.plugins['user'].access('access content', account)):
     return False
-  }
-
   # Can't use node_invoke('access', node), because the access hook takes the
   # op parameter before the node parameter.
-  module = node_get_types('module', node)
+  plugin = get_types('plugin', node)
   if (module == 'node'):
-    module = 'node_content'; // Avoid function name collisions.
-  }
-  access = module_invoke(module, 'access', op, node, account)
-  if (not is_None(access)):
+    plugin = 'node_content'; # Avoid function name collisions.
+  access = lib_plugin.invoke(plugin, 'access', op, node, account)
+  if (not is_none(access)):
     return access
-  }
-
   # If the module did not override the access rights, use those set in the
   # node_access table.
   if (op != 'create' and node.nid and node.status):
-    grants = array()
-    foreach (node_access_grants(op, account) as realm : gids):
+    grants = []
+    for realm,gids in access_grants(op, account).items():
       for gid in gids:
-        grants[] = "(gid = gid AND realm = 'realm')"
-      }
-    }
-
+        grants.append( "(gid = gid AND realm = 'realm')" )
     grants_sql = ''
-    if (count(grants)):
-      grants_sql = 'AND (' +  implode(' OR ', grants)  + ')'
-    }
-
+    if (php.count(grants)):
+      grants_sql = 'AND (' +  php.implode(' OR ', grants)  + ')'
     sql = "SELECT COUNT(*) FROM {node_access} WHERE (nid = 0 OR nid = %d) grants_sql AND grant_op >= 1"
-    result = db_query(sql, node.nid)
-    return (db_result(result))
-  }
-
+    result = lib_database.query(sql, node.nid)
+    return (lib_database.result(result))
   # Let authors view their own nodes.
   if (op == 'view' and account.uid == node.uid and account.uid != 0):
     return True
-  }
-
   return False
-}
-#
-# Generate an SQL join clause for use in fetching a node listing.
-#
-# @param node_alias
-#   If the node table has been given an SQL alias other than the default
-#   "n", that must be passed here.
-# @param node_access_alias
-#   If the node_access table has been given an SQL alias other than the default
-#   "na", that must be passed here.
-# @return
-#   An SQL join clause.
-#
-def _node_access_join_sql(node_alias = 'n', node_access_alias = 'na'):
-  if (user_access('administer nodes')):
+
+
+
+def _access_join_sql(node_alias = 'n', node_access_alias = 'na'):
+  """
+   Generate an SQL join clause for use in fetching a node listing.
+  
+   @param node_alias
+     If the node table has been given an SQL alias other than the default
+     "n", that must be passed here.
+  @param node_access_alias
+    If the node_access table has been given an SQL
+  alias other than the default
+    "na", that must be passed here.
+   @return
+     An SQL join clause.
+  """
+  if (lib_plugin.plugins['user'].access('administer nodes')):
     return ''
-  }
+  return 'INNER JOIN {node_access} ' +  \
+    node_access_alias  + ' ON ' + node_access_alias + '.nid = ' + \
+    node_alias + '.nid'
 
-  return 'INNER JOIN {node_access} ' +  node_access_alias  + ' ON ' . node_access_alias . '.nid = ' . node_alias . '.nid'
-}
-#
-# Generate an SQL where clause for use in fetching a node listing.
-#
-# @param op
-#   The operation that must be allowed to return a node.
-# @param node_access_alias
-#   If the node_access table has been given an SQL alias other than the default
-#   "na", that must be passed here.
-# @param account
-#   The user object for the user performing the operation. If omitted, the
-#   current user is used.
-# @return
-#   An SQL where clause.
-#
-def _node_access_where_sql(op = 'view', node_access_alias = 'na', account = None):
-  if (user_access('administer nodes')):
+
+
+def _access_where_sql(op = 'view', node_access_alias = 'na', account = None):
+  """
+   Generate an SQL where clause for use in fetching a node listing.
+  
+   @param op
+     The operation that must be allowed to return a node.
+   @param node_access_alias
+     If the node_access table has been given an SQL alias other than the default
+     "na", that must be passed here.
+   @param account
+     The user object for the user performing the operation. If omitted, the
+     current user is used.
+   @return
+     An SQL where clause.
+  """
+  if (lib_plugin.plugins['user'].access('administer nodes')):
     return
-  }
-
-  grants = array()
-  foreach (node_access_grants(op, account) as realm : gids):
+  grants = []
+  for realm,gids in node_access_grants(op, account).items():
     for gid in gids:
-      grants[] = "(node_access_alias.gid = gid AND node_access_alias.realm = 'realm')"
-    }
-  }
-
+      grants.append( "(node_access_alias.gid = gid AND " + \
+        "node_access_alias.realm = 'realm')" )
   grants_sql = ''
-  if (count(grants)):
-    grants_sql = 'AND (' +  implode(' OR ', grants)  + ')'
-  }
-
+  if (php.count(grants)):
+    grants_sql = 'AND (' + php.implode(' OR ', grants)  + ')'
   sql = "node_access_alias.grant_op >= 1 grants_sql"
   return sql
-}
-#
-# Fetch an array of permission IDs granted to the given user ID.
-#
-# The implementation here provides only the universal "all" grant. A node
-# access module should implement hook_node_grants() to provide a grant
-# list for the user.
-#
-# @param op
-#   The operation that the user is trying to perform.
-# @param account
-#   The user object for the user performing the operation. If omitted, the
-#   current user is used.
-# @return
-#   An associative array in which the keys are realms, and the values are
-#   arrays of grants for those realms.
-#
-def node_access_grants(op, account = None):
 
-  if (not isset(account)):
-    account = GLOBALS['user']
-  }
 
-  return array_merge(array('all' : array(0)), module_invoke_all('node_grants', account, op))
-}
-#
-# Determine whether the user has a global viewing grant for all nodes.
-#
-def node_access_view_all_nodes():
-  static access
-  if (not isset(access)):
-    grants = array()
-    foreach (node_access_grants('view') as realm : gids):
+
+def access_grants(op, account = None):
+  """
+   Fetch an array of permission IDs granted to the given user ID.
+  
+   The implementation here provides only the universal "all" grant. A node
+   access module should implement hook_node_grants() to provide a grant
+   list for the user.
+  
+   @param op
+     The operation that the user is trying to perform.
+   @param account
+     The user object for the user performing the operation. If omitted, the
+     current user is used.
+   @return
+     An associative array in which the keys are realms, and the values are
+     arrays of grants for those realms.
+  """
+  if (account is None):
+    account = lib_appglobals.user
+  return php.array_merge({'all' : (0,)},\
+    lib_plugin.invoke_all('node_grants', account, op))
+
+
+
+def access_view_all_nodes():
+  """
+   Determine whether the user has a global viewing grant for all nodes.
+  """
+  php.static(access_view_all_nodes, 'access', None)
+  if (access_view_all_nodes.access is None):
+    grants = []
+    for realm,gids in access_grants('view').items():
       for gid in gids:
-        grants[] = "(gid = gid AND realm = 'realm')"
-      }
-    }
-
+        grants.append("(gid = gid AND realm = 'realm')" )
     grants_sql = ''
-    if (count(grants)):
-      grants_sql = 'AND (' +  implode(' OR ', grants)  + ')'
-    }
-
-    sql = "SELECT COUNT(*) FROM {node_access} WHERE nid = 0 grants_sql AND grant_view >= 1"
-    result = db_query(sql)
-    access = db_result(result)
-  }
-
+    if (php.count(grants)):
+      grants_sql = 'AND (' + php.implode(' OR ', grants)  + ')'
+    sql = "SELECT COUNT(*) FROM {node_access} " + \
+      "WHERE nid = 0 grants_sql AND grant_view >= 1"
+    result = lib_database.query(sql)
+    access = lib_database.result(result)
   return access
-}
-#
-# Implementation of hook_db_rewrite_sql().
-#
-def node_db_rewrite_sql(query, primary_table, primary_field):
-  if (primary_field == 'nid' and not node_access_view_all_nodes()):
-    return['join'] = _node_access_join_sql(primary_table)
-    return['where'] = _node_access_where_sql()
-    return['distinct'] = 1
-    return return
-  }
-}
-#
-# This function will call module invoke to get a list of grants and then
-# write them to the database. It is called at node save, and should be
-# called by modules whenever something other than a node_save causes
-# the permissions on a node to change.
-#
-# This function is the only function that should write to the node_access
-# table.
-#
-# @param node
-#   The node to acquire grants for.
-#
-def node_access_acquire_grants(node):
-  grants = module_invoke_all('node_access_records', node)
+
+
+
+def hook_db_rewrite_sql(query, primary_table, primary_field):
+  """
+   Implementation of hook_db_rewrite_sql().
+  """
+  if (primary_field == 'nid' and not access_view_all_nodes()):
+    return_ = {}
+    return_['join'] = _access_join_sql(primary_table)
+    return_['where'] = _access_where_sql()
+    return_['distinct'] = 1
+    return return_
+  else:
+    return None
+
+
+def access_acquire_grants(node):
+  """
+   This function will call module invoke to get a list of grants and then
+   write them to the database. It is called at node save, and should be
+   called by modules whenever something other than a node_save causes
+   the permissions on a node to change.
+  
+   This function is the only function that should write to the node_access
+   table.
+  
+   @param node
+     The node to acquire grants for.
+  """
+  grants = lib_plugin.invoke_all('node_access_records', node)
   if (empty(grants)):
-    grants[] = array('realm' : 'all', 'gid' : 0, 'grant_view' : 1, 'grant_update' : 0, 'grant_delete' : 0)
-  }
+    grants.append( {'realm' : 'all', 'gid' : 0, 'grant_view' : 1, \
+      'grant_update' : 0, 'grant_delete' : 0} )
   else:
     # retain grants by highest priority
-    grant_by_priority = array()
+    grant_by_priority = []
     for g in grants:
-      grant_by_priority[intval(g['priority'])][] = g
-    }
-    krsort(grant_by_priority)
-    grants = array_shift(grant_by_priority)
-  }
+      grant_by_priority[php.intval(g['priority'])].append(g)
+    php.krsort(grant_by_priority)
+    grants = php.array_shift(grant_by_priority)
+  access_write_grants(node, grants)
 
-  node_access_write_grants(node, grants)
-}
-#
-# This function will write a list of grants to the database, deleting
-# any pre-existing grants. If a realm is provided, it will only
-# delete grants from that realm, but it will always delete a grant
-# from the 'all' realm. Modules which utilize node_access can
-# use this function when doing mass updates due to widespread permission
-# changes.
-#
-# @param node
-#   The node being written to. All that is necessary is that it contain a nid.
-# @param grants
-#   A list of grants to write. Each grant is an array that must contain the
-#   following keys: realm, gid, grant_view, grant_update, grant_delete.
-#   The realm is specified by a particular module; the gid is as well, and
-#   is a module-defined id to define grant privileges. each grant_* field
-#   is a boolean value.
-# @param realm
-#   If provided, only read/write grants for that realm.
-# @param delete
-#   If False, do not delete records. This is only for optimization purposes,
-#   and assumes the caller has already performed a mass delete of some form.
-#
-def node_access_write_grants(node, grants, realm = None, delete = True):
+
+
+def access_write_grants(node, grants, realm = None, delete = True):
+  """
+   This function will write a list of grants to the database, deleting
+   any pre-existing grants. If a realm is provided, it will only
+   delete grants from that realm, but it will always delete a grant
+   from the 'all' realm. Modules which utilize node_access can
+   use this function when doing mass updates due to widespread permission
+   changes.
+  
+   @param node
+     The node being written to. All that is necessary is that it contain
+     a nid.
+   @param grants
+     A list of grants to write. Each grant is an array that must contain the
+     following keys: realm, gid, grant_view, grant_update, grant_delete.
+     The realm is specified by a particular module; the gid is as well, and
+     is a module-defined id to define grant privileges. each grant_* field
+     is a boolean value.
+   @param realm
+     If provided, only read/write grants for that realm.
+   @param delete
+     If False, do not delete records. This is only for optimization purposes,
+     and assumes the caller has already performed a mass delete of some form.
+  """
   if (delete):
     query = 'DELETE FROM {node_access} WHERE nid = %d'
     if (realm):
       query += " AND realm in ('%s', 'all')"
-    }
-    db_query(query, node.nid, realm)
-  }
-
+    lib_database.query(query, node.nid, realm)
   # Only perform work when node_access modules are active.
-  if (count(module_implements('node_grants'))):
+  if (php.count(lib_plugin.implements('node_grants'))):
     for grant in grants:
       if (realm and realm != grant['realm']):
         continue
-      }
       # Only write grants; denies are implicit.
-      if (grant['grant_view'] or grant['grant_update'] or grant['grant_delete']):
-        db_query("INSERT INTO {node_access} (nid, realm, gid, grant_view, grant_update, grant_delete) VALUES (%d, '%s', %d, %d, %d, %d)", node.nid, grant['realm'], grant['gid'], grant['grant_view'], grant['grant_update'], grant['grant_delete'])
-      }
-    }
-  }
-}
-#
-# Flag / unflag the node access grants for rebuilding, or read the current
-# value of the flag.
-#
-# When the flag is set, a message is displayed to users with 'access
-# administration pages' permission, pointing to the 'rebuild' confirm form.
-# This can be used as an alternative to direct node_access_rebuild calls,
-# allowing administrators to decide when they want to perform the actual
-# (possibly time consuming) rebuild.
-# When unsure the current user is an adminisrator, node_access_rebuild
-# should be used instead.
-#
-# @param rebuild
-#   (Optional) The boolean value to be written.
-# @return
-#   (If no value was provided for rebuild) The current value of the flag.
-#
-def node_access_needs_rebuild(rebuild = None):
-  if (not isset(rebuild)):
-    return variable_get('node_access_needs_rebuild', False)
-  }
+      if (grant['grant_view'] or grant['grant_update'] or\
+          grant['grant_delete']):
+        lib_database.query("INSERT INTO {node_access} (nid, " + \
+          "realm, gid, grant_view, grant_update, grant_delete) " + \
+          "VALUES (%d, '%s', %d, %d, %d, %d)", \
+          node.nid, grant['realm'], grant['gid'], grant['grant_view'], \
+          grant['grant_update'], grant['grant_delete'])
+
+
+
+def access_needs_rebuild(rebuild = None):
+  """
+   Flag / unflag the node access grants for rebuilding, or read the current
+   value of the flag.
+  
+   When the flag is set, a message is displayed to users with 'access
+   administration pages' permission, pointing to the 'rebuild' confirm form.
+   This can be used as an alternative to direct node_access_rebuild calls,
+   allowing administrators to decide when they want to perform the actual
+   (possibly time consuming) rebuild.
+   When unsure the current user is an adminisrator, node_access_rebuild
+   should be used instead.
+  
+   @param rebuild
+     (Optional) The boolean value to be written.
+   @return
+     (If no value was provided for rebuild) The current value of the flag.
+  """
+  if (rebuild is None):
+    return lib_bootstrap.variable_get('node_access_needs_rebuild', False)
   elif (rebuild):
-    variable_set('node_access_needs_rebuild', True)
-  }
+    lib_bootstrap.variable_set('node_access_needs_rebuild', True)
   else:
-    variable_del('node_access_needs_rebuild')
-  }
-}
-#
-# Rebuild the node access database. This is occasionally needed by modules
-# that make system-wide changes to access levels.
-#
-# When the rebuild is required by an admin-triggered action (e.g module
-# settings form), calling node_access_needs_rebuild(True) instead of
-# node_access_rebuild() lets the user perform his changes and actually
-# rebuild only once he is done.
-#
-# Note : As of Drupal 6, node access modules are not required to (and actually
-# should not) call node_access_rebuild() in hook_enable/disable anymore.
-#
-# @see node_access_needs_rebuild()
-#
-# @param batch_mode
-#   Set to True to process in 'batch' mode, spawning processing over several
-#   HTTP requests (thus avoiding the risk of PHP timeout if the site has a
-#   large number of nodes).
-#   hook_update_N and any form submit handler are safe contexts to use the
-#   'batch mode'. Less decidable cases (such as calls from hook_user,
-#   hook_taxonomy, hook_node_type...) might consider using the non-batch mode.
-#
-def node_access_rebuild(batch_mode = False):
-  db_query("DELETE FROM {node_access}")
+    lib_bootstrap.variable_del('node_access_needs_rebuild')
+
+
+
+def access_rebuild(batch_mode = False):
+  """
+   Rebuild the node access database. This is occasionally needed by modules
+   that make system-wide changes to access levels.
+  
+   When the rebuild is required by an admin-triggered action (e.g module
+   settings form), calling node_access_needs_rebuild(True) instead of
+   node_access_rebuild() lets the user perform his changes and actually
+   rebuild only once he is done.
+  
+   Note : As of Drupal 6, node access modules are not required to (and actually
+   should not) call node_access_rebuild() in hook_enable/disable anymore.
+  
+   @see node_access_needs_rebuild()
+  
+  @param batch_mode
+     Set to True to process in 'batch' mode, spawning processing over several
+     HTTP requests (thus avoiding the risk of PHP timeout if the site has a
+     large number of nodes).
+     hook_update_N and any form submit handler are safe contexts to use the
+     'batch mode'. Less decidable cases (such as calls from hook_user,
+     hook_taxonomy, hook_node_type...) might consider using the non-batch mode.
+  """
+  lib_database.query("DELETE FROM {node_access}")
   # Only recalculate if the site is using a node_access module.
-  if (count(module_implements('node_grants'))):
+  if (php.count(lib_plugin.implements('node_grants'))):
     if (batch_mode):
-      batch = array(
-        'title' : t('Rebuilding content access permissions'),
-        'operations' : array(
-          array('_node_access_rebuild_batch_operation', array()),
+      batch = {
+        'title' : lib_common.t('Rebuilding content access permissions'),
+        'operations' : (
+          ('_access_rebuild_batch_operation', tuple()),
         ),
-        'finished' : '_node_access_rebuild_batch_finished'
-      )
+        'finished' : '_access_rebuild_batch_finished'
+      }
       batch_set(batch)
-    }
     else:
       # If not in 'safe mode', increase the maximum execution time.
-      if (not ini_get('safe_mode')):
-        set_time_limit(240)
-      }
-      result = db_query("SELECT nid FROM {node}")
-      while (node = db_fetch_object(result)):
-        loaded_node = node_load(node.nid, None, True)
+      # if (not ini_get('safe_mode')):
+      #  set_time_limit(240)
+      # }
+      result = lib_database.query("SELECT nid FROM {node}")
+      while True:
+        node = lib_datbase.fetch_object(result)
+        if not node:
+          break
+        loaded_node = load(node.nid, None, True)
         # To preserve database integrity, only aquire grants if the node
         # loads successfully.
-        if (not empty(loaded_node)):
-          node_access_acquire_grants(loaded_node)
-        }
-      }
-    }
-  }
+        if (not php.empty(loaded_node)):
+          access_acquire_grants(loaded_node)
   else:
     # Not using any node_access modules. Add the default grant.
-    db_query("INSERT INTO {node_access} VALUES (0, 0, 'all', 1, 0, 0)")
-  }
-
-  if (not isset(batch)):
-    drupal_set_message(t('Content permissions have been rebuilt.'))
-    node_access_needs_rebuild(False)
+    lib_database.query(\
+      "INSERT INTO {node_access} VALUES (0, 0, 'all', 1, 0, 0)")
+  if (batch is None):
+    drupal_set_message(lib_common.t('Content permissions have been rebuilt.'))
+    access_needs_rebuild(False)
     cache_clear_all()
-  }
-}
-#
-# Batch operation for node_access_rebuild_batch.
-#
-# This is a mutlistep operation : we go through all nodes by packs of 20.
-# The batch processing engine interrupts processing and sends progress
-# feedback after 1 second execution time.
-#
-def _node_access_rebuild_batch_operation(&context):
-  if (empty(context['sandbox'])):
+
+
+
+def _access_rebuild_batch_operation(context):
+  """
+   Batch operation for node_access_rebuild_batch.
+  
+   This is a mutlistep operation : we go through all nodes by packs of 20.
+   The batch processing engine interrupts processing and sends progress
+   feedback after 1 second execution time.
+  """
+  php.Reference.check(context)
+  if (php.empty(context['sandbox'])):
     # Initiate multistep processing.
     context['sandbox']['progress'] = 0
     context['sandbox']['current_node'] = 0
-    context['sandbox']['max'] = db_result(db_query('SELECT COUNT(DISTINCT nid) FROM {node}'))
-  }
-
+    context['sandbox']['max'] = lib_database.result(\
+      lib_database.query('SELECT COUNT(DISTINCT nid) FROM {node}'))
   # Process the next 20 nodes.
   limit = 20
-  result = db_query_range("SELECT nid FROM {node} WHERE nid > %d ORDER BY nid ASC", context['sandbox']['current_node'], 0, limit)
-  while (row = db_fetch_array(result)):
-    loaded_node = node_load(row['nid'], None, True)
+  result = lib_database.query_range(\
+    "SELECT nid FROM {node} WHERE nid > %d ORDER BY nid ASC", \
+    context['sandbox']['current_node'], 0, limit)
+  while True:
+    row = lib_database.fetch_array(result)
+    if not row:
+      break
+    loaded_node = load(row['nid'], None, True)
     # To preserve database integrity, only aquire grants if the node
     # loads successfully.
-    if (not empty(loaded_node)):
-      node_access_acquire_grants(loaded_node)
-    }
-    context['sandbox']['progress']++
+    if (not php.empty(loaded_node)):
+      access_acquire_grants(loaded_node)
+    context['sandbox']['progress'] += 1
     context['sandbox']['current_node'] = loaded_node.nid
-  }
-
   # Multistep processing : report progress.
   if (context['sandbox']['progress'] != context['sandbox']['max']):
-    context['finished'] = context['sandbox']['progress'] / context['sandbox']['max']
-  }
-}
-#
-# Post-processing for node_access_rebuild_batch.
-#
-def _node_access_rebuild_batch_finished(success, results, operations):
+    context['finished'] = \
+      context['sandbox']['progress'] / context['sandbox']['max']
+
+
+
+def _access_rebuild_batch_finished(success, results, operations):
+  """
+   Post-processing for node_access_rebuild_batch.
+  """
   if (success):
     drupal_set_message(t('The content access permissions have been rebuilt.'))
-    node_access_needs_rebuild(False)
-  }
+    access_needs_rebuild(False)
   else:
-    drupal_set_message(t('The content access permissions have not been properly rebuilt.'), 'error')
-  }
+    drupal_set_message(t('The content access permissions have not been ' + \
+      'properly rebuilt.'), 'error')
   cache_clear_all()
-}
-#
-# @} End of "defgroup node_access".
-#
-#
-# @defgroup node_content Hook implementations for user-created content types.
-# @{
-#
-#
-# Implementation of hook_access().
-#
-# Named so as not to conflict with node_access()
-#
-def node_content_access(op, node, account):
-  type = is_string(node) ? node : (is_array(node) ? node['type'] : node.type)
+
+
+
+def hook_content_access(op, node, account):
+  """
+   @} End of "defgroup node_access".
+  
+  
+   @defgroup node_content Hook implementations for user-created content types.
+   @{
+  
+  
+   Implementation of hook_access().
+  
+   Named so as not to conflict with node_access()
+  """
+  type_ = (node if php.is_string(node) else (node['type'] if \
+    php.is_array(node) else node.type_))
   if (op == 'create'):
-    return user_access('create ' +  type  + ' content', account)
-  }
-
+    return lib_plugin.plugins['user'].access(\
+      'create ' +  type_  + ' content', account)
   if (op == 'update'):
-    if (user_access('edit any ' +  type  + ' content', account) or (user_access('edit own ' . type . ' content', account) and (account.uid == node.uid))):
+    if (lib_plugin.plugins['user'].access(\
+        'edit any ' +  type_  + ' content', account) or \
+        (lib_plugin.plugins['user'].access('edit own ' + \
+        type_ + ' content', account) and (account.uid == node.uid))):
       return True
-    }
-  }
-
   if (op == 'delete'):
-    if (user_access('delete any ' +  type  + ' content', account) or (user_access('delete own ' . type . ' content', account) and (account.uid == node.uid))):
+    if (lib_plugin.plugins['user'].access('delete any ' +  type_  + \
+       ' content', account) or (lib_plugin.plugins['user'].access(\
+       'delete own ' + type_ + ' content', account) and \
+       (account.uid == node.uid))):
       return True
-    }
-  }
-}
-#
-# Implementation of hook_form().
-#
-def node_content_form(node, form_state):
-  type = node_get_types('type', node)
-  form = array()
-  if (type.has_title):
-    form['title'] = array(
+
+
+def hook_content_form(node, form_state):
+  """
+   Implementation of hook_form().
+  """
+  type_ = get_types('type', node)
+  form = []
+  if (type_.has_title):
+    form['title'] = {
       '#type' : 'textfield',
-      '#title' : check_plain(type.title_label),
+      '#title' : check_plain(type_.title_label),
       '#required' : True,
       '#default_value' : node.title,
       '#maxlength' : 255,
-      '#weight' : -5,
-    )
-  }
-
-  if (type.has_body):
-    form['body_field'] = node_body_field(node, type.body_label, type.min_word_count)
-  }
-
+      '#weight' : -5
+    }
+  if (type_.has_body):
+    form['body_field'] = body_field(node, type_.body_label, \
+      type_.min_word_count)
   return form
-}
-#
-# @} End of "defgroup node_content".
-#
-#
-# Implementation of hook_forms(). All node forms share the same form handler
-#
-def node_forms():
-  forms = array()
-  if (types = node_get_types()):
-    for type in array_keys(types):
-      forms[type +  '_node_form']['callback'] = 'node_form'
-    }
-  }
+
+
+
+def hook_forms():
+  """
+   Implementation of hook_forms(). All node forms share the same form handler
+  """
+  forms = []
+  types = get_types()
+  if types:
+    for type_ in php.array_keys(types):
+      forms[type_ +  '_node_form']['callback'] = 'node_form'
   return forms
-}
-#
-# Format the "Submitted by username on date/time" for each node
-#
-# @ingroup themeable
-#
-def theme_node_submitted(node):
-  return t('Submitted by not username on @datetime',
-    array(
-      'not username' : theme('username', node),
-      '@datetime' : format_date(node.created),
-    ))
-}
-#
-# Implementation of hook_hook_info().
-#
-def node_hook_info():
-  return array(
-    'node' : array(
-      'nodeapi' : array(
-        'presave' : array(
-          'runs when' : t('When either saving a new post or updating an existing post'),
-        ),
-        'insert' : array(
-          'runs when' : t('After saving a new post'),
-        ),
-        'update' : array(
-          'runs when' : t('After saving an updated post'),
-        ),
-        'delete' : array(
-          'runs when' : t('After deleting a post')
-        ),
-        'view' : array(
-          'runs when' : t('When content is viewed by an authenticated user')
-        ),
-      ),
-    ),
-  )
-}
-#
-# Implementation of hook_action_info().
-#
-def node_action_info():
-  return array(
-    'node_publish_action' : array(
-      'type' : 'node',
-      'description' : t('Publish post'),
-      'configurable' : False,
-      'behavior' : array('changes_node_property'),
-      'hooks' : array(
-        'nodeapi' : array('presave'),
-        'comment' : array('insert', 'update'),
-      ),
-    ),
-    'node_unpublish_action' : array(
-      'type' : 'node',
-      'description' : t('Unpublish post'),
-      'configurable' : False,
-      'behavior' : array('changes_node_property'),
-      'hooks' : array(
-        'nodeapi' : array('presave'),
-        'comment' : array('delete', 'insert', 'update'),
-      ),
-    ),
-    'node_make_sticky_action' : array(
-      'type' : 'node',
-      'description' : t('Make post sticky'),
-      'configurable' : False,
-      'behavior' : array('changes_node_property'),
-      'hooks' : array(
-        'nodeapi' : array('presave'),
-        'comment' : array('insert', 'update'),
-      ),
-    ),
-    'node_make_unsticky_action' : array(
-      'type' : 'node',
-      'description' : t('Make post unsticky'),
-      'configurable' : False,
-      'behavior' : array('changes_node_property'),
-      'hooks' : array(
-        'nodeapi' : array('presave'),
-        'comment' : array('delete', 'insert', 'update'),
-      ),
-    ),
-    'node_promote_action' : array(
-      'type' : 'node',
-      'description' : t('Promote post to front page'),
-      'configurable' : False,
-      'behavior' : array('changes_node_property'),
-      'hooks' : array(
-        'nodeapi' : array('presave'),
-        'comment' : array('insert', 'update'),
-      ),
-    ),
-    'node_unpromote_action' : array(
-      'type' : 'node',
-      'description' : t('Remove post from front page'),
-      'configurable' : False,
-      'behavior' : array('changes_node_property'),
-      'hooks' : array(
-        'nodeapi' : array('presave'),
-        'comment' : array('delete', 'insert', 'update'),
-      ),
-    ),
-    'node_assign_owner_action' : array(
-      'type' : 'node',
-      'description' : t('Change the author of a post'),
-      'configurable' : True,
-      'behavior' : array('changes_node_property'),
-      'hooks' : array(
-        'any' : True,
-        'nodeapi' : array('presave'),
-        'comment' : array('delete', 'insert', 'update'),
-      ),
-    ),
-    'node_save_action' : array(
-      'type' : 'node',
-      'description' : t('Save post'),
-      'configurable' : False,
-      'hooks' : array(
-        'comment' : array('delete', 'insert', 'update'),
-      ),
-    ),
-    'node_unpublish_by_keyword_action' : array(
-      'type' : 'node',
-      'description' : t('Unpublish post containing keyword(s)'),
-      'configurable' : True,
-      'hooks' : array(
-        'nodeapi' : array('presave', 'insert', 'update'),
-      ),
-    ),
-  )
-}
-#
-# Implementation of a Drupal action.
-# Sets the status of a node to 1, meaning published.
-#
-def node_publish_action(&node, context = array()):
-  node.status = 1
-  watchdog('action', 'Set @type %title to published.', array('@type' : node_get_types('name', node), '%title' : node.title))
-}
-#
-# Implementation of a Drupal action.
-# Sets the status of a node to 0, meaning unpublished.
-#
-def node_unpublish_action(&node, context = array()):
-  node.status = 0
-  watchdog('action', 'Set @type %title to unpublished.', array('@type' : node_get_types('name', node), '%title' : node.title))
-}
-#
-# Implementation of a Drupal action.
-# Sets the sticky-at-top-of-list property of a node to 1.
-#
-def node_make_sticky_action(&node, context = array()):
-  node.sticky = 1
-  watchdog('action', 'Set @type %title to sticky.', array('@type' : node_get_types('name', node), '%title' : node.title))
-}
-#
-# Implementation of a Drupal action.
-# Sets the sticky-at-top-of-list property of a node to 0.
-#
-def node_make_unsticky_action(&node, context = array()):
-  node.sticky = 0
-  watchdog('action', 'Set @type %title to unsticky.', array('@type' : node_get_types('name', node), '%title' : node.title))
-}
-#
-# Implementation of a Drupal action.
-# Sets the promote property of a node to 1.
-#
-def node_promote_action(&node, context = array()):
-  node.promote = 1
-  watchdog('action', 'Promoted @type %title to front page.', array('@type' : node_get_types('name', node), '%title' : node.title))
-}
-#
-# Implementation of a Drupal action.
-# Sets the promote property of a node to 0.
-#
-def node_unpromote_action(&node, context = array()):
-  node.promote = 0
-  watchdog('action', 'Removed @type %title from front page.', array('@type' : node_get_types('name', node), '%title' : node.title))
-}
-#
-# Implementation of a Drupal action.
-# Saves a node.
-#
-def node_save_action(node):
-  node_save(node)
-  watchdog('action', 'Saved @type %title', array('@type' : node_get_types('name', node), '%title' : node.title))
-}
-#
-# Implementation of a configurable Drupal action.
-# Assigns ownership of a node to a user.
-#
-def node_assign_owner_action(&node, context):
-  node.uid = context['owner_uid']
-  owner_name = db_result(db_query("SELECT name FROM {users} WHERE uid = %d", context['owner_uid']))
-  watchdog('action', 'Changed owner of @type %title to uid %name.', array('@type' : node_get_types('type', node), '%title' : node.title, '%name' : owner_name))
-}
 
-def node_assign_owner_action_form(context):
-  description = t('The username of the user to which you would like to assign ownership.')
-  count = db_result(db_query("SELECT COUNT(*) FROM {users}"))
-  owner_name = ''
-  if (isset(context['owner_uid'])):
-    owner_name = db_result(db_query("SELECT name FROM {users} WHERE uid = %d", context['owner_uid']))
+
+
+def theme_submitted(node):
+  """
+   Format the "Submitted by username on date/time" for each node
+  
+   @ingroup themeable
+  """
+  return lib_common.t('Submitted by not username on @datetime', {
+    'not username' : lib_theme.theme('username', node),
+    '@datetime' : format_date(node.created),
+  })
+
+
+
+def hook_hook_info():
+  """
+   Implementation of hook_hook_info().
+  """
+  return {
+    'node' : {
+      'nodeapi' : {
+        'presave' : {
+          'runs when' : lib_common.t('When either saving a new post ' + \
+            'or updating an existing post')
+        },
+        'insert' : {
+          'runs when' : lib_common.t('After saving a new post')
+        },
+        'update' : {
+          'runs when' : lib_common.t('After saving an updated post')
+        },
+        'delete' : {
+          'runs when' : lib_common.t('After deleting a post')
+        },
+        'view' : {
+          'runs when' : lib_common.t('When content is viewed by an ' + \
+            'authenticated user')
+        },
+      },
+    },
   }
 
-  # Use dropdown for fewer than 200 users; textbox for more than that.
-  if (intval(count) < 200):
-    options = array()
-    result = db_query("SELECT uid, name FROM {users} WHERE uid > 0 ORDER BY name")
-    while (data = db_fetch_object(result)):
-      options[data.name] = data.name
+
+def hook_action_info():
+  """
+   Implementation of hook_action_info().
+  """
+  return {
+    'node_publish_action' : {
+      'type' : 'node',
+      'description' : lib_common.t('Publish post'),
+      'configurable' : False,
+      'behavior' : ('changes_node_property',),
+      'hooks' : {
+        'nodeapi' : ('presave',),
+        'comment' : ('insert', 'update'),
+      }
+    },
+    'node_unpublish_action' : {
+      'type' : 'node',
+      'description' : lib_common.t('Unpublish post'),
+      'configurable' : False,
+      'behavior' : ('changes_node_property',),
+      'hooks' : {
+        'nodeapi' : ('presave',),
+        'comment' : ('delete', 'insert', 'update')
+      }
+    },
+    'node_make_sticky_action' : {
+      'type' : 'node',
+      'description' : lib_common.t('Make post sticky'),
+      'configurable' : False,
+      'behavior' : ('changes_node_property',),
+      'hooks' : {
+        'nodeapi' : ('presave',),
+        'comment' : ('insert', 'update'),
+      },
+    },
+    'node_make_unsticky_action' : {
+      'type' : 'node',
+      'description' : lib_common.t('Make post unsticky'),
+      'configurable' : False,
+      'behavior' : ('changes_node_property',),
+      'hooks' : {
+        'nodeapi' : ('presave',),
+        'comment' : ('delete', 'insert', 'update'),
+      },
+    },
+    'node_promote_action' : {
+      'type' : 'node',
+      'description' : lib_common.t('Promote post to front page'),
+      'configurable' : False,
+      'behavior' : ('changes_node_property',),
+      'hooks' : {
+        'nodeapi' : ('presave',),
+        'comment' : ('insert', 'update'),
+      }
+    },
+    'node_unpromote_action' : {
+      'type' : 'node',
+      'description' : lib_common.t('Remove post from front page'),
+      'configurable' : False,
+      'behavior' : ('changes_node_property',),
+      'hooks' : {
+        'nodeapi' : ('presave',),
+        'comment' : ('delete', 'insert', 'update'),
+      },
+    },
+    'node_assign_owner_action' : {
+      'type' : 'node',
+      'description' : lib_common.t('Change the author of a post'),
+      'configurable' : True,
+      'behavior' : ('changes_node_property',),
+      'hooks' : {
+        'any' : True,
+        'nodeapi' : ('presave',),
+        'comment' : ('delete', 'insert', 'update'),
+      },
+    },
+    'node_save_action' : {
+      'type' : 'node',
+      'description' : lib_common.t('Save post'),
+      'configurable' : False,
+      'hooks' : {
+        'comment' : ('delete', 'insert', 'update'),
+      },
+    },
+    'node_unpublish_by_keyword_action' : {
+      'type' : 'node',
+      'description' : lib_common.t('Unpublish post containing keyword(s)'),
+      'configurable' : True,
+      'hooks' : {
+        'nodeapi' : ('presave', 'insert', 'update'),
+      }
     }
-    form['owner_name'] = array(
+  }
+
+
+
+
+def publish_action(node, context = []):
+  """
+   Implementation of a Drupal action.
+   Sets the status of a node to 1, meaning published.
+  """
+  php.Reference.check(node)
+  node.status = 1
+  watchdog('action', 'Set @type %title to published.', \
+    {'@type' : get_types('name', node), '%title' : node.title})
+
+
+
+def node_unpublish_action(node, context = []):
+  """
+   Implementation of a Drupal action.
+   Sets the status of a node to 0, meaning unpublished.
+  """
+  php.Reference.check(node)
+  node.status = 0
+  watchdog('action', 'Set @type %title to unpublished.', \
+    {'@type' : get_types('name', node), '%title' : node.title})
+
+
+
+def make_sticky_action(node, context = []):
+  """
+   Implementation of a Drupal action.
+   Sets the sticky-at-top-of-list property of a node to 1.
+  """
+  php.Reference.check(node)
+  node.sticky = 1
+  watchdog('action', 'Set @type %title to sticky.', \
+    {'@type' : get_types('name', node), '%title' : node.title})
+
+
+
+def make_unsticky_action(node, context = []):
+  """
+   Implementation of a Drupal action.
+   Sets the sticky-at-top-of-list property of a node to 0.
+  """
+  php.Reference.check(node)
+  node.sticky = 0
+  watchdog('action', 'Set @type %title to unsticky.', \
+    {'@type' : get_types('name', node), '%title' : node.title})
+
+
+
+def promote_action(node, context = []):
+  """
+   Implementation of a Drupal action.
+   Sets the promote property of a node to 1.
+  """
+  php.Reference.check(node)
+  node.promote = 1
+  watchdog('action', 'Promoted @type %title to front page.', \
+    {'@type' : get_types('name', node), '%title' : node.title})
+
+
+
+def unpromote_action(node, context = []):
+  """
+   Implementation of a Drupal action.
+   Sets the promote property of a node to 0.
+  """
+  php.Reference.check(node)
+  node.promote = 0
+  watchdog('action', 'Removed @type %title from front page.', \
+    {'@type' : get_types('name', node), '%title' : node.title})
+
+
+
+def save_action(node):
+  """
+   Implementation of a Drupal action.
+   Saves a node.
+  """
+  save(node)
+  watchdog('action', 'Saved @type %title', \
+    {'@type' : get_types('name', node), '%title' : node.title})
+
+
+
+def assign_owner_action(node, context):
+  """
+   Implementation of a configurable Drupal action.
+   Assigns ownership of a node to a user.
+  """
+  php.Reference.check(node)
+  node.uid = context['owner_uid']
+  owner_name = lib_database.result(lib_database.query(\
+    "SELECT name FROM {users} WHERE uid = %d", context['owner_uid']))
+  watchdog('action', 'Changed owner of @type %title to uid %name.', \
+    {'@type' : get_types('type', node), \
+    '%title' : node.title, '%name' : owner_name})
+
+
+
+def assign_owner_action_form(context):
+  description = lib_common.t('The username of the user to which you ' + \
+    'would like to assign ownership.')
+  count = lib_database.result(lib_database.query(\
+    "SELECT COUNT(*) FROM {users}"))
+  owner_name = ''
+  if (php.isset(context, 'owner_uid')):
+    owner_name = lib_database.result(lib_datbase.query(\
+      "SELECT name FROM {users} WHERE uid = %d", context['owner_uid']))
+  # Use dropdown for fewer than 200 users; textbox for more than that.
+  if (php.intval(count) < 200):
+    options = []
+    result = lib_database.query(\
+      "SELECT uid, name FROM {users} WHERE uid > 0 ORDER BY name")
+    while True:
+      data = lib_database.fetch_object(result)
+      if not data:
+        break
+      options[data.name] = data.name
+    form['owner_name'] = {
       '#type' : 'select',
-      '#title' : t('Username'),
+      '#title' : lib_common.t('Username'),
       '#default_value' : owner_name,
       '#options' : options,
-      '#description' : description,
-    )
-  }
+      '#description' : description
+    }
   else:
-    form['owner_name'] = array(
+    form['owner_name'] = {
       '#type' : 'textfield',
-      '#title' : t('Username'),
+      '#title' : lib_common.t('Username'),
       '#default_value' : owner_name,
       '#autocomplete_path' : 'user/autocomplete',
       '#size' : '6',
       '#maxlength' : '7',
-      '#description' : description,
-    )
-  }
-  return form
-}
-
-def node_assign_owner_action_validate(form, form_state):
-  count = db_result(db_query("SELECT COUNT(*) FROM {users} WHERE name = '%s'", form_state['values']['owner_name']))
-  if (intval(count) != 1):
-    form_set_error('owner_name', t('Please enter a valid username.'))
-  }
-}
-
-def node_assign_owner_action_submit(form, form_state):
-  # Username can change, so we need to store the ID, not the username.
-  uid = db_result(db_query("SELECT uid from {users} WHERE name = '%s'", form_state['values']['owner_name']))
-  return array('owner_uid' : uid)
-}
-
-def node_unpublish_by_keyword_action_form(context):
-  form['keywords'] = array(
-    '#title' : t('Keywords'),
-    '#type' : 'textarea',
-    '#description' : t('The post will be unpublished if it contains any of the character sequences above. Use a comma-separated list of character sequences. Example: funny, bungee jumping, "Company, Inc." . Character sequences are case-sensitive.'),
-    '#default_value' : isset(context['keywords']) ? drupal_implode_tags(context['keywords']) : '',
-  )
-  return form
-}
-
-def node_unpublish_by_keyword_action_submit(form, form_state):
-  return array('keywords' : drupal_explode_tags(form_state['values']['keywords']))
-}
-#
-# Implementation of a configurable Drupal action.
-# Unpublish a node if it contains a certain string.
-#
-# @param context
-#   An array providing more information about the context of the call to this action.
-# @param comment
-#   A node object.
-#
-def node_unpublish_by_keyword_action(node, context):
-  foreach (context['keywords'] as keyword):
-    if (strstr(node_view(clone node), keyword) or strstr(node.title, keyword)):
-      node.status = 0
-      watchdog('action', 'Set @type %title to unpublished.', array('@type' : node_get_types('name', node), '%title' : node.title))
-      break
+      '#description' : description
     }
+  return form
+
+
+
+def assign_owner_action_validate(form, form_state):
+  count = lib_database.result(lib_database.query(\
+    "SELECT COUNT(*) FROM {users} WHERE name = '%s'", \
+    form_state['values']['owner_name']))
+  if (php.intval(count) != 1):
+    form_set_error('owner_name', lib_common.t(\
+    'Please enter a valid username.'))
+
+
+
+def assign_owner_action_submit(form, form_state):
+  # Username can change, so we need to store the ID, not the username.
+  uid = lib_database.result(lib_database.query(\
+    "SELECT uid from {users} WHERE name = '%s'", \
+    form_state['values']['owner_name']))
+  return {'owner_uid' : uid}
+
+
+
+def unpublish_by_keyword_action_form(context):
+  form['keywords'] = {
+    '#title' : lib_common.t('Keywords'),
+    '#type' : 'textarea',
+    '#description' : lib_common.t('The post will be unpublished if it ' + \
+      'contains any of the character sequences above. Use a ' + \
+      'comma-separated list of character sequences. Example: funny, ' + \
+      'bungee jumping, "Company, Inc." . Character sequences ' + \
+      'are case-sensitive.'),
+    '#default_value' : (drupal_implode_tags(context['keywords']) if \
+      php.isset(context, 'keywords') else '')
   }
-}
-#
-# Helper function to generate standard node permission list for a given type.
-#
-# @param type
-#   The machine-readable name of the node type.
-# @return array
-#   An array of permission names and descriptions.
-#
-def node_list_permissions(type):
-  info = node_get_types('type', type)
-  type = check_plain(info.type)
+  return form
+
+
+
+
+def unpublish_by_keyword_action_submit(form, form_state):
+  return {'keywords' : \
+    drupal_explode_tags(form_state['values']['keywords'])}
+
+
+
+def unpublish_by_keyword_action(node, context):
+  """
+   Implementation of a configurable Drupal action.
+   Unpublish a node if it contains a certain string.
+  
+  @param context
+     An array providing more information about the context of the call to
+     this action.
+   @param comment
+     A node object.
+  """
+  for keyword in context['keywords']:
+    if (php.strstr(view(php.clone(node)), keyword) or \
+        php.strstr(node.title, keyword)):
+      node.status = 0
+      watchdog('action', 'Set @type %title to unpublished.', \
+        {'@type' : get_types('name', node), '%title' : node.title})
+      break
+
+
+
+def list_permissions(type_):
+  """
+   Helper function to generate standard node permission list for a given type.
+  
+   @param type
+     The machine-readable name of the node type.
+  @return array
+     An array of permission names and descriptions.
+  """
+  info = get_types('type', type_)
+  type_ = check_plain(info.type_)
   # Build standard list of node permissions for this type.
-  perms["create type content"] = t('Create new %type_name content.', array('%type_name' : info.name))
-  perms["delete any type content"] = t('Delete any %type_name content, regardless of its author.', array('%type_name' : info.name))
-  perms["delete own type content"] = t('Delete %type_name content created by the user.', array('%type_name' : info.name))
-  perms["edit own type content"] = t('Edit %type_name content created by the user.', array('%type_name' : info.name))
-  perms["edit any type content"] = t('Edit any %type_name content, regardless of its author.', array('%type_name' : info.name))
+  perms["create type content"] = \
+    lib_common.t('Create new %type_name content.', \
+    {'%type_name' : info.name})
+  perms["delete any type content"] = \
+    lib_common.t('Delete any %type_name content, regardless of its author.', \
+    {'%type_name' : info.name})
+  perms["delete own type content"] = \
+    lib_common.t('Delete %type_name content created by the user.', \
+    {'%type_name' : info.name})
+  perms["edit own type content"] = \
+    lib_common.t('Edit %type_name content created by the user.', \
+    {'%type_name' : info.name})
+  perms["edit any type content"] = \
+    lib_common.t('Edit any %type_name content, regardless of its author.', \
+    {'%type_name' : info.name})
   return perms
-}
+
+
+
