@@ -854,7 +854,7 @@ def load(param = [], revision = None, reset = None):
 
 
 
-def validate(node, form = array()):
+def validate(node, form = []):
   """
    Perform validation checks on the given node.
   """
@@ -1671,7 +1671,8 @@ def hook_init():
   """
    Implementation of hook_init().
   """
-  drupal_add_css(drupal_get_path('module', 'node') +  '/node.css')
+  lib_common.drupal_add_css(\
+    lib_common.drupal_get_path('plugin', 'node') +  '/node.css')
 
 
 
