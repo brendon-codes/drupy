@@ -153,8 +153,8 @@ def cell(cell, header, ts, i):
    @return
      A properly formatted cell, ready for _theme_table_cell().
   """
-  if php.isset(header[i]['data']) and header[i]['data'] == ts['name'] and
-     not php.empty(header[i]['field']):
+  if (php.isset(header[i]['data']) and header[i]['data'] == ts['name'] and
+     not php.empty(header[i]['field'])):
     if php.is_array(cell):
       if php.isset(cell['class']):
         cell['class'] += ' active'
@@ -197,8 +197,8 @@ def get_order(headers):
         'name': header['data'],
         'sql': header['field'] if php.isset(header['field']) else ''
       }
-    if php.isset(header['sort']) and (header['sort'] == 'asc' or
-       header['sort'] == 'desc'):
+    if (php.isset(header['sort']) and (header['sort'] == 'asc' or
+       header['sort'] == 'desc')):
       default = {
         'name': header['data'],
         'sql': header['field'] if php.isset(header['field']) else ''
