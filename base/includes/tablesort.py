@@ -5,8 +5,9 @@
 """
   Functions to aid in the creation of sortable tables.
 
-  All tables created with a call to lib_theme.theme('table') have the option of having
-  column headers that the user can click on to sort the table by that column.
+  All tables created with a call to lib_theme.theme('table') have the option of
+  having column headers that the user can click on to sort the table by that
+  column.
 
   @package includes
   @see <a href='http://drupy.net'>Drupy Homepage</a>
@@ -46,18 +47,18 @@ from includes import common as lib_common
 from includes import unicode as lib_unicode
 from includes import theme as lib_theme
 
-def tablesort_init(header):
+def hook_init(header):
   """
    Initialize the table sort context.
   """
-  ts = tablesort_get_order(header)
-  ts['sort'] = tablesort_get_sort(header)
-  ts['query_string'] = tablesort_get_querystring()
+  ts = get_order(header)
+  ts['sort'] = get_sort(header)
+  ts['query_string'] = get_querystring()
   return ts
 
 
 
-def tablesort_sql(header, before = ''):
+def sql(header, before = ''):
   """
    Create an SQL sort clause.
 
@@ -75,7 +76,7 @@ def tablesort_sql(header, before = ''):
 
    @ingroup database
   """
-  ts = tablesort_init(header)
+  ts = hook_init(header)
   if ts['sql']:
     # Based on code from db_escape_table(), but this can also contain a dot.
     field = php.php.preg_replace('/[^A-Za-z0-9_.]+/', '', ts['sql'])
@@ -85,7 +86,7 @@ def tablesort_sql(header, before = ''):
     return " ORDER BY before field sort"
 
 
-def tablesort_header(cell, header, ts):
+def header(cell, header, ts):
   """
    Format a column header.
 
@@ -97,7 +98,7 @@ def tablesort_header(cell, header, ts):
    @param header
      An array of column headers in the format described in theme_table().
    @param ts
-     The current table sort context as returned from tablesort_init().
+     The current table sort context as returned from hook_init().
    @return
      A properly formatted cell, ready for _theme_table_cell().
   """
@@ -112,7 +113,8 @@ def tablesort_header(cell, header, ts):
         cell['class'] = 'active'
       image = lib_theme.theme('tablesort_indicator', ts['sort'])
     else:
-      # If the user clicks a different header, we want to sort ascending initially.
+      # If the user clicks a different header, we want to sort ascending
+      # initially.
       ts['sort'] = 'asc'
       image = ''
     if not php.empty(ts['query_string']):
@@ -134,7 +136,7 @@ def tablesort_header(cell, header, ts):
 
 
 
-def tablesort_cell(cell, header, ts, i):
+def cell(cell, header, ts, i):
   """
    Format a table cell.
 
@@ -145,13 +147,14 @@ def tablesort_cell(cell, header, ts, i):
    @param header
      An array of column headers in the format described in theme_table().
    @param ts
-     The current table sort context as returned from tablesort_init().
+     The current table sort context as returned from hook_init().
    @param i
      The index of the cell's table column.
    @return
      A properly formatted cell, ready for _theme_table_cell().
   """
-  if php.isset(header[i]['data']) and header[i]['data'] == ts['name'] and not php.empty(header[i]['field']):
+  if php.isset(header[i]['data']) and header[i]['data'] == ts['name'] and
+     not php.empty(header[i]['field']):
     if php.is_array(cell):
       if php.isset(cell['class']):
         cell['class'] += ' active'
@@ -163,7 +166,7 @@ def tablesort_cell(cell, header, ts, i):
 
 
 
-def tablesort_get_querystring():
+def get_querystring():
   """
    Compose a query string to append to table sorting requests.
 
@@ -176,7 +179,7 @@ def tablesort_get_querystring():
 
 
 
-def tablesort_get_order(headers):
+def get_order(headers):
   """
    Determine the current sort criterion.
 
@@ -194,7 +197,8 @@ def tablesort_get_order(headers):
         'name': header['data'],
         'sql': header['field'] if php.isset(header['field']) else ''
       }
-    if php.isset(header['sort']) and (header['sort'] == 'asc' or header['sort'] == 'desc'):
+    if php.isset(header['sort']) and (header['sort'] == 'asc' or
+       header['sort'] == 'desc'):
       default = {
         'name': header['data'],
         'sql': header['field'] if php.isset(header['field']) else ''
@@ -202,7 +206,8 @@ def tablesort_get_order(headers):
   if php.isset(default):
     return default
   else:
-    # The first column specified is initial 'order by' field unless otherwise specified
+    # The first column specified is initial 'order by' field unless otherwise
+    # specified
     if php.is_array(headers[0]):
       headers[0] += {'data': None, 'field': None}
       return {'name': headers[0]['data'], 'sql': headers[0]['field']}
@@ -211,7 +216,7 @@ def tablesort_get_order(headers):
 
 
 
-def tablesort_get_sort(headers):
+def get_sort(headers):
   """
    Determine the current sort direction.
 
@@ -222,7 +227,8 @@ def tablesort_get_sort(headers):
   """
   if php.isset(php.GET['sort']):
     return 'desc' if (php.GET['sort'] == 'desc')  else 'asc';
-  # User has not specified a sort. Use default if specified; otherwise use "asc".
+  # User has not specified a sort. Use default if specified; otherwise use
+  # "asc".
   else:
     for header in headers:
       if php.is_array(header) and php.array_key_exists('sort', header):
