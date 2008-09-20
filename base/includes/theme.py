@@ -108,7 +108,6 @@ def init_theme():
     new_base_theme = themes[themes[ancestor].base_theme];
     base_theme.append(new_base_theme);
     ancestor = themes[ancestor].base_theme;
-  print "HELLO"
   _init_theme(themes[lib_appglobals.theme], php.array_reverse(base_theme));
 
 
