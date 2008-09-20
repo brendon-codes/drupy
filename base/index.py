@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# $Id: index.php,v 1.94 2007/12/26 08:46:48 dries Exp $
+# $Id: index.php,v 1.95 2008/08/21 19:36:35 dries Exp $
 
 """
   The Python page that serves all page requests on a Drupy installation.

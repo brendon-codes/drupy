@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# $Id: bootstrap.inc,v 1.218 2008/08/02 19:01:02 dries Exp $
+# $Id: bootstrap.inc,v 1.227 2008/09/19 07:53:59 dries Exp $
 
 """
   Functions that need to be loaded on every Drupal requst
@@ -230,6 +230,12 @@ LANGUAGE_NEGOTIATION_PATH = 2
 #
 LANGUAGE_NEGOTIATION_DOMAIN = 3
 
+#
+# For convenience, define a short form of the request time global.
+#
+REQUEST_TIME = php.SERVER['REQUEST_TIME'];
+
+
 
 def timer_start(name):
   """
@@ -391,22 +397,25 @@ def conf_path(require_settings = True, reset = False):
 
 
 
-#
-# Unsets all disallowed global variables. See allowed for what's allowed.
-#
 def drupal_unset_globals():
   """
-   Unsets all disallowed global variables. See allowed for what's allowed.
+  Unsets all disallowed global variables. See allowed for what's allowed.
   """
-  # Do nothing
-  pass;
+  pass
 
 
+def drupal_initialize_variables():
+  """
+   Initialize variables needed for the rest of the execution.
+  """
+  if (not php.isset(php.SERVER, 'HTTP_REFERER')):
+    php.SERVER['HTTP_REFERER'] = '';
+  if (not php.isset(php.SERVER, 'SERVER_PROTOCOL') or \
+      (php.SERVER['SERVER_PROTOCOL'] != 'HTTP/1.0' and \
+      php.SERVER['SERVER_PROTOCOL'] != 'HTTP/1.1')):
+    php.SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
 
-#
-# Loads the configuration and sets the base URL, cookie domain, and
-# session name correctly.
-#
+
 def conf_init():
   """
    Loads the configuration and sets the base URL, cookie domain, and
@@ -455,6 +464,14 @@ def conf_init():
     # We escape the hostname because it can be modified by a visitor.
     if (not php.empty(php.SERVER['HTTP_HOST'])):
       settings.cookie_domain = check_plain(php.SERVER['HTTP_HOST']);
+  # To prevent session cookies from being hijacked, a user can configure the
+  # SSL version of their website to only transfer session cookies via SSL by
+  # using PHP's session.cookie_secure setting. The browser will then use two
+  # separate session cookies for the HTTPS and HTTP versions of the site. So we
+  # must use different session identifiers for HTTPS and HTTP to prevent a
+  # cookie collision.
+  if (php.ini_get('session.cookie_secure')):
+    session_name_ += 'SSL';
   # Strip leading periods, www., and port numbers from cookie domain.
   settings.cookie_domain = php.ltrim(settings.cookie_domain, '.');
   if (php.strpos(settings.cookie_domain, 'www.') == 0):
@@ -618,12 +635,8 @@ def variable_set(name, value):
      The value to set. This can be any PHP data type; these functions take care
      of serialization as necessary.
   """
-  serialized_value = php.serialize(value);
-  db_query("UPDATE {variable} SET value = '%s' WHERE name = '%s'", \
-    serialized_value, name);
-  if (db_affected_rows() == 0):
-    db_query("INSERT INTO {variable} (name, value) VALUES ('%s', '%s')", \
-      name, serialized_value);
+  lib_database.merge('variable').key({'name' : name}).fields(\
+    {'value' : php.serialize(value)}).execute();
   cache_clear_all('variables', 'cache');
   settings.conf[name] = value;
 
@@ -781,7 +794,7 @@ def drupal_page_cache_header(cache):
   if (if_modified_since and if_none_match
       and if_none_match == etag # etag must match
       and if_modified_since == last_modified):  # if-modified-since must match
-    php.header('HTTP/1.1 304 Not Modified');
+    php.header(php.SERVER['SERVER_PROTOCOL'] + ' 304 Not Modified');
     # All 304 responses must send an etag if the 200 response for the same
     # object contained an etag
     php.header("Etag: %(etag)s" % {'etag':etag});
@@ -840,13 +853,6 @@ def drupal_unpack(obj, field = 'data'):
         setattr(obj, key, value)
   return obj;
 
-
-def referer_uri():
-  """
-   Return the URI of the referring page.
-  """
-  if (php.isset(php.SERVER, 'HTTP_REFERER')):
-    return php.SERVER['HTTP_REFERER'];
 
 
 def check_plain(text):
@@ -965,22 +971,31 @@ def watchdog(type, message, variables = [], severity = WATCHDOG_NOTICE, \
   
    @see watchdog_severity_levels()
   """
-  # Prepare the fields to be logged
-  log_message = {
-    'type'        : type,
-    'message'     : message,
-    'variables'   : variables,
-    'severity'    : severity,
-    'link'        : link,
-    'user'        : lib_appglobals.user,
-    'request_uri' : lib_appglobals.base_root + request_uri(),
-    'referer'     : referer_uri(),
-    'ip'          : ip_address(),
-    'timestamp'   : php.time_(),
-  }
-  # Call the logging hooks to log/process the message
-  for plugin_ in lib_plugin.implements('watchdog', True):
-    lib_plugin.invoke(plugin_, 'watchdog', log_message);
+  php.static(watchdog, 'in_error_state', False)
+  # It is possible that the error handling will itself trigger an error.
+  # In that case, we could
+  # end up in an infinite loop.  To avoid that, we implement a simple
+  # static semaphore.
+  if (not watchdog.in_error_state):
+    watchdog.in_error_state = True
+    # Prepare the fields to be logged
+    log_message = {
+      'type'        : type,
+      'message'     : message,
+      'variables'   : variables,
+      'severity'    : severity,
+      'link'        : link,
+      'user'        : lib_appglobals.user,
+      'request_uri' : lib_appglobals.base_root + request_uri(),
+      'referer'     : php.SERVER['HTTP_REFERER'],
+      'ip'          : ip_address(),
+      'timestamp'   : REQUEST_TIME
+    }
+    # Call the logging hooks to log/process the message
+    for plugin_ in lib_plugin.implements('watchdog', True):
+      lib_plugin.invoke(plugin_, 'watchdog', log_message)
+  watchdog.in_error_state = False
+
 
 
 def drupal_set_message(message = None, type = 'status', repeat = True):
@@ -1127,6 +1142,7 @@ def drupal_bootstrap(phase):
        DRUPAL_BOOTSTRAP_FULL: Drupal is fully loaded, validate and fix
          input data.
   """
+  # _drupal_current_bootstrap_phase
   # DRUPY: Before doing anything else, set the q request var if it doesnt
   # exist
   if 'q' not in php.GET:
@@ -1134,18 +1150,34 @@ def drupal_bootstrap(phase):
   # DRUPY(BC): Why were these set as static vars?
   # No longer needed
   phase_index = 0;
-  phases = range(DRUPAL_BOOTSTRAP_CONFIGURATION, DRUPAL_BOOTSTRAP_FULL+1);
+  phases = range(DRUPAL_BOOTSTRAP_CONFIGURATION, DRUPAL_BOOTSTRAP_FULL+1)
   while (phase >= phase_index and php.isset(phases, phase_index)):
-    current_phase = phases[phase_index];
+    current_phase = phases[phase_index]
     #Drupal was unsetting the phase var here.
     #This was completely unnecessary and most likely the cause of some bugs
     phase_index += 1;
     _drupal_bootstrap(current_phase);
+    lib_appglobals._drupal_current_bootstrap_phase = current_phase
+
+
+
+
+def drupal_get_bootstrap_phase():
+  """
+   Return the current bootstrap phase for this Drupal process.  The
+   current phase is the one most recently completed by
+   drupal_bootstrap().
+  
+   @see drupal_bootstrap
+  """
+  # global _drupal_current_bootstrap_phase
+  return lib_appglobals._drupal_current_bootstrap_phase
 
 
 
 def _drupal_bootstrap(phase):
   if phase == DRUPAL_BOOTSTRAP_CONFIGURATION:
+    drupal_initialize_variables()
     # Start a page timer:
     timer_start('page');
     # Initialize the configuration
@@ -1160,20 +1192,22 @@ def _drupal_bootstrap(phase):
     if (variable_get('page_cache_fastpath', False) and page_cache_fastpath()):
       exit();
   elif phase == DRUPAL_BOOTSTRAP_DATABASE:
-    # Initialize the default database.
-    lib_database.set_active();
+    # Initialize the database system.  Note that the connection
+    # won't be initialized until it is actually requested.
+    # ! do nothing !
     # Register autoload functions so that we can access classes and interfaces.
     # spl_autoload_register('drupal_autoload_class')
     # spl_autoload_register('drupal_autoload_interface')
+    pass
   elif phase == DRUPAL_BOOTSTRAP_ACCESS:
     # Deny access to blocked IP addresses - t() is not yet available
     if (drupal_is_denied(ip_address())):
-      php.header('HTTP/1.1 403 Forbidden');
-      print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.';
+      php.header(php.SERVER['SERVER_PROTOCOL'] + ' 403 Forbidden')
+      print 'Sorry, ' + check_plain(ip_address()) + ' has been banned.'
       exit()
   elif phase == DRUPAL_BOOTSTRAP_SESSION:
-    php.session_set_save_handler('sess_open', 'sess_close', 'sess_read', \
-      'sess_write', 'sess_destroy_sid', 'sess_gc');
+    php.session_set_save_handler('_sess_open', '_sess_close', '_sess_read', \
+      '_sess_write', '_sess_destroy_sid', '_sess_gc');
     php.session_start();
   elif phase == DRUPAL_BOOTSTRAP_LATE_PAGE_CACHE:
     # Initialize configuration variables, using values from settings.php
@@ -1371,24 +1405,62 @@ def ip_address(reset=False):
 
 
 
+def drupal_get_schema(table=None, rebuild=False):
+  """
+   Get the schema definition of a table, or the whole database schema.
+  
+   The returned schema will include any modifications made by any
+   module that implements hook_schema_alter().
+  
+   @param $table
+     The name of the table. If not given, the schema of all tables is returned.
+   @param $rebuild
+     If true, the schema will be rebuilt instead of retrieved from the cache.
+  """
+  php.static(drupal_get_schema, 'schema', []);
+  if (php.empty(drupal_get_schema.schema) or rebuild):
+    # Try to load the schema from cache.
+    cached = lib_cache.get('schema')
+    if (not rebuild and cached):
+      drupal_get_schema.schema = cached.data
+    # Otherwise, rebuild the schema cache.
+    else:
+      drupal_get_schema.schema = []
+      # Load the .install files to get hook_schema.
+      # On some databases this function may be called before bootstrap has
+      # been completed, so we force the functions we need to load just in case.
+      if (drupal_function_exists('module_load_all_includes')):
+        # There is currently a bug in module_list() where it caches what it
+        # was last called with, which is not always what you want.
+        # module_load_all_includes() calls module_list(), but if this function
+        # is called very early in the bootstrap process then it will be
+        # uninitialized and therefore return no modules.  Instead, we have to
+        # "prime" module_list() here to to values we want, specifically
+        # "yes rebuild the list and don't limit to bootstrap".
+        # TODO: Remove this call after http://drupal.org/node/222109 is fixed.
+        lib_plugin.list(True, False);
+        lib_plugin.load_all_includes('install');
+      # Invoke hook_schema for all modules.
+      for module in module_implements('schema'):
+        current = lib_plugin.invoke(module, 'schema');
+        if (drupal_function_exists('_drupal_initialize_schema')):
+          _drupal_initialize_schema(module, current)
+        schema = php.array_merge(schema, current);
+      if (drupal_function_exists('drupal_alter')):
+        drupal_alter('schema', schema)
+      if (drupal_get_bootstrap_phase() == DRUPAL_BOOTSTRAP_FULL):
+        cache_set('schema', schema)
+  if (table is None):
+    return schema
+  elif (php.isset(schema, table)):
+    return schema[table]
+  else:
+    return False
 
-#
-# @ingroup registry
-# @{
-#
-#
-# Confirm that a function is available.
-#
-# If the function is already available, this function does nothing.
-# If the function is not available, it tries to load the file where the
-# function lives. If the file is not available, it returns False, so that it
-# can be used as a drop-in replacement for p.function_exists().
-#
-# @param function
-#   The name of the function to check or load.
-# @return
-#   True if the function is now available, False otherwise.
-#
+
+
+
+
 def drupal_function_exists(function, scope=None):
   """
    Confirm that a function is available.
@@ -1526,8 +1598,9 @@ def registry_cache_hook_implementations(hook, \
     # Only write this to cache if the implementations data we are going to cache
     # is different to what we loaded earlier in the request.
     if (registry_cache_hook_implementations.implementations != \
-        registry_get_hook_implementations_cache()):
-      cache_set('hooks', implementations, 'cache_registry');
+        lib_plugin.implements()):
+      cache_set('hooks', registry_cache_hook_implementations.implementations, \
+        'cache_registry');
 
 
 
@@ -1584,19 +1657,6 @@ def registry_load_path_files(return_ = False):
       php.require_once(file);
       registry_load_path_files.file_cache_data.append( file );
 
-
-def registry_get_hook_implementations_cache():
-  """
-   registry_get_hook_implementations_cache
-  """
-  php.static(registry_get_hook_implementations_cache, 'implementations')
-  if (registry_get_hook_implementations_cache.implementations == None):
-    cache = lib_cache.get('hooks', 'cache_registry')
-    if (cache):
-      registry_get_hook_implementations_cache.implementations = cache.data;
-    else:
-      registry_get_hook_implementations_cache.implementations = {};
-  return registry_get_hook_implementations_cache.implementations;
 
 
 
