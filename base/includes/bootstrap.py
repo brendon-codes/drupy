@@ -233,7 +233,8 @@ LANGUAGE_NEGOTIATION_DOMAIN = 3
 #
 # For convenience, define a short form of the request time global.
 #
-REQUEST_TIME = php.SERVER['REQUEST_TIME'];
+# REQUEST_TIME = php.SERVER['REQUEST_TIME'];
+REQUEST_TIME = php.time_()
 
 
 
