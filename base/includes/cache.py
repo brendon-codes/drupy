@@ -43,9 +43,9 @@ import database as lib_database
 
 def get(cid, table = 'cache'):
   """
-   Return data from the persistent cache. Data may be stored as 
-   either plain text or as serialized data.
-   cache_get will automatically return unserialized objects and arrays.
+   Return data from the persistent cache. Data may be stored as either plain 
+   text or as serialized data. cache_get will automatically return 
+   unserialized objects and arrays.
   
    @param cid
      The cache ID of the data to retrieve.
@@ -58,7 +58,7 @@ def get(cid, table = 'cache'):
   # Garbage collection necessary when enforcing a minimum cache lifetime
   cache_flush = lib_bootstrap.variable_get('cache_flush', 0);
   if (cache_flush and (cache_flush + \
-      variable_get('cache_lifetime', 0) <= php.time_())):
+      variable_get('cache_lifetime', 0) <= REQUEST_TIME)):
     # Reset the variable immediately to prevent a meltdown in heavy
     # load situations.
     variable_set('cache_flush', 0);
@@ -74,20 +74,18 @@ def get(cid, table = 'cache'):
     # always return the cached data.
     if (cache.expire == CACHE_PERMANENT or not \
         variable_get('cache_lifetime', 0)):
-      cache.data = db_decode_blob(cache.data);
       if (cache.serialized):
         cache.data = php.unserialize(cache.data);
     # If enforcing a minimum cache lifetime, validate that the data is
     # currently valid for this user before we return it by making sure the
     # cache entry was created before the timestamp in the current session's
     # cache timer. The cache variable is loaded into the user object by
-    # sess_read() in session.inc.
+    # _sess_read() in session.inc.
     else:
       if (lib_appglobals.user.cache > cache.created):
         # This cache data is too old and thus not valid for us, ignore it.
         return False;
       else:
-        cache.data = db_decode_blob(cache.data);
         if (cache.serialized):
           cache.data = php.unserialize(cache.data);
     return cache;
@@ -143,19 +141,19 @@ def set(cid, data, table = 'cache', expire = None, headers = None):
   """
   if expire is None:
     expire = lib_bootstrap.CACHE_PERMANENT
-  serialized = 0;
+    fields = {
+      'serialized' : 0,
+      'created' : REQUEST_TIME,
+      'expire' : expire,
+      'headers' : headers
+    }
   if (not php.is_string(data)):
-    data = php.serialize(data);
-    serialized = 1;
-  created = php.time_();
-  lib_database.query(
-    "UPDATE {" + table + "} SET data = %b, created = %d, expire = %d, " + \
-    "headers = '%s', serialized = %d WHERE cid = '%s'", \
-    data, created, expire, headers, serialized, cid);
-  #if (not db_affected_rows()):
-    #db_query("INSERT INTO {" + table + "} (cid, data, created,
-    #expire, headers, serialized) VALUES ('%s', %b, %d, %d, '%s', %d)",
-    #cid, data, created, expire, headers, serialized);
+    fields['data'] = php.serialize(data)
+    fields['serialized'] = 1
+  else:
+    fields['data'] = data
+    fields['serialized'] = 0
+  lib_database.merge(table).key({'cid' : cid}).fields(fields).execute()
 
 
 
@@ -178,7 +176,6 @@ def clear_all(cid = None, table = None, wildcard = False):
      to match rather than a complete ID. The match is a right hand
      match. If '*' is given as cid, the table table will be emptied.
   """
-  thisTime = php.time_();
   if (cid == None and table == None):
     # Clear the block cache first, so stale data will
     # not end up in the page cache.
@@ -191,31 +188,31 @@ def clear_all(cid = None, table = None, wildcard = False):
       # will be saved into the sessions table by sess_write(). We then
       # simulate that the cache was flushed for this user by not returning
       # cached data that was cached before the timestamp.
-      lib_appglobals.user.cache = thisTime;
+      lib_appglobals.user.cache = REQUEST_TIME;
       cache_flush = variable_get('cache_flush', 0);
       if (cache_flush == 0):
         # This is the first request to clear the cache, start a timer.
-        variable_set('cache_flush', thisTime);
-      elif (thisTime > (cache_flush + variable_get('cache_lifetime', 0))):
+        variable_set('cache_flush', REQUEST_TIME);
+      elif (REQUEST_TIME > (cache_flush + variable_get('cache_lifetime', 0))):
         # Clear the cache for everyone, cache_flush_delay seconds have
         # passed since the first request to clear the cache.
         db_query(\
           "DELETE FROM {" + table + "} WHERE expire != %d AND expire < %d", \
-          CACHE_PERMANENT, thisTime);
+          CACHE_PERMANENT, REQUEST_TIME);
         variable_set('cache_flush', 0);
     else:
       # No minimum cache lifetime, php.flush all temporary cache entries now.
       db_query(\
         "DELETE FROM {" + table + "} WHERE expire != %d AND expire < %d", \
-        CACHE_PERMANENT, thisTime);
+        CACHE_PERMANENT, REQUEST_TIME);
   else:
     if (wildcard):
       if (cid == '*'):
-        db_query("DELETE FROM {" + table + "}");
+        lib_database.delete(table).execute()
       else:
-        db_query("DELETE FROM {" + table + "} WHERE cid LIKE '%s%%'", cid);
+        lib_database.delete(table).condition('cid', cid +'%', 'LIKE').execute()
     else:
-      db_query("DELETE FROM {" + table + "} WHERE cid = '%s'", cid);
+      lib_database.delete(table).condition('cid', cid).execute()
 
 
 
