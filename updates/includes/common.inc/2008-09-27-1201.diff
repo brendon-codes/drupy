@@ -1,0 +1,395 @@
+--- drupy/ported/includes/common.inc	2008-08-13 23:10:10.000000000 -0700
++++ drupal.ported/includes/common.inc	2008-09-20 12:48:57.000000000 -0700
+@@ -1,5 +1,5 @@
+ <?php
+-// $Id: common.inc,v 1.783 2008/08/13 07:10:20 dries Exp $
++// $Id: common.inc,v 1.798 2008/09/20 03:49:23 webchick Exp $
+ 
+ /**
+  * @file
+@@ -154,6 +154,8 @@ function drupal_get_headers() {
+ /**
+  * Add a feed URL for the current page.
+  *
++ * This function can be called as long the HTML header hasn't been sent.
++ *
+  * @param $url
+  *   A url for the feed.
+  * @param $title
+@@ -261,8 +263,7 @@ function drupal_get_destination() {
+  * Usually the redirected URL is constructed from this function's input
+  * parameters. However you may override that behavior by setting a
+  * destination in either the $_REQUEST-array (i.e. by using
+- * the query string of an URI) or the $_REQUEST['edit']-array (i.e. by
+- * using a hidden form field). This is used to direct the user back to
++ * the query string of an URI) This is used to direct the user back to
+  * the proper page after completing a form. For example, after editing
+  * a post on the 'admin/content/node'-page or after having logged on using the
+  * 'user login'-block in a sidebar. The function drupal_get_destination()
+@@ -298,9 +299,6 @@ function drupal_goto($path = '', $query 
+   if (isset($_REQUEST['destination'])) {
+     extract(parse_url(urldecode($_REQUEST['destination'])));
+   }
+-  else if (isset($_REQUEST['edit']['destination'])) {
+-    extract(parse_url(urldecode($_REQUEST['edit']['destination'])));
+-  }
+ 
+   $url = url($path, array('query' => $query, 'fragment' => $fragment, 'absolute' => TRUE));
+   // Remove newlines from the URL to avoid header injection attacks.
+@@ -329,7 +327,7 @@ function drupal_goto($path = '', $query 
+  */
+ function drupal_site_offline() {
+   drupal_maintenance_theme();
+-  drupal_set_header('HTTP/1.1 503 Service unavailable');
++  drupal_set_header($_SERVER['SERVER_PROTOCOL'] . ' 503 Service unavailable');
+   drupal_set_title(t('Site offline'));
+   print theme('maintenance_page', filter_xss_admin(variable_get('site_offline_message',
+     t('@site is currently under maintenance. We should be back shortly. Thank you for your patience.', array('@site' => variable_get('site_name', 'Drupal'))))));
+@@ -339,7 +337,7 @@ function drupal_site_offline() {
+  * Generates a 404 error if the request can not be handled.
+  */
+ function drupal_not_found() {
+-  drupal_set_header('HTTP/1.1 404 Not Found');
++  drupal_set_header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+ 
+   watchdog('page not found', check_plain($_GET['q']), NULL, WATCHDOG_WARNING);
+ 
+@@ -369,7 +367,7 @@ function drupal_not_found() {
+  * Generates a 403 error if the request is not allowed.
+  */
+ function drupal_access_denied() {
+-  drupal_set_header('HTTP/1.1 403 Forbidden');
++  drupal_set_header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
+   watchdog('access denied', check_plain($_GET['q']), NULL, WATCHDOG_WARNING);
+ 
+   // Keep old path for reference.
+@@ -434,7 +432,7 @@ function drupal_http_request($url, $head
+   }
+ 
+   // Parse the URL and make sure we can handle the schema.
+-  $uri = parse_url($url);
++  $uri = @parse_url($url);
+ 
+   if ($uri == FALSE) {
+     $result->error = 'unable to parse URL';
+@@ -567,8 +565,8 @@ function drupal_http_request($url, $head
+       $location = $result->headers['Location'];
+ 
+       if ($retry) {
+-        $result = drupal_http_request($result->headers['Location'], $headers, $method, $data, --$retry);
+-        $result->redirect_code = $result->code;
++        $result = drupal_http_request($location, $headers, $method, $data, --$retry);
++        $result->redirect_code = $code;
+       }
+       $result->redirect_url = $location;
+ 
+@@ -631,6 +629,41 @@ function drupal_error_handler($errno, $m
+   }
+ }
+ 
++/**
++ * Gets the last caller (file name and line of the call, function in which the
++ * call originated) from a backtrace.
++ *
++ * @param $backtrace
++ *   A standard PHP backtrace.
++ * @return
++ *   An associative array with keys 'file', 'line' and 'function'.
++ */
++function _drupal_get_last_caller($backtrace) {
++  // Errors that occur inside PHP internal functions
++  // do not generate information about file and line.
++  while ($backtrace && !isset($backtrace[0]['line'])) {
++    array_shift($backtrace);
++  }
++
++  // The first trace is the call itself.
++  // It gives us the line and the file of the last call.
++  $call = $backtrace[0];
++  
++  // The second call give us the function where the call originated.
++  if (isset($backtrace[1])) {
++    if (isset($backtrace[1]['class'])) {
++      $call['function'] = $backtrace[1]['class'] . $backtrace[1]['type'] . $backtrace[1]['function'] . '()';
++    }
++    else {
++      $call['function'] = $backtrace[1]['function'] . '()';
++    }
++  }
++  else {
++    $call['function'] = 'main()';
++  }
++  return $call;
++}
++
+ function _fix_gpc_magic(&$item) {
+   if (is_array($item)) {
+     array_walk($item, '_fix_gpc_magic');
+@@ -775,7 +808,9 @@ function t($string, $args = array(), $la
+   global $language;
+   static $custom_strings;
+ 
+-  $langcode = isset($langcode) ? $langcode : $language->language;
++  if (!isset($langcode)) {
++    $langcode = $language->language;
++  }
+ 
+   // First, check for an array of customized strings. If present, use the array
+   // *instead of* database lookups. This is a high performance way to provide a
+@@ -835,12 +870,7 @@ function t($string, $args = array(), $la
+  *   TRUE if the address is in a valid format.
+  */
+ function valid_email_address($mail) {
+-  $user = '[a-zA-Z0-9_\-\.\+\^!#\$%&*+\/\=\?\`\|\{\}~\']+';
+-  $domain = '(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.?)+';
+-  $ipv4 = '[0-9]{1,3}(\.[0-9]{1,3}){3}';
+-  $ipv6 = '[0-9a-fA-F]{1,4}(\:[0-9a-fA-F]{1,4}){7}';
+-
+-  return (bool)preg_match("/^$user@($domain|(\[($ipv4|$ipv6)\]))$/", $mail);
++  return (bool)filter_var($mail, FILTER_VALIDATE_EMAIL);
+ }
+ 
+ /**
+@@ -877,7 +907,7 @@ function valid_url($url, $absolute = FAL
+  *   The name of an event.
+  */
+ function flood_register_event($name) {
+-  db_query("INSERT INTO {flood} (event, hostname, timestamp) VALUES ('%s', '%s', %d)", $name, ip_address(), time());
++  db_query("INSERT INTO {flood} (event, hostname, timestamp) VALUES ('%s', '%s', %d)", $name, ip_address(), REQUEST_TIME);
+ }
+ 
+ /**
+@@ -894,7 +924,7 @@ function flood_register_event($name) {
+  *   True if the user did not exceed the hourly threshold. False otherwise.
+  */
+ function flood_is_allowed($name, $threshold) {
+-  $number = db_result(db_query("SELECT COUNT(*) FROM {flood} WHERE event = '%s' AND hostname = '%s' AND timestamp > %d", $name, ip_address(), time() - 3600));
++  $number = db_result(db_query("SELECT COUNT(*) FROM {flood} WHERE event = '%s' AND hostname = '%s' AND timestamp > %d", $name, ip_address(), REQUEST_TIME - 3600));
+   return ($number < $threshold ? TRUE : FALSE);
+ }
+ 
+@@ -1105,8 +1135,17 @@ function format_size($size, $langcode = 
+   }
+   else {
+     $size = $size / 1000; // convert bytes to kilobytes (1000 bytes)
+-    $units = array('KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+-    foreach ($units as $suffix) {
++    $units = array(
++      t('@size KB', array(), $langcode),
++      t('@size MB', array(), $langcode),
++      t('@size GB', array(), $langcode),
++      t('@size TB', array(), $langcode),
++      t('@size PB', array(), $langcode),
++      t('@size EB', array(), $langcode),
++      t('@size ZB', array(), $langcode),
++      t('@size YB', array(), $langcode),
++    );
++    foreach ($units as $unit) {
+       if (round($size, 2) >= 1000) {
+         $size = $size / 1000;
+       }
+@@ -1114,7 +1153,7 @@ function format_size($size, $langcode = 
+         break;
+       }
+     }
+-    return t('@size @suffix', array('@size' => round($size, 2), '@suffix' => $suffix), $langcode);
++    return str_replace('@size', round($size, 2), $unit);
+   }
+ }
+ 
+@@ -1598,6 +1637,8 @@ function base_path() {
+ 
+ /**
+  * Add a <link> tag to the page's HEAD.
++ *
++ * This function can be called as long the HTML header hasn't been sent.
+  */
+ function drupal_add_link($attributes) {
+   drupal_set_html_head('<link' . drupal_attributes($attributes) . " />\n");
+@@ -1911,7 +1952,7 @@ function _drupal_load_stylesheet($matche
+  * Delete all cached CSS files.
+  */
+ function drupal_clear_css_cache() {
+-  file_scan_directory(file_create_path('css'), '.*', array('.', '..', 'CVS'), 'file_delete', TRUE);
++  file_scan_directory(file_create_path('css'), '/.*/', array('.', '..', 'CVS'), 'file_delete', TRUE);
+ }
+ 
+ /**
+@@ -2069,7 +2110,7 @@ function drupal_get_js($scope = 'header'
+   // browser-caching. The string changes on every update or full cache
+   // flush, forcing browsers to load a new copy of the files, as the
+   // URL changed. Files that should not be cached (see drupal_add_js())
+-  // get time() as query-string instead, to enforce reload on every
++  // get REQUEST_TIME as query-string instead, to enforce reload on every
+   // page request.
+   $query_string = '?' . substr(variable_get('css_js_query_string', '0'), 0, 1);
+ 
+@@ -2096,7 +2137,7 @@ function drupal_get_js($scope = 'header'
+         // Additionally, go through any remaining scripts if JS preprocessing is on and output the non-cached ones.
+         foreach ($data as $path => $info) {
+           if (!$info['preprocess'] || !$is_writable || !$preprocess_js) {
+-            $no_preprocess[$type] .= '<script type="text/javascript"' . ($info['defer'] ? ' defer="defer"' : '') . ' src="' . base_path() . $path . ($info['cache'] ? $query_string : '?' . time()) . "\"></script>\n";
++            $no_preprocess[$type] .= '<script type="text/javascript"' . ($info['defer'] ? ' defer="defer"' : '') . ' src="' . base_path() . $path . ($info['cache'] ? $query_string : '?' . REQUEST_TIME) . "\"></script>\n";
+           }
+           else {
+             $files[$path] = $info;
+@@ -2284,7 +2325,7 @@ function drupal_build_js_cache($files, $
+  * Delete all cached JS files.
+  */
+ function drupal_clear_js_cache() {
+-  file_scan_directory(file_create_path('js'), '.*', array('.', '..', 'CVS'), 'file_delete', TRUE);
++  file_scan_directory(file_create_path('js'), '/.*/', array('.', '..', 'CVS'), 'file_delete', TRUE);
+   variable_set('javascript_parsed', array());
+ }
+ 
+@@ -2482,6 +2523,9 @@ function _drupal_bootstrap_full() {
+   fix_gpc_magic();
+   // Load all enabled modules
+   module_load_all();
++  // Rebuild the module hook cache
++  module_implements('', NULL, TRUE);
++
+   // Let all modules take action before menu system handles the request
+   // We do not want this while running update.php.
+   if (!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE != 'update') {
+@@ -2545,7 +2589,7 @@ function drupal_cron_run() {
+   $semaphore = variable_get('cron_semaphore', FALSE);
+ 
+   if ($semaphore) {
+-    if (time() - $semaphore > 3600) {
++    if (REQUEST_TIME - $semaphore > 3600) {
+       // Either cron has been running for more than an hour or the semaphore
+       // was not reset due to a database error.
+       watchdog('cron', 'Cron has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
+@@ -2563,13 +2607,13 @@ function drupal_cron_run() {
+     register_shutdown_function('drupal_cron_cleanup');
+ 
+     // Lock cron semaphore
+-    variable_set('cron_semaphore', time());
++    variable_set('cron_semaphore', REQUEST_TIME);
+ 
+     // Iterate through the modules calling their cron handlers (if any):
+     module_invoke_all('cron');
+ 
+     // Record cron time
+-    variable_set('cron_last', time());
++    variable_set('cron_last', REQUEST_TIME);
+     watchdog('cron', 'Cron run completed.', array(), WATCHDOG_NOTICE);
+ 
+     // Release cron semaphore
+@@ -2607,7 +2651,7 @@ function drupal_cron_cleanup() {
+  * version will be included.
+  *
+  * @param $mask
+- *   The regular expression of the files to find.
++ *   The preg_match() regular expression of the files to find.
+  * @param $directory
+  *   The subdirectory name in which the files are found. For example,
+  *   'modules' will search in both modules/ and
+@@ -2658,7 +2702,6 @@ function drupal_system_listing($mask, $d
+   return $files;
+ }
+ 
+-
+ /**
+  * This dispatch function hands off structured Drupal arrays to type-specific
+  * *_alter implementations. It ensures a consistent interface for all altering
+@@ -2707,7 +2750,6 @@ function drupal_alter($type, &$data) {
+   }
+ }
+ 
+-
+ /**
+  * Renders HTML given a structured array tree.
+  *
+@@ -2756,6 +2798,11 @@ function drupal_render(&$elements) {
+     // Render all the children that use a theme function.
+     if (isset($elements['#theme']) && empty($elements['#theme_used'])) {
+       $elements['#theme_used'] = TRUE;
++
++      $previous = array();
++      foreach (array('#type', '#prefix', '#suffix') as $key) {
++        $previous[$key] = isset($elements[$key]) ? $elements[$key] : NULL;
++      }
+       // If we rendered a single element, then we will skip the renderer.
+       if (empty($children)) {
+         $elements['#printed'] = TRUE;
+@@ -2764,7 +2811,12 @@ function drupal_render(&$elements) {
+         $elements['#markup'] = '';
+       }
+ 
++      unset($elements['#prefix'], $elements['#suffix']);
+       $content = theme($elements['#theme'], $elements);
++
++      foreach (array('#type', '#prefix', '#suffix') as $key) {
++        $elements[$key] = isset($previous[$key]) ? $previous[$key] : NULL;
++      }
+     }
+     // Render each of the children using drupal_render and concatenate them.
+     if (!isset($content) || $content === '') {
+@@ -3046,54 +3098,6 @@ function drupal_common_theme() {
+  */
+ 
+ /**
+- * Get the schema definition of a table, or the whole database schema.
+- *
+- * The returned schema will include any modifications made by any
+- * module that implements hook_schema_alter().
+- *
+- * @param $table
+- *   The name of the table. If not given, the schema of all tables is returned.
+- * @param $rebuild
+- *   If true, the schema will be rebuilt instead of retrieved from the cache.
+- */
+-function drupal_get_schema($table = NULL, $rebuild = FALSE) {
+-  static $schema = array();
+-
+-  if (empty($schema) || $rebuild) {
+-    // Try to load the schema from cache.
+-    if (!$rebuild && $cached = cache_get('schema')) {
+-      $schema = $cached->data;
+-    }
+-    // Otherwise, rebuild the schema cache.
+-    else {
+-      $schema = array();
+-      // Load the .install files to get hook_schema.
+-      module_load_all_includes('install');
+-
+-      // Invoke hook_schema for all modules.
+-      foreach (module_implements('schema') as $module) {
+-        $current = module_invoke($module, 'schema');
+-        _drupal_initialize_schema($module, $current);
+-        $schema = array_merge($schema, $current);
+-      }
+-
+-      drupal_alter('schema', $schema);
+-      cache_set('schema', $schema);
+-    }
+-  }
+-
+-  if (!isset($table)) {
+-    return $schema;
+-  }
+-  elseif (isset($schema[$table])) {
+-    return $schema[$table];
+-  }
+-  else {
+-    return FALSE;
+-  }
+-}
+-
+-/**
+  * Create all tables that a module defines in its hook_schema().
+  *
+  * Note: This function does not pass the module's schema through
+@@ -3138,8 +3142,10 @@ function drupal_uninstall_schema($module
+ 
+   $ret = array();
+   foreach ($schema as $table) {
++    if (db_table_exists($table['name'])) {
+     db_drop_table($ret, $table['name']);
+   }
++  }
+   return $ret;
+ }
+ 
