@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>base.includes.appglobals</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="base-module.html">Package&nbsp;base</a> ::
+        <a href="base.includes-module.html">Package&nbsp;includes</a> ::
+        Module&nbsp;appglobals
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="base.includes.appglobals-module.html">Module base.includes.appglobals</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-comment">#!/usr/bin/env python</tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"><tt class="py-docstring">  Site-wide globals variables</tt> </tt>
+<a name="L5"></a><tt class="py-lineno"> 5</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L6"></a><tt class="py-lineno"> 6</tt>  <tt class="py-line"><tt class="py-docstring">  @package base.includes</tt> </tt>
+<a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line"><tt class="py-docstring">  @see &lt;a href='http://drupy.net'&gt;Drupy Homepage&lt;/a&gt;</tt> </tt>
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line"><tt class="py-docstring">  @see &lt;a href='http://drupal.org'&gt;Drupal Homepage&lt;/a&gt;</tt> </tt>
+<a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line"><tt class="py-docstring">  @note Drupy is a port of the Drupal project.</tt> </tt>
+<a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line"><tt class="py-docstring">  @author Brendon Crawford</tt> </tt>
+<a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line"><tt class="py-docstring">  @copyright 2008 Brendon Crawford</tt> </tt>
+<a name="L12"></a><tt class="py-lineno">12</tt>  <tt class="py-line"><tt class="py-docstring">  @contact message144 at users dot sourceforge dot net</tt> </tt>
+<a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line"><tt class="py-docstring">  @created 2008-01-10</tt> </tt>
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line"><tt class="py-docstring">  @version 0.1</tt> </tt>
+<a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line"><tt class="py-docstring">  @note License:</tt> </tt>
+<a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line"><tt class="py-docstring">    This program is free software; you can redistribute it and/or</tt> </tt>
+<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line"><tt class="py-docstring">    modify it under the terms of the GNU General Public License</tt> </tt>
+<a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line"><tt class="py-docstring">    as published by the Free Software Foundation; either version 2</tt> </tt>
+<a name="L20"></a><tt class="py-lineno">20</tt>  <tt class="py-line"><tt class="py-docstring">    of the License, or (at your option) any later version.</tt> </tt>
+<a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line"><tt class="py-docstring">    This program is distributed in the hope that it will be useful,</tt> </tt>
+<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line"><tt class="py-docstring">    but WITHOUT ANY WARRANTY; without even the implied warranty of</tt> </tt>
+<a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line"><tt class="py-docstring">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</tt> </tt>
+<a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line"><tt class="py-docstring">    GNU General Public License for more details.</tt> </tt>
+<a name="L26"></a><tt class="py-lineno">26</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L27"></a><tt class="py-lineno">27</tt>  <tt class="py-line"><tt class="py-docstring">    You should have received a copy of the GNU General Public License</tt> </tt>
+<a name="L28"></a><tt class="py-lineno">28</tt>  <tt class="py-line"><tt class="py-docstring">    along with this program; if not, write to:</tt> </tt>
+<a name="L29"></a><tt class="py-lineno">29</tt>  <tt class="py-line"><tt class="py-docstring">    </tt> </tt>
+<a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line"><tt class="py-docstring">    The Free Software Foundation, Inc.,</tt> </tt>
+<a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line"><tt class="py-docstring">    51 Franklin Street, Fifth Floor,</tt> </tt>
+<a name="L32"></a><tt class="py-lineno">32</tt>  <tt class="py-line"><tt class="py-docstring">    Boston, MA  02110-1301,</tt> </tt>
+<a name="L33"></a><tt class="py-lineno">33</tt>  <tt class="py-line"><tt class="py-docstring">    USA</tt> </tt>
+<a name="L34"></a><tt class="py-lineno">34</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L35"></a><tt class="py-lineno">35</tt>  <tt class="py-line"> </tt>
+<a name="L36"></a><tt class="py-lineno">36</tt>  <tt class="py-line"><tt id="link-0" class="py-name" targets="Variable base.drupy.__version__=base.drupy-module.html#__version__,Variable base.includes.appglobals.__version__=base.includes.appglobals-module.html#__version__,Variable base.includes.bootstrap.__version__=base.includes.bootstrap-module.html#__version__,Variable base.includes.cache.__version__=base.includes.cache-module.html#__version__,Variable base.includes.cache_install.__version__=base.includes.cache_install-module.html#__version__,Variable base.includes.common.__version__=base.includes.common-module.html#__version__,Variable base.includes.database.__version__=base.includes.database-module.html#__version__,Variable base.includes.database_mysqli.__version__=base.includes.database_mysqli-module.html#__version__,Variable base.includes.file.__version__=base.includes.file-module.html#__version__,Variable base.includes.language.__version__=base.includes.language-module.html#__version__,Variable base.includes.menu.__version__=base.includes.menu-module.html#__version__,Variable base.includes.module.__version__=base.includes.module-module.html#__version__,Variable base.includes.path.__version__=base.includes.path-module.html#__version__,Variable base.includes.plugin.__version__=base.includes.plugin-module.html#__version__,Variable base.includes.session.__version__=base.includes.session-module.html#__version__,Variable base.includes.tablesort.__version__=base.includes.tablesort-module.html#__version__,Variable base.includes.theme.__version__=base.includes.theme-module.html#__version__,Variable base.includes.theme_maintenance.__version__=base.includes.theme_maintenance-module.html#__version__,Variable base.includes.unicode.__version__=base.includes.unicode-module.html#__version__,Variable base.index.__version__=base.index-module.html#__version__,Variable base.lib.drupy.DrupyHelper.__version__=base.lib.drupy.DrupyHelper-module.html#__version__,Variable base.lib.drupy.DrupyImport.__version__=base.lib.drupy.DrupyImport-module.html#__version__,Variable base.lib.drupy.DrupyMySQL.__version__=base.lib.drupy.DrupyMySQL-module.html#__version__,Variable base.lib.drupy.DrupyPHP.__version__=base.lib.drupy.DrupyPHP-module.html#__version__,Variable base.plugins.node.__version__=base.plugins.node-module.html#__version__,Variable base.plugins.system.__version__=base.plugins.system-module.html#__version__,Variable base.plugins.user.__version__=base.plugins.user-module.html#__version__,Variable base.themes.engines.drupytemplate.__version__=base.themes.engines.drupytemplate-module.html#__version__,Variable base.themes.garland.garland.__version__=base.themes.garland.garland-module.html#__version__,Variable base.themes.garland.template.__version__=base.themes.garland.template-module.html#__version__,Variable base.webtest.__version__=base.webtest-module.html#__version__"><a title="base.drupy.__version__
+base.includes.appglobals.__version__
+base.includes.bootstrap.__version__
+base.includes.cache.__version__
+base.includes.cache_install.__version__
+base.includes.common.__version__
+base.includes.database.__version__
+base.includes.database_mysqli.__version__
+base.includes.file.__version__
+base.includes.language.__version__
+base.includes.menu.__version__
+base.includes.module.__version__
+base.includes.path.__version__
+base.includes.plugin.__version__
+base.includes.session.__version__
+base.includes.tablesort.__version__
+base.includes.theme.__version__
+base.includes.theme_maintenance.__version__
+base.includes.unicode.__version__
+base.index.__version__
+base.lib.drupy.DrupyHelper.__version__
+base.lib.drupy.DrupyImport.__version__
+base.lib.drupy.DrupyMySQL.__version__
+base.lib.drupy.DrupyPHP.__version__
+base.plugins.node.__version__
+base.plugins.system.__version__
+base.plugins.user.__version__
+base.themes.engines.drupytemplate.__version__
+base.themes.garland.garland.__version__
+base.themes.garland.template.__version__
+base.webtest.__version__" class="py-name" href="#" onclick="return doclink('link-0', '__version__', 'link-0');">__version__</a></tt> <tt class="py-op">=</tt> <tt class="py-string">"$Revision: 1 $"</tt> </tt>
+<a name="L37"></a><tt class="py-lineno">37</tt>  <tt class="py-line"> </tt>
+<a name="L38"></a><tt class="py-lineno">38</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L39"></a><tt class="py-lineno">39</tt>  <tt class="py-line"><tt class="py-comment"># The following are within the settings namespace</tt> </tt>
+<a name="L40"></a><tt class="py-lineno">40</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L41"></a><tt class="py-lineno">41</tt>  <tt class="py-line"> </tt>
+<a name="L42"></a><tt class="py-lineno">42</tt>  <tt class="py-line"><tt class="py-comment">#conf = None</tt> </tt>
+<a name="L43"></a><tt class="py-lineno">43</tt>  <tt class="py-line"><tt class="py-comment">#cookie_domain = None</tt> </tt>
+<a name="L44"></a><tt class="py-lineno">44</tt>  <tt class="py-line"><tt class="py-comment">#db_prefix = None</tt> </tt>
+<a name="L45"></a><tt class="py-lineno">45</tt>  <tt class="py-line"><tt class="py-comment">#db_url = None</tt> </tt>
+<a name="L46"></a><tt class="py-lineno">46</tt>  <tt class="py-line"><tt class="py-comment">#update_free_access = None</tt> </tt>
+<a name="L47"></a><tt class="py-lineno">47</tt>  <tt class="py-line"><tt class="py-comment">#base_url = None</tt> </tt>
+<a name="L48"></a><tt class="py-lineno">48</tt>  <tt class="py-line"> </tt>
+<a name="L49"></a><tt class="py-lineno">49</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L50"></a><tt class="py-lineno">50</tt>  <tt class="py-line"><tt class="py-comment"># The following are within the appglobals namespace</tt> </tt>
+<a name="L51"></a><tt class="py-lineno">51</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L52"></a><tt class="py-lineno">52</tt>  <tt class="py-line"> </tt>
+<a name="L53"></a><tt class="py-lineno">53</tt>  <tt class="py-line"><tt id="link-1" class="py-name" targets="Variable base.includes.appglobals.active_db=base.includes.appglobals-module.html#active_db"><a title="base.includes.appglobals.active_db" class="py-name" href="#" onclick="return doclink('link-1', 'active_db', 'link-1');">active_db</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L54"></a><tt class="py-lineno">54</tt>  <tt class="py-line"><tt id="link-2" class="py-name" targets="Variable base.includes.appglobals.base_path=base.includes.appglobals-module.html#base_path,Function base.includes.common.base_path()=base.includes.common-module.html#base_path"><a title="base.includes.appglobals.base_path
+base.includes.common.base_path" class="py-name" href="#" onclick="return doclink('link-2', 'base_path', 'link-2');">base_path</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L55"></a><tt class="py-lineno">55</tt>  <tt class="py-line"><tt id="link-3" class="py-name" targets="Variable base.includes.appglobals.base_root=base.includes.appglobals-module.html#base_root"><a title="base.includes.appglobals.base_root" class="py-name" href="#" onclick="return doclink('link-3', 'base_root', 'link-3');">base_root</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L56"></a><tt class="py-lineno">56</tt>  <tt class="py-line"><tt id="link-4" class="py-name" targets="Variable base.includes.appglobals.base_theme_info=base.includes.appglobals-module.html#base_theme_info"><a title="base.includes.appglobals.base_theme_info" class="py-name" href="#" onclick="return doclink('link-4', 'base_theme_info', 'link-4');">base_theme_info</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L57"></a><tt class="py-lineno">57</tt>  <tt class="py-line"><tt id="link-5" class="py-name" targets="Variable base.includes.appglobals.base_url=base.includes.appglobals-module.html#base_url,Variable base.sites.default.settings.base_url=base.sites.default.settings-module.html#base_url"><a title="base.includes.appglobals.base_url
+base.sites.default.settings.base_url" class="py-name" href="#" onclick="return doclink('link-5', 'base_url', 'link-5');">base_url</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L58"></a><tt class="py-lineno">58</tt>  <tt class="py-line"><tt id="link-6" class="py-name" targets="Variable base.includes.appglobals.channel=base.includes.appglobals-module.html#channel"><a title="base.includes.appglobals.channel" class="py-name" href="#" onclick="return doclink('link-6', 'channel', 'link-6');">channel</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L59"></a><tt class="py-lineno">59</tt>  <tt class="py-line"><tt id="link-7" class="py-name" targets="Variable base.includes.appglobals.custom_theme=base.includes.appglobals-module.html#custom_theme"><a title="base.includes.appglobals.custom_theme" class="py-name" href="#" onclick="return doclink('link-7', 'custom_theme', 'link-7');">custom_theme</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L60"></a><tt class="py-lineno">60</tt>  <tt class="py-line"><tt id="link-8" class="py-name" targets="Variable base.includes.appglobals.db_type=base.includes.appglobals-module.html#db_type"><a title="base.includes.appglobals.db_type" class="py-name" href="#" onclick="return doclink('link-8', 'db_type', 'link-8');">db_type</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L61"></a><tt class="py-lineno">61</tt>  <tt class="py-line"><tt id="link-9" class="py-name" targets="Variable base.includes.appglobals.element=base.includes.appglobals-module.html#element"><a title="base.includes.appglobals.element" class="py-name" href="#" onclick="return doclink('link-9', 'element', 'link-9');">element</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L62"></a><tt class="py-lineno">62</tt>  <tt class="py-line"><tt id="link-10" class="py-name" targets="Variable base.includes.appglobals.forum_topic_list_header=base.includes.appglobals-module.html#forum_topic_list_header"><a title="base.includes.appglobals.forum_topic_list_header" class="py-name" href="#" onclick="return doclink('link-10', 'forum_topic_list_header', 'link-10');">forum_topic_list_header</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L63"></a><tt class="py-lineno">63</tt>  <tt class="py-line"><tt id="link-11" class="py-name" targets="Variable base.includes.appglobals.id=base.includes.appglobals-module.html#id"><a title="base.includes.appglobals.id" class="py-name" href="#" onclick="return doclink('link-11', 'id', 'link-11');">id</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L64"></a><tt class="py-lineno">64</tt>  <tt class="py-line"><tt id="link-12" class="py-name" targets="Variable base.includes.appglobals.image=base.includes.appglobals-module.html#image,Function base.includes.theme.image()=base.includes.theme-module.html#image"><a title="base.includes.appglobals.image
+base.includes.theme.image" class="py-name" href="#" onclick="return doclink('link-12', 'image', 'link-12');">image</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L65"></a><tt class="py-lineno">65</tt>  <tt class="py-line"><tt id="link-13" class="py-name" targets="Variable base.includes.appglobals.installed_profile=base.includes.appglobals-module.html#installed_profile"><a title="base.includes.appglobals.installed_profile" class="py-name" href="#" onclick="return doclink('link-13', 'installed_profile', 'link-13');">installed_profile</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L66"></a><tt class="py-lineno">66</tt>  <tt class="py-line"><tt id="link-14" class="py-name" targets="Variable base.includes.appglobals.install_locale=base.includes.appglobals-module.html#install_locale"><a title="base.includes.appglobals.install_locale" class="py-name" href="#" onclick="return doclink('link-14', 'install_locale', 'link-14');">install_locale</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L67"></a><tt class="py-lineno">67</tt>  <tt class="py-line"><tt id="link-15" class="py-name" targets="Variable base.includes.appglobals.item=base.includes.appglobals-module.html#item"><a title="base.includes.appglobals.item" class="py-name" href="#" onclick="return doclink('link-15', 'item', 'link-15');">item</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L68"></a><tt class="py-lineno">68</tt>  <tt class="py-line"><tt id="link-16" class="py-name" targets="Variable base.includes.appglobals.items=base.includes.appglobals-module.html#items"><a title="base.includes.appglobals.items" class="py-name" href="#" onclick="return doclink('link-16', 'items', 'link-16');">items</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L69"></a><tt class="py-lineno">69</tt>  <tt class="py-line"><tt id="link-17" class="py-name" targets="Variable base.includes.appglobals.language=base.includes.appglobals-module.html#language,Module base.includes.language=base.includes.language-module.html"><a title="base.includes.appglobals.language
+base.includes.language" class="py-name" href="#" onclick="return doclink('link-17', 'language', 'link-17');">language</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L70"></a><tt class="py-lineno">70</tt>  <tt class="py-line"><tt id="link-18" class="py-name" targets="Variable base.includes.appglobals.last_result=base.includes.appglobals-module.html#last_result"><a title="base.includes.appglobals.last_result" class="py-name" href="#" onclick="return doclink('link-18', 'last_result', 'link-18');">last_result</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L71"></a><tt class="py-lineno">71</tt>  <tt class="py-line"><tt id="link-19" class="py-name" targets="Variable base.includes.appglobals.menu_admin=base.includes.appglobals-module.html#menu_admin"><a title="base.includes.appglobals.menu_admin" class="py-name" href="#" onclick="return doclink('link-19', 'menu_admin', 'link-19');">menu_admin</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L72"></a><tt class="py-lineno">72</tt>  <tt class="py-line"><tt id="link-20" class="py-name" targets="Variable base.includes.appglobals.multibyte=base.includes.appglobals-module.html#multibyte"><a title="base.includes.appglobals.multibyte" class="py-name" href="#" onclick="return doclink('link-20', 'multibyte', 'link-20');">multibyte</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L73"></a><tt class="py-lineno">73</tt>  <tt class="py-line"><tt id="link-21" class="py-name" targets="Variable base.includes.appglobals.nid=base.includes.appglobals-module.html#nid"><a title="base.includes.appglobals.nid" class="py-name" href="#" onclick="return doclink('link-21', 'nid', 'link-21');">nid</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L74"></a><tt class="py-lineno">74</tt>  <tt class="py-line"><tt id="link-22" class="py-name" targets="Variable base.includes.appglobals.pager_page_array=base.includes.appglobals-module.html#pager_page_array"><a title="base.includes.appglobals.pager_page_array" class="py-name" href="#" onclick="return doclink('link-22', 'pager_page_array', 'link-22');">pager_page_array</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L75"></a><tt class="py-lineno">75</tt>  <tt class="py-line"><tt id="link-23" class="py-name" targets="Variable base.includes.appglobals.pager_total=base.includes.appglobals-module.html#pager_total"><a title="base.includes.appglobals.pager_total" class="py-name" href="#" onclick="return doclink('link-23', 'pager_total', 'link-23');">pager_total</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L76"></a><tt class="py-lineno">76</tt>  <tt class="py-line"><tt id="link-24" class="py-name" targets="Variable base.includes.appglobals.pager_total_items=base.includes.appglobals-module.html#pager_total_items"><a title="base.includes.appglobals.pager_total_items" class="py-name" href="#" onclick="return doclink('link-24', 'pager_total_items', 'link-24');">pager_total_items</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L77"></a><tt class="py-lineno">77</tt>  <tt class="py-line"><tt id="link-25" class="py-name" targets="Variable base.includes.appglobals.profile=base.includes.appglobals-module.html#profile"><a title="base.includes.appglobals.profile" class="py-name" href="#" onclick="return doclink('link-25', 'profile', 'link-25');">profile</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L78"></a><tt class="py-lineno">78</tt>  <tt class="py-line"><tt id="link-26" class="py-name" targets="Variable base.includes.appglobals.queries=base.includes.appglobals-module.html#queries"><a title="base.includes.appglobals.queries" class="py-name" href="#" onclick="return doclink('link-26', 'queries', 'link-26');">queries</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L79"></a><tt class="py-lineno">79</tt>  <tt class="py-line"><tt id="link-27" class="py-name" targets="Variable base.includes.appglobals.recent_activity=base.includes.appglobals-module.html#recent_activity"><a title="base.includes.appglobals.recent_activity" class="py-name" href="#" onclick="return doclink('link-27', 'recent_activity', 'link-27');">recent_activity</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L80"></a><tt class="py-lineno">80</tt>  <tt class="py-line"><tt id="link-28" class="py-name" targets="Variable base.includes.appglobals.tag=base.includes.appglobals-module.html#tag"><a title="base.includes.appglobals.tag" class="py-name" href="#" onclick="return doclink('link-28', 'tag', 'link-28');">tag</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L81"></a><tt class="py-lineno">81</tt>  <tt class="py-line"><tt id="link-29" class="py-name" targets="Variable base.includes.appglobals.theme=base.includes.appglobals-module.html#theme,Module base.includes.theme=base.includes.theme-module.html,Function base.includes.theme.theme()=base.includes.theme-module.html#theme"><a title="base.includes.appglobals.theme
+base.includes.theme
+base.includes.theme.theme" class="py-name" href="#" onclick="return doclink('link-29', 'theme', 'link-29');">theme</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L82"></a><tt class="py-lineno">82</tt>  <tt class="py-line"><tt id="link-30" class="py-name" targets="Variable base.includes.appglobals.theme_engine=base.includes.appglobals-module.html#theme_engine"><a title="base.includes.appglobals.theme_engine" class="py-name" href="#" onclick="return doclink('link-30', 'theme_engine', 'link-30');">theme_engine</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L83"></a><tt class="py-lineno">83</tt>  <tt class="py-line"><tt id="link-31" class="py-name" targets="Variable base.includes.appglobals.theme_info=base.includes.appglobals-module.html#theme_info"><a title="base.includes.appglobals.theme_info" class="py-name" href="#" onclick="return doclink('link-31', 'theme_info', 'link-31');">theme_info</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L84"></a><tt class="py-lineno">84</tt>  <tt class="py-line"><tt id="link-32" class="py-name" targets="Variable base.includes.appglobals.theme_key=base.includes.appglobals-module.html#theme_key"><a title="base.includes.appglobals.theme_key" class="py-name" href="#" onclick="return doclink('link-32', 'theme_key', 'link-32');">theme_key</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L85"></a><tt class="py-lineno">85</tt>  <tt class="py-line"><tt id="link-33" class="py-name" targets="Variable base.includes.appglobals.theme_path=base.includes.appglobals-module.html#theme_path"><a title="base.includes.appglobals.theme_path" class="py-name" href="#" onclick="return doclink('link-33', 'theme_path', 'link-33');">theme_path</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L86"></a><tt class="py-lineno">86</tt>  <tt class="py-line"><tt id="link-34" class="py-name" targets="Variable base.includes.appglobals.timers=base.includes.appglobals-module.html#timers"><a title="base.includes.appglobals.timers" class="py-name" href="#" onclick="return doclink('link-34', 'timers', 'link-34');">timers</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L87"></a><tt class="py-lineno">87</tt>  <tt class="py-line"><tt id="link-35" class="py-name" targets="Variable base.includes.appglobals.update_mode=base.includes.appglobals-module.html#update_mode"><a title="base.includes.appglobals.update_mode" class="py-name" href="#" onclick="return doclink('link-35', 'update_mode', 'link-35');">update_mode</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L88"></a><tt class="py-lineno">88</tt>  <tt class="py-line"><tt id="link-36" class="py-name" targets="Variable base.includes.appglobals.user=base.includes.appglobals-module.html#user,Package base.plugins.user=base.plugins.user-module.html"><a title="base.includes.appglobals.user
+base.plugins.user" class="py-name" href="#" onclick="return doclink('link-36', 'user', 'link-36');">user</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L89"></a><tt class="py-lineno">89</tt>  <tt class="py-line"><tt id="link-37" class="py-name" targets="Variable base.includes.appglobals.xrds_current_service=base.includes.appglobals-module.html#xrds_current_service"><a title="base.includes.appglobals.xrds_current_service" class="py-name" href="#" onclick="return doclink('link-37', 'xrds_current_service', 'link-37');">xrds_current_service</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L90"></a><tt class="py-lineno">90</tt>  <tt class="py-line"><tt id="link-38" class="py-name" targets="Variable base.includes.appglobals.xrds_open_elements=base.includes.appglobals-module.html#xrds_open_elements"><a title="base.includes.appglobals.xrds_open_elements" class="py-name" href="#" onclick="return doclink('link-38', 'xrds_open_elements', 'link-38');">xrds_open_elements</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L91"></a><tt class="py-lineno">91</tt>  <tt class="py-line"><tt id="link-39" class="py-name" targets="Variable base.includes.appglobals.xrds_services=base.includes.appglobals-module.html#xrds_services"><a title="base.includes.appglobals.xrds_services" class="py-name" href="#" onclick="return doclink('link-39', 'xrds_services', 'link-39');">xrds_services</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L92"></a><tt class="py-lineno">92</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue May 17 14:03:59 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>base.includes.tablesort</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="base-module.html">Package&nbsp;base</a> ::
+        <a href="base.includes-module.html">Package&nbsp;includes</a> ::
+        Module&nbsp;tablesort
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="base.includes.tablesort-module.html">Module base.includes.tablesort</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#!/usr/bin/env python</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment"># Id: tablesort.inc,v 1.48 2008/04/14 17:48:33 dries Exp </tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-docstring">  Functions to aid in the creation of sortable tables.</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-docstring">  All tables created with a call to lib_theme.theme('table') have the option of</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-docstring">  having column headers that the user can click on to sort the table by that</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-docstring">  column.</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-docstring">  @package includes</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-docstring">  @see &lt;a href='http://drupy.net'&gt;Drupy Homepage&lt;/a&gt;</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-docstring">  @see &lt;a href='http://drupal.org'&gt;Drupal Homepage&lt;/a&gt;</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-docstring">  @note Drupy is a port of the Drupal project.</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-docstring">  @note This file was ported from Drupal's includes/tablesort.inc</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-docstring">  @author Fernando P. Garcia</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-docstring">  @copyright 2008 Fernando P. Garcia</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-docstring">  @contact fernando at develcuy dot com</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-docstring">  @created 2008-09-18</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-docstring">  @version 0.1</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-docstring">  @note License:</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-docstring">    This program is free software; you can redistribute it and/or</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-docstring">    modify it under the terms of the GNU General Public License</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-docstring">    as published by the Free Software Foundation; either version 2</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-docstring">    of the License, or (at your option) any later version.</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"><tt class="py-docstring">    This program is distributed in the hope that it will be useful,</tt> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"><tt class="py-docstring">    but WITHOUT ANY WARRANTY; without even the implied warranty of</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-docstring">    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-docstring">    GNU General Public License for more details.</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-docstring">    You should have received a copy of the GNU General Public License</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-docstring">    along with this program; if not, write to:</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-docstring">    </tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"><tt class="py-docstring">    The Free Software Foundation, Inc.,</tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"><tt class="py-docstring">    51 Franklin Street, Fifth Floor,</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line"><tt class="py-docstring">    Boston, MA  02110-1301,</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"><tt class="py-docstring">    USA</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"><tt id="link-0" class="py-name" targets="Variable base.drupy.__version__=base.drupy-module.html#__version__,Variable base.includes.appglobals.__version__=base.includes.appglobals-module.html#__version__,Variable base.includes.bootstrap.__version__=base.includes.bootstrap-module.html#__version__,Variable base.includes.cache.__version__=base.includes.cache-module.html#__version__,Variable base.includes.cache_install.__version__=base.includes.cache_install-module.html#__version__,Variable base.includes.common.__version__=base.includes.common-module.html#__version__,Variable base.includes.database.__version__=base.includes.database-module.html#__version__,Variable base.includes.database_mysqli.__version__=base.includes.database_mysqli-module.html#__version__,Variable base.includes.file.__version__=base.includes.file-module.html#__version__,Variable base.includes.language.__version__=base.includes.language-module.html#__version__,Variable base.includes.menu.__version__=base.includes.menu-module.html#__version__,Variable base.includes.module.__version__=base.includes.module-module.html#__version__,Variable base.includes.path.__version__=base.includes.path-module.html#__version__,Variable base.includes.plugin.__version__=base.includes.plugin-module.html#__version__,Variable base.includes.session.__version__=base.includes.session-module.html#__version__,Variable base.includes.tablesort.__version__=base.includes.tablesort-module.html#__version__,Variable base.includes.theme.__version__=base.includes.theme-module.html#__version__,Variable base.includes.theme_maintenance.__version__=base.includes.theme_maintenance-module.html#__version__,Variable base.includes.unicode.__version__=base.includes.unicode-module.html#__version__,Variable base.index.__version__=base.index-module.html#__version__,Variable base.lib.drupy.DrupyHelper.__version__=base.lib.drupy.DrupyHelper-module.html#__version__,Variable base.lib.drupy.DrupyImport.__version__=base.lib.drupy.DrupyImport-module.html#__version__,Variable base.lib.drupy.DrupyMySQL.__version__=base.lib.drupy.DrupyMySQL-module.html#__version__,Variable base.lib.drupy.DrupyPHP.__version__=base.lib.drupy.DrupyPHP-module.html#__version__,Variable base.plugins.node.__version__=base.plugins.node-module.html#__version__,Variable base.plugins.system.__version__=base.plugins.system-module.html#__version__,Variable base.plugins.user.__version__=base.plugins.user-module.html#__version__,Variable base.themes.engines.drupytemplate.__version__=base.themes.engines.drupytemplate-module.html#__version__,Variable base.themes.garland.garland.__version__=base.themes.garland.garland-module.html#__version__,Variable base.themes.garland.template.__version__=base.themes.garland.template-module.html#__version__,Variable base.webtest.__version__=base.webtest-module.html#__version__"><a title="base.drupy.__version__
+base.includes.appglobals.__version__
+base.includes.bootstrap.__version__
+base.includes.cache.__version__
+base.includes.cache_install.__version__
+base.includes.common.__version__
+base.includes.database.__version__
+base.includes.database_mysqli.__version__
+base.includes.file.__version__
+base.includes.language.__version__
+base.includes.menu.__version__
+base.includes.module.__version__
+base.includes.path.__version__
+base.includes.plugin.__version__
+base.includes.session.__version__
+base.includes.tablesort.__version__
+base.includes.theme.__version__
+base.includes.theme_maintenance.__version__
+base.includes.unicode.__version__
+base.index.__version__
+base.lib.drupy.DrupyHelper.__version__
+base.lib.drupy.DrupyImport.__version__
+base.lib.drupy.DrupyMySQL.__version__
+base.lib.drupy.DrupyPHP.__version__
+base.plugins.node.__version__
+base.plugins.system.__version__
+base.plugins.user.__version__
+base.themes.engines.drupytemplate.__version__
+base.themes.garland.garland.__version__
+base.themes.garland.template.__version__
+base.webtest.__version__" class="py-name" href="#" onclick="return doclink('link-0', '__version__', 'link-0');">__version__</a></tt> <tt class="py-op">=</tt> <tt class="py-string">"$Revision: 1 "</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-1" class="py-name" targets="Package base.lib=base.lib-module.html"><a title="base.lib" class="py-name" href="#" onclick="return doclink('link-1', 'lib', 'link-1');">lib</a></tt><tt class="py-op">.</tt><tt id="link-2" class="py-name" targets="Module base.drupy=base.drupy-module.html,Package base.lib.drupy=base.lib.drupy-module.html"><a title="base.drupy
+base.lib.drupy" class="py-name" href="#" onclick="return doclink('link-2', 'drupy', 'link-2');">drupy</a></tt> <tt class="py-keyword">import</tt> <tt id="link-3" class="py-name" targets="Module base.lib.drupy.DrupyPHP=base.lib.drupy.DrupyPHP-module.html"><a title="base.lib.drupy.DrupyPHP" class="py-name" href="#" onclick="return doclink('link-3', 'DrupyPHP', 'link-3');">DrupyPHP</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">php</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-4" class="py-name" targets="Package base.includes=base.includes-module.html"><a title="base.includes" class="py-name" href="#" onclick="return doclink('link-4', 'includes', 'link-4');">includes</a></tt> <tt class="py-keyword">import</tt> <tt id="link-5" class="py-name" targets="Module base.includes.common=base.includes.common-module.html"><a title="base.includes.common" class="py-name" href="#" onclick="return doclink('link-5', 'common', 'link-5');">common</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">lib_common</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-6" class="py-name"><a title="base.includes" class="py-name" href="#" onclick="return doclink('link-6', 'includes', 'link-4');">includes</a></tt> <tt class="py-keyword">import</tt> <tt id="link-7" class="py-name" targets="Module base.includes.unicode=base.includes.unicode-module.html"><a title="base.includes.unicode" class="py-name" href="#" onclick="return doclink('link-7', 'unicode', 'link-7');">unicode</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">lib_unicode</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-8" class="py-name"><a title="base.includes" class="py-name" href="#" onclick="return doclink('link-8', 'includes', 'link-4');">includes</a></tt> <tt class="py-keyword">import</tt> <tt id="link-9" class="py-name" targets="Variable base.includes.appglobals.theme=base.includes.appglobals-module.html#theme,Module base.includes.theme=base.includes.theme-module.html,Function base.includes.theme.theme()=base.includes.theme-module.html#theme"><a title="base.includes.appglobals.theme
+base.includes.theme
+base.includes.theme.theme" class="py-name" href="#" onclick="return doclink('link-9', 'theme', 'link-9');">theme</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">lib_theme</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"> </tt>
+<a name="hook_init"></a><div id="hook_init-def"><a name="L50"></a><tt class="py-lineno"> 50</tt> <a class="py-toggle" href="#" id="hook_init-toggle" onclick="return toggle('hook_init');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.includes.tablesort-module.html#hook_init">hook_init</a><tt class="py-op">(</tt><tt class="py-param">header</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="hook_init-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="hook_init-expanded"><a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line"><tt class="py-docstring">   Initialize the table sort context.</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">  <tt class="py-name">ts</tt> <tt class="py-op">=</tt> <tt id="link-10" class="py-name" targets="Function base.includes.tablesort.get_order()=base.includes.tablesort-module.html#get_order"><a title="base.includes.tablesort.get_order" class="py-name" href="#" onclick="return doclink('link-10', 'get_order', 'link-10');">get_order</a></tt><tt class="py-op">(</tt><tt id="link-11" class="py-name" targets="Function base.includes.tablesort.header()=base.includes.tablesort-module.html#header,Method base.lib.drupy.DrupyPHP.__Output.header()=base.lib.drupy.DrupyPHP.__Output-class.html#header,Variable base.lib.drupy.DrupyPHP.header=base.lib.drupy.DrupyPHP-module.html#header"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-11', 'header', 'link-11');">header</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">  <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-12" class="py-name" targets="Function base.includes.tablesort.get_sort()=base.includes.tablesort-module.html#get_sort"><a title="base.includes.tablesort.get_sort" class="py-name" href="#" onclick="return doclink('link-12', 'get_sort', 'link-12');">get_sort</a></tt><tt class="py-op">(</tt><tt id="link-13" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-13', 'header', 'link-11');">header</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line">  <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'query_string'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-14" class="py-name" targets="Function base.includes.tablesort.get_querystring()=base.includes.tablesort-module.html#get_querystring"><a title="base.includes.tablesort.get_querystring" class="py-name" href="#" onclick="return doclink('link-14', 'get_querystring', 'link-14');">get_querystring</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">ts</tt> </tt>
+</div><a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line"> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"> </tt>
+<a name="sql"></a><div id="sql-def"><a name="L61"></a><tt class="py-lineno"> 61</tt> <a class="py-toggle" href="#" id="sql-toggle" onclick="return toggle('sql');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.includes.tablesort-module.html#sql">sql</a><tt class="py-op">(</tt><tt class="py-param">header</tt><tt class="py-op">,</tt> <tt class="py-param">before</tt> <tt class="py-op">=</tt> <tt class="py-string">''</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="sql-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="sql-expanded"><a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"><tt class="py-docstring">   Create an SQL sort clause.</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"><tt class="py-docstring">   This def produces the ORDER BY clause to insert in your SQL queries,</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line"><tt class="py-docstring">   assuring that the returned database table rows match the sort order chosen</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"><tt class="py-docstring">   by the user.</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line"><tt class="py-docstring">   @param header</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line"><tt class="py-docstring">     An array of column headers in the format described in theme_table().</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"><tt class="py-docstring">   @param before</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"><tt class="py-docstring">     An SQL string to insert after ORDER BY and before the table sorting code.</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"><tt class="py-docstring">     Useful for sorting by important attributes like "sticky" first.</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-docstring">   @return</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-docstring">     An SQL string to append to the end of a query.</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-docstring">   @ingroup database</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">  <tt class="py-name">ts</tt> <tt class="py-op">=</tt> <tt id="link-15" class="py-name" targets="Function base.includes.tablesort.hook_init()=base.includes.tablesort-module.html#hook_init,Function base.plugins.node.hook_init()=base.plugins.node-module.html#hook_init,Function base.plugins.system.hook_init()=base.plugins.system-module.html#hook_init,Function base.plugins.user.hook_init()=base.plugins.user-module.html#hook_init,Function base.themes.engines.drupytemplate.hook_init()=base.themes.engines.drupytemplate-module.html#hook_init"><a title="base.includes.tablesort.hook_init
+base.plugins.node.hook_init
+base.plugins.system.hook_init
+base.plugins.user.hook_init
+base.themes.engines.drupytemplate.hook_init" class="py-name" href="#" onclick="return doclink('link-15', 'hook_init', 'link-15');">hook_init</a></tt><tt class="py-op">(</tt><tt id="link-16" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-16', 'header', 'link-11');">header</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'sql'</tt><tt class="py-op">]</tt><tt class="py-op">:</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">    <tt class="py-comment"># Based on code from db_escape_table(), but this can also contain a dot.</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">    <tt class="py-name">field</tt> <tt class="py-op">=</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-17" class="py-name" targets="Function base.lib.drupy.DrupyPHP.preg_replace()=base.lib.drupy.DrupyPHP-module.html#preg_replace"><a title="base.lib.drupy.DrupyPHP.preg_replace" class="py-name" href="#" onclick="return doclink('link-17', 'preg_replace', 'link-17');">preg_replace</a></tt><tt class="py-op">(</tt><tt class="py-string">'/[^A-Za-z0-9_.]+/'</tt><tt class="py-op">,</tt> <tt class="py-string">''</tt><tt class="py-op">,</tt> <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'sql'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line">    <tt class="py-comment"># Sort order can only be ASC or DESC.</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">    <tt class="py-name">sort</tt> <tt class="py-op">=</tt> <tt class="py-name">lib_unicode</tt><tt class="py-op">.</tt><tt id="link-18" class="py-name" targets="Function base.includes.unicode.drupal_strtoupper()=base.includes.unicode-module.html#drupal_strtoupper"><a title="base.includes.unicode.drupal_strtoupper" class="py-name" href="#" onclick="return doclink('link-18', 'drupal_strtoupper', 'link-18');">drupal_strtoupper</a></tt><tt class="py-op">(</tt><tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">    <tt class="py-name">sort</tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt><tt class="py-name">sort</tt> <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-19" class="py-name" targets="Function base.lib.drupy.DrupyPHP.in_array()=base.lib.drupy.DrupyPHP-module.html#in_array"><a title="base.lib.drupy.DrupyPHP.in_array" class="py-name" href="#" onclick="return doclink('link-19', 'in_array', 'link-19');">in_array</a></tt><tt class="py-op">(</tt><tt class="py-name">sort</tt><tt class="py-op">,</tt> <tt class="py-op">[</tt><tt class="py-string">'ASC'</tt><tt class="py-op">,</tt> <tt class="py-string">'DESC'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-keyword">else</tt> <tt class="py-string">''</tt><tt class="py-op">)</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-string">" ORDER BY before field sort"</tt> </tt>
+</div><a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line"> </tt>
+<a name="header"></a><div id="header-def"><a name="L89"></a><tt class="py-lineno"> 89</tt> <a class="py-toggle" href="#" id="header-toggle" onclick="return toggle('header');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.includes.tablesort-module.html#header">header</a><tt class="py-op">(</tt><tt class="py-param">cell</tt><tt class="py-op">,</tt> <tt class="py-param">header</tt><tt class="py-op">,</tt> <tt class="py-param">ts</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="header-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="header-expanded"><a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"><tt class="py-docstring">   Format a column header.</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"><tt class="py-docstring">   If the cell in question is the column header for the current sort criterion,</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line"><tt class="py-docstring">   it gets special formatting. All possible sort criteria become links.</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"><tt class="py-docstring">   @param cell</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line"><tt class="py-docstring">     The cell to format.</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"><tt class="py-docstring">   @param header</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"><tt class="py-docstring">     An array of column headers in the format described in theme_table().</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"><tt class="py-docstring">   @param ts</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line"><tt class="py-docstring">     The current table sort context as returned from hook_init().</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"><tt class="py-docstring">   @return</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line"><tt class="py-docstring">     A properly formatted cell, ready for _theme_table_cell().</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">  <tt class="py-comment"># Special formatting for the currently sorted column header.</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-20" class="py-name" targets="Function base.lib.drupy.DrupyPHP.is_array()=base.lib.drupy.DrupyPHP-module.html#is_array"><a title="base.lib.drupy.DrupyPHP.is_array" class="py-name" href="#" onclick="return doclink('link-20', 'is_array', 'link-20');">is_array</a></tt><tt class="py-op">(</tt><tt id="link-21" class="py-name" targets="Function base.includes.tablesort.cell()=base.includes.tablesort-module.html#cell"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-21', 'cell', 'link-21');">cell</a></tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-22" class="py-name" targets="Function base.lib.drupy.DrupyPHP.isset()=base.lib.drupy.DrupyPHP-module.html#isset"><a title="base.lib.drupy.DrupyPHP.isset" class="py-name" href="#" onclick="return doclink('link-22', 'isset', 'link-22');">isset</a></tt><tt class="py-op">(</tt><tt id="link-23" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-23', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'field'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">    <tt class="py-name">title</tt> <tt class="py-op">=</tt> <tt id="link-24" class="py-name" targets="Function base.includes.common.t()=base.includes.common-module.html#t"><a title="base.includes.common.t" class="py-name" href="#" onclick="return doclink('link-24', 't', 'link-24');">t</a></tt><tt class="py-op">(</tt><tt class="py-string">'sort by @s'</tt><tt class="py-op">,</tt> <tt class="py-op">{</tt><tt class="py-string">'@s'</tt><tt class="py-op">:</tt> <tt id="link-25" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-25', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'data'</tt><tt class="py-op">]</tt><tt class="py-op">}</tt><tt class="py-op">)</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt id="link-26" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-26', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'data'</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'name'</tt><tt class="py-op">]</tt><tt class="py-op">:</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">      <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt><tt class="py-string">'desc'</tt> <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-string">'asc'</tt><tt class="py-op">)</tt> <tt class="py-keyword">else</tt> <tt class="py-string">'asc'</tt><tt class="py-op">)</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-27" class="py-name"><a title="base.lib.drupy.DrupyPHP.isset" class="py-name" href="#" onclick="return doclink('link-27', 'isset', 'link-22');">isset</a></tt><tt class="py-op">(</tt><tt id="link-28" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-28', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'class'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">        <tt id="link-29" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-29', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'class'</tt><tt class="py-op">]</tt> <tt class="py-op">+=</tt> <tt class="py-string">' active'</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">      <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">        <tt id="link-30" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-30', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'class'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-string">'active'</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">      <tt id="link-31" class="py-name" targets="Variable base.includes.appglobals.image=base.includes.appglobals-module.html#image,Function base.includes.theme.image()=base.includes.theme-module.html#image"><a title="base.includes.appglobals.image
+base.includes.theme.image" class="py-name" href="#" onclick="return doclink('link-31', 'image', 'link-31');">image</a></tt> <tt class="py-op">=</tt> <tt class="py-name">lib_theme</tt><tt class="py-op">.</tt><tt id="link-32" class="py-name"><a title="base.includes.appglobals.theme
+base.includes.theme
+base.includes.theme.theme" class="py-name" href="#" onclick="return doclink('link-32', 'theme', 'link-9');">theme</a></tt><tt class="py-op">(</tt><tt class="py-string">'tablesort_indicator'</tt><tt class="py-op">,</tt> <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">      <tt class="py-comment"># If the user clicks a different header, we want to sort ascending</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">      <tt class="py-comment"># initially.</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">      <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-string">'asc'</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">      <tt id="link-33" class="py-name"><a title="base.includes.appglobals.image
+base.includes.theme.image" class="py-name" href="#" onclick="return doclink('link-33', 'image', 'link-31');">image</a></tt> <tt class="py-op">=</tt> <tt class="py-string">''</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-34" class="py-name" targets="Function base.lib.drupy.DrupyPHP.empty()=base.lib.drupy.DrupyPHP-module.html#empty"><a title="base.lib.drupy.DrupyPHP.empty" class="py-name" href="#" onclick="return doclink('link-34', 'empty', 'link-34');">empty</a></tt><tt class="py-op">(</tt><tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'query_string'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line">      <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'query_string'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-string">'&amp;'</tt> <tt class="py-op">+</tt> <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'query_string'</tt><tt class="py-op">]</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">    <tt id="link-35" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-35', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'data'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-36" class="py-name" targets="Function base.includes.common.l()=base.includes.common-module.html#l"><a title="base.includes.common.l" class="py-name" href="#" onclick="return doclink('link-36', 'l', 'link-36');">l</a></tt><tt class="py-op">(</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line">      <tt id="link-37" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-37', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'data'</tt><tt class="py-op">]</tt> <tt class="py-op">+</tt> <tt id="link-38" class="py-name"><a title="base.includes.appglobals.image
+base.includes.theme.image" class="py-name" href="#" onclick="return doclink('link-38', 'image', 'link-31');">image</a></tt><tt class="py-op">,</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-39" class="py-name" targets="Variable base.lib.drupy.DrupyPHP.GET=base.lib.drupy.DrupyPHP-module.html#GET"><a title="base.lib.drupy.DrupyPHP.GET" class="py-name" href="#" onclick="return doclink('link-39', 'GET', 'link-39');">GET</a></tt><tt class="py-op">[</tt><tt class="py-string">'q'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-op">{</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">        <tt class="py-string">'attributes'</tt><tt class="py-op">:</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line">          <tt class="py-op">{</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">            <tt class="py-string">'title'</tt><tt class="py-op">:</tt> <tt class="py-name">title</tt><tt class="py-op">,</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line">            <tt class="py-string">'query'</tt><tt class="py-op">:</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line">              <tt class="py-string">'sort='</tt> <tt class="py-op">+</tt> <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt> <tt class="py-op">+</tt> <tt class="py-string">'&amp;order='</tt> <tt class="py-op">+</tt> <tt class="py-name">rawurlencode</tt><tt class="py-op">(</tt><tt id="link-40" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-40', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'data'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line">              <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'query_string'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line">            <tt class="py-string">'html'</tt><tt class="py-op">:</tt> <tt class="py-name">TRUE</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line">          <tt class="py-op">}</tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line">      <tt class="py-op">}</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">    <tt class="py-op">)</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line">    <tt class="py-name">php</tt><tt class="py-op">.</tt><tt class="py-name">unset</tt><tt class="py-op">(</tt><tt id="link-41" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-41', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'field'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt id="link-42" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-42', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-43" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-43', 'cell', 'link-21');">cell</a></tt> </tt>
+</div><a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line"> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line"> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line"> </tt>
+<a name="cell"></a><div id="cell-def"><a name="L139"></a><tt class="py-lineno">139</tt> <a class="py-toggle" href="#" id="cell-toggle" onclick="return toggle('cell');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.includes.tablesort-module.html#cell">cell</a><tt class="py-op">(</tt><tt class="py-param">cell</tt><tt class="py-op">,</tt> <tt class="py-param">header</tt><tt class="py-op">,</tt> <tt class="py-param">ts</tt><tt class="py-op">,</tt> <tt class="py-param">i</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="cell-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="cell-expanded"><a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line"><tt class="py-docstring">   Format a table cell.</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line"><tt class="py-docstring">   Adds a class attribute to all cells in the currently active column.</tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line"><tt class="py-docstring">   @param cell</tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line"><tt class="py-docstring">     The cell to format.</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"><tt class="py-docstring">   @param header</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"><tt class="py-docstring">     An array of column headers in the format described in theme_table().</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"><tt class="py-docstring">   @param ts</tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line"><tt class="py-docstring">     The current table sort context as returned from hook_init().</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line"><tt class="py-docstring">   @param i</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line"><tt class="py-docstring">     The index of the cell's table column.</tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line"><tt class="py-docstring">   @return</tt> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line"><tt class="py-docstring">     A properly formatted cell, ready for _theme_table_cell().</tt> </tt>
+<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-44" class="py-name"><a title="base.lib.drupy.DrupyPHP.isset" class="py-name" href="#" onclick="return doclink('link-44', 'isset', 'link-22');">isset</a></tt><tt class="py-op">(</tt><tt id="link-45" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-45', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-name">i</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'data'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> <tt id="link-46" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-46', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-name">i</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'data'</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-name">ts</tt><tt class="py-op">[</tt><tt class="py-string">'name'</tt><tt class="py-op">]</tt> <tt class="py-keyword">and</tt> </tt>
+<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line">     <tt class="py-keyword">not</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-47" class="py-name"><a title="base.lib.drupy.DrupyPHP.empty" class="py-name" href="#" onclick="return doclink('link-47', 'empty', 'link-34');">empty</a></tt><tt class="py-op">(</tt><tt id="link-48" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-48', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-name">i</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'field'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-49" class="py-name"><a title="base.lib.drupy.DrupyPHP.is_array" class="py-name" href="#" onclick="return doclink('link-49', 'is_array', 'link-20');">is_array</a></tt><tt class="py-op">(</tt><tt id="link-50" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-50', 'cell', 'link-21');">cell</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-51" class="py-name"><a title="base.lib.drupy.DrupyPHP.isset" class="py-name" href="#" onclick="return doclink('link-51', 'isset', 'link-22');">isset</a></tt><tt class="py-op">(</tt><tt id="link-52" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-52', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'class'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line">        <tt id="link-53" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-53', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'class'</tt><tt class="py-op">]</tt> <tt class="py-op">+=</tt> <tt class="py-string">' active'</tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line">      <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line">        <tt id="link-54" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-54', 'cell', 'link-21');">cell</a></tt><tt class="py-op">[</tt><tt class="py-string">'class'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-string">'active'</tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line">      <tt id="link-55" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-55', 'cell', 'link-21');">cell</a></tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt><tt class="py-string">'data'</tt><tt class="py-op">:</tt> <tt id="link-56" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-56', 'cell', 'link-21');">cell</a></tt><tt class="py-op">,</tt> <tt class="py-string">'class'</tt><tt class="py-op">:</tt> <tt class="py-string">'active'</tt><tt class="py-op">}</tt> </tt>
+<a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt id="link-57" class="py-name"><a title="base.includes.tablesort.cell" class="py-name" href="#" onclick="return doclink('link-57', 'cell', 'link-21');">cell</a></tt> </tt>
+</div><a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line"> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line"> </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"> </tt>
+<a name="get_querystring"></a><div id="get_querystring-def"><a name="L169"></a><tt class="py-lineno">169</tt> <a class="py-toggle" href="#" id="get_querystring-toggle" onclick="return toggle('get_querystring');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.includes.tablesort-module.html#get_querystring">get_querystring</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="get_querystring-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="get_querystring-expanded"><a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line"><tt class="py-docstring">   Compose a query string to append to table sorting requests.</tt> </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line"><tt class="py-docstring">   @return</tt> </tt>
+<a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line"><tt class="py-docstring">     A query string that consists of all components of the current page request</tt> </tt>
+<a name="L175"></a><tt class="py-lineno">175</tt>  <tt class="py-line"><tt class="py-docstring">     except for those pertaining to table sorting.</tt> </tt>
+<a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-name">lib_common</tt><tt class="py-op">.</tt><tt id="link-58" class="py-name" targets="Function base.includes.common.drupal_query_string_encode()=base.includes.common-module.html#drupal_query_string_encode"><a title="base.includes.common.drupal_query_string_encode" class="py-name" href="#" onclick="return doclink('link-58', 'drupal_query_string_encode', 'link-58');">drupal_query_string_encode</a></tt><tt class="py-op">(</tt> </tt>
+<a name="L178"></a><tt class="py-lineno">178</tt>  <tt class="py-line">    <tt class="py-name">_REQUEST</tt><tt class="py-op">,</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-59" class="py-name" targets="Function base.lib.drupy.DrupyPHP.array_merge()=base.lib.drupy.DrupyPHP-module.html#array_merge"><a title="base.lib.drupy.DrupyPHP.array_merge" class="py-name" href="#" onclick="return doclink('link-59', 'array_merge', 'link-59');">array_merge</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-string">'q'</tt><tt class="py-op">,</tt> <tt class="py-string">'sort'</tt><tt class="py-op">,</tt> <tt class="py-string">'order'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-60" class="py-name" targets="Function base.lib.drupy.DrupyPHP.array_keys()=base.lib.drupy.DrupyPHP-module.html#array_keys"><a title="base.lib.drupy.DrupyPHP.array_keys" class="py-name" href="#" onclick="return doclink('link-60', 'array_keys', 'link-60');">array_keys</a></tt><tt class="py-op">(</tt><tt class="py-name">_COOKIE</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L179"></a><tt class="py-lineno">179</tt>  <tt class="py-line"> </tt>
+<a name="L180"></a><tt class="py-lineno">180</tt>  <tt class="py-line"> </tt>
+<a name="L181"></a><tt class="py-lineno">181</tt>  <tt class="py-line"> </tt>
+<a name="get_order"></a><div id="get_order-def"><a name="L182"></a><tt class="py-lineno">182</tt> <a class="py-toggle" href="#" id="get_order-toggle" onclick="return toggle('get_order');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.includes.tablesort-module.html#get_order">get_order</a><tt class="py-op">(</tt><tt class="py-param">headers</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="get_order-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="get_order-expanded"><a name="L183"></a><tt class="py-lineno">183</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
+<a name="L184"></a><tt class="py-lineno">184</tt>  <tt class="py-line"><tt class="py-docstring">   Determine the current sort criterion.</tt> </tt>
+<a name="L185"></a><tt class="py-lineno">185</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L186"></a><tt class="py-lineno">186</tt>  <tt class="py-line"><tt class="py-docstring">   @param headers</tt> </tt>
+<a name="L187"></a><tt class="py-lineno">187</tt>  <tt class="py-line"><tt class="py-docstring">     An array of column headers in the format described in theme_table().</tt> </tt>
+<a name="L188"></a><tt class="py-lineno">188</tt>  <tt class="py-line"><tt class="py-docstring">   @return</tt> </tt>
+<a name="L189"></a><tt class="py-lineno">189</tt>  <tt class="py-line"><tt class="py-docstring">     An associative array describing the criterion, containing the keys:</tt> </tt>
+<a name="L190"></a><tt class="py-lineno">190</tt>  <tt class="py-line"><tt class="py-docstring">     - "name": The localized title of the table column.</tt> </tt>
+<a name="L191"></a><tt class="py-lineno">191</tt>  <tt class="py-line"><tt class="py-docstring">     - "sql": The name of the database field to sort on.</tt> </tt>
+<a name="L192"></a><tt class="py-lineno">192</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L193"></a><tt class="py-lineno">193</tt>  <tt class="py-line">  <tt class="py-name">order</tt> <tt class="py-op">=</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-61" class="py-name"><a title="base.lib.drupy.DrupyPHP.GET" class="py-name" href="#" onclick="return doclink('link-61', 'GET', 'link-39');">GET</a></tt><tt class="py-op">[</tt><tt class="py-string">'order'</tt><tt class="py-op">]</tt> <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-62" class="py-name"><a title="base.lib.drupy.DrupyPHP.isset" class="py-name" href="#" onclick="return doclink('link-62', 'isset', 'link-22');">isset</a></tt><tt class="py-op">(</tt><tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-63" class="py-name"><a title="base.lib.drupy.DrupyPHP.GET" class="py-name" href="#" onclick="return doclink('link-63', 'GET', 'link-39');">GET</a></tt><tt class="py-op">[</tt><tt class="py-string">'order'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-keyword">else</tt> <tt class="py-string">''</tt> </tt>
+<a name="L194"></a><tt class="py-lineno">194</tt>  <tt class="py-line">  <tt class="py-keyword">for</tt> <tt id="link-64" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-64', 'header', 'link-11');">header</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">headers</tt><tt class="py-op">:</tt> </tt>
+<a name="L195"></a><tt class="py-lineno">195</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-65" class="py-name"><a title="base.lib.drupy.DrupyPHP.isset" class="py-name" href="#" onclick="return doclink('link-65', 'isset', 'link-22');">isset</a></tt><tt class="py-op">(</tt><tt id="link-66" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-66', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-string">'data'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> <tt class="py-name">order</tt> <tt class="py-op">==</tt> <tt id="link-67" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-67', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-string">'data'</tt><tt class="py-op">]</tt><tt class="py-op">:</tt> </tt>
+<a name="L196"></a><tt class="py-lineno">196</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> <tt class="py-op">{</tt> </tt>
+<a name="L197"></a><tt class="py-lineno">197</tt>  <tt class="py-line">        <tt class="py-string">'name'</tt><tt class="py-op">:</tt> <tt id="link-68" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-68', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-string">'data'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> </tt>
+<a name="L198"></a><tt class="py-lineno">198</tt>  <tt class="py-line">        <tt class="py-string">'sql'</tt><tt class="py-op">:</tt> <tt id="link-69" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-69', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-string">'field'</tt><tt class="py-op">]</tt> <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-70" class="py-name"><a title="base.lib.drupy.DrupyPHP.isset" class="py-name" href="#" onclick="return doclink('link-70', 'isset', 'link-22');">isset</a></tt><tt class="py-op">(</tt><tt id="link-71" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-71', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-string">'field'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-keyword">else</tt> <tt class="py-string">''</tt> </tt>
+<a name="L199"></a><tt class="py-lineno">199</tt>  <tt class="py-line">      <tt class="py-op">}</tt> </tt>
+<a name="L200"></a><tt class="py-lineno">200</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-72" class="py-name"><a title="base.lib.drupy.DrupyPHP.isset" class="py-name" href="#" onclick="return doclink('link-72', 'isset', 'link-22');">isset</a></tt><tt class="py-op">(</tt><tt id="link-73" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-73', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> <tt class="py-op">(</tt><tt id="link-74" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-74', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-string">'asc'</tt> <tt class="py-keyword">or</tt> </tt>
+<a name="L201"></a><tt class="py-lineno">201</tt>  <tt class="py-line">       <tt id="link-75" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-75', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-string">'desc'</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L202"></a><tt class="py-lineno">202</tt>  <tt class="py-line">      <tt id="link-76" class="py-name" targets="Package base.sites.default=base.sites.default-module.html"><a title="base.sites.default" class="py-name" href="#" onclick="return doclink('link-76', 'default', 'link-76');">default</a></tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt> </tt>
+<a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line">        <tt class="py-string">'name'</tt><tt class="py-op">:</tt> <tt id="link-77" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-77', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-string">'data'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> </tt>
+<a name="L204"></a><tt class="py-lineno">204</tt>  <tt class="py-line">        <tt class="py-string">'sql'</tt><tt class="py-op">:</tt> <tt id="link-78" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-78', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-string">'field'</tt><tt class="py-op">]</tt> <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-79" class="py-name"><a title="base.lib.drupy.DrupyPHP.isset" class="py-name" href="#" onclick="return doclink('link-79', 'isset', 'link-22');">isset</a></tt><tt class="py-op">(</tt><tt id="link-80" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-80', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-string">'field'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> <tt class="py-keyword">else</tt> <tt class="py-string">''</tt> </tt>
+<a name="L205"></a><tt class="py-lineno">205</tt>  <tt class="py-line">      <tt class="py-op">}</tt> </tt>
+<a name="L206"></a><tt class="py-lineno">206</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-81" class="py-name"><a title="base.lib.drupy.DrupyPHP.isset" class="py-name" href="#" onclick="return doclink('link-81', 'isset', 'link-22');">isset</a></tt><tt class="py-op">(</tt><tt id="link-82" class="py-name"><a title="base.sites.default" class="py-name" href="#" onclick="return doclink('link-82', 'default', 'link-76');">default</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L207"></a><tt class="py-lineno">207</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-83" class="py-name"><a title="base.sites.default" class="py-name" href="#" onclick="return doclink('link-83', 'default', 'link-76');">default</a></tt> </tt>
+<a name="L208"></a><tt class="py-lineno">208</tt>  <tt class="py-line">  <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L209"></a><tt class="py-lineno">209</tt>  <tt class="py-line">    <tt class="py-comment"># The first column specified is initial 'order by' field unless otherwise</tt> </tt>
+<a name="L210"></a><tt class="py-lineno">210</tt>  <tt class="py-line">    <tt class="py-comment"># specified</tt> </tt>
+<a name="L211"></a><tt class="py-lineno">211</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-84" class="py-name"><a title="base.lib.drupy.DrupyPHP.is_array" class="py-name" href="#" onclick="return doclink('link-84', 'is_array', 'link-20');">is_array</a></tt><tt class="py-op">(</tt><tt class="py-name">headers</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L212"></a><tt class="py-lineno">212</tt>  <tt class="py-line">      <tt class="py-name">headers</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> <tt class="py-op">+=</tt> <tt class="py-op">{</tt><tt class="py-string">'data'</tt><tt class="py-op">:</tt> <tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-string">'field'</tt><tt class="py-op">:</tt> <tt class="py-name">None</tt><tt class="py-op">}</tt> </tt>
+<a name="L213"></a><tt class="py-lineno">213</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> <tt class="py-op">{</tt><tt class="py-string">'name'</tt><tt class="py-op">:</tt> <tt class="py-name">headers</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'data'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-string">'sql'</tt><tt class="py-op">:</tt> <tt class="py-name">headers</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'field'</tt><tt class="py-op">]</tt><tt class="py-op">}</tt> </tt>
+<a name="L214"></a><tt class="py-lineno">214</tt>  <tt class="py-line">    <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L215"></a><tt class="py-lineno">215</tt>  <tt class="py-line">      <tt class="py-keyword">return</tt> <tt class="py-op">{</tt><tt class="py-string">'name'</tt><tt class="py-op">:</tt> <tt class="py-name">headers</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">}</tt> </tt>
+</div><a name="L216"></a><tt class="py-lineno">216</tt>  <tt class="py-line"> </tt>
+<a name="L217"></a><tt class="py-lineno">217</tt>  <tt class="py-line"> </tt>
+<a name="L218"></a><tt class="py-lineno">218</tt>  <tt class="py-line"> </tt>
+<a name="get_sort"></a><div id="get_sort-def"><a name="L219"></a><tt class="py-lineno">219</tt> <a class="py-toggle" href="#" id="get_sort-toggle" onclick="return toggle('get_sort');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="base.includes.tablesort-module.html#get_sort">get_sort</a><tt class="py-op">(</tt><tt class="py-param">headers</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="get_sort-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="get_sort-expanded"><a name="L220"></a><tt class="py-lineno">220</tt>  <tt class="py-line">  <tt class="py-docstring">"""</tt> </tt>
+<a name="L221"></a><tt class="py-lineno">221</tt>  <tt class="py-line"><tt class="py-docstring">   Determine the current sort direction.</tt> </tt>
+<a name="L222"></a><tt class="py-lineno">222</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L223"></a><tt class="py-lineno">223</tt>  <tt class="py-line"><tt class="py-docstring">   @param headers</tt> </tt>
+<a name="L224"></a><tt class="py-lineno">224</tt>  <tt class="py-line"><tt class="py-docstring">     An array of column headers in the format described in theme_table().</tt> </tt>
+<a name="L225"></a><tt class="py-lineno">225</tt>  <tt class="py-line"><tt class="py-docstring">   @return</tt> </tt>
+<a name="L226"></a><tt class="py-lineno">226</tt>  <tt class="py-line"><tt class="py-docstring">     The current sort direction ("asc" or "desc").</tt> </tt>
+<a name="L227"></a><tt class="py-lineno">227</tt>  <tt class="py-line"><tt class="py-docstring">  """</tt> </tt>
+<a name="L228"></a><tt class="py-lineno">228</tt>  <tt class="py-line">  <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-85" class="py-name"><a title="base.lib.drupy.DrupyPHP.isset" class="py-name" href="#" onclick="return doclink('link-85', 'isset', 'link-22');">isset</a></tt><tt class="py-op">(</tt><tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-86" class="py-name"><a title="base.lib.drupy.DrupyPHP.GET" class="py-name" href="#" onclick="return doclink('link-86', 'GET', 'link-39');">GET</a></tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L229"></a><tt class="py-lineno">229</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-string">'desc'</tt> <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-87" class="py-name"><a title="base.lib.drupy.DrupyPHP.GET" class="py-name" href="#" onclick="return doclink('link-87', 'GET', 'link-39');">GET</a></tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-string">'desc'</tt><tt class="py-op">)</tt>  <tt class="py-keyword">else</tt> <tt class="py-string">'asc'</tt><tt class="py-op">;</tt> </tt>
+<a name="L230"></a><tt class="py-lineno">230</tt>  <tt class="py-line">  <tt class="py-comment"># User has not specified a sort. Use default if specified; otherwise use</tt> </tt>
+<a name="L231"></a><tt class="py-lineno">231</tt>  <tt class="py-line">  <tt class="py-comment"># "asc".</tt> </tt>
+<a name="L232"></a><tt class="py-lineno">232</tt>  <tt class="py-line">  <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L233"></a><tt class="py-lineno">233</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt id="link-88" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-88', 'header', 'link-11');">header</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">headers</tt><tt class="py-op">:</tt> </tt>
+<a name="L234"></a><tt class="py-lineno">234</tt>  <tt class="py-line">      <tt class="py-keyword">if</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-89" class="py-name"><a title="base.lib.drupy.DrupyPHP.is_array" class="py-name" href="#" onclick="return doclink('link-89', 'is_array', 'link-20');">is_array</a></tt><tt class="py-op">(</tt><tt id="link-90" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-90', 'header', 'link-11');">header</a></tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> <tt class="py-name">php</tt><tt class="py-op">.</tt><tt id="link-91" class="py-name" targets="Function base.lib.drupy.DrupyPHP.array_key_exists()=base.lib.drupy.DrupyPHP-module.html#array_key_exists"><a title="base.lib.drupy.DrupyPHP.array_key_exists" class="py-name" href="#" onclick="return doclink('link-91', 'array_key_exists', 'link-91');">array_key_exists</a></tt><tt class="py-op">(</tt><tt class="py-string">'sort'</tt><tt class="py-op">,</tt> <tt id="link-92" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-92', 'header', 'link-11');">header</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L235"></a><tt class="py-lineno">235</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt id="link-93" class="py-name"><a title="base.includes.tablesort.header
+base.lib.drupy.DrupyPHP.__Output.header
+base.lib.drupy.DrupyPHP.header" class="py-name" href="#" onclick="return doclink('link-93', 'header', 'link-11');">header</a></tt><tt class="py-op">[</tt><tt class="py-string">'sort'</tt><tt class="py-op">]</tt> </tt>
+<a name="L236"></a><tt class="py-lineno">236</tt>  <tt class="py-line">  <tt class="py-keyword">return</tt> <tt class="py-string">'asc'</tt> </tt>
+</div><a name="L237"></a><tt class="py-lineno">237</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue May 17 14:04:00 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
