@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>base.includes.tablesort</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="base-module.html">Package&nbsp;base</a> ::
+        <a href="base.includes-module.html">Package&nbsp;includes</a> ::
+        Module&nbsp;tablesort
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module tablesort</h1><p class="nomargin-top"><span class="codelink"><a href="base.includes.tablesort-pysrc.html">source&nbsp;code</a></span></p>
+Functions to aid in the creation of sortable tables.
+
+All tables created with a call to lib_theme.theme('table') have the option of
+having column headers that the user can click on to sort the table by that
+column.
+
+<hr />
+<div class="fields">      <dl><dt>See Also:</dt>
+        <dd>
+          <a href='http://drupy.net'>Drupy Homepage</a>,
+          <a href='http://drupal.org'>Drupal Homepage</a>
+        </dd>
+      </dl>
+      <strong>Notes:</strong>
+      <ul class="nomargin-top">
+        <li>
+        Drupy is a port of the Drupal project.
+        </li>
+        <li>
+        This file was ported from Drupal's includes/tablesort.inc
+        </li>
+        <li>
+        License:
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to:
+  
+  The Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor,
+  Boston, MA  02110-1301,
+  USA
+        </li>
+      </ul>
+      <p><strong>Author:</strong>
+        Fernando P. Garcia
+      </p>
+      <p><strong>Copyright:</strong>
+        2008 Fernando P. Garcia
+      </p>
+      <p><strong>Contact:</strong>
+        fernando at develcuy dot com
+      </p>
+      <p><strong>Version:</strong>
+        0.1
+      </p>
+</div><!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Functions</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Functions"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="hook_init"></a><span class="summary-sig-name">hook_init</span>(<span class="summary-sig-arg">header</span>)</span><br />
+      Initialize the table sort context.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.tablesort-pysrc.html#hook_init">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.tablesort-module.html#sql" class="summary-sig-name">sql</a>(<span class="summary-sig-arg">header</span>,
+        <span class="summary-sig-arg">before</span>=<span class="summary-sig-default">''</span>)</span><br />
+      Create an SQL sort clause.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.tablesort-pysrc.html#sql">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.tablesort-module.html#header" class="summary-sig-name">header</a>(<span class="summary-sig-arg">cell</span>,
+        <span class="summary-sig-arg">header</span>,
+        <span class="summary-sig-arg">ts</span>)</span><br />
+      Format a column header.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.tablesort-pysrc.html#header">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.tablesort-module.html#cell" class="summary-sig-name">cell</a>(<span class="summary-sig-arg">cell</span>,
+        <span class="summary-sig-arg">header</span>,
+        <span class="summary-sig-arg">ts</span>,
+        <span class="summary-sig-arg">i</span>)</span><br />
+      Format a table cell.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.tablesort-pysrc.html#cell">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.tablesort-module.html#get_querystring" class="summary-sig-name">get_querystring</a>()</span><br />
+      Compose a query string to append to table sorting requests.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.tablesort-pysrc.html#get_querystring">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.tablesort-module.html#get_order" class="summary-sig-name">get_order</a>(<span class="summary-sig-arg">headers</span>)</span><br />
+      Determine the current sort criterion.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.tablesort-pysrc.html#get_order">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="base.includes.tablesort-module.html#get_sort" class="summary-sig-name">get_sort</a>(<span class="summary-sig-arg">headers</span>)</span><br />
+      Determine the current sort direction.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="base.includes.tablesort-pysrc.html#get_sort">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES ==================== -->
+<a name="section-Variables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Variables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="__version__"></a><span class="summary-name">__version__</span> = <code title="&quot;$Revision: 1 &quot;">&quot;$Revision: 1 &quot;</code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Function Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-FunctionDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="sql"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">sql</span>(<span class="sig-arg">header</span>,
+        <span class="sig-arg">before</span>=<span class="sig-default">''</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.tablesort-pysrc.html#sql">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Create an SQL sort clause.
+
+This def produces the ORDER BY clause to insert in your SQL queries,
+assuring that the returned database table rows match the sort order chosen
+by the user.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>header</code></strong> - An array of column headers in the format described in theme_table().</li>
+        <li><strong class="pname"><code>before</code></strong> - An SQL string to insert after ORDER BY and before the table sorting code.
+  Useful for sorting by important attributes like "sticky" first.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An SQL string to append to the end of a query.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="header"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">header</span>(<span class="sig-arg">cell</span>,
+        <span class="sig-arg">header</span>,
+        <span class="sig-arg">ts</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.tablesort-pysrc.html#header">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Format a column header.
+
+If the cell in question is the column header for the current sort criterion,
+it gets special formatting. All possible sort criteria become links.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>cell</code></strong> - The cell to format.</li>
+        <li><strong class="pname"><code>header</code></strong> - An array of column headers in the format described in theme_table().</li>
+        <li><strong class="pname"><code>ts</code></strong> - The current table sort context as returned from hook_init().</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>A properly formatted cell, ready for _theme_table_cell().</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="cell"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">cell</span>(<span class="sig-arg">cell</span>,
+        <span class="sig-arg">header</span>,
+        <span class="sig-arg">ts</span>,
+        <span class="sig-arg">i</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.tablesort-pysrc.html#cell">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Format a table cell.
+
+Adds a class attribute to all cells in the currently active column.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>cell</code></strong> - The cell to format.</li>
+        <li><strong class="pname"><code>header</code></strong> - An array of column headers in the format described in theme_table().</li>
+        <li><strong class="pname"><code>ts</code></strong> - The current table sort context as returned from hook_init().</li>
+        <li><strong class="pname"><code>i</code></strong> - The index of the cell's table column.</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>A properly formatted cell, ready for _theme_table_cell().</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_querystring"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_querystring</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.tablesort-pysrc.html#get_querystring">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Compose a query string to append to table sorting requests.
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>A query string that consists of all components of the current page request
+  except for those pertaining to table sorting.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_order"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_order</span>(<span class="sig-arg">headers</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.tablesort-pysrc.html#get_order">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Determine the current sort criterion.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>headers</code></strong> - An array of column headers in the format described in theme_table().</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>An associative array describing the criterion, containing the keys:
+  - "name": The localized title of the table column.
+  - "sql": The name of the database field to sort on.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_sort"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_sort</span>(<span class="sig-arg">headers</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="base.includes.tablesort-pysrc.html#get_sort">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  Determine the current sort direction.
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>headers</code></strong> - An array of column headers in the format described in theme_table().</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>The current sort direction ("asc" or "desc").</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="base-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue May 17 14:03:58 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
